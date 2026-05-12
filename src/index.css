@@ -1,0 +1,393 @@
+@import "tailwindcss";
+
+/* ================= CSS VARIABLES (Base fallback) ================= */
+:root {
+  --brand: #1ABC7F;
+}
+body{
+  background: var(--main);
+  /* overflow: hidden; */
+}
+.form-border{
+  border: 1px solid var(--formButtonBackground);
+}
+/* ================= PAGE ================= */
+.page-theme {
+  background: var(--background1);
+  color: var(--paragraph);
+
+  @apply min-h-screen w-full
+         px-4 py-6
+         md:px-10 md:py-10
+         lg:px-20 lg:py-14;
+}
+.home-page-theme{
+  background: var(--background1);
+  color: var(--paragraph);
+
+  @apply min-h-screen w-full
+         px-2 py-4
+}
+
+/* ================= HEADINGS ================= */
+.h1-theme {
+  color: var(--h1-heading1);
+  @apply font-bold text-xl sm:text-2xl md:text-3xl lg:text-4xl;
+}
+
+.h2-theme {
+  color: var(--h1-heading2);
+  @apply font-semibold text-lg sm:text-xl md:text-2xl;
+}
+
+.h3-theme {
+  color: var(--h1-heading2);
+  @apply font-medium text-base sm:text-lg md:text-xl;
+}
+
+.text-theme {
+  color: var(--paragraph);
+  /* font-weight: bold; */
+  @apply text-sm sm:text-base md:text-lg;
+}
+.text-theme2 {
+  color: var(--paragraph);
+  /* font-weight: bold; */
+  @apply text-sm sm:text-base md:text-sm;
+}
+.text-white-theme {
+  color: white;
+  @apply text-sm sm:text-base md:text-lg;
+}
+
+/* ================= CARD ================= */
+.card-theme {
+  background: var(--cardBackground1);
+  /* border: 1px solid var(--stroke); */
+  @apply rounded-xl shadow-lg transition-all duration-300
+         p-5 md:p-5 lg:p-5;
+}
+.sidebar-theme {
+  background: var(--cardBackground2);
+  overflow: hidden;
+  overflow-y: scroll;
+  /* border: 1px solid var(--stroke); */
+  @apply rounded-xl shadow-lg transition-all duration-300
+         p-2 md:p-2 lg:p-2;
+}
+.sidebar-child-theme {
+  background: var(--cardBackground1);
+  border: 2px solid var(--formButtonBackground);
+  /* border: 1px solid var(--stroke); */
+  @apply rounded-xl  transition-all duration-300
+         p-5 md:p-5 lg:p-5;
+}
+.right-theme{
+   background: var(--cardBackground2);
+}
+
+
+.card-theme:hover {
+  /* transform: translateY(-2px); */
+  box-shadow: 0 10px 30px color-mix(in srgb, var(--cardHighlight) 30%, transparent);
+}
+
+/* ================= INPUT ================= */
+.input-theme {
+  appearance: none;
+  -webkit-appearance: none;
+  outline: none;
+  box-shadow: none;
+  box-sizing: border-box;
+
+  background: var(--formInput);
+  color: var(--paragraph);
+  font-weight: 600;
+
+  @apply w-full rounded-lg transition-all duration-200
+         px-3 py-2 text-sm
+         sm:px-4 sm:py-2.5 sm:text-base
+         md:px-5 md:py-3 md:text-base
+         lg:px-6 lg:py-3.5 lg:text-lg;
+}
+.searchBar-theme {
+  appearance: none;
+  -webkit-appearance: none;
+  outline: none;
+  box-shadow: none;
+  box-sizing: border-box;
+border: 2px solid var(--formButtonBackground);
+  background: var(--formInput);
+  color: var(--paragraph);
+  font-weight: 600;
+
+  @apply w-full rounded-lg transition-all duration-200
+         px-3 py-2 text-sm
+         sm:px-4 sm:py-2.5 sm:text-base
+         md:px-5 md:py-3 md:text-base
+         lg:px-6 lg:py-3.5 lg:text-lg;
+}
+.input-theme-error {
+  appearance: none;
+  -webkit-appearance: none;
+  outline: none;
+  box-shadow: none;
+  box-sizing: border-box;
+  /* border: 2px solid var(--stroke); add default border */
+  background: var(--formInput);
+  color: var(--paragraph);
+  font-weight: 600;
+    border: 2px solid red; /* add full border */
+  @apply w-full rounded-lg transition-all duration-200
+         px-3 py-2 text-sm
+         sm:px-4 sm:py-2.5 sm:text-base
+         md:px-5 md:py-3 md:text-base
+         lg:px-6 lg:py-3.5 lg:text-lg;
+}
+.searchBar-theme-error {
+  appearance: none;
+  -webkit-appearance: none;
+  outline: none;
+  box-shadow: none;
+  box-sizing: border-box;
+  /* border: 2px solid var(--stroke); add default border */
+  background: var(--formInput);
+  color: var(--paragraph);
+  font-weight: 600;
+    border: 2px solid red; /* add full border */
+  @apply w-full rounded-lg transition-all duration-200
+         px-3 py-2 text-sm
+         sm:px-4 sm:py-2.5 sm:text-base
+         md:px-5 md:py-3 md:text-base
+         lg:px-6 lg:py-3.5 lg:text-lg;
+}
+.searchBar-theme:focus {
+  border-color: var(--formButtonBackground);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--paragraph) 10%, transparent);
+}
+.searchBar-theme-error:focus {
+    border: 2px solid red; /* add full border */
+  box-shadow: 0 0 0 2px color-mix(in srgb, transparent);
+}
+
+/* Remove autofill yellow */
+.searchBar-theme:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 1000px var(--formInput) inset !important;
+  -webkit-text-fill-color: var(--paragraph) !important;
+  border-color: var(--stroke) !important;
+}
+
+.input-theme:focus {
+  border-color: var(--formButtonBackground);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--paragraph) 30%, transparent);
+}
+.input-theme-error:focus {
+    border: 2px solid red; /* add full border */
+  box-shadow: 0 0 0 2px color-mix(in srgb, transparent);
+}
+
+/* Remove autofill yellow */
+.input-theme:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 1000px var(--formInput) inset !important;
+  -webkit-text-fill-color: var(--paragraph) !important;
+  border-color: var(--stroke) !important;
+}
+
+/* ================= BUTTON ================= */
+.btn-theme {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+cursor: pointer;
+  background: var(--buttonBackground);
+  color: var(--buttonText);
+
+  @apply w-full rounded-lg font-medium transition-all duration-300
+         px-4 py-2 text-sm
+         sm:px-5 sm:py-2.5 sm:text-base
+         md:px-6 md:py-3 md:text-base
+         lg:px-7 lg:py-3.5 lg:text-lg;
+}
+
+.btn-theme:hover {
+  /* transform: translateY(-1px); */
+  box-shadow: 0 6px 20px color-mix(in srgb, var(--buttonBackground) 40%, transparent);
+}
+
+/* ================= FORM CARD ================= */
+.form-card {
+  background: var(--formBackground);
+  @apply flex flex-col  justify-center gap-3 p-4 rounded-lg w-full;
+}
+
+/* ================= FORM BUTTON ================= */
+.social-btn-theme {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+border: 1px solid var(--formButtonBackground);
+  background: var(--formInput);
+  color: var(--buttonText);
+  cursor: pointer;
+
+  @apply w-full rounded-lg font-medium transition-all duration-300
+         px-4 py-2 text-sm
+         sm:px-5 sm:py-2.5 sm:text-base
+         md:px-6 md:py-3 md:text-base
+         lg:px-7 lg:py-3.5 lg:text-lg;
+}
+.form-btn-theme {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+cursor: pointer;
+  background: var(--formButtonBackground);
+  color: var(--buttonTextOpposite);
+
+  @apply w-full rounded-lg font-medium transition-all duration-300
+         px-4 py-2 text-sm
+         sm:px-5 sm:py-2.5 sm:text-base
+         md:px-6 md:py-3 md:text-base
+         lg:px-7 lg:py-3.5 lg:text-lg;
+}
+.sidebar-btn-theme {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+cursor: pointer;
+border: 2px solid var(--formButtonBackground);
+  /* background: var(--formButtonBackground); */
+  color: var(--buttonText);
+
+  @apply w-full rounded-lg font-medium transition-all duration-300
+         px-4 py-2 text-sm
+         sm:px-5 sm:py-2.5 sm:text-base
+         md:px-6 md:py-3 md:text-base
+         lg:px-7 lg:py-3.5 lg:text-lg;
+}
+.form-btn-disabled-theme {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+cursor: not-allowed;
+  background: var(--formButtonBackground);
+  color: var(--buttonTextOpposite);
+
+  @apply w-full rounded-lg font-medium transition-all duration-300
+         px-4 py-2 text-sm
+         sm:px-5 sm:py-2.5 sm:text-base
+         md:px-6 md:py-3 md:text-base
+         lg:px-7 lg:py-3.5 lg:text-lg;
+}
+.form-btn-disabled-theme2 {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+cursor: not-allowed;
+  background: var(--formButtonBackground);
+  opacity: 0.4; /* 40% opacity */
+  color: var(--buttonTextOpposite);
+
+  @apply w-full rounded-lg font-medium transition-all duration-300
+         px-4 py-2 text-sm
+         sm:px-5 sm:py-2.5 sm:text-base
+         md:px-6 md:py-3 md:text-base
+         lg:px-7 lg:py-3.5 lg:text-lg;
+}
+.form-btn-inactive-theme {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  background: transparent;
+  cursor: pointer;
+  color: var(--buttonText);
+  @apply w-full rounded-lg font-medium transition-all duration-300
+         px-4 py-2 text-sm
+         sm:px-5 sm:py-2.5 sm:text-base
+         md:px-6 md:py-3 md:text-base
+         lg:px-7 lg:py-3.5 lg:text-lg;
+}
+
+.form-btn-theme:hover {
+  /* transform: translateY(-1px); */
+  box-shadow: 0 6px 20px color-mix(in srgb, var(--formButtonBackground) 40%, transparent);
+}
+
+/* ================= LINKS ================= */
+.link-theme {
+  color: var(--linksText);
+  cursor: pointer;
+  @apply underline underline-offset-2;
+}
+
+/* ================= BADGE ================= */
+.badge-theme {
+  background: var(--cardHighlight);
+  color: var(--cardTagText);
+  @apply px-3 py-1 rounded-full text-xs font-semibold;
+}
+
+/* ================= UTILITIES ================= */
+.border-theme {
+  border-color: var(--stroke);
+}
+
+.bg-theme-main {
+  background: var(--main);
+}
+
+.text-brand {
+  color: var(--brand);
+}
+
+/* Smooth theme transition */
+* {
+  transition: background-color .3s ease, border-color .3s ease, color .3s ease;
+}
+/* ================= SCROLLBAR (THEME BASED) ================= */
+
+.login-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: var(--formButtonBackground) transparent;
+}
+
+/* Chrome, Edge, Safari */
+.login-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.login-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.login-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--formButtonBackground);
+  border-radius: 999px;
+  transition: background 0.3s ease;
+}
+
+.login-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--formButtonBackground) 80%, black);
+}
+
+.home-card-container{
+     background: var(--cardBackground1);
+     border-radius: 10px;
+     border: 2px solid var(--cardBackground2);
+     margin-left: 10px;
+     
+}
+.home-card-theme {
+  background: var(--cardBackground2);
+  /* margin: 5px; */
+  /* border: 1px solid var(--stroke); */
+  @apply rounded-xl shadow-lg transition-all duration-300
+         p-5 md:p-5 lg:p-5;
+}
