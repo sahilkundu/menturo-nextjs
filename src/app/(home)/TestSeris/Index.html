@@ -1,0 +1,1968 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Modern LMS Dashboard</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="index.css">
+
+
+</head>
+
+<body>
+
+    <!-- ========== MOBILE SIDEBAR DRAWER - WORKING ========== -->
+
+
+
+    <!-- Sidebar HTML -->
+    <div id="mobileDrawer" class="mobile-sidebar-drawer">
+        <div class="p-5">
+            <div class="flex justify-between items-center mb-6 pb-3 border-b border-gray-100 dark:border-gray-800">
+                <div class="flex items-center gap-2">
+                    <span class="text-2xl">🎓</span>
+                    <span class="font-black text-xl dark-text">Exam Mitra</span>
+                </div>
+                <div class="close-drawer-btn" id="closeDrawerBtn">✕</div>
+            </div>
+
+            <div class="space-y-1.5">
+                <button
+                    class="w-full h-11 rounded-2xl bg-gradient-to-r from-violet-50 to-violet-100 text-violet-700 text-sm font-semibold flex items-center gap-3 px-4">
+                    <span>📊</span> Dashboard
+                </button>
+                <button
+                    class="w-full h-11 rounded-2xl hover:bg-gray-50 text-gray-600 text-sm font-medium flex items-center gap-3 px-4">
+                    <span>📁</span> My Course
+                </button>
+                <button
+                    class="w-full h-11 rounded-2xl hover:bg-gray-50 text-gray-600 text-sm font-medium flex items-center gap-3 px-4">
+                    <span>💳</span> Subscription
+                </button>
+                <button
+                    class="w-full h-11 rounded-2xl hover:bg-gray-50 text-gray-600 text-sm font-medium flex items-center gap-3 px-4">
+                    <span>📘</span> Attendence
+                </button>
+                <button
+                    class="w-full h-11 rounded-2xl hover:bg-gray-50 text-gray-600 text-sm font-medium flex items-center gap-3 px-4">
+                    <span>📖</span> Book My Library
+                </button>
+                <button
+                    class="w-full h-11 rounded-2xl hover:bg-gray-50 text-gray-600 text-sm font-medium flex items-center gap-3 px-4">
+                    <span>⚙️</span> Settings
+                </button>
+            </div>
+
+            <div class="my-6 border-t border-gray-100"></div>
+
+            <div>
+                <div class="flex items-center gap-2 mb-4">
+                    <span class="text-gray-400 text-xs">⋯</span>
+                    <h3 class="text-[11px] font-bold text-gray-400 uppercase">Others</h3>
+                </div>
+                <div class="space-y-1.5">
+                    <button
+                        class="w-full h-11 rounded-2xl hover:bg-gray-50 text-gray-600 text-sm font-medium flex items-center gap-3 px-4">
+                        <span>🏆</span> Certificates
+                    </button>
+                    <button
+                        class="w-full h-11 rounded-2xl bg-gradient-to-r from-violet-50 to-violet-100 text-violet-700 font-semibold flex items-center gap-3 px-4">
+                        <span>📋</span> Review Center
+                    </button>
+                    <button
+                        class="w-full h-11 rounded-2xl hover:bg-gray-50 text-gray-600 text-sm font-medium flex items-center gap-3 px-4">
+                        <span>❓</span> Question Banks
+                    </button>
+                </div>
+            </div>
+
+            <div class="mt-8 rounded-2xl bg-gradient-to-br from-gray-50 to-gray-100/50 p-5">
+                <div
+                    class="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center text-white text-xl">
+                    ✦</div>
+                <h3 class="font-extrabold text-gray-800 text-base mt-2">AI Powered LMS</h3>
+                <p class="text-xs text-gray-500 mt-1">Manage students and courses.</p>
+                <button class="w-full mt-4 h-10 rounded-xl bg-gray-900 text-white text-sm font-semibold">🚀
+                    Upgrade</button>
+            </div>
+
+            <div class="mt-6 pt-3 text-center">
+                <p class="text-[10px] text-gray-300">© 2025 Exam Mitra</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="drawerOverlay" class="drawer-overlay"></div>
+
+
+    <!-- PROFILE BOTTOM SHEET (ADDED - new element for mobile) -->
+    <div id="profileBottomSheet" class="profile-bottom-sheet">
+        <div
+            class="sticky top-0 bg-white dark:bg-gray-900 p-4 border-b border-gray-100 dark:border-gray-800 rounded-t-3xl flex justify-between items-center">
+            <h3 class="font-semibold text-lg white-text" style="color: white !important;">Your Profile</h3>
+            <div class="close-sheet" id="closeSheetBtn">✕</div>
+        </div>
+        <div class="p-5">
+            <!-- Profile Info - Same as Right Panel -->
+            <div class="text-center">
+                <div class="w-24 h-24 rounded-full border-[5px] border-violet-600 p-1 mx-auto">
+                    <img src="https://i.pravatar.cc/100?img=12" class="w-full h-full rounded-full object-cover">
+                </div>
+                <h2 class="font-bold text-lg mt-4 dark-text" id="sheetUserName">Good Morning Aman</h2>
+                <p class="text-sm text-gray-500 mt-2 leading-6 dark-sub">Continue Your Journey And Achieve Target</p>
+                <div
+                    class="mt-4 p-4 rounded-2xl bg-gradient-to-br from-white to-gray-50/50 dark:bg-gray-800 border border-gray-100 shadow-sm">
+                    <div
+                        class="bg-violet-100 rounded-full px-3 py-1.5 text-xs font-semibold text-violet-700 inline-block">
+                        ⭐ Pro Member</div>
+                    <div
+                        class="bg-violet-100 rounded-full px-3 py-1.5 text-xs font-semibold text-violet-700 inline-block">
+                        ⭐ Your Rank</div>
+
+                </div>
+            </div>
+            <!-- Logout Button - Bottom Sheet ke andar, Active Users ke baad add karo -->
+
+            <div class="mt-6 pt-3 border-t border-gray-100 dark:border-gray-800">
+                <button id="logoutBtnMobile"
+                    class="w-full py-3 rounded-xl bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 font-semibold flex items-center justify-center gap-2 transition hover:bg-red-100 dark:hover:bg-red-900/30">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Logout
+                </button>
+            </div>
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-2 gap-3 mt-6">
+                <div class="rounded-2xl bg-violet-50 p-4">
+                    <p class="text-xs text-gray-500 mb-2">Total Users</p>
+                    <h2 class="text-2xl font-black text-violet-700">260</h2>
+                </div>
+                <div class="rounded-2xl bg-green-50 p-4">
+                    <p class="text-xs text-gray-500 mb-2">Online</p>
+                    <div class="flex items-center gap-2">
+                        <span class="w-3 h-3 rounded-full bg-green-500 animate-pulse"></span>
+                        <h2 class="text-2xl font-black text-green-600">26</h2>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Active Users List - Same as Right Panel -->
+            <div class="mt-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="font-semibold dark-text">Active Users</h3>
+                    <button class="text-sm text-violet-600 font-medium">View All</button>
+                </div>
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="relative">
+                                <img src="https://i.pravatar.cc/50?img=31" class="w-11 h-11 rounded-full">
+                                <span
+                                    class="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-green-500 border-2 border-white"></span>
+                            </div>
+                            <div>
+                                <h4 class="text-sm font-medium dark-text">Ravi Kumar</h4>
+                                <p class="text-xs text-gray-400 dark-sub">UI Designer</p>
+                            </div>
+                        </div>
+                        <button class="text-xs bg-violet-100 text-violet-700 px-3 py-2 rounded-full">Active</button>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="relative">
+                                <img src="https://i.pravatar.cc/50?img=18" class="w-11 h-11 rounded-full">
+                                <span
+                                    class="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-green-500 border-2 border-white"></span>
+                            </div>
+                            <div>
+                                <h4 class="text-sm font-medium dark-text">Akash Singh</h4>
+                                <p class="text-xs text-gray-400 dark-sub">Frontend Developer</p>
+                            </div>
+                        </div>
+                        <button class="text-xs bg-violet-100 text-violet-700 px-3 py-2 rounded-full">Active</button>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="relative">
+                                <img src="https://i.pravatar.cc/50?img=41" class="w-11 h-11 rounded-full">
+                                <span
+                                    class="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-green-500 border-2 border-white"></span>
+                            </div>
+                            <div>
+                                <h4 class="text-sm font-medium dark-text">Aman Deep</h4>
+                                <p class="text-xs text-gray-400 dark-sub">Student</p>
+                            </div>
+                        </div>
+                        <button class="text-xs bg-violet-100 text-violet-700 px-3 py-2 rounded-full">Active</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="sheetOverlay" class="sheet-overlay"></div>
+
+
+    <!-- MAIN -->
+    <div class="w-full min-h-screen p-3 lg:p-4">
+
+        <div class="">
+
+            <div class="flex gap-4 items-start">
+
+                <!-- SIDEBAR (ORIGINAL - UNCHANGED) -->
+
+
+                <!-- LEFT MENU (ORIGINAL) -->
+                <div
+                    class="hidden xl:block w-[260px] rounded-[3px] bg-white dark-card main-shadow p-5 sticky top-4 h-[96vh] overflow-auto transition-all duration-300">
+
+                    <!-- Header -->
+
+                    <!-- Main Menu -->
+                    <div class="space-y-1.5">
+
+                        <button
+                            class="w-full h-11 rounded-2xl bg-gradient-to-r from-violet-50 to-violet-100 text-violet-700 text-sm font-semibold flex items-center gap-3 px-4 transition-all duration-200">
+                            <span class="text-lg">📊</span>
+                            Dashboard
+                        </button>
+
+                        <button
+                            class="w-full h-11 rounded-2xl hover:bg-gray-50 text-gray-600 text-sm font-medium flex items-center gap-3 px-4 transition-all duration-200 group">
+                            <span class="text-lg group-hover:scale-105 transition">📁</span>
+                            My Course
+                        </button>
+
+                        <button
+                            class="w-full h-11 rounded-2xl hover:bg-gray-50 text-gray-600 text-sm font-medium flex items-center gap-3 px-4 transition-all duration-200 group">
+                            <span class="text-lg group-hover:scale-105 transition">💳</span>
+                            Subscription
+                        </button>
+
+                        <button
+                            class="w-full h-11 rounded-2xl hover:bg-gray-50 text-gray-600 text-sm font-medium flex items-center gap-3 px-4 transition-all duration-200 group">
+                            <span class="text-lg group-hover:scale-105 transition">📘</span>
+                            Attendence
+                        </button>
+
+                        <button
+                            class="w-full h-11 rounded-2xl hover:bg-gray-50 text-gray-600 text-sm font-medium flex items-center gap-3 px-4 transition-all duration-200 group">
+                            <span class="text-lg group-hover:scale-105 transition">📖</span>
+                            Book My Library
+                        </button>
+
+                        <button
+                            class="w-full h-11 rounded-2xl hover:bg-gray-50 text-gray-600 text-sm font-medium flex items-center gap-3 px-4 transition-all duration-200 group">
+                            <span class="text-lg group-hover:scale-105 transition">⚙️</span>
+                            Settings
+                        </button>
+
+                    </div>
+
+                    <!-- Divider -->
+                    <div class="my-6 border-t border-gray-100"></div>
+
+                    <!-- Others Section -->
+                    <div>
+
+                        <div class="flex items-center gap-2 mb-4">
+                            <span class="text-gray-400 text-xs">⋯</span>
+                            <h3 class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">
+                                Others
+                            </h3>
+                        </div>
+
+                        <div class="space-y-1.5">
+
+                            <button
+                                class="w-full h-11 rounded-2xl hover:bg-gray-50 text-gray-600 text-sm font-medium flex items-center gap-3 px-4 transition-all duration-200 group">
+                                <span class="text-lg group-hover:scale-105 transition">🏆</span>
+                                Certificates
+                            </button>
+
+                            <button
+                                class="w-full h-11 rounded-2xl bg-gradient-to-r from-violet-50 to-violet-100 text-violet-700 text-sm font-semibold flex items-center gap-3 px-4 transition-all duration-200">
+                                <span class="text-lg">📋</span>
+                                Review Center
+                            </button>
+
+                            <button
+                                class="w-full h-11 rounded-2xl hover:bg-gray-50 text-gray-600 text-sm font-medium flex items-center gap-3 px-4 transition-all duration-200 group">
+                                <span class="text-lg group-hover:scale-105 transition">❓</span>
+                                Question Banks
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                    <!-- AI Box -->
+                    <div
+                        class="mt-8 rounded-2xl bg-gradient-to-br from-gray-50 to-gray-100/50 p-5 border border-gray-100 shadow-sm">
+
+                        <div
+                            class="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center text-white text-xl shadow-md mb-4">
+                            ✦
+                        </div>
+
+                        <h3 class="font-extrabold text-gray-800 text-base">
+                            AI Powered LMS
+                        </h3>
+
+                        <p class="text-xs text-gray-500 leading-relaxed mt-2">
+                            Manage students and courses with modern dashboard.
+                        </p>
+
+                        <button
+                            class="w-full h-10 rounded-xl bg-gradient-to-r from-gray-900 to-gray-800 text-white text-sm font-semibold mt-5 transition-all duration-200 hover:from-violet-700 hover:to-indigo-700 shadow-md flex items-center justify-center gap-2">
+                            <span>🚀</span>
+                            Upgrade
+                        </button>
+
+                    </div>
+
+                    <!-- Footer -->
+                    <div class="mt-6 pt-3 text-center">
+                        <p class="text-[10px] text-gray-300">
+                            © 2025 Exam Mitra
+                        </p>
+                    </div>
+
+                </div>
+
+                <!-- CENTER -->
+                <div class="flex-1 min-w-0">
+
+                    <!-- HERO -->
+                    <div class="relative overflow-hidden rounded-[12px]">
+
+                        <!-- BG -->
+                        <img src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=1800&auto=format&fit=crop"
+                            class="absolute inset-0 w-full h-full object-cover">
+
+                        <!-- OVERLAY -->
+                        <div class="absolute inset-0 bg-gradient-to-r from-[#111827e8] to-[#6d28d9cc]"></div>
+
+                        <!-- BIG TEXT -->
+                        <h1 class="absolute top-0 left-7 text-[70px] font-black text-white/10 hidden lg:block">
+                            EDUCATION
+                        </h1>
+
+                        <!-- CONTENT -->
+                        <!-- ADD THIS JUST ABOVE -->
+                        <!-- <div class="relative z-10 p-5 lg:p-6"> -->
+
+                        <!-- 3D PARTICLES -->
+                        <div class="absolute inset-0 overflow-hidden pointer-events-none">
+
+                            <span class="particle particle1"></span>
+                            <span class="particle particle2"></span>
+                            <span class="particle particle3"></span>
+                            <span class="particle particle4"></span>
+                            <span class="particle particle5"></span>
+                            <span class="particle particle6"></span>
+
+                        </div>
+
+
+                        <!-- YOUR SAME CONTENT -->
+                        <div class="relative z-10 p-5 lg:p-6">
+
+                            <!-- TOPBAR (MODIFIED: added mobile menu button + mobile profile trigger - original structure preserved) -->
+                            <div class="flex flex-col lg:flex-row gap-4 justify-between lg:items-center">
+
+                                <!-- LEFT (ADDED mobile menu button) -->
+                                <div class="flex items-center gap-4">
+
+                                    <!-- MOBILE MENU BUTTON (ADDED) -->
+                                    <div class="mobile-menu-btn" id="mobileMenuBtn">
+                                        ☰
+                                    </div>
+
+                                    <div
+                                        class="w-12 h-12 rounded-2xl glass flex items-center justify-center text-white text-xl">
+                                        🎓
+                                    </div>
+
+                                    <div>
+
+                                        <h2 class="text-white text-xl font-bold">
+                                            Mentor
+                                        </h2>
+
+                                        <p class="text-white/70 text-sm">
+                                            Education Dashboard
+                                        </p>
+
+                                    </div>
+
+                                </div>
+
+                                <!-- RIGHT (ADDED mobile profile trigger) -->
+                                <div class="flex items-center gap-3 flex-wrap">
+
+                                    <!-- SEARCH -->
+                                    <div class="relative">
+
+                                        <input type="text" placeholder="Search courses..."
+                                            class="w-[170px] lg:w-[320px] h-11 rounded-full glass pl-11 pr-4 text-white placeholder:text-white/60 outline-none">
+
+                                        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-white">
+                                            🔍
+                                        </span>
+
+                                    </div>
+
+                                    <!-- MODE -->
+
+
+                                    <button class="w-10 h-10 rounded-full glass text-white">
+                                        🔔
+                                    </button>
+
+                                    <!-- DESKTOP PROFILE IMAGE (original - unchanged) -->
+                                    <img src="https://i.pravatar.cc/100?img=12"
+                                        class="w-10 h-10 rounded-full border-2 border-white hidden xl:block">
+
+                                    <!-- MOBILE PROFILE TRIGGER (ADDED) -->
+                                    <div class="mobile-profile-trigger">
+                                        <img src="https://i.pravatar.cc/100?img=12"
+                                            class="w-10 h-10 rounded-full border-2 border-white cursor-pointer"
+                                            id="mobileProfileBtn">
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                            <!-- TEXT -->
+                            <div class="mt-8">
+
+                                <p id="greetingText" class="text-violet-200 font-semibold mb-2">
+                                    Good Morning 👋
+                                </p>
+
+                                <h1 id="welcomeUser" class="text-white text-3xl lg:text-4xl font-black leading-tight">
+                                    Welcome Back, Aman
+                                </h1>
+
+                                <p class="text-white/70 mt-4 leading-7 max-w-[650px]">
+                                    Manage students, online courses, mentors, analytics and performance from one modern
+                                    dashboard.
+                                </p>
+
+                            </div>
+
+                            <!-- STATS -->
+                            <div class="grid grid-cols-2 xl:grid-cols-4 gap-4 mt-8">
+
+                                <!-- CARD -->
+                                <div class="glass rounded-3xl p-4 text-white">
+
+                                    <p class="text-xs text-white/70 mb-2">
+                                        Students
+                                    </p>
+
+                                    <div class="flex items-center justify-between">
+
+                                        <h2 class="text-2xl font-black">
+                                            2,635
+                                        </h2>
+
+                                        <button class="w-8 h-8 rounded-full bg-white text-black text-sm">
+                                            ↗
+                                        </button>
+
+                                    </div>
+
+                                </div>
+
+                                <!-- CARD -->
+                                <div class="glass rounded-3xl p-4 text-white">
+
+                                    <p class="text-xs text-white/70 mb-2">
+                                        Teachers
+                                    </p>
+
+                                    <div class="flex items-center justify-between">
+
+                                        <h2 class="text-2xl font-black">
+                                            29
+                                        </h2>
+
+                                        <button class="w-8 h-8 rounded-full bg-white text-black text-sm">
+                                            ↗
+                                        </button>
+
+                                    </div>
+
+                                </div>
+
+                                <!-- CARD -->
+                                <div class="bg-[#ebf46d] rounded-3xl p-4">
+
+                                    <p class="text-xs font-semibold mb-3">
+                                        Add Members
+                                    </p>
+
+                                    <div class="flex gap-2 flex-wrap">
+
+                                        <button class="bg-white px-3 py-2 rounded-xl text-xs font-medium">
+                                            + Student
+                                        </button>
+
+                                        <button class="bg-white px-3 py-2 rounded-xl text-xs font-medium">
+                                            + Courses
+                                        </button>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- ADD THIS CSS -->
+
+
+                    </div>
+
+                    <!-- COURSE SECTION -->
+                    <div class="mt-5 bg-white dark-card rounded-[30px] p-5 main-shadow overflow-hidden">
+
+                        <!-- TOP -->
+                        <div class="flex flex-col lg:flex-row gap-4 justify-between lg:items-center mb-5">
+
+                            <div>
+
+                                <h2 class="text-2xl font-bold dark-text">
+                                    Course Manager
+                                </h2>
+
+                                <p class="text-sm text-gray-500 mt-1 dark-sub">
+                                    Manage all educational courses.
+                                </p>
+
+                            </div>
+
+                            <div class="flex gap-3 flex-wrap">
+
+                                <button class="h-10 px-4 rounded-xl border text-sm dark-input">
+                                    Import
+                                </button>
+
+
+
+                                <button class="h-10 px-5 rounded-xl bg-violet-600 text-white text-sm">
+                                    Categories
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                        <!-- FILTER -->
+                        <div class="flex flex-col lg:flex-row gap-3 mb-5">
+
+                            <div class="relative flex-1">
+
+                                <input type="text" placeholder="Search course..."
+                                    class="w-full h-11 rounded-xl border bg-gray-50 pl-11 pr-4 text-sm outline-none dark-input">
+
+                                <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+                                    🔍
+                                </span>
+
+                            </div>
+
+                            <select class="h-11 px-4 rounded-xl border text-sm dark-input">
+                                <option>All Courses</option>
+                            </select>
+
+                            <select class="h-11 px-4 rounded-xl border text-sm dark-input">
+                                <option>All Categories</option>
+                            </select>
+
+                        </div>
+
+                        <!-- SLIDER TOP -->
+                        <div class="flex items-center justify-between mb-5">
+
+                            <h3 class="font-semibold dark-text">
+                                Popular Courses
+                            </h3>
+
+                            <div class="flex gap-2">
+
+                                <button id="prevBtn" class="w-9 h-9 rounded-xl border dark-input">
+                                    ‹
+                                </button>
+
+                                <button id="nextBtn" class="w-9 h-9 rounded-xl border dark-input">
+                                    ›
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                        <!-- SLIDER -->
+                        <!-- SECTION -->
+                        <div class="mt-5 bg-white dark-card rounded-[32px] p-5 main-shadow overflow-hidden">
+
+                            <!-- TOP -->
+                            <div class="flex flex-col lg:flex-row gap-4 justify-between lg:items-center mb-6">
+
+                                <div>
+                                    <div class="flex items-center gap-2 flex-wrap">
+                                        <h2
+                                            class="text-2xl font-black dark-text bg-gradient-to-r from-purple-700 via-violet-700 to-indigo-700 bg-clip-text text-transparent">
+                                            Popular Govt Exam Test Series
+                                        </h2>
+                                        <span
+                                            class="text-[11px] font-bold bg-amber-100 text-amber-700 px-3 py-1 rounded-full flex items-center gap-1">
+                                            <i class="fas fa-gift text-[10px]"></i> Buy 1 Get 1 Demo Free
+                                        </span>
+                                    </div>
+                                    <p class="text-sm text-gray-500 mt-1 dark-sub flex items-center gap-1">
+                                        <i class="fas fa-trophy text-amber-500 text-[12px]"></i> SSC, HSSC, HPSC, UPSC,
+                                        Railway & State Exams
+                                    </p>
+                                </div>
+
+                                <!-- BUTTONS -->
+
+                            </div>
+
+                            <!-- SLIDER -->
+                            <div id="slider"
+                                class="flex gap-4 overflow-x-auto pb-2 scroll-smooth snap-x snap-mandatory">
+
+                                <!-- CARD 1 - SSC -->
+                                <div
+                                    class="min-w-[240px] max-w-[240px] rounded-[28px] overflow-hidden border border-gray-100 bg-white card-shadow snap-start transition-all duration-200 hover:-translate-y-1 hover:shadow-xl">
+                                    <div class="relative">
+                                        <img src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?q=80&w=1200&auto=format&fit=crop"
+                                            class="w-full h-[130px] object-cover">
+                                        <div
+                                            class="absolute top-2 left-2 bg-gradient-to-r from-amber-400 to-orange-500 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-md flex items-center gap-1">
+                                            <i class="fas fa-gift text-[9px]"></i> 1 Demo Free
+                                        </div>
+                                    </div>
+                                    <div class="p-4">
+                                        <div class="flex items-center justify-between mb-2">
+                                            <p
+                                                class="text-[11px] font-extrabold uppercase tracking-wide text-violet-600">
+                                                SSC</p>
+                                            <span
+                                                class="text-[10px] bg-violet-100 text-violet-700 px-2 py-1 rounded-full font-semibold">Live</span>
+                                        </div>
+                                        <h3 class="font-bold text-[15px] leading-5 mb-2 text-gray-800">SSC CGL Titan
+                                            Test Series</h3>
+                                        <div class="flex items-center justify-between mb-2">
+                                            <p class="text-xs text-gray-400"><i class="far fa-file-alt"></i> 140+ Mocks
+                                            </p>
+                                            <div class="flex items-center gap-1">
+                                                <span class="text-gray-400 line-through text-[11px]">₹899</span>
+                                                <h4 class="font-black text-lg text-violet-700">₹299</h4>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center gap-1 mt-1 mb-3">
+                                            <i class="fas fa-flask text-amber-500 text-[10px]"></i>
+                                            <span class="text-[10px] font-medium text-amber-700">1 Free Demo Mock</span>
+                                        </div>
+                                        <button
+                                            class="w-full h-10 rounded-xl bg-violet-50 text-violet-700 text-sm font-bold transition hover:bg-violet-100 flex items-center justify-center gap-1"><i
+                                                class="fas fa-bolt"></i> Start Free Trial</button>
+                                    </div>
+                                </div>
+
+                                <!-- CARD 2 - HSSC -->
+                                <div
+                                    class="min-w-[240px] max-w-[240px] rounded-[28px] overflow-hidden border border-gray-100 bg-white card-shadow snap-start transition-all duration-200 hover:-translate-y-1 hover:shadow-xl">
+                                    <div class="relative">
+                                        <img src="https://images.unsplash.com/photo-1521791136064-7986c2920216?q=80&w=1200&auto=format&fit=crop"
+                                            class="w-full h-[130px] object-cover">
+                                        <div
+                                            class="absolute top-2 left-2 bg-gradient-to-r from-amber-400 to-orange-500 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-md flex items-center gap-1">
+                                            <i class="fas fa-gift text-[9px]"></i> 1 Demo Free
+                                        </div>
+                                    </div>
+                                    <div class="p-4">
+                                        <div class="flex items-center justify-between mb-2">
+                                            <p
+                                                class="text-[11px] font-extrabold uppercase tracking-wide text-green-600">
+                                                HSSC</p>
+                                            <span
+                                                class="text-[10px] bg-green-100 text-green-700 px-2 py-1 rounded-full font-semibold">Trending</span>
+                                        </div>
+                                        <h3 class="font-bold text-[15px] leading-5 mb-2 text-gray-800">Haryana CET Maha
+                                            Pack</h3>
+                                        <div class="flex items-center justify-between mb-2">
+                                            <p class="text-xs text-gray-400"><i class="far fa-file-alt"></i> 105
+                                                Practice Sets</p>
+                                            <div class="flex items-center gap-1">
+                                                <span class="text-gray-400 line-through text-[11px]">₹599</span>
+                                                <h4 class="font-black text-lg text-green-700">₹199</h4>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center gap-1 mt-1 mb-3">
+                                            <i class="fas fa-flask text-amber-500 text-[10px]"></i>
+                                            <span class="text-[10px] font-medium text-amber-700">1 Free Demo Mock</span>
+                                        </div>
+                                        <button
+                                            class="w-full h-10 rounded-xl bg-green-50 text-green-700 text-sm font-bold transition hover:bg-green-100 flex items-center justify-center gap-1"><i
+                                                class="fas fa-bolt"></i> Start Free Trial</button>
+                                    </div>
+                                </div>
+
+                                <!-- CARD 3 - HPSC -->
+                                <div
+                                    class="min-w-[240px] max-w-[240px] rounded-[28px] overflow-hidden border border-gray-100 bg-white card-shadow snap-start transition-all duration-200 hover:-translate-y-1 hover:shadow-xl">
+                                    <div class="relative">
+                                        <img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=1200&auto=format&fit=crop"
+                                            class="w-full h-[130px] object-cover">
+                                        <div
+                                            class="absolute top-2 left-2 bg-gradient-to-r from-amber-400 to-orange-500 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-md flex items-center gap-1">
+                                            <i class="fas fa-gift text-[9px]"></i> 1 Demo Free
+                                        </div>
+                                    </div>
+                                    <div class="p-4">
+                                        <div class="flex items-center justify-between mb-2">
+                                            <p class="text-[11px] font-extrabold uppercase tracking-wide text-red-600">
+                                                HPSC</p>
+                                            <span
+                                                class="text-[10px] bg-red-100 text-red-700 px-2 py-1 rounded-full font-semibold">New</span>
+                                        </div>
+                                        <h3 class="font-bold text-[15px] leading-5 mb-2 text-gray-800">HPSC Judicial
+                                            Complete</h3>
+                                        <div class="flex items-center justify-between mb-2">
+                                            <p class="text-xs text-gray-400"><i class="far fa-file-alt"></i> 72 Full
+                                                Tests</p>
+                                            <div class="flex items-center gap-1">
+                                                <span class="text-gray-400 line-through text-[11px]">₹1299</span>
+                                                <h4 class="font-black text-lg text-red-700">₹499</h4>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center gap-1 mt-1 mb-3">
+                                            <i class="fas fa-flask text-amber-500 text-[10px]"></i>
+                                            <span class="text-[10px] font-medium text-amber-700">1 Free Demo Mock</span>
+                                        </div>
+                                        <button
+                                            class="w-full h-10 rounded-xl bg-red-50 text-red-700 text-sm font-bold transition hover:bg-red-100 flex items-center justify-center gap-1"><i
+                                                class="fas fa-bolt"></i> Start Free Trial</button>
+                                    </div>
+                                </div>
+
+                                <!-- CARD 4 - UPSC -->
+                                <div
+                                    class="min-w-[240px] max-w-[240px] rounded-[28px] overflow-hidden border border-gray-100 bg-white card-shadow snap-start transition-all duration-200 hover:-translate-y-1 hover:shadow-xl">
+                                    <div class="relative">
+                                        <img src="https://images.unsplash.com/photo-1494173853739-c21f58b16055?q=80&w=1200&auto=format&fit=crop"
+                                            class="w-full h-[130px] object-cover">
+                                        <div
+                                            class="absolute top-2 left-2 bg-gradient-to-r from-amber-400 to-orange-500 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-md flex items-center gap-1">
+                                            <i class="fas fa-gift text-[9px]"></i> 1 Demo Free
+                                        </div>
+                                    </div>
+                                    <div class="p-4">
+                                        <div class="flex items-center justify-between mb-2">
+                                            <p class="text-[11px] font-extrabold uppercase tracking-wide text-blue-600">
+                                                UPSC</p>
+                                            <span
+                                                class="text-[10px] bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-semibold">Premium</span>
+                                        </div>
+                                        <h3 class="font-bold text-[15px] leading-5 mb-2 text-gray-800">UPSC Prelims Edge
+                                            2025</h3>
+                                        <div class="flex items-center justify-between mb-2">
+                                            <p class="text-xs text-gray-400"><i class="far fa-file-alt"></i> 180+ Tests
+                                            </p>
+                                            <div class="flex items-center gap-1">
+                                                <span class="text-gray-400 line-through text-[11px]">₹2499</span>
+                                                <h4 class="font-black text-lg text-blue-700">₹899</h4>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center gap-1 mt-1 mb-3">
+                                            <i class="fas fa-flask text-amber-500 text-[10px]"></i>
+                                            <span class="text-[10px] font-medium text-amber-700">1 Free Demo Mock</span>
+                                        </div>
+                                        <button
+                                            class="w-full h-10 rounded-xl bg-blue-50 text-blue-700 text-sm font-bold transition hover:bg-blue-100 flex items-center justify-center gap-1"><i
+                                                class="fas fa-bolt"></i> Start Free Trial</button>
+                                    </div>
+                                </div>
+
+                                <!-- CARD 5 - Railway -->
+                                <div
+                                    class="min-w-[240px] max-w-[240px] rounded-[28px] overflow-hidden border border-gray-100 bg-white card-shadow snap-start transition-all duration-200 hover:-translate-y-1 hover:shadow-xl">
+                                    <div class="relative">
+                                        <img src="https://images.unsplash.com/photo-1504384308090-c894fdcc538d?q=80&w=1200&auto=format&fit=crop"
+                                            class="w-full h-[130px] object-cover">
+                                        <div
+                                            class="absolute top-2 left-2 bg-gradient-to-r from-amber-400 to-orange-500 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-md flex items-center gap-1">
+                                            <i class="fas fa-gift text-[9px]"></i> 1 Demo Free
+                                        </div>
+                                    </div>
+                                    <div class="p-4">
+                                        <div class="flex items-center justify-between mb-2">
+                                            <p
+                                                class="text-[11px] font-extrabold uppercase tracking-wide text-orange-600">
+                                                Railway</p>
+                                            <span
+                                                class="text-[10px] bg-orange-100 text-orange-700 px-2 py-1 rounded-full font-semibold">Hot</span>
+                                        </div>
+                                        <h3 class="font-bold text-[15px] leading-5 mb-2 text-gray-800">Railway Group D
+                                            Pro</h3>
+                                        <div class="flex items-center justify-between mb-2">
+                                            <p class="text-xs text-gray-400"><i class="far fa-file-alt"></i> 110 Mocks
+                                            </p>
+                                            <div class="flex items-center gap-1">
+                                                <span class="text-gray-400 line-through text-[11px]">₹699</span>
+                                                <h4 class="font-black text-lg text-orange-700">₹249</h4>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center gap-1 mt-1 mb-3">
+                                            <i class="fas fa-flask text-amber-500 text-[10px]"></i>
+                                            <span class="text-[10px] font-medium text-amber-700">1 Free Demo Mock</span>
+                                        </div>
+                                        <button
+                                            class="w-full h-10 rounded-xl bg-orange-50 text-orange-700 text-sm font-bold transition hover:bg-orange-100 flex items-center justify-center gap-1"><i
+                                                class="fas fa-bolt"></i> Start Free Trial</button>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <!-- STATE SECTION -->
+                            <div class="mt-10">
+
+                                <!-- TOP -->
+                                <div class="flex flex-col lg:flex-row gap-4 justify-between lg:items-center mb-5">
+
+                                    <div>
+                                        <h2 class="text-2xl font-black dark-text flex items-center gap-2">
+                                            <i class="fas fa-map-marked-alt text-indigo-500 text-2xl"></i>
+                                            State Wise Exams
+                                        </h2>
+                                        <p class="text-sm text-gray-500 mt-1 dark-sub flex items-center gap-1">
+                                            <i class="fas fa-arrow-right text-xs"></i> Select your state & grab <span
+                                                class="font-bold text-amber-600">🔥 Buy 1 Get 1 Demo Free</span>
+                                        </p>
+                                    </div>
+
+                                    <!-- SELECT -->
+                                    <select id="stateSelect"
+                                        class="h-12 px-5 rounded-2xl border-2 border-gray-200 bg-white outline-none font-medium text-gray-700 focus:border-violet-400 focus:ring-2 focus:ring-violet-200 transition">
+                                        <option value="haryana">🇮🇳 Haryana (HSSC / CET)</option>
+                                        <option value="up">🇮🇳 Uttar Pradesh (UPPSC / UPPCL)</option>
+                                        <option value="rajasthan">🇮🇳 Rajasthan (RPSC / REET)</option>
+                                        <option value="punjab">🇮🇳 Punjab (PPSC / PSSSB)</option>
+                                    </select>
+
+                                </div>
+
+                                <!-- GRID - State Data will be injected here -->
+                                <div id="stateData"
+                                    class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 transition-all duration-300">
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <script>
+                            // State Wise Data with Buy 1 Demo Free Feature
+                            const stateExamsDB = {
+                                haryana: [
+                                    { name: "HSSC CET Group 6 Super Series", tests: "85 Mocks", price: "199", original: "599", tag: "HOT OFFER" },
+                                    { name: "Haryana Police Constable Pack", tests: "62 Practice Sets", price: "149", original: "449", tag: "Limited" },
+                                    { name: "HSSC Gram Sachiv Batch", tests: "48 Full Tests", price: "249", original: "699", tag: "Bestseller" }
+                                ],
+                                up: [
+                                    { name: "UPPSC RO/ARO Ultimate", tests: "110 Mocks", price: "399", original: "999", tag: "Mega" },
+                                    { name: "UP Police SI Special", tests: "78 Tests", price: "279", original: "799", tag: "Trending" },
+                                    { name: "UPPCL TG2 + JE Pack", tests: "56 Mocks", price: "199", original: "599", tag: "Demo Inside" }
+                                ],
+                                rajasthan: [
+                                    { name: "RPSC RAS Prelims Booster", tests: "95 Mocks", price: "349", original: "899", tag: "Top Rated" },
+                                    { name: "REET Level 2 (SST)", tests: "48 Tests", price: "189", original: "499", tag: "Free Demo" },
+                                    { name: "Rajasthan Patwari Elite", tests: "70+ Mocks", price: "229", original: "649", tag: "Popular" }
+                                ],
+                                punjab: [
+                                    { name: "PPSC Naib Tehsildar", tests: "64 Mocks", price: "299", original: "799", tag: "Exclusive" },
+                                    { name: "PSSSB Clerk Mega Pack", tests: "82 Tests", price: "179", original: "499", tag: "Offer" },
+                                    { name: "Punjab Language Dept.", tests: "39 Mocks", price: "199", original: "449", tag: "Premium" }
+                                ]
+                            };
+
+                            function renderStateGrid(stateKey) {
+                                const container = document.getElementById('stateData');
+                                if (!container) return;
+                                const exams = stateExamsDB[stateKey] || stateExamsDB.haryana;
+                                container.innerHTML = '';
+                                exams.forEach((exam) => {
+                                    const cardDiv = document.createElement('div');
+                                    cardDiv.className = `rounded-2xl border border-gray-200 bg-white p-5 shadow-sm hover:shadow-md transition-all duration-200 flex flex-col`;
+                                    cardDiv.innerHTML = `
+                <div class="flex justify-between items-start">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-indigo-100 flex items-center justify-center text-indigo-600">
+                            <i class="fas fa-chalkboard-user text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-extrabold text-gray-800 text-md">${exam.name}</h3>
+                            <p class="text-xs text-gray-400 flex items-center gap-1"><i class="far fa-clock"></i> ${exam.tests}</p>
+                        </div>
+                    </div>
+                    <span class="bg-gradient-to-r from-amber-400 to-orange-500 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-md flex items-center gap-1"><i class="fas fa-gift text-[9px]"></i> 1 Demo Free</span>
+                </div>
+                <div class="mt-4 flex items-center justify-between border-t border-gray-100 pt-3">
+                    <div>
+                        <span class="text-xs text-gray-400 line-through">₹${exam.original}</span>
+                        <div class="text-2xl font-black text-indigo-700">₹${exam.price}</div>
+                    </div>
+                    <button class="px-4 py-2 rounded-xl bg-indigo-600 text-white text-sm font-semibold shadow-md hover:bg-indigo-700 transition flex items-center gap-1"><i class="fas fa-shopping-cart"></i> Buy & Get Demo</button>
+                </div>
+                <div class="mt-3 flex items-center gap-2 text-[11px] text-amber-700 bg-amber-50 rounded-full px-3 py-1.5 w-fit">
+                    <i class="fas fa-fire text-amber-500"></i> <span class="font-semibold">${exam.tag}</span> <span class="ml-1">✓ 1 free demo test included</span>
+                </div>
+            `;
+                                    container.appendChild(cardDiv);
+                                });
+                            }
+
+                            // Slider Controls
+                            const slider = document.getElementById('slider');
+                            const prevBtn = document.getElementById('prevBtn');
+                            const nextBtn = document.getElementById('nextBtn');
+                            if (slider && prevBtn && nextBtn) {
+                                prevBtn.addEventListener('click', () => slider.scrollBy({ left: -260, behavior: 'smooth' }));
+                                nextBtn.addEventListener('click', () => slider.scrollBy({ left: 260, behavior: 'smooth' }));
+                            }
+
+                            // State Selector
+                            const stateSelect = document.getElementById('stateSelect');
+                            if (stateSelect) {
+                                stateSelect.addEventListener('change', (e) => renderStateGrid(e.target.value));
+                                renderStateGrid('haryana');
+                            }
+
+                            document.getElementById("nextBtn").onclick = () => {
+                                slider.scrollLeft += 300;
+                            }
+
+                            document.getElementById("prevBtn").onclick = () => {
+                                slider.scrollLeft -= 300;
+                            }
+
+
+
+                            /* STATE DATA */
+
+                            const exams = {
+
+                                haryana: [
+                                    {
+                                        name: "HSSC CET Group C",
+                                        posts: "32,000 Posts",
+                                        color: "green"
+                                    },
+                                    {
+                                        name: "Haryana Police",
+                                        posts: "6,000 Posts",
+                                        color: "blue"
+                                    },
+                                    {
+                                        name: "HPSC Assistant Professor",
+                                        posts: "2,400 Posts",
+                                        color: "red"
+                                    }
+                                ],
+
+                                up: [
+                                    {
+                                        name: "UP Police Constable",
+                                        posts: "52,000 Posts",
+                                        color: "blue"
+                                    },
+                                    {
+                                        name: "UP Lekhpal",
+                                        posts: "8,000 Posts",
+                                        color: "green"
+                                    },
+                                    {
+                                        name: "UPPSC RO ARO",
+                                        posts: "900 Posts",
+                                        color: "violet"
+                                    }
+                                ],
+
+                                rajasthan: [
+                                    {
+                                        name: "RPSC SI",
+                                        posts: "1,200 Posts",
+                                        color: "orange"
+                                    },
+                                    {
+                                        name: "REET Exam",
+                                        posts: "48,000 Posts",
+                                        color: "green"
+                                    },
+                                    {
+                                        name: "Patwari Recruitment",
+                                        posts: "3,000 Posts",
+                                        color: "red"
+                                    }
+                                ],
+
+                                punjab: [
+                                    {
+                                        name: "Punjab Police",
+                                        posts: "4,500 Posts",
+                                        color: "blue"
+                                    },
+                                    {
+                                        name: "PSSSB Clerk",
+                                        posts: "1,800 Posts",
+                                        color: "green"
+                                    },
+                                    {
+                                        name: "Punjab Teacher Vacancy",
+                                        posts: "6,200 Posts",
+                                        color: "violet"
+                                    }
+                                ]
+
+                            };
+
+
+                            // ========== MESSENGER STYLE LIVE BUTTON ==========
+
+                            (function () {
+                                if (document.getElementById('messengerLiveBtn')) return;
+
+                                // Get active users from desktop
+                                function getActiveUsers() {
+                                    const users = [];
+                                    const desktopPanel = document.querySelector('.desktop-right-panel');
+                                    if (desktopPanel) {
+                                        const userItems = desktopPanel.querySelectorAll('.space-y-4 > div');
+                                        userItems.forEach(item => {
+                                            const img = item.querySelector('img')?.src || '';
+                                            const name = item.querySelector('.dark-text, h4, .font-medium')?.innerText || '';
+                                            const role = item.querySelector('.text-gray-400, .dark-sub')?.innerText || '';
+                                            const isActive = item.querySelector('.bg-green-500') !== null;
+                                            if (name && name !== 'Active Users' && name !== 'View All') {
+                                                users.push({ name, role, img, status: isActive ? 'active' : 'idle' });
+                                            }
+                                        });
+                                    }
+
+                                    if (users.length === 0) {
+                                        users.push(
+                                            { name: 'Ravi Kumar', role: 'UI Designer', img: 'https://i.pravatar.cc/50?img=31', status: 'active' },
+                                            { name: 'Akash Singh', role: 'Frontend Developer', img: 'https://i.pravatar.cc/50?img=18', status: 'active' },
+                                            { name: 'Aman Deep', role: 'Student', img: 'https://i.pravatar.cc/50?img=41', status: 'active' }
+                                        );
+                                    }
+                                    return users;
+                                }
+
+                                const users = getActiveUsers();
+                                const activeCount = users.filter(u => u.status === 'active').length;
+
+                                // Create button
+                                const btnHTML = `
+        <div class="live-messenger-btn">
+            <div id="messengerLiveBtn" class="live-chat-circle">
+                <i class="fas fa-comment-dots"></i>
+                <span class="live-badge-simple">LIVE</span>
+                <span class="count-badge">${activeCount}</span>
+            </div>
+        </div>
+    `;
+                                document.body.insertAdjacentHTML('beforeend', btnHTML);
+
+                                // Create drawer
+                                const drawerHTML = `
+        <div id="msgDrawerOverlay" class="drawer-overlay-simple"></div>
+        <div id="msgDrawer" class="messenger-drawer">
+            <div class="messenger-header">
+                <div class="messenger-title">
+                    <span class="online-dot"></span>
+                    <h3>Live Students</h3>
+                    <span class="online-count">${activeCount} Online</span>
+                </div>
+                <div id="closeMsgDrawer" class="close-drawer">
+                    <i class="fas fa-times"></i>
+                </div>
+            </div>
+            
+            <div class="user-list">
+                ${users.map(user => `
+                    <div class="user-item">
+                        <div class="user-info">
+                            <div class="user-avatar">
+                                <img src="${user.img}" alt="${user.name}">
+                                <div class="status-indicator"></div>
+                            </div>
+                            <div>
+                                <div class="user-name">${user.name}</div>
+                                <div class="user-role">${user.role}</div>
+                            </div>
+                        </div>
+                        <span class="status-text ${user.status === 'active' ? 'status-active' : 'status-idle'}">
+                            ${user.status === 'active' ? '● Active' : '○ Idle'}
+                        </span>
+                    </div>
+                `).join('')}
+            </div>
+            
+            <div class="drawer-footer">
+                <p class="footer-text">
+                    <i class="fas fa-eye"></i> ${activeCount} students online
+                </p>
+            </div>
+        </div>
+    `;
+                                document.body.insertAdjacentHTML('beforeend', drawerHTML);
+
+                                // Elements
+                                const btn = document.getElementById('messengerLiveBtn');
+                                const drawer = document.getElementById('msgDrawer');
+                                const overlay = document.getElementById('msgDrawerOverlay');
+                                const closeBtn = document.getElementById('closeMsgDrawer');
+
+                                function openDrawer() {
+                                    drawer.classList.add('open');
+                                    overlay.classList.add('active');
+                                    document.body.style.overflow = 'hidden';
+                                }
+
+                                function closeDrawer() {
+                                    drawer.classList.remove('open');
+                                    overlay.classList.remove('active');
+                                    document.body.style.overflow = '';
+                                }
+
+                                if (btn) btn.addEventListener('click', openDrawer);
+                                if (closeBtn) closeBtn.addEventListener('click', closeDrawer);
+                                if (overlay) overlay.addEventListener('click', closeDrawer);
+
+                                // Update count
+                                function updateCount() {
+                                    const newUsers = getActiveUsers();
+                                    const newCount = newUsers.filter(u => u.status === 'active').length;
+                                    const badge = document.querySelector('.count-badge');
+                                    const onlineSpan = document.querySelector('.online-count');
+                                    const footerText = document.querySelector('.footer-text');
+
+                                    if (badge) badge.innerText = newCount;
+                                    if (onlineSpan) onlineSpan.innerText = `${newCount} Online`;
+                                    if (footerText) footerText.innerHTML = `<i class="fas fa-eye"></i> ${newCount} students online`;
+                                }
+
+                                setInterval(updateCount, 5000);
+                            })();
+                            const stateData = document.getElementById("stateData");
+
+                            function renderState(state) {
+
+                                stateData.innerHTML = "";
+
+                                exams[state].forEach((item) => {
+
+                                    stateData.innerHTML += `
+
+        <div class="rounded-[26px] border bg-gray-50 dark-card p-5">
+
+            <div class="flex justify-between items-center mb-4">
+
+                <span class="text-xs px-3 py-1 rounded-full bg-${item.color}-100 text-${item.color}-700">
+                    Active
+                </span>
+
+                <span class="w-3 h-3 rounded-full bg-green-500 animate-pulse"></span>
+
+            </div>
+
+            <h3 class="text-lg font-bold dark-text">
+                ${item.name}
+            </h3>
+
+            <p class="text-sm text-gray-500 mt-2 dark-sub">
+                ${item.posts}
+            </p>
+
+            <button class="mt-5 w-full h-11 rounded-2xl bg-violet-600 text-white text-sm font-semibold">
+                Apply Now
+            </button>
+
+        </div>
+
+        `;
+
+                                });
+
+                            }
+
+                            renderState("haryana");
+
+                            stateSelect.addEventListener("change", (e) => {
+                                renderState(e.target.value);
+                            });
+                            // Make sure this runs after page loads
+                            document.addEventListener('DOMContentLoaded', function () {
+
+                                // Get elements
+                                const drawer = document.getElementById('mobileDrawer');
+                                const overlay = document.getElementById('drawerOverlay');
+                                const closeBtn = document.getElementById('closeDrawerBtn');
+
+                                // Find or create hamburger menu button
+                                let menuBtn = document.querySelector('.mobile-menu-btn');
+
+                                // If no menu button exists, look for it in the header
+                                if (!menuBtn || menuBtn.length === 0) {
+                                    const headerLeft = document.querySelector('.flex.items-center.gap-4');
+                                    if (headerLeft) {
+                                        // Check if already has hamburger
+                                        let existingBtn = headerLeft.querySelector('.mobile-menu-btn');
+                                        if (!existingBtn) {
+                                            const newBtn = document.createElement('div');
+                                            newBtn.className = 'mobile-menu-btn';
+                                            newBtn.id = 'mobileMenuBtn';
+                                            newBtn.innerHTML = '☰';
+                                            newBtn.style.cssText = 'width:40px; height:40px; border-radius:50%; background:rgba(255,255,255,0.15); backdrop-filter:blur(12px); display:flex; align-items:center; justify-content:center; color:white; font-size:20px; cursor:pointer;';
+                                            headerLeft.insertBefore(newBtn, headerLeft.firstChild);
+                                            menuBtn = newBtn;
+                                        } else {
+                                            menuBtn = existingBtn;
+                                        }
+                                    }
+                                }
+
+                                // If still no button, create one at top right
+                                if (!menuBtn) {
+                                    const topBar = document.querySelector('.flex.justify-between.lg\\:items-center');
+                                    if (topBar) {
+                                        const newBtn = document.createElement('div');
+                                        newBtn.className = 'mobile-menu-btn';
+                                        newBtn.id = 'mobileMenuBtn';
+                                        newBtn.innerHTML = '☰';
+                                        newBtn.style.cssText = 'width:40px; height:40px; border-radius:50%; background:rgba(255,255,255,0.15); backdrop-filter:blur(12px); display:flex; align-items:center; justify-content:center; color:white; font-size:20px; cursor:pointer; margin-right:auto;';
+                                        topBar.insertBefore(newBtn, topBar.firstChild);
+                                        menuBtn = newBtn;
+                                    }
+                                }
+
+                                // Functions
+                                function openDrawer() {
+                                    if (drawer) {
+                                        drawer.classList.add('open');
+                                        overlay.classList.add('active');
+                                        document.body.style.overflow = 'hidden';
+                                    }
+                                }
+
+                                function closeDrawer() {
+                                    if (drawer) {
+                                        drawer.classList.remove('open');
+                                        overlay.classList.remove('active');
+                                        document.body.style.overflow = '';
+                                    }
+                                }
+
+                                // Add click events
+                                if (menuBtn) {
+                                    // Remove any existing listeners
+                                    const newMenuBtn = menuBtn.cloneNode(true);
+                                    menuBtn.parentNode.replaceChild(newMenuBtn, menuBtn);
+                                    newMenuBtn.addEventListener('click', openDrawer);
+                                }
+
+                                if (closeBtn) {
+                                    const newCloseBtn = closeBtn.cloneNode(true);
+                                    closeBtn.parentNode.replaceChild(newCloseBtn, closeBtn);
+                                    newCloseBtn.addEventListener('click', closeDrawer);
+                                }
+
+                                if (overlay) {
+                                    const newOverlay = overlay.cloneNode(true);
+                                    overlay.parentNode.replaceChild(newOverlay, overlay);
+                                    newOverlay.addEventListener('click', closeDrawer);
+                                }
+
+                                // Close on escape key
+                                document.addEventListener('keydown', function (e) {
+                                    if (e.key === 'Escape' && drawer && drawer.classList.contains('open')) {
+                                        closeDrawer();
+                                    }
+                                });
+
+                                // Handle window resize
+                                window.addEventListener('resize', function () {
+                                    if (window.innerWidth > 1280) {
+                                        closeDrawer();
+                                    }
+                                });
+
+                            });
+                        </script>
+
+                    </div>
+
+                </div>
+
+                <!-- RIGHT (ORIGINAL - UNCHANGED, but class added for mobile hide) -->
+                <div
+                    class="hidden xl:block w-[260px] rounded-[3px] bg-white dark-card main-shadow p-5 sticky top-3 h-[96vh] overflow-auto desktop-right-panel">
+
+                    <!-- PROFILE -->
+                    <div class="text-center">
+
+                        <div class="flex justify-between items-center mb-5">
+
+                            <h3 class="font-semibold dark-text">
+                                Your Profile
+                            </h3>
+
+                            <button>
+                                ⋮
+                            </button>
+
+                        </div>
+
+                        <div class="w-24 h-24 rounded-full border-[5px] border-violet-600 p-1 mx-auto">
+
+                            <img src="https://i.pravatar.cc/100?img=12" class="w-full h-full rounded-full object-cover">
+                        </div>
+
+                        <h2 class="font-bold text-lg mt-4 dark-text">
+                            Good Morning Aman
+                        </h2>
+
+                        <p class="text-sm text-gray-500 mt-2 leading-6 dark-sub">
+                            Continue Your Journey And Achieve Target
+                        </p>
+
+                        <div
+                            class="mt-4 p-5 rounded-2xl bg-gradient-to-br from-white to-gray-50/50 dark-card border border-gray-100 shadow-sm">
+
+                            <!-- Greeting Section -->
+                            <div class="flex items-start justify-between flex-wrap gap-3">
+
+                                <div
+                                    class="bg-violet-100 rounded-full px-3 py-1.5 text-xs font-semibold text-violet-700">
+                                    <span>⭐ Pro Member</span>
+                                </div>
+                                <div
+                                    class="bg-violet-100 rounded-full px-3 py-1.5 text-xs font-semibold text-violet-700">
+                                    <span>⭐ Your Rank</span>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <!-- ICONS -->
+                        <div class="flex justify-center gap-3 mt-6">
+
+                            <button class="w-10 h-10 rounded-full border dark-input">
+                                🔔
+                            </button>
+
+                            <button class="w-10 h-10 rounded-full border dark-input">
+                                ✉
+                            </button>
+
+                            <button class="w-10 h-10 rounded-full border dark-input">
+                                ⚙
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                    <!-- STATS -->
+                    <div class="grid grid-cols-2 gap-3 mt-8">
+
+                        <!-- TOTAL USERS -->
+                        <div class="rounded-2xl bg-violet-50 p-4">
+
+                            <p class="text-xs text-gray-500 mb-2">
+                                Total Users
+                            </p>
+
+                            <h2 class="text-2xl font-black text-violet-700">
+                                260
+                            </h2>
+
+                        </div>
+
+                        <!-- ONLINE USERS -->
+                        <div class="rounded-2xl bg-green-50 p-4">
+
+                            <p class="text-xs text-gray-500 mb-2">
+                                Online
+                            </p>
+
+                            <div class="flex items-center gap-2">
+
+                                <span class="w-3 h-3 rounded-full bg-green-500 animate-pulse"></span>
+
+                                <h2 class="text-2xl font-black text-green-600">
+                                    26
+                                </h2>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <!-- ACTIVE USERS -->
+                    <div class="mt-8">
+
+                        <div class="flex items-center justify-between mb-4">
+
+                            <h3 class="font-semibold dark-text">
+                                Active Users
+                            </h3>
+
+                            <button class="text-sm text-violet-600 font-medium">
+                                View All
+                            </button>
+
+                        </div>
+
+                        <div class="space-y-4">
+
+                            <!-- USER -->
+                            <div class="flex items-center justify-between">
+
+                                <div class="flex items-center gap-3">
+
+                                    <div class="relative">
+
+                                        <img src="https://i.pravatar.cc/50?img=31" class="w-11 h-11 rounded-full">
+
+                                        <span
+                                            class="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-green-500 border-2 border-white"></span>
+
+                                    </div>
+
+                                    <div>
+
+                                        <h4 class="text-sm font-medium dark-text">
+                                            Ravi Kumar
+                                        </h4>
+
+                                        <p class="text-xs text-gray-400 dark-sub">
+                                            UI Designer
+                                        </p>
+
+                                    </div>
+
+                                </div>
+
+                                <button class="text-xs bg-violet-100 text-violet-700 px-3 py-2 rounded-full">
+                                    Active
+                                </button>
+
+                            </div>
+
+                            <!-- USER -->
+                            <div class="flex items-center justify-between">
+
+                                <div class="flex items-center gap-3">
+
+                                    <div class="relative">
+
+                                        <img src="https://i.pravatar.cc/50?img=18" class="w-11 h-11 rounded-full">
+
+                                        <span
+                                            class="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-green-500 border-2 border-white"></span>
+
+                                    </div>
+
+                                    <div>
+
+                                        <h4 class="text-sm font-medium dark-text">
+                                            Akash Singh
+                                        </h4>
+
+                                        <p class="text-xs text-gray-400 dark-sub">
+                                            Frontend Developer
+                                        </p>
+
+                                    </div>
+
+                                </div>
+
+                                <button class="text-xs bg-violet-100 text-violet-700 px-3 py-2 rounded-full">
+                                    Active
+                                </button>
+
+                            </div>
+
+                            <!-- USER -->
+                            <div class="flex items-center justify-between">
+
+                                <div class="flex items-center gap-3">
+
+                                    <div class="relative">
+
+                                        <img src="https://i.pravatar.cc/50?img=41" class="w-11 h-11 rounded-full">
+
+                                        <span
+                                            class="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-green-500 border-2 border-white"></span>
+
+                                    </div>
+
+                                    <div>
+
+                                        <h4 class="text-sm font-medium dark-text">
+                                            Aman Deep
+                                        </h4>
+
+                                        <p class="text-xs text-gray-400 dark-sub">
+                                            Student
+                                        </p>
+
+                                    </div>
+
+                                </div>
+
+                                <button class="text-xs bg-violet-100 text-violet-700 px-3 py-2 rounded-full">
+                                    Active
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ORIGINAL SCRIPTS (unchanged) -->
+    <script>
+        // ========== MESSENGER STYLE LIVE BUTTON ==========
+
+        (function () {
+            if (document.getElementById('messengerLiveBtn')) return;
+
+            // Get active users from desktop
+            function getActiveUsers() {
+                const users = [];
+                const desktopPanel = document.querySelector('.desktop-right-panel');
+                if (desktopPanel) {
+                    const userItems = desktopPanel.querySelectorAll('.space-y-4 > div');
+                    userItems.forEach(item => {
+                        const img = item.querySelector('img')?.src || '';
+                        const name = item.querySelector('.dark-text, h4, .font-medium')?.innerText || '';
+                        const role = item.querySelector('.text-gray-400, .dark-sub')?.innerText || '';
+                        const isActive = item.querySelector('.bg-green-500') !== null;
+                        if (name && name !== 'Active Users' && name !== 'View All') {
+                            users.push({ name, role, img, status: isActive ? 'active' : 'idle' });
+                        }
+                    });
+                }
+
+                if (users.length === 0) {
+                    users.push(
+                        { name: 'Ravi Kumar', role: 'UI Designer', img: 'https://i.pravatar.cc/50?img=31', status: 'active' },
+                        { name: 'Akash Singh', role: 'Frontend Developer', img: 'https://i.pravatar.cc/50?img=18', status: 'active' },
+                        { name: 'Aman Deep', role: 'Student', img: 'https://i.pravatar.cc/50?img=41', status: 'active' }
+                    );
+                }
+                return users;
+            }
+
+            const users = getActiveUsers();
+            const activeCount = users.filter(u => u.status === 'active').length;
+
+            // Create button
+            const btnHTML = `
+        <div class="live-messenger-btn">
+            <div id="messengerLiveBtn" class="live-chat-circle">
+                <i class="fas fa-comment-dots"></i>
+                <span class="live-badge-simple">LIVE</span>
+                <span class="count-badge">${activeCount}</span>
+            </div>
+        </div>
+    `;
+            document.body.insertAdjacentHTML('beforeend', btnHTML);
+
+            // Create drawer
+            const drawerHTML = `
+        <div id="msgDrawerOverlay" class="drawer-overlay-simple"></div>
+        <div id="msgDrawer" class="messenger-drawer">
+            <div class="messenger-header">
+                <div class="messenger-title">
+                    <span class="online-dot"></span>
+                    <h3>Live Students</h3>
+                    <span class="online-count">${activeCount} Online</span>
+                </div>
+                <div id="closeMsgDrawer" class="close-drawer">
+                    <i class="fas fa-times"></i>
+                </div>
+            </div>
+            
+            <div class="user-list">
+                ${users.map(user => `
+                    <div class="user-item">
+                        <div class="user-info">
+                            <div class="user-avatar">
+                                <img src="${user.img}" alt="${user.name}">
+                                <div class="status-indicator"></div>
+                            </div>
+                            <div>
+                                <div class="user-name">${user.name}</div>
+                                <div class="user-role">${user.role}</div>
+                            </div>
+                        </div>
+                        <span class="status-text ${user.status === 'active' ? 'status-active' : 'status-idle'}">
+                            ${user.status === 'active' ? '● Active' : '○ Idle'}
+                        </span>
+                    </div>
+                `).join('')}
+            </div>
+            
+            <div class="drawer-footer">
+                <p class="footer-text">
+                    <i class="fas fa-eye"></i> ${activeCount} students online
+                </p>
+            </div>
+        </div>
+    `;
+            document.body.insertAdjacentHTML('beforeend', drawerHTML);
+
+            // Elements
+            const btn = document.getElementById('messengerLiveBtn');
+            const drawer = document.getElementById('msgDrawer');
+            const overlay = document.getElementById('msgDrawerOverlay');
+            const closeBtn = document.getElementById('closeMsgDrawer');
+
+            function openDrawer() {
+                drawer.classList.add('open');
+                overlay.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+
+            function closeDrawer() {
+                drawer.classList.remove('open');
+                overlay.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+
+            if (btn) btn.addEventListener('click', openDrawer);
+            if (closeBtn) closeBtn.addEventListener('click', closeDrawer);
+            if (overlay) overlay.addEventListener('click', closeDrawer);
+
+            // Update count
+            function updateCount() {
+                const newUsers = getActiveUsers();
+                const newCount = newUsers.filter(u => u.status === 'active').length;
+                const badge = document.querySelector('.count-badge');
+                const onlineSpan = document.querySelector('.online-count');
+                const footerText = document.querySelector('.footer-text');
+
+                if (badge) badge.innerText = newCount;
+                if (onlineSpan) onlineSpan.innerText = `${newCount} Online`;
+                if (footerText) footerText.innerHTML = `<i class="fas fa-eye"></i> ${newCount} students online`;
+            }
+
+            setInterval(updateCount, 5000);
+        })();
+    </script>
+    <!-- ========== DRIBBBLE STYLE PURPLE FOOTER ========== -->
+    <footer class="mt-8 rounded-[8px] overflow-hidden relative" style="margin: 5px 12px;">
+
+        <!-- Main Footer - Purple Gradient Background -->
+        <div
+            class="relative bg-gradient-to-br from-[#1a0b2e] via-[#2d1b4e] to-[#3b1e6e] px-5 py-8 sm:px-6 md:px-8 lg:py-12">
+
+            <!-- Decorative Blur Circles -->
+            <div class="absolute top-0 left-0 w-72 h-72 bg-purple-500 rounded-full blur-[80px] opacity-20"></div>
+            <div class="absolute bottom-0 right-0 w-96 h-96 bg-indigo-600 rounded-full blur-[100px] opacity-15"></div>
+            <div
+                class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-pink-500 rounded-full blur-[120px] opacity-10">
+            </div>
+
+            <div class="relative z-10">
+
+                <!-- Top Section with Newsletter -->
+                <div
+                    class="flex flex-col lg:flex-row justify-between items-center gap-6 pb-8 border-b border-purple-500/30">
+
+                    <!-- Left Side - Brand -->
+                    <div class="text-center lg:text-left">
+                        <div class="flex items-center justify-center lg:justify-start gap-3 mb-3">
+                            <div
+                                class="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-400 to-indigo-500 flex items-center justify-center text-white text-2xl shadow-lg shadow-purple-500/30">
+                                🎓
+                            </div>
+                            <div>
+                                <span class="font-black text-2xl text-white tracking-tight">Exam<span
+                                        class="text-purple-400">Mitra</span></span>
+                                <p class="text-xs text-purple-300/70">Empowering Dreams</p>
+                            </div>
+                        </div>
+                        <p class="text-sm text-purple-200/80 max-w-md mt-2">
+                            India's most trusted platform for competitive exam preparation. Join 2M+ successful
+                            students.
+                        </p>
+                    </div>
+
+                    <!-- Right Side - Newsletter Card -->
+                    <div
+                        class="bg-white/5 backdrop-blur-xl rounded-2xl p-5 border border-white/10 w-full lg:w-auto shadow-xl">
+                        <div class="flex flex-col sm:flex-row items-center gap-4">
+                            <div class="text-center sm:text-left">
+                                <h4 class="text-white font-bold text-sm">Subscribe to Newsletter</h4>
+                                <p class="text-xs text-purple-300">Get latest updates & offers</p>
+                            </div>
+                            <div class="flex gap-2 flex-1">
+                                <input type="email" placeholder="Your email address"
+                                    class="flex-1 h-11 rounded-xl bg-white/10 border border-white/20 text-white placeholder:text-purple-300/50 px-4 text-sm outline-none focus:border-purple-400 focus:ring-1 focus:ring-purple-400">
+                                <button
+                                    class="h-11 px-5 rounded-xl bg-gradient-to-r from-purple-500 to-indigo-500 text-white text-sm font-semibold hover:from-purple-600 hover:to-indigo-600 transition shadow-lg shadow-purple-500/30 whitespace-nowrap">
+                                    Subscribe →
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Links Grid -->
+                <div class="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-5 mt-10">
+
+                    <!-- Column 1 - Quick Links -->
+                    <div class="text-left">
+                        <h3 class="font-bold text-white text-sm mb-4 flex items-center gap-2">
+                            <span class="w-1 h-4 bg-purple-400 rounded-full"></span>
+                            Company
+                        </h3>
+                        <ul class="space-y-2">
+                            <li><a href="#"
+                                    class="text-sm text-purple-200/70 hover:text-white hover:translate-x-1 transition-all inline-block">About
+                                    Us</a></li>
+                            <li><a href="#"
+                                    class="text-sm text-purple-200/70 hover:text-white hover:translate-x-1 transition-all inline-block">Careers</a>
+                            </li>
+                            <li><a href="#"
+                                    class="text-sm text-purple-200/70 hover:text-white hover:translate-x-1 transition-all inline-block">Press</a>
+                            </li>
+                            <li><a href="#"
+                                    class="text-sm text-purple-200/70 hover:text-white hover:translate-x-1 transition-all inline-block">Contact</a>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Column 2 - Support -->
+                    <div class="text-left">
+                        <h3 class="font-bold text-white text-sm mb-4 flex items-center gap-2">
+                            <span class="w-1 h-4 bg-purple-400 rounded-full"></span>
+                            Support
+                        </h3>
+                        <ul class="space-y-2">
+                            <li><a href="#"
+                                    class="text-sm text-purple-200/70 hover:text-white hover:translate-x-1 transition-all inline-block">Help
+                                    Center</a></li>
+                            <li><a href="#"
+                                    class="text-sm text-purple-200/70 hover:text-white hover:translate-x-1 transition-all inline-block">Refund
+                                    Policy</a></li>
+                            <li><a href="#"
+                                    class="text-sm text-purple-200/70 hover:text-white hover:translate-x-1 transition-all inline-block">Terms
+                                    of Service</a></li>
+                            <li><a href="#"
+                                    class="text-sm text-purple-200/70 hover:text-white hover:translate-x-1 transition-all inline-block">Privacy
+                                    Policy</a></li>
+                        </ul>
+                    </div>
+
+                    <!-- Column 3 - Exams -->
+                    <div class="text-left">
+                        <h3 class="font-bold text-white text-sm mb-4 flex items-center gap-2">
+                            <span class="w-1 h-4 bg-purple-400 rounded-full"></span>
+                            Exams
+                        </h3>
+                        <ul class="space-y-2">
+                            <li><a href="TestMaster.html"
+                                    class="text-sm text-purple-200/70 hover:text-white hover:translate-x-1 transition-all inline-block">SSC
+                                    CGL</a></li>
+                            <li><a href="#"
+                                    class="text-sm text-purple-200/70 hover:text-white hover:translate-x-1 transition-all inline-block">UPSC
+                                    Prelims</a></li>
+                            <li><a href="#"
+                                    class="text-sm text-purple-200/70 hover:text-white hover:translate-x-1 transition-all inline-block">Railway
+                                    NTPC</a></li>
+                            <li><a href="#"
+                                    class="text-sm text-purple-200/70 hover:text-white hover:translate-x-1 transition-all inline-block">Banking
+                                    PO</a></li>
+                        </ul>
+                    </div>
+
+                    <!-- Column 4 - Resources -->
+                    <div class="text-left">
+                        <h3 class="font-bold text-white text-sm mb-4 flex items-center gap-2">
+                            <span class="w-1 h-4 bg-purple-400 rounded-full"></span>
+                            Resources
+                        </h3>
+                        <ul class="space-y-2">
+                            <li><a href="#"
+                                    class="text-sm text-purple-200/70 hover:text-white hover:translate-x-1 transition-all inline-block">Mock
+                                    Tests</a></li>
+                            <li><a href="#"
+                                    class="text-sm text-purple-200/70 hover:text-white hover:translate-x-1 transition-all inline-block">Previous
+                                    Papers</a></li>
+                            <li><a href="#"
+                                    class="text-sm text-purple-200/70 hover:text-white hover:translate-x-1 transition-all inline-block">Study
+                                    Materials</a></li>
+                            <li><a href="#"
+                                    class="text-sm text-purple-200/70 hover:text-white hover:translate-x-1 transition-all inline-block">Video
+                                    Lectures</a></li>
+                        </ul>
+                    </div>
+
+                    <!-- Column 5 - Contact & Social -->
+                    <div class="text-left">
+                        <h3 class="font-bold text-white text-sm mb-4 flex items-center gap-2">
+                            <span class="w-1 h-4 bg-purple-400 rounded-full"></span>
+                            Connect
+                        </h3>
+                        <div class="flex gap-3 mb-4">
+                            <a href="#"
+                                class="w-9 h-9 rounded-full bg-white/10 backdrop-blur flex items-center justify-center text-white hover:bg-purple-500 hover:scale-110 transition-all duration-300">
+                                <i class="fab fa-facebook-f text-sm"></i>
+                            </a>
+                            <a href="#"
+                                class="w-9 h-9 rounded-full bg-white/10 backdrop-blur flex items-center justify-center text-white hover:bg-purple-500 hover:scale-110 transition-all duration-300">
+                                <i class="fab fa-twitter text-sm"></i>
+                            </a>
+                            <a href="#"
+                                class="w-9 h-9 rounded-full bg-white/10 backdrop-blur flex items-center justify-center text-white hover:bg-purple-500 hover:scale-110 transition-all duration-300">
+                                <i class="fab fa-instagram text-sm"></i>
+                            </a>
+                            <a href="#"
+                                class="w-9 h-9 rounded-full bg-white/10 backdrop-blur flex items-center justify-center text-white hover:bg-purple-500 hover:scale-110 transition-all duration-300">
+                                <i class="fab fa-youtube text-sm"></i>
+                            </a>
+                        </div>
+                        <div class="space-y-2 mt-3">
+                            <div class="flex items-center gap-2 text-sm text-purple-200/70">
+                                <i class="fas fa-phone-alt text-purple-400 text-xs"></i>
+                                <span class="text-xs">+91 0168495093</span>
+                            </div>
+                            <div class="flex items-center gap-2 text-sm text-purple-200/70">
+                                <i class="fas fa-envelope text-purple-400 text-xs"></i>
+                                <span class="text-xs">support@mentor.com</span>
+                            </div>
+                            <div class="flex items-center gap-2 text-sm text-purple-200/70">
+                                <i class="fas fa-envelope text-purple-400 text-xs"></i>
+                                <span class="text-xs">Address Narwana</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bottom Bar -->
+                <div class="mt-10 pt-6 border-t border-purple-500/20">
+                    <div class="flex flex-col md:flex-row justify-between items-center gap-3">
+                        <p class="text-xs text-purple-300/60">
+                            © 2025 Exam Mitra. All rights reserved. Made with ❤️ for students
+                        </p>
+                        <div class="flex gap-4">
+                            <a href="#" class="text-xs text-purple-300/60 hover:text-purple-300 transition">Sitemap</a>
+                            <a href="#" class="text-xs text-purple-300/60 hover:text-purple-300 transition">Cookie
+                                Policy</a>
+                            <a href="#"
+                                class="text-xs text-purple-300/60 hover:text-purple-300 transition">Accessibility</a>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Glowing Top Border Animation -->
+        <div
+            class="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-purple-400 to-transparent">
+        </div>
+
+    </footer>
+
+    <script>
+        const sheet = document.getElementById('profileBottomSheet');
+        const overlay = document.getElementById('sheetOverlay');
+        const closeBtn = document.getElementById('closeSheetBtn');
+
+        // Find mobile profile trigger and add click event
+        function initMobileProfile() {
+            // Try to find existing mobile profile trigger
+            let mobileTrigger = document.querySelector('.mobile-profile-trigger img, #mobileProfileBtn, .mobile-profile-trigger');
+
+            // If not found, create one from desktop profile image
+            if (!mobileTrigger) {
+                const desktopImg = document.querySelector('.xl\\:block .rounded-full.border-2, .desktop-right-panel img');
+                if (desktopImg && desktopImg.src) {
+                    const headerRight = document.querySelector('.flex.items-center.gap-3.flex-wrap');
+                    if (headerRight) {
+                        const mobileDiv = document.createElement('div');
+                        mobileDiv.className = 'mobile-profile-trigger';
+                        mobileDiv.innerHTML = `<img src="${desktopImg.src}" class="w-10 h-10 rounded-full border-2 border-white cursor-pointer" id="mobileProfileBtn">`;
+                        headerRight.appendChild(mobileDiv);
+                        mobileTrigger = document.getElementById('mobileProfileBtn');
+                    }
+                }
+            }
+
+            // Add click event
+            if (mobileTrigger) {
+                mobileTrigger.addEventListener('click', openSheet);
+            }
+        }
+
+        function openSheet() {
+            sheet.classList.add('open');
+            overlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeSheet() {
+            sheet.classList.remove('open');
+            overlay.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        if (closeBtn) closeBtn.addEventListener('click', closeSheet);
+        if (overlay) overlay.addEventListener('click', closeSheet);
+
+        // Update greeting
+        const hour = new Date().getHours();
+        let greeting = hour < 12 ? "Good Morning" : (hour < 17 ? "Good Afternoon" : "Good Evening");
+        const userName = document.getElementById('sheetUserName');
+        if (userName) userName.innerHTML = `${greeting} Aman`;
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', initMobileProfile);
+        // Also try after a short delay for dynamic content
+        setTimeout(initMobileProfile, 500);
+    </script>
+</body>
+
+</html>

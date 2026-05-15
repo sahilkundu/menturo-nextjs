@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>State Exam Series | HSSC · HPSC · SSC Aspirants</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<link rel="stylesheet" href="signup.css">
+</head>
+<body>
+    <div id="particles-js"></div>
+    <div class="container" id="container">
+        
+        <!-- SIGN UP FORM (Registration) -->
+        <div class="form-container sign-up-container">
+            <form id="registrationForm">
+                <h1>Create Account</h1>
+                <div class="social-container">
+                    <div class="google-btn" id="googleSignUpBtn">
+                        <i class="fab fa-google"></i> <span>Sign up with Google</span>
+                    </div>
+                </div>
+                <div class="divider-text"><span>or register with email</span></div>
+                <div class="scroll-form">
+                    <div class="grid-row">
+                        <input type="text" id="username" placeholder="Username (min 6 char)" autocomplete="off" />
+                        <input type="email" id="email" placeholder="Email Address" autocomplete="off" />
+                        <input type="tel" id="mobile" placeholder="Mobile Number" autocomplete="off" />
+                        <select id="state">
+                            <option value="" disabled selected>Select State</option>
+                            <option value="haryana">Haryana</option>
+                            <option value="himachal">Himachal Pradesh</option>
+                            <option value="delhi">Delhi</option>
+                            <option value="up">Uttar Pradesh</option>
+                            <option value="bihar">Bihar</option>
+                            <option value="rajasthan">Rajasthan</option>
+                        </select>
+                        <input type="password" id="regPassword" class="full-col" placeholder="Password (Upper, Lower, Digit & Special)" />
+                        <input type="password" id="confirmPassword" class="full-col" placeholder="Confirm Password" />
+                    </div>
+                </div>
+                <button type="submit" class="primary-btn">Sign Up 🚀</button>
+                <span class="mobile-switch mb-2 p-2" onclick="toggleForm()">Already have an account?</span>
+            </form>
+        </div>
+
+        <!-- SIGN IN FORM -->
+        <div class="form-container sign-in-container">
+            <form id="loginForm">
+                <h1>Welcome Back</h1>
+                <div class="social-container">
+                    <div class="google-btn" id="googleSignInBtn">
+                        <i class="fab fa-google"></i> <span>Continue with Google</span>
+                    </div>
+                </div>
+                <div class="divider-text"><span>or sign in with email</span></div>
+                <input type="email" id="loginEmail" placeholder="Email Address" required />
+                <input type="password" id="loginPassword" placeholder="Password" required />
+                <a href="#" style="font-size: 12px; text-decoration: none; color: #6a11cb; margin: 8px 0;">Forgot Password?</a>
+                <button type="submit" class="primary-btn">Sign In ✨</button>
+                <span class="mobile-switch" onclick="toggleForm()">New here? Create Account</span>
+            </form>
+        </div>
+
+        <!-- RIGHT OVERLAY with colorful badges -->
+        <div class="overlay-container">
+            <div class="overlay">
+                <div class="overlay-panel overlay-left">
+                    <h2>Ready to Achieve?</h1>
+                    <p>Login to continue your success journey with HSSC, HPSC, SSC & top exams.</p>
+                    <button class="ghost-btn" id="signIn">Sign In</button>
+                </div>
+                <div class="overlay-panel overlay-right">
+                    <div class="visual-area">
+                        <div class="student-box">🧑‍🎓📚</div>
+                        <div class="state-icon s1">HSSC</div>
+                        <div class="state-icon s2">HPSC</div>
+                        <div class="state-icon s3">SSC</div>
+                        <div class="state-icon s4">UPSC</div>
+                        <div class="state-icon s5">BPSC</div>
+                        <div class="state-icon s6">RPSC</div>
+                        <div class="state-icon s7">MPPSC</div>
+                        <div class="state-icon s8">UKPSC</div>
+                    </div>
+                    <h1>Hello, Aspirant!</h1>
+                    <p>Join India's finest state exam preparation community</p>
+                    <button class="ghost-btn" id="signUp">Sign Up</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <script>
+        // -------------------------- DOM elements --------------------------
+        const containerDiv = document.getElementById('container');
+        const signUpBtn = document.getElementById('signUp');
+        const signInBtn = document.getElementById('signIn');
+        signUpBtn.addEventListener('click', () => containerDiv.classList.add("right-panel-active"));
+        signInBtn.addEventListener('click', () => containerDiv.classList.remove("right-panel-active"));
+        function toggleForm() { containerDiv.classList.toggle("right-panel-active"); }
+
+        // -------------------------- Helper for showing popup errors/messages (backend style) --------------------------
+        function showPopupMessage(message, isSuccess = false) {
+            if (isSuccess) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success!',
+                    text: message,
+                    confirmButtonColor: '#2575fc',
+                    timer: 2500,
+                    showConfirmButton: true
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: message,
+                    confirmButtonColor: '#d33'
+                });
+            }
+        }
+
+     
+        let registeredMobiles = new Set(); 
+        registeredMobiles.add("9876543210");
+        registeredMobiles.add("9988776655");
+        
+        // Simulated registered usernames
+        let registeredUsernames = new Set();
+        registeredUsernames.add("adminuser");
+        registeredUsernames.add("salkunsdu2");
+        
+        // Function to call backend (mock POST request but returns proper structured success/fail like: { success: false, message: "Invalid request" })
+        async function mockBackendRegister(userData) {
+            // simulate network delay
+            await new Promise(resolve => setTimeout(resolve, 800));
+            
+            // backend validations as per requirement:
+            // 1. username: minimum 6 characters
+            if (!userData.username || userData.username.length < 6) {
+                return { success: false, message: "Username must be at least 6 characters long" };
+            }
+            // 2. password: must contain uppercase, lowercase, digit & special character
+            const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
+            if (!userData.password || !passwordRegex.test(userData.password)) {
+                return { success: false, message: "Password must contain uppercase, lowercase, digit and special character (@$!%*?&)" };
+            }
+            // 3. mobile: required and not repeated
+            if (!userData.mobile) {
+                return { success: false, message: "Mobile number is required" };
+            }
+            if (registeredMobiles.has(userData.mobile)) {
+                return { success: false, message: "Mobile number already exists! Please use a different number." };
+            }
+            // 4. email validation (basic)
+            if (!userData.email || !userData.email.includes('@')) {
+                return { success: false, message: "Valid email address is required" };
+            }
+            // 5. state required
+            if (!userData.state || userData.state.trim() === "") {
+                return { success: false, message: "State is required field" };
+            }
+            // 6. firstName and lastName can be empty (no validation required, just accept)
+            // 7. (Optional) username unique? requirement didn't explicitly say unique but we add for better API: duplicate username invalid
+            if (registeredUsernames.has(userData.username.toLowerCase())) {
+                return { success: false, message: "Username already taken. Please choose another." };
+            }
+            
+            // All validations passed -> store dummy data
+            registeredMobiles.add(userData.mobile);
+            registeredUsernames.add(userData.username.toLowerCase());
+            
+            // return success true with 200 OK simulation
+            return { success: true, message: "Registration successful! Welcome to State Exam Series.", data: { username: userData.username, email: userData.email } };
+        }
+
+        // -------------------------- REGISTRATION SUBMIT (INTEGRATED WITH BACKEND MOCK) --------------------------
+        document.getElementById('registrationForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // Gather form values
+            const username = document.getElementById('username').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const mobile = document.getElementById('mobile').value.trim();
+            const password = document.getElementById('regPassword').value;
+            const confirmPwd = document.getElementById('confirmPassword').value;
+            const state = document.getElementById('state').value;
+            
+            // --- Frontend quick validations (same as backend but helps UX) ---
+            if (!username) {
+                showPopupMessage("Username is required", false);
+                return;
+            }
+            if (username.length < 6) {
+                showPopupMessage("Username must be at least 6 characters", false);
+                return;
+            }
+            if (!email) {
+                showPopupMessage("Email address is required", false);
+                return;
+            }
+            if (!email.includes('@')) {
+                showPopupMessage("Please enter a valid email address", false);
+                return;
+            }
+            if (!mobile) {
+                showPopupMessage("Mobile number is required", false);
+                return;
+            }
+            if (!/^\d{10}$/.test(mobile)) {
+                showPopupMessage("Mobile number must be exactly 10 digits", false);
+                return;
+            }
+            if (!password) {
+                showPopupMessage("Password is required", false);
+                return;
+            }
+            const strongPassRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
+            if (!strongPassRegex.test(password)) {
+                showPopupMessage("Password must contain at least one uppercase letter, one lowercase letter, one digit, and one special character (@$!%*?&)", false);
+                return;
+            }
+            if (password !== confirmPwd) {
+                showPopupMessage("Passwords do not match", false);
+                return;
+            }
+            if (!state) {
+                showPopupMessage("Please select your State", false);
+                return;
+            }
+            
+          
+            const payload = {
+                username: username,
+                password: password,
+                email: email,
+                mobile: mobile,
+                firstName: "",      
+                lastName: "",       
+                state: state
+            };
+            
+            try {
+                const response = await mockBackendRegister(payload);
+                
+               
+                if (response.success === true) {
+                    showPopupMessage(response.message, true);
+                    document.getElementById('registrationForm').reset();
+                    // Optionally clear password fields
+                    document.getElementById('regPassword').value = '';
+                    document.getElementById('confirmPassword').value = '';
+                    containerDiv.classList.remove("right-panel-active");
+                } else {
+                    showPopupMessage(response.message, false);
+                }
+            } catch (error) {
+                console.error(error);
+                showPopupMessage("Network error. Please try again later.", false);
+            }
+        });
+        
+        // -------------------------- LOGIN logic (preserved but with minor API simulation) --------------------------
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value.trim();
+            const pass = document.getElementById('loginPassword').value;
+            if (!email || !pass) {
+                showPopupMessage("All fields required", false);
+                return;
+            }
+            await new Promise(r => setTimeout(r, 600));
+            showPopupMessage("✨ Welcome back! You have successfully logged in.", true);
+            // optional extra: you could reset form etc.
+        });
+        
+        // Google auth mocks (preserve style same as before)
+        function handleGoogleAuth(type) {
+            Swal.fire({
+                title: `Google ${type === 'login' ? 'Sign In' : 'Sign Up'}`,
+                html: `<div style="display:flex; justify-content:center; margin-bottom:10px;"><i class="fab fa-google" style="font-size: 48px; background: conic-gradient(from -45deg, #ea4335, #4285f4, #34a853, #fbbc04); -webkit-background-clip: text; background-clip: text; color: transparent;"></i></div><p>Redirecting to Google OAuth...<br><span style="font-size:13px;">(Demo experience with official theme)</span></p>`,
+                timer: 1500,
+                showConfirmButton: false,
+                didOpen: () => {
+                    setTimeout(() => {
+                        Swal.fire({
+                            icon: 'success',
+                            title: `Google ${type === 'login' ? 'Login' : 'Registration'} Successful`,
+                            text: `You've signed ${type === 'login' ? 'in' : 'up'} with Google successfully! 🎉`,
+                            confirmButtonColor: '#2575fc'
+                        });
+                    }, 1300);
+                }
+            });
+        }
+        document.getElementById('googleSignUpBtn')?.addEventListener('click', () => handleGoogleAuth('register'));
+        document.getElementById('googleSignInBtn')?.addEventListener('click', () => handleGoogleAuth('login'));
+        
+        // Particles JS init
+        particlesJS("particles-js", {
+            "particles": {
+                "number": { "value": 70 },
+                "color": { "value": "#ffffff" },
+                "opacity": { "value": 0.25 },
+                "size": { "value": 3 },
+                "line_linked": { "enable": true, "distance": 150, "color": "#ffffff", "opacity": 0.2, "width": 1 },
+                "move": { "enable": true, "speed": 2 }
+            }
+        });
+        
+ 
+        console.log("Backend ready: username min 6, strong password, mobile unique, state required, first/last empty allowed.")
+    </script>
+</body>
+</html>
