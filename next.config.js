@@ -6,6 +6,7 @@ const nextConfig = {
         domains: [
 
             "cdn.menturo.in",
+            "www.google.com",
 
             "images.unsplash.com",
 
@@ -32,6 +33,8 @@ const nextConfig = {
                             img-src 'self'
                             blob:
                             data:
+                            https://www.google.com
+                            https://www.apple.com
                             https://*.menturo.in
                             https://images.unsplash.com
                             https://i.pravatar.cc

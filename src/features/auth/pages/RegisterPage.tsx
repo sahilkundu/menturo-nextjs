@@ -5,52 +5,76 @@ import Link from 'next/link'
 import Swal from 'sweetalert2'
 
 import Input from "../../../shared/components/Input"
-import { Mail, Lock, User, Phone, MapPin, Chrome } from 'lucide-react'
+
+import {
+    Chrome,
+    MapPin
+} from 'lucide-react'
 
 import { useRegistrationStore } from '../../../shared/store/createAccountStore'
+import LoginExtraFeatures from '../../../shared/components/LoginExtraFeatures'
 
 // =========================
 // VALIDATIONS
 // =========================
 
 const validateUsername = (username: string) => {
-    if (!username || username.length < 6) {
-        return { valid: false, message: "Username must be at least 6 characters long" }
-    }
 
-    if (!/^[a-z0-9_]+$/.test(username)) {
+    if (!username || username.length < 6) {
+
         return {
             valid: false,
-            message: "Username must contain only lowercase letters, numbers and underscores"
+            message: "Username must be at least 6 characters long"
         }
     }
 
-    return { valid: true, message: "" }
+    if (!/^[a-z0-9_]+$/.test(username)) {
+
+        return {
+            valid: false,
+            message:
+                "Username must contain only lowercase letters, numbers and underscores"
+        }
+    }
+
+    return {
+        valid: true,
+        message: ""
+    }
 }
 
 const validateEmail = (email: string) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+    const emailRegex =
+        /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
     if (!email || !emailRegex.test(email)) {
+
         return {
             valid: false,
             message: "Please enter a valid email address"
         }
     }
 
-    return { valid: true, message: "" }
+    return {
+        valid: true,
+        message: ""
+    }
 }
 
 const validateMobile = (mobile: string) => {
 
     if (!mobile || !/^\d{10}$/.test(mobile)) {
+
         return {
             valid: false,
-            message: "Mobile number must be exactly 10 digits"
+            message:
+                "Mobile number must be exactly 10 digits"
         }
     }
 
     if (/^(\d)\1{9}$/.test(mobile)) {
+
         return {
             valid: false,
             message: "Repeated digits are not allowed"
@@ -61,15 +85,23 @@ const validateMobile = (mobile: string) => {
 
     if (
         mobile === sequential ||
-        mobile === sequential.split('').reverse().join('')
+        mobile === sequential
+            .split('')
+            .reverse()
+            .join('')
     ) {
+
         return {
             valid: false,
-            message: "Sequential numbers are not allowed"
+            message:
+                "Sequential numbers are not allowed"
         }
     }
 
-    return { valid: true, message: "" }
+    return {
+        valid: true,
+        message: ""
+    }
 }
 
 const validatePassword = (password: string) => {
@@ -78,6 +110,7 @@ const validatePassword = (password: string) => {
         /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/
 
     if (!password || !passwordRegex.test(password)) {
+
         return {
             valid: false,
             message:
@@ -85,7 +118,10 @@ const validatePassword = (password: string) => {
         }
     }
 
-    return { valid: true, message: "" }
+    return {
+        valid: true,
+        message: ""
+    }
 }
 
 // =========================
@@ -118,6 +154,7 @@ async function apiSignup(userData: any) {
     if (!response.ok) {
 
         if (data.message?.includes('username')) {
+
             return {
                 success: false,
                 message: "Username already taken"
@@ -125,6 +162,7 @@ async function apiSignup(userData: any) {
         }
 
         if (data.message?.includes('email')) {
+
             return {
                 success: false,
                 message: "Email already registered"
@@ -132,6 +170,7 @@ async function apiSignup(userData: any) {
         }
 
         if (data.message?.includes('mobile')) {
+
             return {
                 success: false,
                 message: "Mobile number already exists"
@@ -140,7 +179,8 @@ async function apiSignup(userData: any) {
 
         return {
             success: false,
-            message: data.message || "Registration failed"
+            message:
+                data.message || "Registration failed"
         }
     }
 
@@ -151,39 +191,19 @@ async function apiSignup(userData: any) {
 }
 
 // =========================
-// LOGIN MOCK
-// =========================
-
-async function mockBackendLogin(email: string, password: string) {
-
-    await new Promise(resolve => setTimeout(resolve, 600))
-
-    return {
-        success: true,
-        message: "Login successful!"
-    }
-}
-
-// =========================
 // COMPONENT
 // =========================
 
-export default function AuthPage() {
-
-    const [isRightPanelActive, setIsRightPanelActive] = useState(false)
+export default function Register() {
 
     const {
         regForm,
-        loginForm,
         isLoading,
 
         setRegField,
-        setLoginField,
-
         setLoading,
+        resetRegForm
 
-        resetRegForm,
-        resetLoginForm
     } = useRegistrationStore()
 
     // =========================
@@ -194,7 +214,8 @@ export default function AuthPage() {
 
         if (typeof window !== 'undefined') {
 
-            const script = document.createElement('script')
+            const script =
+                document.createElement('script')
 
             script.src =
                 'https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js'
@@ -203,27 +224,41 @@ export default function AuthPage() {
 
                 if (window.particlesJS) {
 
-                    window.particlesJS("particles-js", {
-                        particles: {
-                            number: { value: 70 },
-                            color: { value: "#ffffff" },
-                            opacity: { value: 0.25 },
-                            size: { value: 3 },
+                    window.particlesJS(
+                        "particles-js",
+                        {
+                            particles: {
+                                number: {
+                                    value: 70
+                                },
 
-                            line_linked: {
-                                enable: true,
-                                distance: 150,
-                                color: "#ffffff",
-                                opacity: 0.2,
-                                width: 1
-                            },
+                                color: {
+                                    value: "#ffffff"
+                                },
 
-                            move: {
-                                enable: true,
-                                speed: 2
+                                opacity: {
+                                    value: 0.18
+                                },
+
+                                size: {
+                                    value: 3
+                                },
+
+                                line_linked: {
+                                    enable: true,
+                                    distance: 140,
+                                    color: "#ffffff",
+                                    opacity: 0.15,
+                                    width: 1
+                                },
+
+                                move: {
+                                    enable: true,
+                                    speed: 2
+                                }
                             }
                         }
-                    })
+                    )
                 }
             }
 
@@ -247,7 +282,7 @@ export default function AuthPage() {
                 icon: 'success',
                 title: 'Success',
                 text: message,
-                confirmButtonColor: '#2575fc'
+                confirmButtonColor: '#2563eb'
             })
 
         } else {
@@ -256,7 +291,7 @@ export default function AuthPage() {
                 icon: 'error',
                 title: 'Error',
                 text: message,
-                confirmButtonColor: '#d33'
+                confirmButtonColor: '#ef4444'
             })
         }
     }
@@ -265,10 +300,10 @@ export default function AuthPage() {
     // GOOGLE AUTH
     // =========================
 
-    const handleGoogleAuth = (type: 'login' | 'register') => {
+    const handleGoogleAuth = () => {
 
         Swal.fire({
-            title: `Google ${type === 'login' ? 'Sign In' : 'Sign Up'}`,
+            title: `Google Sign Up`,
             text: "Redirecting...",
             timer: 1500,
             showConfirmButton: false
@@ -289,7 +324,11 @@ export default function AuthPage() {
             validateUsername(regForm.username)
 
         if (!usernameValidation.valid) {
-            showPopupMessage(usernameValidation.message)
+
+            showPopupMessage(
+                usernameValidation.message
+            )
+
             return
         }
 
@@ -297,7 +336,11 @@ export default function AuthPage() {
             validateEmail(regForm.email)
 
         if (!emailValidation.valid) {
-            showPopupMessage(emailValidation.message)
+
+            showPopupMessage(
+                emailValidation.message
+            )
+
             return
         }
 
@@ -305,7 +348,11 @@ export default function AuthPage() {
             validateMobile(regForm.mobile)
 
         if (!mobileValidation.valid) {
-            showPopupMessage(mobileValidation.message)
+
+            showPopupMessage(
+                mobileValidation.message
+            )
+
             return
         }
 
@@ -313,17 +360,32 @@ export default function AuthPage() {
             validatePassword(regForm.password)
 
         if (!passwordValidation.valid) {
-            showPopupMessage(passwordValidation.message)
+
+            showPopupMessage(
+                passwordValidation.message
+            )
+
             return
         }
 
-        if (regForm.password !== regForm.confirmPassword) {
-            showPopupMessage("Passwords do not match")
+        if (
+            regForm.password !==
+            regForm.confirmPassword
+        ) {
+
+            showPopupMessage(
+                "Passwords do not match"
+            )
+
             return
         }
 
         if (!regForm.state) {
-            showPopupMessage("Please select state")
+
+            showPopupMessage(
+                "Please select state"
+            )
+
             return
         }
 
@@ -331,71 +393,40 @@ export default function AuthPage() {
 
         try {
 
-            const response = await apiSignup({
-                username: regForm.username,
-                email: regForm.email,
-                mobile: regForm.mobile,
-                state: regForm.state,
-                password: regForm.password
-            })
+            const response =
+                await apiSignup({
+                    username: regForm.username,
+                    email: regForm.email,
+                    mobile: regForm.mobile,
+                    state: regForm.state,
+                    password: regForm.password
+                })
 
             if (response.success) {
 
-                showPopupMessage(response.message, true)
+                showPopupMessage(
+                    response.message,
+                    true
+                )
 
                 resetRegForm()
 
-                setIsRightPanelActive(false)
-
             } else {
 
-                showPopupMessage(response.message)
+                showPopupMessage(
+                    response.message
+                )
             }
 
         } catch {
 
-            showPopupMessage("Network error")
+            showPopupMessage(
+                "Network error"
+            )
 
         } finally {
 
             setLoading(false)
-        }
-    }
-
-    // =========================
-    // LOGIN
-    // =========================
-
-    const handleLogin = async (
-        e: React.FormEvent
-    ) => {
-
-        e.preventDefault()
-
-        if (!loginForm.email || !loginForm.password) {
-            showPopupMessage("All fields required")
-            return
-        }
-
-        setLoading(true)
-
-        const response =
-            await mockBackendLogin(
-                loginForm.email,
-                loginForm.password
-            )
-
-        setLoading(false)
-
-        if (response.success) {
-
-            showPopupMessage(response.message, true)
-
-            resetLoginForm()
-
-        } else {
-
-            showPopupMessage(response.message)
         }
     }
 
@@ -414,135 +445,79 @@ export default function AuthPage() {
 
     return (
 
-        <div className="min-h-screen flex items-center justify-center p-5 relative bg-gradient-to-br from-[#0f0c29] via-[#302b63] to-[#24243e] overflow-x-hidden">
+        <div className="min-h-screen flex items-center justify-center p-5 relative overflow-hidden bg-gradient-to-br from-[#0f0c29] via-[#302b63] to-[#24243e]">
 
             {/* PARTICLES */}
 
             <div
                 id="particles-js"
-                className="fixed w-full h-full top-0 left-0 z-0"
+                className="fixed inset-0 z-0"
             />
 
-            {/* CONTAINER */}
+            {/* MAIN CARD */}
 
-            <div
-                className={`relative bg-white rounded-[30px] shadow-2xl w-[965px] max-w-[95%] min-h-[554px] overflow-hidden z-10 transition-all duration-500 ease-in-out`}
-            >
+            <div className="relative z-10 w-[930px] max-w-[95%] min-h-[500px] rounded-[28px] overflow-hidden shadow-[0_25px_70px_rgba(0,0,0,0.40)] bg-white flex flex-col lg:flex-row">
 
-                {/* SIGN IN */}
+                {/* LEFT PANEL */}
 
-                <div className={`absolute top-0 left-0 h-full transition-all duration-500 ease-in-out w-full lg:w-1/2 z-[2]
-                ${isRightPanelActive
-                        ? 'opacity-0 -translate-x-full lg:translate-x-0'
-                        : 'opacity-100 translate-x-0'
-                    }`}>
+                <div className="hidden lg:flex w-1/2 bg-gradient-to-br from-[#6a11cb] via-[#5b2be0] to-[#3f51f5] relative items-center justify-center px-10">
 
-                    <form
-                        onSubmit={handleLogin}
-                        className="bg-white flex items-center justify-center flex-col px-6 sm:px-10 h-full text-center"
-                    >
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.12),transparent_40%)]" />
 
-                        <h1 className="font-bold mb-2 text-[#494d55] text-3xl">
-                            Welcome Back
-                        </h1>
+                    <div className="relative z-10 text-center">
 
-                        <div className="my-3 w-full">
+                        <h2 className="text-white text-[24px] leading-tight font-bold mb-3">
+                            Ready to Achieve?
+                        </h2>
 
-                            <button
-                                type="button"
-                                onClick={() => handleGoogleAuth('login')}
-                                className="flex items-center justify-center gap-3 bg-white border border-[#dadce0] rounded-full py-2.5 px-4 w-full"
-                            >
+                        <p className="text-white/90 text-[13px] leading-6 max-w-[280px] mx-auto mb-7">
+                            Login to continue your success journey
+                            with HSSC, HPSC, SSC & top exams.
+                        </p>
 
-                                <Chrome className="w-5 h-5 text-[#ea4335]" />
+                        <Link href="/login">
 
-                                <span>Continue with Google</span>
-
+                            <button className="border border-white text-white rounded-full px-8 py-2 text-sm font-semibold transition-all duration-300 hover:bg-white hover:text-[#5b2be0]">
+                                Sign In
                             </button>
 
-                        </div>
-
-                        <Input
-                            type="email"
-                            name="email"
-                            placeholder="Email"
-                            value={loginForm.email}
-                            onChange={(e) =>
-                                setLoginField('email', e.target.value)
-                            }
-                        // icon={Mail}
-                        />
-
-                        <Input
-                            type="password"
-                            name="password"
-                            placeholder="Password"
-                            value={loginForm.password}
-                            onChange={(e) =>
-                                setLoginField('password', e.target.value)
-                            }
-                        // icon={Lock}
-                        />
-
-                        <Link
-                            href="/forgot-password"
-                            className="text-xs text-[#6a11cb] my-2"
-                        >
-                            Forgot Password?
                         </Link>
 
-                        <button
-                            type="submit"
-                            disabled={isLoading}
-                            className="rounded-full border-none bg-gradient-to-r from-[#6a11cb] to-[#2575fc] text-white text-xs font-semibold py-3 px-9 uppercase mt-2 w-full"
-                        >
-
-                            {isLoading
-                                ? "Signing in..."
-                                : "Sign In ✨"}
-
-                        </button>
-
-                    </form>
+                    </div>
 
                 </div>
 
-                {/* SIGN UP */}
+                {/* RIGHT PANEL */}
 
-                <div className={`absolute top-0 left-0 h-full transition-all duration-500 ease-in-out w-full lg:w-1/2
-                ${isRightPanelActive
-                        ? 'opacity-100 z-[5] translate-x-0 lg:translate-x-full'
-                        : 'opacity-0 z-[1] -translate-x-full lg:translate-x-0'
-                    }`}>
+                <div className="w-full lg:w-1/2 bg-[#f7f7f7] flex items-center justify-center px-6 sm:px-8 py-8">
 
                     <form
                         onSubmit={handleRegister}
-                        className="bg-white flex items-center justify-center flex-col px-6 sm:px-10 h-full text-center"
+                        className="w-full max-w-[390px]"
                     >
 
-                        <h1 className="font-bold mb-2 text-[#494d55] text-3xl">
+                        {/* TITLE */}
+
+                        <h1 className="text-[28px] font-bold text-center text-[#424750] leading-none mb-6">
                             Create Account
                         </h1>
 
-                        <div className="my-3 w-full">
+                        {/* GOOGLE */}
 
-                            <button
-                                type="button"
-                                onClick={() => handleGoogleAuth('register')}
-                                className="flex items-center justify-center gap-3 bg-white border border-[#dadce0] rounded-full py-2.5 px-4 w-full"
-                            >
 
-                                <Chrome className="w-5 h-5 text-[#ea4335]" />
 
-                                <span>Sign up with Google</span>
+                        {/* DIVIDER */}
 
-                            </button>
 
-                        </div>
 
-                        <div className="w-full overflow-y-auto px-2 max-h-[360px] custom-scrollbar">
 
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">
+                        {/* FORM */}
+
+                        <div className="space-y-1">
+
+                            {/* ROW 1 */}
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
 
                                 <Input
                                     type="text"
@@ -550,265 +525,183 @@ export default function AuthPage() {
                                     placeholder="Username"
                                     value={regForm.username}
                                     onChange={(e) =>
-                                        setRegField('username', e.target.value)
+                                        setRegField(
+                                            'username',
+                                            e.target.value
+                                        )
                                     }
-                                // icon={User}
                                 />
 
                                 <Input
                                     type="email"
                                     name="email"
-                                    placeholder="Email"
+                                    placeholder="Email Address"
                                     value={regForm.email}
                                     onChange={(e) =>
-                                        setRegField('email', e.target.value)
+                                        setRegField(
+                                            'email',
+                                            e.target.value
+                                        )
                                     }
-                                // icon={Mail}
                                 />
+
+                            </div>
+
+                            {/* ROW 2 */}
+                            {/* ROW 2 */}
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+
+                                {/* MOBILE */}
 
                                 <Input
                                     type="tel"
                                     name="mobile"
-                                    placeholder="Mobile"
+                                    placeholder="Mobile Number"
                                     value={regForm.mobile}
                                     onChange={(e) =>
-                                        setRegField('mobile', e.target.value)
+                                        setRegField(
+                                            'mobile',
+                                            e.target.value
+                                        )
                                     }
-                                // icon={Phone}
                                 />
 
-                                <div className="relative">
+                                {/* STATE */}
+
+                                <div className="relative ml-2">
 
                                     <select
                                         value={regForm.state}
                                         onChange={(e) =>
-                                            setRegField('state', e.target.value)
+                                            setRegField(
+                                                'state',
+                                                e.target.value
+                                            )
                                         }
-                                        className="bg-[#f8fafc] border border-[#e2e8f0] p-3 rounded-2xl outline-none text-sm w-full my-2"
+                                        className={`
+                w-full
+                h-[54px]
+
+                bg-[#f8fafc]
+                border
+                border-[#e2e8f0]
+
+                rounded-2xl
+                outline-none
+
+                text-sm
+                text-[#444]
+
+                transition-all
+                duration-300
+                ease-out
+
+                focus:border-[#6a11cb]
+                focus:bg-white
+                focus:shadow-[0_0_0_3px_rgba(106,17,203,0.08)]
+
+                pl-4
+                pr-4
+
+                appearance-none
+                leading-[54px]
+
+                my-2
+            `}
                                     >
 
                                         {states.map((state) => (
+
                                             <option
                                                 key={state.value}
                                                 value={state.value}
                                             >
                                                 {state.label}
                                             </option>
+
                                         ))}
 
                                     </select>
 
-                                    <MapPin className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-
-                                </div>
-
-                                <div className="sm:col-span-2">
-
-                                    <Input
-                                        type="password"
-                                        name="password"
-                                        placeholder="Password"
-                                        value={regForm.password}
-                                        onChange={(e) =>
-                                            setRegField('password', e.target.value)
-                                        }
-                                    // icon={Lock}
-                                    />
-
-                                </div>
-
-                                <div className="sm:col-span-2">
-
-                                    <Input
-                                        type="password"
-                                        name="confirmPassword"
-                                        placeholder="Confirm Password"
-                                        value={regForm.confirmPassword}
-                                        onChange={(e) =>
-                                            setRegField('confirmPassword', e.target.value)
-                                        }
-                                    // icon={Lock}
-                                    />
-
                                 </div>
 
                             </div>
+                            {/* PASSWORD */}
+
+                            <Input
+                                type="password"
+                                name="password"
+                                placeholder="Password"
+                                value={regForm.password}
+                                onChange={(e) =>
+                                    setRegField(
+                                        'password',
+                                        e.target.value
+                                    )
+                                }
+                            />
+
+                            {/* CONFIRM PASSWORD */}
+
+                            <Input
+                                type="password"
+                                name="confirmPassword"
+                                placeholder="Confirm Password"
+                                value={regForm.confirmPassword}
+                                onChange={(e) =>
+                                    setRegField(
+                                        'confirmPassword',
+                                        e.target.value
+                                    )
+                                }
+                            />
 
                         </div>
+
+                        {/* BUTTON */}
 
                         <button
                             type="submit"
                             disabled={isLoading}
-                            className="rounded-full border-none bg-gradient-to-r from-[#6a11cb] to-[#2575fc] text-white text-xs font-semibold py-3 px-9 uppercase mt-4 w-full"
+                            className="mt-6 w-full h-[48px] rounded-full bg-gradient-to-r from-[#6a11cb] to-[#2575fc] text-white text-[13px] font-semibold tracking-wide shadow-lg hover:scale-[1.01] transition-all duration-300"
                         >
 
                             {isLoading
                                 ? "Creating Account..."
-                                : "Sign Up 🚀"}
+                                : "SIGN UP 🚀"}
 
                         </button>
+                        <div className="flex items-center justify-center gap-2 mt-2">
+
+                            <p className="text-[13px] text-[#666]">
+                                Already have an account?
+                            </p>
+
+                            <Link href="/login">
+
+                                <button
+                                    type="button"
+                                    className="text-[13px] font-semibold text-[#6a11cb] cursor-pointer"
+                                >
+                                    Sign In
+                                </button>
+
+                            </Link>
+
+                        </div>
+                        <div className="flex items-center gap-1">
+
+                            <LoginExtraFeatures />
+                        </div>
+                        {/* MOBILE LOGIN */}
+
 
                     </form>
 
                 </div>
 
-                {/* OVERLAY */}
-
-                <div className={`absolute top-0 left-1/2 w-1/2 h-full overflow-hidden transition-transform duration-500 ease-in-out z-[100] hidden lg:block
-                ${isRightPanelActive ? '-translate-x-full' : ''}`}>
-
-                    <div className={`bg-gradient-to-br from-[#6a11cb] to-[#2575fc] text-white relative -left-full h-full w-[200%] transition-transform duration-500 ease-in-out 
-                    ${isRightPanelActive ? 'translate-x-1/2' : 'translate-x-0'}`}>
-
-                        {/* LEFT PANEL */}
-
-                        <div className={`absolute left-0 flex items-center justify-center flex-col px-10 text-center top-0 h-full w-1/2 transition-transform duration-500 ease-in-out 
-                        ${isRightPanelActive
-                                ? 'translate-x-0'
-                                : '-translate-x-[20%]'
-                            } rounded-r-[150px]`}>
-
-                            <h2 className="font-bold mb-2.5 text-white text-3xl">
-                                Ready to Achieve?
-                            </h2>
-
-                            <p className="text-white/90 text-sm mb-4">
-                                Login to continue your success journey.
-                            </p>
-
-                            <button
-                                onClick={() =>
-                                    setIsRightPanelActive(false)
-                                }
-                                className="bg-transparent border-2 border-white rounded-full px-8 py-2.5 text-white font-semibold"
-                            >
-                                Sign In
-                            </button>
-
-                        </div>
-
-                        {/* RIGHT PANEL */}
-
-                        <div className={`absolute right-0 flex items-center justify-center flex-col px-10 text-center top-0 h-full w-1/2 transition-transform duration-500 ease-in-out 
-                        ${isRightPanelActive
-                                ? 'translate-x-[20%]'
-                                : 'translate-x-0'
-                            } rounded-l-[150px]`}>
-
-                            <div className="relative w-[260px] h-[260px] flex justify-center items-center mb-5">
-
-                                <div className="text-[85px] animate-[walking_1.6s_infinite] z-10 drop-shadow-lg">
-                                    🧑‍🎓📚
-                                </div>
-
-                                {[
-                                    'HSSC',
-                                    'HPSC',
-                                    'SSC',
-                                    'UPSC',
-                                    'BPSC',
-                                    'RPSC',
-                                    'MPPSC',
-                                    'UKPSC'
-                                ].map((exam, idx) => (
-
-                                    <div
-                                        key={idx}
-                                        className="absolute w-[70px] h-[70px] bg-white/95 backdrop-blur-sm rounded-full flex items-center justify-center text-xs font-extrabold shadow-xl border-2 border-white/90 animate-[orbit_12s_linear_infinite]"
-                                        style={{
-                                            background: [
-                                                'linear-gradient(135deg, #FF6B35, #FFA447)',
-                                                'linear-gradient(135deg, #1E90FF, #00B4DB)',
-                                                'linear-gradient(135deg, #3CCF4E, #0F9D58)',
-                                                'linear-gradient(135deg, #FF4D6D, #C9184A)',
-                                                'linear-gradient(135deg, #9C27B0, #E040FB)',
-                                                'linear-gradient(135deg, #F4A300, #FF6F00)',
-                                                'linear-gradient(135deg, #00ACC1, #26C6DA)',
-                                                'linear-gradient(135deg, #8D6E63, #D7CCC8)'
-                                            ][idx],
-
-                                            animationDelay: `${idx * -1.5}s`
-                                        }}
-                                    >
-
-                                        {exam}
-
-                                    </div>
-                                ))}
-
-                            </div>
-
-                            <h1 className="font-bold mb-2 text-white text-3xl">
-                                Hello, Aspirant!
-                            </h1>
-
-                            <p className="text-white/90 text-sm mb-4">
-                                Join India's finest exam preparation community
-                            </p>
-
-                            <button
-                                onClick={() =>
-                                    setIsRightPanelActive(true)
-                                }
-                                className="bg-transparent border-2 border-white rounded-full px-8 py-2.5 text-white font-semibold"
-                            >
-                                Sign Up
-                            </button>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
             </div>
-
-            <style jsx global>{`
-
-                @keyframes walking {
-
-                    0%, 100% {
-                        transform: translateY(0) rotate(-2deg);
-                    }
-
-                    50% {
-                        transform: translateY(-12px) rotate(3deg);
-                    }
-                }
-
-                @keyframes orbit {
-
-                    0% {
-                        transform: rotate(0deg)
-                        translateX(130px)
-                        rotate(0deg);
-
-                        opacity: 1;
-                    }
-
-                    50% {
-                        opacity: 0.5;
-                    }
-
-                    100% {
-                        transform: rotate(360deg)
-                        translateX(130px)
-                        rotate(-360deg);
-
-                        opacity: 1;
-                    }
-                }
-
-                .custom-scrollbar::-webkit-scrollbar {
-                    width: 5px;
-                }
-
-                .custom-scrollbar::-webkit-scrollbar-thumb {
-                    background: linear-gradient(#6a11cb, #2575fc);
-                    border-radius: 10px;
-                }
-
-            `}</style>
 
         </div>
     )
