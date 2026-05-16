@@ -261,6 +261,188 @@ export default function HomeCenter() {
 
                                                         dotColor: "bg-green-400"
                                                     },
+                                                    {
+                                                        status: "Active",
+                                                        statusBg: "bg-green-100",
+                                                        statusText: "text-green-700",
+
+                                                        title: "HSSC CET Group C",
+
+                                                        posts: "32,000",
+
+                                                        btnText: "Apply Now",
+
+                                                        btnBg: "bg-gradient-to-r from-violet-600 to-purple-500",
+                                                        btnHover: "hover:opacity-90",
+
+                                                        dotColor: "bg-green-400"
+                                                    },
+                                                    {
+                                                        status: "Active",
+                                                        statusBg: "bg-green-100",
+                                                        statusText: "text-green-700",
+
+                                                        title: "HSSC CET Group C",
+
+                                                        posts: "32,000",
+
+                                                        btnText: "Apply Now",
+
+                                                        btnBg: "bg-gradient-to-r from-violet-600 to-purple-500",
+                                                        btnHover: "hover:opacity-90",
+
+                                                        dotColor: "bg-green-400"
+                                                    },
+                                                    {
+                                                        status: "Active",
+                                                        statusBg: "bg-green-100",
+                                                        statusText: "text-green-700",
+
+                                                        title: "HSSC CET Group C",
+
+                                                        posts: "32,000",
+
+                                                        btnText: "Apply Now",
+
+                                                        btnBg: "bg-gradient-to-r from-violet-600 to-purple-500",
+                                                        btnHover: "hover:opacity-90",
+
+                                                        dotColor: "bg-green-400"
+                                                    },
+                                                    {
+                                                        status: "Active",
+                                                        statusBg: "bg-green-100",
+                                                        statusText: "text-green-700",
+
+                                                        title: "HSSC CET Group C",
+
+                                                        posts: "32,000",
+
+                                                        btnText: "Apply Now",
+
+                                                        btnBg: "bg-gradient-to-r from-violet-600 to-purple-500",
+                                                        btnHover: "hover:opacity-90",
+
+                                                        dotColor: "bg-green-400"
+                                                    },
+
+                                                    {
+                                                        status: "Active",
+                                                        statusBg: "bg-blue-100",
+                                                        statusText: "text-blue-700",
+
+                                                        title: "Haryana Police",
+
+                                                        posts: "6,000",
+
+                                                        btnText: "Apply Now",
+
+                                                        btnBg: "bg-gradient-to-r from-violet-600 to-purple-500",
+                                                        btnHover: "hover:opacity-90",
+
+                                                        dotColor: "bg-green-400"
+                                                    },
+
+                                                    {
+                                                        status: "Active",
+                                                        statusBg: "bg-red-100",
+                                                        statusText: "text-red-600",
+
+                                                        title: "HPSC Assistant Professor",
+
+                                                        posts: "2,400",
+
+                                                        btnText: "Apply Now",
+
+                                                        btnBg: "bg-gradient-to-r from-violet-600 to-purple-500",
+                                                        btnHover: "hover:opacity-90",
+
+                                                        dotColor: "bg-green-400"
+                                                    }
+
+                                                ]
+                                            },
+                                            {
+                                                stateName: "🇮🇳 Haryana (HSSC / CET)",
+                                                value: "haryana",
+
+                                                exams: [
+
+                                                    {
+                                                        status: "Active",
+                                                        statusBg: "bg-green-100",
+                                                        statusText: "text-green-700",
+
+                                                        title: "HSSC CET Group C",
+
+                                                        posts: "32,000",
+
+                                                        btnText: "Apply Now",
+
+                                                        btnBg: "bg-gradient-to-r from-violet-600 to-purple-500",
+                                                        btnHover: "hover:opacity-90",
+
+                                                        dotColor: "bg-green-400"
+                                                    },
+
+                                                    {
+                                                        status: "Active",
+                                                        statusBg: "bg-blue-100",
+                                                        statusText: "text-blue-700",
+
+                                                        title: "Haryana Police",
+
+                                                        posts: "6,000",
+
+                                                        btnText: "Apply Now",
+
+                                                        btnBg: "bg-gradient-to-r from-violet-600 to-purple-500",
+                                                        btnHover: "hover:opacity-90",
+
+                                                        dotColor: "bg-green-400"
+                                                    },
+
+                                                    {
+                                                        status: "Active",
+                                                        statusBg: "bg-red-100",
+                                                        statusText: "text-red-600",
+
+                                                        title: "HPSC Assistant Professor",
+
+                                                        posts: "2,400",
+
+                                                        btnText: "Apply Now",
+
+                                                        btnBg: "bg-gradient-to-r from-violet-600 to-purple-500",
+                                                        btnHover: "hover:opacity-90",
+
+                                                        dotColor: "bg-green-400"
+                                                    }
+
+                                                ]
+                                            },
+                                            {
+                                                stateName: "🇮🇳 Haryana (HSSC / CET)",
+                                                value: "haryana",
+
+                                                exams: [
+
+                                                    {
+                                                        status: "Active",
+                                                        statusBg: "bg-green-100",
+                                                        statusText: "text-green-700",
+
+                                                        title: "HSSC CET Group C",
+
+                                                        posts: "32,000",
+
+                                                        btnText: "Apply Now",
+
+                                                        btnBg: "bg-gradient-to-r from-violet-600 to-purple-500",
+                                                        btnHover: "hover:opacity-90",
+
+                                                        dotColor: "bg-green-400"
+                                                    },
 
                                                     {
                                                         status: "Active",
