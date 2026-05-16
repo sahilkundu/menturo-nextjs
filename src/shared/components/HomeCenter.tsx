@@ -2,12 +2,34 @@
 import Header from "./Header"
 import TestCard from "./TestCard"
 import StateCard from "./StateCard"
-import Footer from "./Footer"
 
+import { useRef } from "react"
 
 
 export default function HomeCenter() {
+    const sliderRef = useRef<HTMLDivElement | null>(null)
 
+    const scrollLeft = () => {
+
+        if (sliderRef.current) {
+
+            sliderRef.current.scrollBy({
+                left: -320,
+                behavior: "smooth"
+            })
+        }
+    }
+
+    const scrollRight = () => {
+
+        if (sliderRef.current) {
+
+            sliderRef.current.scrollBy({
+                left: 320,
+                behavior: "smooth"
+            })
+        }
+    }
 
     return (
         <>
@@ -107,11 +129,33 @@ export default function HomeCenter() {
 
                                     <div className="flex gap-2">
 
-                                        <button id="prevBtn" className="w-9 h-9 rounded-xl border border-gray-200">
+                                        <button
+                                            onClick={scrollLeft}
+                                            className="
+        w-9
+        h-9
+        rounded-xl
+        border
+        border-gray-200
+        hover:bg-gray-100
+        transition-all
+    "
+                                        >
                                             ‹
                                         </button>
 
-                                        <button id="nextBtn" className="w-9 h-9 rounded-xl border border-gray-200">
+                                        <button
+                                            onClick={scrollRight}
+                                            className="
+        w-9
+        h-9
+        rounded-xl
+        border
+        border-gray-200
+        hover:bg-gray-100
+        transition-all
+    "
+                                        >
                                             ›
                                         </button>
 
@@ -148,8 +192,20 @@ export default function HomeCenter() {
                                     </div>
 
                                     {/* <!-- SLIDER --> */}
-                                    <div id="slider"
-                                        className="flex gap-4 overflow-x-auto pb-2 scroll-smooth snap-x snap-mandatory">
+                                    <div
+                                        ref={sliderRef}
+                                        id="slider"
+                                        className="
+        flex
+        gap-4
+        overflow-x-auto
+        pb-2
+        scroll-smooth
+        snap-x
+        snap-mandatory
+        scrollbar-hide
+    "
+                                    >
                                         <TestCard
                                             board="SSC"
                                             liveName="Live"
