@@ -9,12 +9,14 @@ interface LayoutStoreProps {
     rightMobile: boolean
 
     rightSidebarOpen: boolean
+    liveBubbleOpen: boolean,
 
     setLeftMobile: (value: boolean) => void
     setRightMobile: (value: boolean) => void
 
     setRightSidebarOpen: (value: boolean) => void
     setLeftSidebarOpen: (value: boolean) => void
+    setLiveBubbleOpen: (value: boolean) => void
 }
 
 export const useLayoutStore = create<LayoutStoreProps>((set) => ({
@@ -24,6 +26,7 @@ export const useLayoutStore = create<LayoutStoreProps>((set) => ({
 
     rightSidebarOpen: false,
     leftSidebarOpen: false,
+    liveBubbleOpen: false,
     setLeftMobile: (value) =>
         set({
             leftMobile: value
@@ -42,6 +45,12 @@ export const useLayoutStore = create<LayoutStoreProps>((set) => ({
     setLeftSidebarOpen: (value) =>
         set({
             leftSidebarOpen: value
-        })
+        }),
+
+
+    setLiveBubbleOpen: (value: boolean) =>
+        set({
+            liveBubbleOpen: value
+        }),
 
 }))

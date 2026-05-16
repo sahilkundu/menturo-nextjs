@@ -6,7 +6,7 @@ import HomeCenter from "../../shared/components/HomeCenter"
 import LeftSidebar from "../../shared/components/LeftSidebar"
 import RightSidebar from "../../shared/components/RightSidebar"
 import Footer from "../../shared/components/Footer"
-
+import LiveBubbleBtn from "../../shared/components/LiveBubbleBtn"
 import { useLayoutStore } from "../../shared/store/uiResStore"
 
 export default function HomePage() {
@@ -20,6 +20,17 @@ export default function HomePage() {
         setRightMobile
 
     } = useLayoutStore()
+    const rightSidebarOpen = useLayoutStore(
+        (state) => state.rightSidebarOpen
+    )
+
+    const setRightSidebarOpen = useLayoutStore(
+        (state) => state.setRightSidebarOpen
+    )
+
+    const liveBubbleOpen = useLayoutStore(
+        (state) => state.liveBubbleOpen
+    )
 
     useEffect(() => {
 
@@ -79,6 +90,27 @@ export default function HomePage() {
 
             {/* FOOTER */}
             <Footer />
+            {/* FLOATING LIVE BUTTON */}
+            {/* FLOATING LIVE BUTTON */}
+            {/* FLOATING LIVE BUTTON */}
+            {rightMobile && leftMobile && !rightSidebarOpen && (
+                <div
+                    className="
+            fixed
+            bottom-5
+            right-5
+            z-[1200]
+        "
+                >
+
+                    <div
+                        onClick={() => setRightSidebarOpen(true)}
+                    >
+                        <LiveBubbleBtn />
+                    </div>
+
+                </div>
+            )}
 
         </div>
     )

@@ -47,23 +47,7 @@ export default function Footer() {
                             </div>
 
                             {/* <!-- Right Side - Newsletter Card --> */}
-                            <div
-                                className="bg-white/5 backdrop-blur-xl rounded-2xl p-5 border border-white/10 w-full lg:w-auto shadow-xl">
-                                <div className="flex flex-col sm:flex-row items-center gap-4">
-                                    <div className="text-center sm:text-left">
-                                        <h4 className="text-white font-bold text-sm">Subscribe to Newsletter</h4>
-                                        <p className="text-xs text-purple-300">Get latest updates & offers</p>
-                                    </div>
-                                    <div className="flex gap-2 flex-1">
-                                        <input type="email" placeholder="Your email address"
-                                            className="flex-1 h-11 rounded-xl bg-white/10 border border-white/20 text-white placeholder:text-purple-300/50 px-4 text-sm outline-none focus:border-purple-400 focus:ring-1 focus:ring-purple-400" />
-                                        <button
-                                            className="h-11 px-5 rounded-xl bg-gradient-to-r from-purple-500 to-indigo-500 text-white text-sm font-semibold hover:from-purple-600 hover:to-indigo-600 transition shadow-lg shadow-purple-500/30 whitespace-nowrap">
-                                            Subscribe →
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
+
                         </div>
 
                         {/* <!-- Links Grid --> */}
