@@ -2,34 +2,56 @@
 
 import { useState } from "react"
 
-import { useLayoutStore } from "../store/uiResStore"
+interface RightSidebarProps {
+    head?: boolean
+}
 
+export default function RightSidebar({
+    head = false
+}: RightSidebarProps) {
 
-
-export default function RightSidebar() {
-
-    const head = useLayoutStore(
-        (state) => state.rightMobile
-    )
-
-    const rightSidebarOpen = useLayoutStore(
-        (state) => state.rightSidebarOpen
-    )
-
-    const setRightSidebarOpen = useLayoutStore(
-        (state) => state.setRightSidebarOpen
-    )
+    const [open, setOpen] = useState(false)
 
     return (
         <>
 
             {/* MOBILE MENU BUTTON */}
+            {head && (
+                <button
+                    onClick={() => setOpen(prev => !prev)}
+                    className="
+                        fixed
+                        top-5
+                        right-5
+                        z-[1003]
 
+                        w-12
+                        h-12
+
+                        rounded-full
+                        bg-violet-600
+                        text-white
+                        shadow-lg
+
+                        flex
+                        items-center
+                        justify-center
+
+                        transition-all
+                        duration-300
+
+                        hover:scale-105
+                        active:scale-95
+                    "
+                >
+                    {open ? "✕" : "☰"}
+                </button>
+            )}
 
             {/* OVERLAY */}
-            {rightSidebarOpen && (
+            {head && (
                 <div
-                    // onClick={() => setOpen(false)}
+                    onClick={() => setOpen(false)}
                     className={`
                         fixed
                         inset-0
@@ -40,7 +62,7 @@ export default function RightSidebar() {
                         duration-500
                         ease-in-out
 
-                        ${head
+                        ${open
                             ? "opacity-100 visible"
                             : "opacity-0 invisible"
                         }
@@ -78,7 +100,7 @@ export default function RightSidebar() {
                             duration-500
                             ease-[cubic-bezier(0.22,1,0.36,1)]
 
-                            ${rightSidebarOpen
+                            ${open
                             ? "translate-x-0"
                             : "translate-x-full"
                         }
@@ -108,9 +130,9 @@ export default function RightSidebar() {
                         Your Profile
                     </h3>
 
-                    {rightSidebarOpen ? (
+                    {head ? (
                         <button
-                            onClick={() => setRightSidebarOpen(false)}
+                            onClick={() => setOpen(false)}
                             className="
                                 w-8
                                 h-8
@@ -121,7 +143,6 @@ export default function RightSidebar() {
                                 justify-center
                                 hover:bg-gray-200
                                 transition-colors
-                                cursor-pointer
                             "
                         >
                             ✕
@@ -181,7 +202,7 @@ export default function RightSidebar() {
                     </div>
 
                     {/* ACTIONS */}
-                    {rightSidebarOpen ? (
+                    {head ? (
                         <div className="mt-6 pt-3 border-t border-gray-100">
 
                             <button
@@ -290,7 +311,6 @@ export default function RightSidebar() {
                                     role: "Student",
                                     img: 41,
                                 },
-
                             ].map((user, index) => (
 
                                 <div

@@ -1,19 +1,33 @@
 'use client'
 
-import { useEffect, useState } from "react"
+import { useEffect } from "react"
 
 import HomeCenter from "../../shared/components/HomeCenter"
 import LeftSidebar from "../../shared/components/LeftSidebar"
 import RightSidebar from "../../shared/components/RightSidebar"
+import Footer from "../../shared/components/Footer"
+
+import { useLayoutStore } from "../../shared/store/uiResStore"
 
 export default function HomePage() {
 
-    const [windowWidth, setWindowWidth] = useState(0)
+    const {
+
+        leftMobile,
+        rightMobile,
+
+        setLeftMobile,
+        setRightMobile
+
+    } = useLayoutStore()
 
     useEffect(() => {
 
         const handleResize = () => {
-            setWindowWidth(window.innerWidth)
+
+            setRightMobile(window.innerWidth < 900)
+
+            setLeftMobile(window.innerWidth < 1280)
         }
 
         handleResize()
@@ -26,43 +40,44 @@ export default function HomePage() {
 
     }, [])
 
-    // RIGHT SIDEBAR MOBILE BELOW 1280
-    const rightMobile = windowWidth < 1280
-
-    // LEFT SIDEBAR MOBILE BELOW 950
-    const leftMobile = windowWidth < 980
-
     return (
-        <div className="flex w-full min-h-screen">
+        <div className="min-h-screen bg-gray-100 flex flex-col">
 
-            {/* LEFT SIDEBAR */}
-            {!leftMobile && (
-                <div className="w-[280px] shrink-0">
-                    <LeftSidebar head={false} />
+            {/* MAIN */}
+            <div className="flex w-full items-start">
+
+                {/* LEFT */}
+                {!leftMobile && (
+                    <div className="w-[280px] shrink-0 sticky top-0 h-screen overflow-y-auto">
+                        <LeftSidebar />
+                    </div>
+                )}
+
+                {/* CENTER */}
+                <div className="flex-1 min-w-0">
+                    <HomeCenter />
                 </div>
-            )}
 
-            {/* CENTER */}
-            <div className="flex-1 min-w-0">
-                <HomeCenter />
+                {/* RIGHT */}
+                {!rightMobile && (
+                    <div className="w-[280px] shrink-0 sticky top-0 h-screen overflow-y-auto">
+                        <RightSidebar />
+                    </div>
+                )}
+
+                {/* MOBILE DRAWERS */}
+                {leftMobile && (
+                    <LeftSidebar />
+                )}
+
+                {rightMobile && (
+                    <RightSidebar />
+                )}
+
             </div>
 
-            {/* RIGHT SIDEBAR */}
-            {!rightMobile && (
-                <div className="w-[280px] shrink-0">
-                    <RightSidebar head={false} />
-                </div>
-            )}
-
-            {/* MOBILE LEFT DRAWER */}
-            {leftMobile && (
-                <LeftSidebar head={true} />
-            )}
-
-            {/* MOBILE RIGHT DRAWER */}
-            {rightMobile && (
-                <RightSidebar head={true} />
-            )}
+            {/* FOOTER */}
+            <Footer />
 
         </div>
     )

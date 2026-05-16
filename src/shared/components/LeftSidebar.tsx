@@ -1,61 +1,37 @@
 'use client'
 
-import { useState } from "react"
+import { useLayoutStore } from "../store/uiResStore"
 
-interface InputProps {
-    head?: boolean
-}
+export default function LeftSidebar() {
 
-export default function LeftSidebar({
-    head = false
-}: InputProps) {
+    const head: boolean = useLayoutStore(
+        (state) => state.leftMobile
+    )
 
-    const [open, setOpen] = useState(false)
+    const leftSidebarOpen = useLayoutStore(
+        (state) => state.leftSidebarOpen
+    )
+
+    const setLeftSidebarOpen = useLayoutStore(
+        (state) => state.setLeftSidebarOpen
+    )
 
     return (
         <>
 
-            {/* MOBILE OPEN BUTTON */}
-            {head && (
-                <button
-                    onClick={() => setOpen(true)}
+            {/* OVERLAY */}
+            {head && leftSidebarOpen && (
+                <div
+                    onClick={() => setLeftSidebarOpen(false)}
                     className="
                         fixed
-                        top-5
-                        left-5
-                        z-[1001]
-                        w-12
-                        h-12
-                        rounded-full
-                        bg-violet-600
-                        text-white
-                        shadow-lg
-                        flex
-                        items-center
-                        justify-center
-                        hover:bg-violet-700
-                        transition-colors
-                        md:hidden
+                        inset-0
+                        bg-violet-600/40
+                        z-[999]
+                        transition-all
+                        duration-300
+                        ease-in-out
                     "
-                >
-                    ☰
-                </button>
-            )}
-
-            {/* OVERLAY - Only for mobile */}
-            {head && open && (
-                <div
-                    onClick={() => setOpen(false)}
-                    className="
-            fixed
-            inset-0
-            bg-violet-600/40
-            z-[999]
-            transition-all
-            duration-300
-            ease-in-out
-            md:hidden
-        "
                     style={{
                         backdropFilter: 'blur(4px)',
                         WebkitBackdropFilter: 'blur(4px)'
@@ -66,44 +42,60 @@ export default function LeftSidebar({
             {/* SIDEBAR */}
             <div
                 className={`
-                    fixed
-                    top-0
-                    left-0
-                    bottom-0
                     w-[280px]
-                    z-[1000]
                     bg-white
                     overflow-y-auto
                     rounded-r-[24px]
-                    shadow-[5px_0_30px_rgba(0,0,0,0.1)]
+
                     transition-transform
                     duration-300
                     ease-in-out
                     will-change-transform
-                    ${!head
-                        // Desktop - always visible
-                        ? "translate-x-0"
-                        // Mobile - controlled by open state
-                        : open
+
+                    ${head
+                        ? `
+                            fixed
+                            top-0
+                            left-0
+                            bottom-0
+                            z-[1000]
+
+                            shadow-[5px_0_30px_rgba(0,0,0,0.1)]
+
+                            ${leftSidebarOpen
                             ? "translate-x-0"
                             : "-translate-x-full"
+                        }
+                          `
+                        : `
+                            relative
+                            h-screen
+                            translate-x-0
+                          `
                     }
                 `}
             >
+
                 <div className="p-5">
 
-                    {/* HEADER - Only show when head=true (mobile mode) */}
+                    {/* MOBILE HEADER */}
                     {head && (
                         <div className="flex justify-between items-center mb-6 pb-3 border-b border-gray-100">
+
                             <div className="flex items-center gap-2">
-                                <span className="text-2xl">🎓</span>
+
+                                <span className="text-2xl">
+                                    🎓
+                                </span>
+
                                 <span className="font-black text-xl">
                                     Exam Mitra
                                 </span>
+
                             </div>
 
                             <button
-                                onClick={() => setOpen(false)}
+                                onClick={() => setLeftSidebarOpen(false)}
                                 className="
                                     w-8
                                     h-8
@@ -118,6 +110,7 @@ export default function LeftSidebar({
                             >
                                 ✕
                             </button>
+
                         </div>
                     )}
 
