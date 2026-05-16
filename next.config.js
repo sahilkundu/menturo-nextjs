@@ -7,7 +7,7 @@ const nextConfig = {
 
             "cdn.menturo.in",
             "www.google.com",
-
+            "https://menturo-c-plus.onrender.com",
             "images.unsplash.com",
 
             "i.pravatar.cc",
@@ -38,6 +38,7 @@ const nextConfig = {
                             data:
                             http://localhost:*
                             http://127.0.0.1:*
+                            https://menturo-c-plus.onrender.com
                             https://localhost:*
                             https://127.0.0.1:*
                             https://www.google.com
