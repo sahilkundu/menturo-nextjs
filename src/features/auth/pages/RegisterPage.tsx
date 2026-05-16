@@ -5,6 +5,7 @@ import Link from 'next/link'
 import Swal from 'sweetalert2'
 
 import Input from "../../../shared/components/Input"
+import { useRouter } from 'next/navigation'
 
 import {
     Chrome,
@@ -13,6 +14,7 @@ import {
 
 import { useRegistrationStore } from '../../../shared/store/createAccountStore'
 import LoginExtraFeatures from '../../../shared/components/LoginExtraFeatures'
+import { useUserStore } from '../../../shared/store/user'
 
 // =========================
 // VALIDATIONS
@@ -128,67 +130,68 @@ const validatePassword = (password: string) => {
 // API SIGNUP
 // =========================
 
-async function apiSignup(userData: any) {
+// async function apiSignup(userData: any) {
 
-    const response = await fetch(
-        'https://menturo-c-plus.onrender.com/signup',
-        {
-            method: 'POST',
+//     const response = await fetch(
+//         // 'https://menturo-c-plus.onrender.com/signup',
+//         'http://localhost:8080/signup',
+//         {
+//             method: 'POST',
+//             credentials: 'include',
+//             headers: {
+//                 'Content-Type': 'application/json',
+//             },
 
-            headers: {
-                'Content-Type': 'application/json',
-            },
+//             body: JSON.stringify({
+//                 username: userData.username,
+//                 email: userData.email,
+//                 mobile: userData.mobile,
+//                 state: userData.state,
+//                 password: userData.password,
+//             }),
+//         }
+//     )
 
-            body: JSON.stringify({
-                username: userData.username,
-                email: userData.email,
-                mobile: userData.mobile,
-                state: userData.state,
-                password: userData.password,
-            }),
-        }
-    )
+//     const data = await response.json()
 
-    const data = await response.json()
+//     if (!response.ok) {
 
-    if (!response.ok) {
+//         // if (data.message?.includes('username')) {
 
-        if (data.message?.includes('username')) {
+//         //     return {
+//         //         success: false,
+//         //         message: "Username already taken"
+//         //     }
+//         // }
 
-            return {
-                success: false,
-                message: "Username already taken"
-            }
-        }
+//         // if (data.message?.includes('email')) {
 
-        if (data.message?.includes('email')) {
+//         //     return {
+//         //         success: data.success,
+//         //         message: "Email already registered"
+//         //     }
+//         // }
 
-            return {
-                success: false,
-                message: "Email already registered"
-            }
-        }
+//         // if (data.message?.includes('mobile')) {
 
-        if (data.message?.includes('mobile')) {
+//         //     return {
+//         //         success: false,
+//         //         message: "Mobile number already exists"
+//         //     }
+//         // }
 
-            return {
-                success: false,
-                message: "Mobile number already exists"
-            }
-        }
+//         return {
+//             success: data.success,
+//             message:
+//                 data.message || "Registration failed"
+//         }
+//     }
 
-        return {
-            success: false,
-            message:
-                data.message || "Registration failed"
-        }
-    }
-
-    return {
-        success: true,
-        message: "Registration successful!"
-    }
-}
+//     return {
+//         success: data.success,
+//         message: data.message
+//     }
+// }
 
 // =========================
 // COMPONENT
@@ -205,7 +208,103 @@ export default function Register() {
         resetRegForm
 
     } = useRegistrationStore()
+    const router = useRouter()
 
+    const {
+        authenticated,
+        loading,
+        fetchUser,
+    } = useUserStore()
+
+    // =========================
+    // Auto Auth Check
+    // =========================
+    // =========================
+    // Signup API
+    // =========================
+
+    async function apiSignup(
+        userData: any
+    ) {
+
+        const response = await fetch(
+            'https://menturo-c-plus.onrender.com/signup',
+            {
+                method: 'POST',
+
+                credentials: 'include',
+
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+
+                body: JSON.stringify({
+                    username: userData.username,
+                    email: userData.email,
+                    mobile: userData.mobile,
+                    state: userData.state,
+                    password: userData.password,
+                }),
+            }
+        )
+
+        const data =
+            await response.json()
+
+        // =========================
+        // Error
+        // =========================
+
+        if (!response.ok) {
+
+            return {
+                success: data.success,
+                message:
+                    data.message ||
+                    "Registration failed"
+            }
+        }
+
+        // =========================
+        // Fetch User From Cookie
+        // =========================
+
+        await fetchUser()
+
+        // =========================
+        // Redirect Home
+        // =========================
+
+        router.replace("/")
+
+        return {
+            success: true,
+            message: data.message
+        }
+    }
+    useEffect(() => {
+
+        fetchUser()
+
+    }, [])
+
+    // =========================
+    // Redirect If Logged In
+    // =========================
+
+    useEffect(() => {
+
+        if (
+            !loading &&
+            authenticated
+        ) {
+            router.replace("/")
+        }
+
+    }, [
+        authenticated,
+        loading
+    ])
     // =========================
     // PARTICLES
     // =========================

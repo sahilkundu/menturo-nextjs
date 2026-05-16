@@ -13,7 +13,7 @@ export interface RegistrationData {
 interface RegistrationStore {
     regForm: RegistrationData;
     loginForm: {
-        email: string;
+        mobile: string;
         password: string;
     };
     isLoading: boolean;

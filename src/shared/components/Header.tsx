@@ -2,11 +2,16 @@
 
 import { useState } from "react"
 import { useLayoutStore } from "../store/uiResStore"
+import { useUserStore } from "../store/user"
 
 
 
 
 export default function Header() {
+    const {
+        user,
+
+    } = useUserStore()
     const headRight = useLayoutStore(
         (state) => state.rightMobile
     )
@@ -249,7 +254,7 @@ export default function Header() {
                     </p>
 
                     <h1 id="welcomeUser" className="text-white text-3xl lg:text-4xl font-black leading-tight">
-                        Welcome Back, Aman
+                        Welcome Back,  {user?.username}
                     </h1>
 
                     <p className="text-white/70 mt-4 leading-7 max-w-[650px]">

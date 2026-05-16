@@ -4,8 +4,12 @@ import { useEffect, useState } from "react"
 
 import { useLayoutStore } from "../store/uiResStore"
 import Live from "./Live"
+import { useUserStore } from "../store/user"
 export default function RightSidebar() {
+    const {
+        user,
 
+    } = useUserStore()
     const head = useLayoutStore(
         (state) => state.rightMobile
     )
@@ -179,7 +183,7 @@ export default function RightSidebar() {
                             </div>
 
                             <h2 className="text-xl md:text-2xl font-bold mt-4">
-                                Good Morning Aman
+                                Good Morning {user?.username}
                             </h2>
 
                             <p className="text-sm md:text-base text-gray-500 mt-2 leading-6">

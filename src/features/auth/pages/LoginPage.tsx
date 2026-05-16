@@ -3,12 +3,13 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Swal from 'sweetalert2'
-
+import { useRouter } from "next/navigation"
 import Input from "../../../shared/components/Input"
 import { Mail, Lock, User, Phone, MapPin } from 'lucide-react'
 
 import { useRegistrationStore } from '../../../shared/store/createAccountStore'
 import LoginExtraFeatures from '../../../shared/components/LoginExtraFeatures'
+import { useUserStore } from '../../../shared/store/user'
 
 // =========================
 // VALIDATIONS
@@ -150,20 +151,82 @@ async function apiSignup(userData: any) {
         message: "Registration successful!"
     }
 }
+async function apiLogin(
+    mobile: string,
+    password: string
+) {
+
+    // =========================
+    // MOBILE VALIDATION
+    // =========================
+
+    if (
+        !mobile ||
+        !/^\d{10}$/.test(mobile)
+    ) {
+        return {
+            success: false,
+            message:
+                "Mobile number must be exactly 10 digits"
+        }
+    }
+
+    // =========================
+    // PASSWORD VALIDATION
+    // =========================
+
+    if (!password || password.length < 6) {
+
+        return {
+            success: false,
+            message:
+                "Password must be at least 6 characters"
+        }
+    }
+
+    // =========================
+    // API CALL
+    // =========================
+
+    try {
+
+        const response = await fetch(
+            "https://menturo-c-plus.onrender.com/login",
+            {
+                method: "POST",
+
+                credentials: "include",
+
+                headers: {
+                    "Content-Type":
+                        "application/json",
+                },
+
+                body: JSON.stringify({
+                    mobile,
+                    password,
+                }),
+            }
+        )
+
+        return await response.json()
+
+    } catch {
+
+        return {
+            success: false,
+            message: "Network error"
+        }
+    }
+}
+
+
 
 // =========================
 // LOGIN MOCK
 // =========================
 
-async function mockBackendLogin(email: string, password: string) {
 
-    await new Promise(resolve => setTimeout(resolve, 600))
-
-    return {
-        success: true,
-        message: "Login successful!"
-    }
-}
 
 // =========================
 // COMPONENT
@@ -232,6 +295,70 @@ export default function Login() {
         }
 
     }, [])
+    const router = useRouter()
+
+    const {
+        fetchUser,
+        authenticated,
+        loading,
+    } = useUserStore()
+
+    // =========================
+    // Check Auth
+    // =========================
+
+    useEffect(() => {
+
+        fetchUser()
+
+    }, [])
+
+    // =========================
+    // Redirect
+    // =========================
+
+    useEffect(() => {
+
+        if (
+            !loading &&
+            authenticated
+        ) {
+            router.push("/")
+        }
+
+    }, [
+        authenticated,
+        loading
+    ])
+    // useEffect(() => {
+
+    //     const checkAuth = async () => {
+
+    //         try {
+
+    //             const response = await fetch(
+    //                 "http://localhost:8080/auth",
+    //                 {
+    //                     method: "POST",
+
+    //                     credentials: "include",
+    //                 }
+    //             )
+
+    //             const data = await response.json()
+
+    //             console.log(data)
+
+    //         }
+    //         catch (error) {
+
+    //             console.log(error)
+    //         }
+    //     }
+
+    //     checkAuth()
+
+    // }, [])
 
     // =========================
     // ALERT
@@ -367,36 +494,88 @@ export default function Login() {
     // LOGIN
     // =========================
 
+    // const handleLogin = async (
+    //     e: React.FormEvent
+    // ) => {
+
+    //     e.preventDefault()
+
+    //     if (!loginForm.email || !loginForm.password) {
+    //         showPopupMessage("All fields required")
+    //         return
+    //     }
+
+    //     setLoading(true)
+
+    //     const response =
+    //         await mockBackendLogin(
+    //             loginForm.email,
+    //             loginForm.password
+    //         )
+
+    //     setLoading(false)
+
+    //     if (response.success) {
+
+    //         showPopupMessage(response.message, true)
+
+    //         resetLoginForm()
+
+    //     } else {
+
+    //         showPopupMessage(response.message)
+    //     }
+    // }
     const handleLogin = async (
         e: React.FormEvent
     ) => {
 
         e.preventDefault()
 
-        if (!loginForm.email || !loginForm.password) {
-            showPopupMessage("All fields required")
-            return
-        }
-
         setLoading(true)
 
-        const response =
-            await mockBackendLogin(
-                loginForm.email,
-                loginForm.password
+        try {
+
+            const response =
+                await apiLogin(
+                    loginForm.mobile,
+                    loginForm.password
+                )
+
+            if (response.success) {
+
+                // fetch latest user data
+                await fetchUser()
+
+                // reset form
+                resetLoginForm()
+
+                // success popup
+                showPopupMessage(
+                    "Login successful!",
+                    true
+                )
+
+                // redirect
+                router.push("/")
+
+            } else {
+
+                showPopupMessage(
+                    response.message ||
+                    "Login failed"
+                )
+            }
+
+        } catch {
+
+            showPopupMessage(
+                "Network error"
             )
 
-        setLoading(false)
+        } finally {
 
-        if (response.success) {
-
-            showPopupMessage(response.message, true)
-
-            resetLoginForm()
-
-        } else {
-
-            showPopupMessage(response.message)
+            setLoading(false)
         }
     }
 
@@ -449,12 +628,12 @@ export default function Login() {
 
 
                         <Input
-                            type="email"
-                            name="email"
-                            placeholder="Email"
-                            value={loginForm.email}
+                            type="tel"
+                            name="Mobile"
+                            placeholder="Mobile Number"
+                            value={loginForm.mobile}
                             onChange={(e) =>
-                                setLoginField('email', e.target.value)
+                                setLoginField('mobile', e.target.value)
                             }
                         // icon={Mail}
                         />
@@ -520,146 +699,7 @@ export default function Login() {
 
                 {/* SIGN UP */}
 
-                <div className={`absolute top-0 left-0 h-full transition-all duration-500 ease-in-out w-full lg:w-1/2
-               opacity-0 z-[1] -translate-x-full lg:translate-x-0
-                    }`}>
 
-                    <form
-                        onSubmit={handleRegister}
-                        className="bg-white flex items-center justify-center flex-col px-6 sm:px-10 h-full text-center"
-                    >
-
-                        <h1 className="font-bold mb-2 text-[#494d55] text-3xl">
-                            Create Account
-                        </h1>
-
-                        <div className="my-3 w-full">
-
-                            <button
-                                type="button"
-                                onClick={() => handleGoogleAuth('register')}
-                                className="flex items-center justify-center gap-3 bg-white border border-[#dadce0] rounded-full py-2.5 px-4 w-full"
-                            >
-
-                                {/* <Chrome className="w-5 h-5 text-[#ea4335]" /> */}
-
-                                <span>Sign up with Google</span>
-
-                            </button>
-
-                        </div>
-
-                        <div className="w-full overflow-y-auto px-2 max-h-[360px] custom-scrollbar">
-
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">
-
-                                <Input
-                                    type="text"
-                                    name="username"
-                                    placeholder="Username"
-                                    value={regForm.username}
-                                    onChange={(e) =>
-                                        setRegField('username', e.target.value)
-                                    }
-                                // icon={User}
-                                />
-
-                                <Input
-                                    type="email"
-                                    name="email"
-                                    placeholder="Email"
-                                    value={regForm.email}
-                                    onChange={(e) =>
-                                        setRegField('email', e.target.value)
-                                    }
-                                // icon={Mail}
-                                />
-
-                                <Input
-                                    type="tel"
-                                    name="mobile"
-                                    placeholder="Mobile"
-                                    value={regForm.mobile}
-                                    onChange={(e) =>
-                                        setRegField('mobile', e.target.value)
-                                    }
-                                // icon={Phone}
-                                />
-
-                                <div className="relative">
-
-                                    <select
-                                        value={regForm.state}
-                                        onChange={(e) =>
-                                            setRegField('state', e.target.value)
-                                        }
-                                        className="bg-[#f8fafc] border border-[#e2e8f0] p-3 rounded-2xl outline-none text-sm w-full my-2"
-                                    >
-
-                                        {states.map((state) => (
-                                            <option
-                                                key={state.value}
-                                                value={state.value}
-                                            >
-                                                {state.label}
-                                            </option>
-                                        ))}
-
-                                    </select>
-
-                                    <MapPin className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-
-                                </div>
-
-                                <div className="sm:col-span-2">
-
-                                    <Input
-                                        type="password"
-                                        name="password"
-                                        placeholder="Password"
-                                        value={regForm.password}
-                                        onChange={(e) =>
-                                            setRegField('password', e.target.value)
-                                        }
-                                    // icon={Lock}
-                                    />
-
-                                </div>
-
-                                <div className="sm:col-span-2">
-
-                                    <Input
-                                        type="password"
-                                        name="confirmPassword"
-                                        placeholder="Confirm Password"
-                                        value={regForm.confirmPassword}
-                                        onChange={(e) =>
-                                            setRegField('confirmPassword', e.target.value)
-                                        }
-                                    // icon={Lock}
-                                    />
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
-                        <button
-                            type="submit"
-                            disabled={isLoading}
-                            className="rounded-full border-none bg-gradient-to-r from-[#6a11cb] to-[#2575fc] text-white text-xs font-semibold py-3 px-9 uppercase mt-4 w-full"
-                        >
-
-                            {isLoading
-                                ? "Creating Account..."
-                                : "Sign Up 🚀"}
-
-                        </button>
-
-                    </form>
-
-                </div>
 
                 {/* OVERLAY */}
 

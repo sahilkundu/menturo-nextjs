@@ -10,7 +10,10 @@ const nextConfig = {
 
             "images.unsplash.com",
 
-            "i.pravatar.cc"
+            "i.pravatar.cc",
+
+            "localhost",
+            "127.0.0.1"
 
         ],
     },
@@ -33,6 +36,10 @@ const nextConfig = {
                             img-src 'self'
                             blob:
                             data:
+                            http://localhost:*
+                            http://127.0.0.1:*
+                            https://localhost:*
+                            https://127.0.0.1:*
                             https://www.google.com
                             https://www.apple.com
                             https://*.menturo.in
@@ -49,9 +56,16 @@ const nextConfig = {
 
                             font-src 'self' data:;
 
-                            connect-src 'self' https:;
+                            connect-src 'self'
+                            https:
+                            http://localhost:*
+                            http://127.0.0.1:*
+                            ws://localhost:*
+                            ws://127.0.0.1:*;
 
-                            frame-src 'self' https://challenges.cloudflare.com;
+                            frame-src 'self'
+                            https://challenges.cloudflare.com;
+
                         `
                             .replace(/\n/g, " ")
                     }
