@@ -178,6 +178,61 @@ export default function HomeCenter() {
                                             btnBgColor="bg-green-50 hover:bg-green-100"
                                             btnTxtColor="text-green-700"
                                         />
+                                        <TestCard
+                                            board="SSC"
+                                            liveName="Live"
+                                            name="SSC CGL Titan Test Series"
+                                            totalTest="140+ Mocks"
+                                            totalPrice="₹899"
+                                            offerPrice="₹299"
+                                            demoInfo="1 Free Demo Mock"
+                                            demoHead="1 Demo Free"
+                                            btnName="Start Free Trial"
+                                            img="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?q=80&w=1200&auto=format&fit=crop"
+                                            btnBgColor="bg-violet-50 hover:bg-violet-100"
+                                            btnTxtColor="text-violet-700"
+                                        />
+                                        <TestCard
+                                            board="HSSC"
+                                            liveName="Trending"
+                                            name="Haryana CET Maha Pack"
+                                            totalTest="105 Practice Sets"
+                                            totalPrice="₹599"
+                                            offerPrice="₹199"
+                                            demoInfo="1 Free Demo Mock"
+                                            demoHead="1 Demo Free"
+                                            btnName="Enroll Now"
+                                            img="https://images.unsplash.com/photo-1521791136064-7986c2920216?q=80&w=1200&auto=format&fit=crop"
+                                            btnBgColor="bg-green-50 hover:bg-green-100"
+                                            btnTxtColor="text-green-700"
+                                        /><TestCard
+                                            board="SSC"
+                                            liveName="Live"
+                                            name="SSC CGL Titan Test Series"
+                                            totalTest="140+ Mocks"
+                                            totalPrice="₹899"
+                                            offerPrice="₹299"
+                                            demoInfo="1 Free Demo Mock"
+                                            demoHead="1 Demo Free"
+                                            btnName="Start Free Trial"
+                                            img="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?q=80&w=1200&auto=format&fit=crop"
+                                            btnBgColor="bg-violet-50 hover:bg-violet-100"
+                                            btnTxtColor="text-violet-700"
+                                        />
+                                        <TestCard
+                                            board="HSSC"
+                                            liveName="Trending"
+                                            name="Haryana CET Maha Pack"
+                                            totalTest="105 Practice Sets"
+                                            totalPrice="₹599"
+                                            offerPrice="₹199"
+                                            demoInfo="1 Free Demo Mock"
+                                            demoHead="1 Demo Free"
+                                            btnName="Enroll Now"
+                                            img="https://images.unsplash.com/photo-1521791136064-7986c2920216?q=80&w=1200&auto=format&fit=crop"
+                                            btnBgColor="bg-green-50 hover:bg-green-100"
+                                            btnTxtColor="text-green-700"
+                                        />
 
 
 
