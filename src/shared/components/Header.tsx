@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { useLayoutStore } from "../store/uiResStore"
 import { useUserStore } from "../store/user"
+import Link from "next/link"
 
 
 
@@ -10,6 +11,7 @@ import { useUserStore } from "../store/user"
 export default function Header() {
     const {
         user,
+        authenticated
 
     } = useUserStore()
     const headRight = useLayoutStore(
@@ -225,11 +227,13 @@ export default function Header() {
 
 
                         {/* MOBILE PROFILE IMAGE */}
+
                         {
                             headRight && (
-                                <img
-                                    src="https://i.pravatar.cc/100?img=12"
-                                    className="
+                                authenticated ?
+                                    <img
+                                        src="https://i.pravatar.cc/100?img=12"
+                                        className="
                 w-10
                 h-10
                 rounded-full
@@ -237,8 +241,15 @@ export default function Header() {
                 border-white
                 cursor-pointer
             "
-                                    onClick={() => headRight && !rightSidebarOpen ? setRightSidebarOpen(true) : ""}
-                                />
+                                        onClick={() => headRight && !rightSidebarOpen ? setRightSidebarOpen(true) : ""}
+                                    /> :
+                                    <Link href="/login">
+                                        <button
+                                            className="bg-transparent border-2 border-white rounded-full px-8 py-2.5 text-white font-semibold"
+                                        >
+                                            Sign In
+                                        </button>
+                                    </Link>
                             )
                         }
 
