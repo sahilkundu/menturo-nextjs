@@ -229,7 +229,7 @@ export default function Register() {
     ) {
 
         const response = await fetch(
-            'https://menturo-c-plus.onrender.com/signup',
+            'https://betaws.menturo.in/signup',
             {
                 method: 'POST',
 

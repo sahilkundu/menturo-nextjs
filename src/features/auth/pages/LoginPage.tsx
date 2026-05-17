@@ -220,7 +220,7 @@ export default function Login() {
         try {
 
             const response = await fetch(
-                "https://menturo-c-plus.onrender.com/login",
+                "https://betaws.menturo.in/login",
                 {
                     method: "POST",
 

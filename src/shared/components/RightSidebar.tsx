@@ -42,7 +42,7 @@ export default function RightSidebar() {
             // =========================
 
             await fetch(
-                "https://menturo-c-plus.onrender.com/logout",
+                "https://betaws.menturo/logout",
                 {
                     method: "POST",
 
