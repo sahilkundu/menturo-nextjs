@@ -565,8 +565,8 @@ export default function Register() {
 
             {/* MAIN CARD */}
 
-            <div className="relative z-10 lg:w-[850px] md:w-[70g0px] max-w-[95%] lg:h-[60vh] md:h-[70vh]  rounded-[28px] overflow-y-auto shadow-[0_25px_70px_rgba(0,0,0,0.40)] bg-white flex flex-col lg:flex-row">                {/* LEFT PANEL */}
-
+            {/* <div className="relative z-10 lg:w-[850px] md:w-[700px] max-w-[95%] lg:h-[60vh] md:h-[70vh]  rounded-[28px] overflow-y-auto shadow-[0_25px_70px_rgba(0,0,0,0.40)] bg-white flex flex-col lg:flex-row"> */}
+            <div className="relative z-10 w-full sm:max-w-[95%] lg:w-[850px] md:w-[700px] lg:h-[60vh] md:h-[70vh] rounded-[28px] overflow-y-auto shadow-[0_25px_70px_rgba(0,0,0,0.40)] bg-white flex flex-col md:flex-row">
                 <div className="hidden lg:flex w-1/2 bg-gradient-to-br from-[#6a11cb] via-[#5b2be0] to-[#3f51f5] relative items-center justify-center px-10">
 
                     <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.12),transparent_40%)]" />
@@ -596,7 +596,7 @@ export default function Register() {
 
                 {/* RIGHT PANEL */}
 
-                <div className="w-full lg:w-1/2 bg-[#f7f7f7] flex items-center justify-center px-6 sm:px-8 py-8">
+                <div className="w-full lg:w-1/2 md:w-full bg-[#f7f7f7] flex items-center justify-center px-6 sm:px-8 py-8">
 
                     <form
                         onSubmit={handleRegister}
