@@ -43,19 +43,29 @@ export default function LeftSidebar() {
             {/* SIDEBAR */}
             <div
                 className={`
-        fixed
-        top-0
-        left-0
-        bottom-0
-        z-[1000]
-
         w-[250px]
         bg-white
         rounded-r-[24px]
 
-        overflow-y-auto
-
         shadow-[5px_0_30px_rgba(0,0,0,0.1)]
+
+        ${head
+                        ? `
+                fixed
+                top-0
+                left-0
+                bottom-0
+                z-[1000]
+                overflow-y-auto
+              `
+                        : `
+    sticky
+    top-0
+    self-start
+    h-[100vh]
+    overflow-y-auto
+  `
+                    }
     `}
                 style={{
                     transform: head
@@ -147,6 +157,7 @@ export default function LeftSidebar() {
                             <span>⚙️</span>
                             Settings
                         </button>
+
 
                     </div>
 

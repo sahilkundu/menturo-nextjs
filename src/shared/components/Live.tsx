@@ -27,6 +27,7 @@ export default function Live({
             img: 41,
             active: true
         },
+
     ]
 
     return (

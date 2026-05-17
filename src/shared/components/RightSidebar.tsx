@@ -187,9 +187,9 @@ export default function RightSidebar() {
                             </div>
                         )}
 
-                        <h3 className="text-lg text-center md:text-xl font-semibold mt-2">
+                        <span className="text-lg text-center md:text-xl font-semibold mt-2">
                             Your Profile
-                        </h3>
+                        </span>
 
                         {head && (
                             <button
@@ -217,7 +217,7 @@ export default function RightSidebar() {
 
                     </div>}
 
-                <div className="p-1">
+                <div className="p-1 lg:-mt-4">
 
                     {/* PROFILE INFO */}
                     {!liveBubbleOpen &&
