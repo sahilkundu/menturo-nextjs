@@ -772,7 +772,7 @@ export default function Register() {
                         <button
                             type="submit"
                             disabled={isLoading}
-                            className="mt-6 w-full h-[38px] rounded-full bg-gradient-to-r from-[#6a11cb] to-[#2575fc] text-white text-[13px] font-semibold tracking-wide shadow-lg hover:scale-[1.01] transition-all duration-300"
+                            className="lg:mt-6 sm:mt-2 w-full h-[38px] rounded-full bg-gradient-to-r from-[#6a11cb] to-[#2575fc] text-white text-[13px] font-semibold tracking-wide shadow-lg hover:scale-[1.01] transition-all duration-300"
                         >
 
                             {isLoading
