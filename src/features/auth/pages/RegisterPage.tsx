@@ -565,7 +565,7 @@ export default function Register() {
 
             {/* MAIN CARD */}
 
-<div className="relative z-10 w-[850px] max-w-[95%] h-[90vh] rounded-[28px] overflow-y-auto shadow-[0_25px_70px_rgba(0,0,0,0.40)] bg-white flex flex-col lg:flex-row">                {/* LEFT PANEL */}
+            <div className="relative z-10 lg:w-[850px] md:w-[70g0px] max-w-[95%] lg:h-[60vh] md:h-[70vh]  rounded-[28px] overflow-y-auto shadow-[0_25px_70px_rgba(0,0,0,0.40)] bg-white flex flex-col lg:flex-row">                {/* LEFT PANEL */}
 
                 <div className="hidden lg:flex w-1/2 bg-gradient-to-br from-[#6a11cb] via-[#5b2be0] to-[#3f51f5] relative items-center justify-center px-10">
 
