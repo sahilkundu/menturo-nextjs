@@ -80,7 +80,7 @@ export default function HomePage() {
 
                 {/* RIGHT */}
                 {!rightMobile && authenticated && (
-                    <div className="w-[240px] shrink-0 sticky top-0 h-screen overflow-y-auto">
+                    <div className="w-[250px] shrink-0 sticky top-0 h-screen overflow-y-auto">
                         <RightSidebar />
                     </div>
                 )}
