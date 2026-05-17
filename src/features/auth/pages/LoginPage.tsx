@@ -511,10 +511,10 @@ export default function Login() {
             if (response.success) {
 
                 // fetch latest user data
-                await fetchUser()
+                // await fetchUser()
 
                 // reset form
-                resetLoginForm()
+                // resetLoginForm()
 
                 // success popup
                 showPopupMessage(
@@ -523,7 +523,7 @@ export default function Login() {
                 )
 
                 // redirect
-                router.push("/")
+                // router.push("/")
 
             } else {
 
