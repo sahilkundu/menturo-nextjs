@@ -50,33 +50,38 @@ export default function Input({
                 {placeholder && (
                     <span
                         className={`
-                            absolute
-                            left-4
-                           
-                            px-1
-                            text-[13px]
-                            pointer-events-none
-                            z-10
+            absolute
+            left-4
 
-                            transition-all
-                            duration-300
-                            ease-out
+            bg-[#f8fafc]
 
-                            ${active
+            px-1
+
+            text-[13px]
+            pointer-events-none
+            z-10
+
+            transition-all
+            duration-300
+            ease-[cubic-bezier(0.16,1,0.3,1)]
+
+            ${active
                                 ? `
-                                    top-0
-                                    -translate-y-1/2
-                                    scale-90
-                                  `
+        top-0
+        translate-y-[-35%]
+        scale-90
+      `
                                 : `
-                                    top-1/2
-                                    -translate-y-1/2
-                                    scale-100
-                                  `
+        top-1/2
+        -translate-y-1/2
+        scale-100
+      `
                             }
-                        `}
+        `}
                         style={{
-                            color: "var(--formLabelAndPlaceholder)"
+                            color: active
+                                ? "#6a11cb"
+                                : "var(--formLabelAndPlaceholder)"
                         }}
                     >
                         {placeholder}
