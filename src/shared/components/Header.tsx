@@ -1,17 +1,21 @@
 'use client'
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useLayoutStore } from "../store/uiResStore"
 import { useUserStore } from "../store/user"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 
 
 
 
 export default function Header() {
+    const router = useRouter()
+
     const {
         user,
-        authenticated
+        authenticated,
+        fetchUser,
 
     } = useUserStore()
     const headRight = useLayoutStore(
@@ -34,7 +38,25 @@ export default function Header() {
     const setRightSidebarOpen = useLayoutStore(
         (state) => state.setRightSidebarOpen
     )
+    useEffect(() => {
 
+        const checkAuth = async () => {
+
+            await fetchUser()
+
+            const {
+                authenticated
+            } = useUserStore.getState()
+
+            if (authenticated) {
+
+                router.replace("/")
+            }
+        }
+
+        checkAuth()
+
+    }, [])
     return (
         <>
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -218,10 +240,10 @@ export default function Header() {
 
                         {/* <!-- MODE --> */}
 
-
-                        <button className="w-10 h-10 rounded-full bg-white/15  backdrop-blur-xl border border-white/15 text-white">
-                            🔔
-                        </button>
+                        {authenticated &&
+                            <button className="w-10 h-10 rounded-full bg-white/15  backdrop-blur-xl border border-white/15 text-white">
+                                🔔
+                            </button>}
 
                         {/* DESKTOP PROFILE IMAGE */}
 
@@ -229,27 +251,51 @@ export default function Header() {
                         {/* MOBILE PROFILE IMAGE */}
 
                         {
-                            headRight && (
-                                authenticated ?
+                            authenticated ? (
+
+                                headRight ? (
+
                                     <img
                                         src="https://i.pravatar.cc/100?img=12"
                                         className="
-                w-10
-                h-10
-                rounded-full
-                border-2
-                border-white
-                cursor-pointer
-            "
-                                        onClick={() => headRight && !rightSidebarOpen ? setRightSidebarOpen(true) : ""}
-                                    /> :
-                                    <Link href="/login">
-                                        <button
-                                            className="bg-transparent border-2 border-white rounded-full px-8 py-2.5 text-white font-semibold"
-                                        >
-                                            Sign In
-                                        </button>
-                                    </Link>
+                    w-10
+                    h-10
+                    rounded-full
+                    border-2
+                    border-white
+                    cursor-pointer
+                "
+                                        onClick={() => {
+
+                                            if (!rightSidebarOpen) {
+                                                setRightSidebarOpen(true)
+                                            }
+                                        }}
+                                    />
+
+                                ) : null
+
+                            ) : (
+
+                                <Link href="/login">
+
+                                    <button
+                                        className="
+                                        cursor-pointer
+                    bg-transparent
+                    border-2
+                    border-white
+                    rounded-full
+                    px-8
+                    py-2.5
+                    text-white
+                    font-semibold
+                "
+                                    >
+                                        Sign In
+                                    </button>
+
+                                </Link>
                             )
                         }
 

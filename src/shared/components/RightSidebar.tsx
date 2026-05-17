@@ -6,9 +6,11 @@ import { useLayoutStore } from "../store/uiResStore"
 import Live from "./Live"
 import { useUserStore } from "../store/user"
 export default function RightSidebar() {
+
     const {
         user,
-
+        authenticated,
+        logout
     } = useUserStore()
     const head = useLayoutStore(
         (state) => state.rightMobile
@@ -31,8 +33,43 @@ export default function RightSidebar() {
     useEffect(() => {
         setMounted(true)
     }, [])
+    const handleLogout = async () => {
+
+        try {
+
+            // =========================
+            // Logout API
+            // =========================
+
+            await fetch(
+                "https://menturo-c-plus.onrender.com/logout",
+                {
+                    method: "POST",
+
+                    credentials: "include",
+                }
+            )
+
+            // =========================
+            // Clear Zustand State
+            // =========================
+
+            logout()
+
+            // =========================
+            // Redirect
+            // =========================
+
+            // router.replace("/login")
+
+        } catch (error) {
+
+            console.log(error)
+        }
+    }
 
     return (
+
         <>
 
             {/* OVERLAY */}
@@ -227,6 +264,9 @@ export default function RightSidebar() {
                                 hover:bg-red-100
                                 active:scale-[0.98]
                             "
+                                onClick={() => {
+                                    handleLogout()
+                                }}
                             >
                                 Logout
                             </button>

@@ -8,9 +8,17 @@ import RightSidebar from "../../shared/components/RightSidebar"
 import Footer from "../../shared/components/Footer"
 import LiveBubbleBtn from "../../shared/components/LiveBubbleBtn"
 import { useLayoutStore } from "../../shared/store/uiResStore"
+import { useUserStore } from "../../shared/store/user"
+import { useRouter } from "next/navigation"
 
 export default function HomePage() {
+    const router = useRouter()
 
+    const {
+        user,
+        authenticated
+
+    } = useUserStore()
     const {
 
         leftMobile,
@@ -59,7 +67,7 @@ export default function HomePage() {
             <div className="flex w-full items-start">
 
                 {/* LEFT */}
-                {!leftMobile && (
+                {!leftMobile && authenticated && (
                     <div className="w-[280px] shrink-0 sticky top-0 h-screen overflow-y-auto">
                         <LeftSidebar />
                     </div>
@@ -71,18 +79,18 @@ export default function HomePage() {
                 </div>
 
                 {/* RIGHT */}
-                {!rightMobile && (
+                {!rightMobile && authenticated && (
                     <div className="w-[280px] shrink-0 sticky top-0 h-screen overflow-y-auto">
                         <RightSidebar />
                     </div>
                 )}
 
                 {/* MOBILE DRAWERS */}
-                {leftMobile && (
+                {leftMobile && authenticated && (
                     <LeftSidebar />
                 )}
 
-                {rightMobile && (
+                {rightMobile && authenticated && (
                     <RightSidebar />
                 )}
 
@@ -104,7 +112,11 @@ export default function HomePage() {
                 >
 
                     <div
-                        onClick={() => setRightSidebarOpen(true)}
+                        onClick={() =>
+                            authenticated
+                                ? setRightSidebarOpen(true)
+                                : router.push("/login")
+                        }
                     >
                         <LiveBubbleBtn />
                     </div>
