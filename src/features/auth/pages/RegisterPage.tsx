@@ -214,6 +214,7 @@ export default function Register() {
         authenticated,
         loading,
         fetchUser,
+        setUser
     } = useUserStore()
 
     // =========================
@@ -269,7 +270,17 @@ export default function Register() {
         // Fetch User From Cookie
         // =========================
 
-        await fetchUser()
+        useUserStore.setState({
+            user: data.user,
+            authenticated: true,
+            loading: false,
+        })
+        // wait 2 sec
+        setTimeout(() => {
+
+            router.replace("/")
+
+        }, 2000)
 
         // =========================
         // Redirect Home
@@ -284,27 +295,23 @@ export default function Register() {
     }
     useEffect(() => {
 
-        fetchUser()
+        const checkAuth = async () => {
 
-    }, [])
+            await fetchUser()
 
-    // =========================
-    // Redirect If Logged In
-    // =========================
+            const {
+                authenticated
+            } = useUserStore.getState()
 
-    useEffect(() => {
+            if (authenticated) {
 
-        if (
-            !loading &&
-            authenticated
-        ) {
-            router.replace("/")
+                router.replace("/")
+            }
         }
 
-    }, [
-        authenticated,
-        loading
-    ])
+        checkAuth()
+
+    }, [])
     // =========================
     // PARTICLES
     // =========================

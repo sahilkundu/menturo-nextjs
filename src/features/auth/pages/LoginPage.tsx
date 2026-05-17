@@ -94,131 +94,8 @@ const validatePassword = (password: string) => {
 // API SIGNUP
 // =========================
 
-async function apiSignup(userData: any) {
 
-    const response = await fetch(
-        'https://menturo-c-plus.onrender.com/signup',
-        {
-            method: 'POST',
 
-            headers: {
-                'Content-Type': 'application/json',
-            },
-
-            body: JSON.stringify({
-                username: userData.username,
-                email: userData.email,
-                mobile: userData.mobile,
-                state: userData.state,
-                password: userData.password,
-            }),
-        }
-    )
-
-    const data = await response.json()
-
-    if (!response.ok) {
-
-        if (data.message?.includes('username')) {
-            return {
-                success: false,
-                message: "Username already taken"
-            }
-        }
-
-        if (data.message?.includes('email')) {
-            return {
-                success: false,
-                message: "Email already registered"
-            }
-        }
-
-        if (data.message?.includes('mobile')) {
-            return {
-                success: false,
-                message: "Mobile number already exists"
-            }
-        }
-
-        return {
-            success: false,
-            message: data.message || "Registration failed"
-        }
-    }
-
-    return {
-        success: true,
-        message: "Registration successful!"
-    }
-}
-async function apiLogin(
-    mobile: string,
-    password: string
-) {
-
-    // =========================
-    // MOBILE VALIDATION
-    // =========================
-
-    if (
-        !mobile ||
-        !/^\d{10}$/.test(mobile)
-    ) {
-        return {
-            success: false,
-            message:
-                "Mobile number must be exactly 10 digits"
-        }
-    }
-
-    // =========================
-    // PASSWORD VALIDATION
-    // =========================
-
-    if (!password || password.length < 6) {
-
-        return {
-            success: false,
-            message:
-                "Password must be at least 6 characters"
-        }
-    }
-
-    // =========================
-    // API CALL
-    // =========================
-
-    try {
-
-        const response = await fetch(
-            "https://menturo-c-plus.onrender.com/login",
-            {
-                method: "POST",
-
-                credentials: "include",
-
-                headers: {
-                    "Content-Type":
-                        "application/json",
-                },
-
-                body: JSON.stringify({
-                    mobile,
-                    password,
-                }),
-            }
-        )
-
-        return await response.json()
-
-    } catch {
-
-        return {
-            success: false,
-            message: "Network error"
-        }
-    }
-}
 
 
 
@@ -303,33 +180,122 @@ export default function Login() {
         loading,
     } = useUserStore()
 
+    async function apiLogin(
+        mobile: string,
+        password: string
+    ) {
+
+        // =========================
+        // MOBILE VALIDATION
+        // =========================
+
+        if (
+            !mobile ||
+            !/^\d{10}$/.test(mobile)
+        ) {
+            return {
+                success: false,
+                message:
+                    "Mobile number must be exactly 10 digits"
+            }
+        }
+
+        // =========================
+        // PASSWORD VALIDATION
+        // =========================
+
+        if (!password || password.length < 6) {
+
+            return {
+                success: false,
+                message:
+                    "Password must be at least 6 characters"
+            }
+        }
+
+        // =========================
+        // API CALL
+        // =========================
+
+        try {
+
+            const response = await fetch(
+                "https://menturo-c-plus.onrender.com/login",
+                {
+                    method: "POST",
+
+                    credentials: "include",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json",
+                    },
+
+                    body: JSON.stringify({
+                        mobile,
+                        password,
+                    }),
+                }
+            )
+
+            const data =
+                await response.json()
+
+            // =========================
+            // SUCCESS
+            // =========================
+
+            if (
+                response.ok &&
+                data.success
+            ) {
+
+                useUserStore.setState({
+                    user: data.user,
+                    authenticated: true,
+                    loading: false,
+                })
+
+                setTimeout(() => {
+
+                    router.replace("/")
+
+                }, 2000)
+            }
+
+            return data
+
+        } catch {
+
+            return {
+                success: false,
+                message: "Network error"
+            }
+        }
+    }
     // =========================
     // Check Auth
     // =========================
 
     useEffect(() => {
 
-        fetchUser()
+        const checkAuth = async () => {
 
-    }, [])
+            await fetchUser()
 
-    // =========================
-    // Redirect
-    // =========================
+            const {
+                authenticated
+            } = useUserStore.getState()
 
-    useEffect(() => {
+            if (authenticated) {
 
-        if (
-            !loading &&
-            authenticated
-        ) {
-            router.push("/")
+                router.replace("/")
+            }
         }
 
-    }, [
-        authenticated,
-        loading
-    ])
+        checkAuth()
+
+    }, [])
     // useEffect(() => {
 
     //     const checkAuth = async () => {
