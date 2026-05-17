@@ -296,35 +296,6 @@ export default function Login() {
         checkAuth()
 
     }, [])
-    // useEffect(() => {
-
-    //     const checkAuth = async () => {
-
-    //         try {
-
-    //             const response = await fetch(
-    //                 "http://localhost:8080/auth",
-    //                 {
-    //                     method: "POST",
-
-    //                     credentials: "include",
-    //                 }
-    //             )
-
-    //             const data = await response.json()
-
-    //             console.log(data)
-
-    //         }
-    //         catch (error) {
-
-    //             console.log(error)
-    //         }
-    //     }
-
-    //     checkAuth()
-
-    // }, [])
 
     // =========================
     // ALERT
@@ -359,15 +330,6 @@ export default function Login() {
     // GOOGLE AUTH
     // =========================
 
-    const handleGoogleAuth = (type: 'login' | 'register') => {
-
-        Swal.fire({
-            title: `Google ${type === 'login' ? 'Sign In' : 'Sign Up'}`,
-            text: "Redirecting...",
-            timer: 1500,
-            showConfirmButton: false
-        })
-    }
 
     // =========================
     // REGISTER
@@ -460,38 +422,7 @@ export default function Login() {
     // LOGIN
     // =========================
 
-    // const handleLogin = async (
-    //     e: React.FormEvent
-    // ) => {
 
-    //     e.preventDefault()
-
-    //     if (!loginForm.email || !loginForm.password) {
-    //         showPopupMessage("All fields required")
-    //         return
-    //     }
-
-    //     setLoading(true)
-
-    //     const response =
-    //         await mockBackendLogin(
-    //             loginForm.email,
-    //             loginForm.password
-    //         )
-
-    //     setLoading(false)
-
-    //     if (response.success) {
-
-    //         showPopupMessage(response.message, true)
-
-    //         resetLoginForm()
-
-    //     } else {
-
-    //         showPopupMessage(response.message)
-    //     }
-    // }
     const handleLogin = async (
         e: React.FormEvent
     ) => {
