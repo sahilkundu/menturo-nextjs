@@ -270,11 +270,14 @@ export default function Register() {
         // Fetch User From Cookie
         // =========================
 
-        useUserStore.setState({
-            user: data.user,
-            authenticated: true,
-            loading: false,
-        })
+        // useUserStore.setState({
+        //     user: data.user,
+        //     authenticated: true,
+        //     loading: false,
+        // })
+        useUserStore
+            .getState()
+            .setUser(data.user)
         // wait 2 sec
         setTimeout(() => {
 

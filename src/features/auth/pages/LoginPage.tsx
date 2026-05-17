@@ -250,11 +250,9 @@ export default function Login() {
                 data.success
             ) {
 
-                useUserStore.setState({
-                    user: data.user,
-                    authenticated: true,
-                    loading: false,
-                })
+                useUserStore
+                    .getState()
+                    .setUser(data.user)
 
                 setTimeout(() => {
 
