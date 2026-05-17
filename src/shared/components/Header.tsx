@@ -172,9 +172,10 @@ export default function Header() {
                     <div className="flex items-center gap-4">
 
                         {/* <!-- MOBILE MENU BUTTON (ADDED) --> */}
-                        <div
-                            id="mobileMenuBtn"
-                            className="
+                        {authenticated &&
+                            <div
+                                id="mobileMenuBtn"
+                                className="
         hidden
         max-[1280px]:flex
 
@@ -197,12 +198,12 @@ export default function Header() {
         transition-all
         duration-200
     "
-                            onClick={() =>
-                                headLeft && !leftSidebarOpen ? setLeftSidebarOpen(true) : ""}
+                                onClick={() =>
+                                    headLeft && !leftSidebarOpen ? setLeftSidebarOpen(true) : ""}
 
-                        >
-                            ☰
-                        </div>
+                            >
+                                ☰
+                            </div>}
 
                         <div
                             className="w-12 h-12 rounded-2xl bg-white/15  backdrop-blur-xl border border-white/15 flex items-center justify-center text-white text-xl">
