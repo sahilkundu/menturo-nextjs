@@ -506,7 +506,7 @@ export default function Login() {
 
                 {/* SIGN IN */}
 
-                <div className={`absolute top-0 left-0 h-full transition-all duration-500 ease-in-out w-full lg:w-1/2 z-[2]
+                <div className={`absolute top-0 left-0 h-full transition-all duration-500 ease-in-out w-full md:w-1/2 z-[2]
                 
                         opacity-100 translate-x-0
                     }`}>
@@ -598,7 +598,7 @@ export default function Login() {
 
                 {/* OVERLAY */}
 
-                <div className={`absolute top-0 left-1/2 w-1/2 h-full overflow-hidden transition-transform duration-500 ease-in-out z-[100] hidden lg:block
+                <div className={`absolute top-0 left-1/2 w-1/2 h-full overflow-hidden transition-transform duration-500 ease-in-out z-[100] hidden md:block
                 }`}>
 
                     <div className={`bg-gradient-to-br from-[#6a11cb] to-[#2575fc] text-white relative -left-full h-full w-[200%] transition-transform duration-500 ease-in-out 
