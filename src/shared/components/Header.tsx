@@ -315,80 +315,80 @@ export default function Header() {
                         Welcome Back,  {user?.username}
                     </h3>
 
-                    <p className="text-white/70 mt-2 leading-7 max-w-[650px]">
+                    {/* <p className="text-white/70 mt-2 leading-7 max-w-[650px]">
                         Manage students, online courses, mentors, analytics and performance from one modern
                         dashboard.
-                    </p>
+                    </p> */}
 
                 </div>
 
                 {/* <!-- STATS --> */}
-        <div className="grid grid-cols-2 xl:grid-cols-4 gap-2 mt-2 auto-rows-min w-full">
+                <div className="grid grid-cols-2 xl:grid-cols-4 gap-2 mt-2 auto-rows-min w-full">
 
-    {/* <!-- CARD --> */}
-    <div className="bg-white/15 backdrop-blur-xl border border-white/15 rounded-2xl p-2.5 text-white h-fit">
+                    {/* <!-- CARD --> */}
+                    <div className="bg-white/15 backdrop-blur-xl border border-white/15 rounded-2xl p-2.5 text-white h-fit">
 
-        <p className="text-[11px] text-white/70 mb-1 font-normal">
-            Students
-        </p>
+                        <p className="text-[11px] text-white/70 mb-1 font-normal">
+                            Students
+                        </p>
 
-        <div className="flex items-center justify-between">
+                        <div className="flex items-center justify-between">
 
-            <h2 className="text-lg font-normal">
-                2,635
-            </h2>
+                            <h2 className="text-lg font-normal">
+                                2,635
+                            </h2>
 
-            <button className="w-6 h-6 rounded-full bg-white text-black text-xs font-normal">
-                ↗
-            </button>
+                            <button className="w-6 h-6 rounded-full bg-white text-black text-xs font-normal">
+                                ↗
+                            </button>
 
-        </div>
+                        </div>
 
-    </div>
+                    </div>
 
-    {/* <!-- CARD --> */}
-    <div className="bg-white/15 backdrop-blur-xl border border-white/15 rounded-2xl p-2.5 text-white h-fit">
+                    {/* <!-- CARD --> */}
+                    <div className="bg-white/15 backdrop-blur-xl border border-white/15 rounded-2xl p-2.5 text-white h-fit">
 
-        <p className="text-[11px] text-white/70 mb-1 font-normal">
-            Teachers
-        </p>
+                        <p className="text-[11px] text-white/70 mb-1 font-normal">
+                            Teachers
+                        </p>
 
-        <div className="flex items-center justify-between">
+                        <div className="flex items-center justify-between">
 
-            <h2 className="text-lg font-normal">
-                29
-            </h2>
+                            <h2 className="text-lg font-normal">
+                                29
+                            </h2>
 
-            <button className="w-6 h-6 rounded-full bg-white text-black text-xs font-normal">
-                ↗
-            </button>
+                            <button className="w-6 h-6 rounded-full bg-white text-black text-xs font-normal">
+                                ↗
+                            </button>
 
-        </div>
+                        </div>
 
-    </div>
+                    </div>
 
-    {/* <!-- CARD --> */}
-    <div className="bg-[#ebf46d] rounded-2xl p-2.5 h-fit">
+                    {/* <!-- CARD --> */}
+                    <div className="bg-[#ebf46d] rounded-2xl p-2.5 h-fit">
 
-        <p className="text-[11px] font-normal mb-2">
-            Add Members
-        </p>
+                        <p className="text-[11px] font-normal mb-2">
+                            Add Members
+                        </p>
 
-        <div className="flex gap-1.5 flex-wrap">
+                        <div className="flex gap-1.5 flex-wrap">
 
-            <button className="bg-white px-2 py-1 rounded-lg text-[11px] font-normal">
-                + Student
-            </button>
+                            <button className="bg-white px-2 py-1 rounded-lg text-[11px] font-normal">
+                                + Student
+                            </button>
 
-            <button className="bg-white px-2 py-1 rounded-lg text-[11px] font-normal">
-                + Courses
-            </button>
+                            <button className="bg-white px-2 py-1 rounded-lg text-[11px] font-normal">
+                                + Courses
+                            </button>
 
-        </div>
+                        </div>
 
-    </div>
+                    </div>
 
-</div>
+                </div>
 
             </div>
 
