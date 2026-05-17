@@ -100,42 +100,54 @@ export default function RightSidebar() {
             <div
                 id="profileBottomSheet"
                 className={`
-                    bg-white
-                    overflow-y-auto
-                    transform-gpu
-                    will-change-transform
+        bg-white
+        overflow-y-auto
+        transform-gpu
 
-                    ${head
+        ${head
                         ? `
-                            fixed
-                            left-0
-                            right-0
-                            bottom-0
-                            max-h-[66vh]
-                            z-[1002]
+                fixed
+                left-0
+                right-0
+                bottom-0
+                max-h-[66vh]
+                z-[1002]
 
-                            rounded-t-[30px]
+                rounded-t-[30px]
 
-                            shadow-[0_-10px_40px_rgba(0,0,0,0.18)]
-
-                            transition-all
-                            duration-500
-                            ease-[cubic-bezier(0.22,1,0.36,1)]
-
-                            ${mounted && rightSidebarOpen
-                            ? "translate-y-0 opacity-100"
-                            : "translate-y-full opacity-0"
-                        }
-                          `
+                shadow-[0_-10px_40px_rgba(0,0,0,0.18)]
+              `
                         : `
-                            relative
-                            h-screen
-                            w-full
-                            translate-y-0
-                            opacity-100
-                          `
+                relative
+                h-screen
+                w-full
+              `
                     }
-                `}
+    `}
+                style={{
+                    transform: head
+                        ? mounted && rightSidebarOpen
+                            ? "translateY(0) scale(1)"
+                            : "translateY(100%) scale(0.96)"
+                        : "translateY(0) scale(1)",
+
+                    opacity: head
+                        ? mounted && rightSidebarOpen
+                            ? 1
+                            : 0.92
+                        : 1,
+
+                    transition:
+                        "transform 850ms cubic-bezier(0.16,1,0.3,1), opacity 500ms ease",
+
+                    willChange: "transform, opacity",
+
+                    transformOrigin: "bottom center",
+
+                    backfaceVisibility: "hidden",
+
+                    WebkitFontSmoothing: "antialiased"
+                }}
             >
 
                 {/* HEADER */}
