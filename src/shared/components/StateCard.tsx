@@ -129,7 +129,7 @@ export default function StateCard({
         px-4
         py-4
 
-        min-h-[170px]
+        md:min-h-[170px]
 
         transition-all
         duration-300
