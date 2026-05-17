@@ -75,7 +75,7 @@ export const useUserStore =
 
                 const response =
                     await fetch(
-                        "https://menturo-c-plus.onrender.com/auth",
+                        "https://betaws.menturo.in/auth",
                         {
                             method: "POST",
 
