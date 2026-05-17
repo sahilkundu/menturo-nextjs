@@ -68,19 +68,19 @@ export default function HomePage() {
 
                 {/* LEFT */}
                 {!leftMobile && authenticated && (
-                    <div className="w-[280px] shrink-0 sticky top-0 h-screen overflow-y-auto">
+                    <div className="w-[250px] shrink-0 sticky top-0 h-screen overflow-y-auto">
                         <LeftSidebar />
                     </div>
                 )}
 
                 {/* CENTER */}
-                <div className="flex-1 min-w-0">
+                <div className="flex-1 min-w-0 w-[300px]">
                     <HomeCenter />
                 </div>
 
                 {/* RIGHT */}
                 {!rightMobile && authenticated && (
-                    <div className="w-[280px] shrink-0 sticky top-0 h-screen overflow-y-auto">
+                    <div className="w-[220px] shrink-0 sticky top-0 h-screen overflow-y-auto">
                         <RightSidebar />
                     </div>
                 )}

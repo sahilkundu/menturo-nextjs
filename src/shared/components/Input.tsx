@@ -52,7 +52,7 @@ export default function Input({
                         className={`
                             absolute
                             left-4
-                            bg-white
+                           
                             px-1
                             text-[13px]
                             pointer-events-none
@@ -117,7 +117,7 @@ export default function Input({
                     onBlur={() => setFocused(false)}
                     className={`
                         w-full
-                        h-[54px]
+                        h-[35px]
 
                         bg-[#f8fafc]
                         border
@@ -139,7 +139,7 @@ export default function Input({
                         ${Icon ? "pl-11" : "pl-4"}
                         ${isPassword ? "pr-11" : "pr-4"}
 m-1
-                        leading-[54px]
+                        leading-[35px]
                     `}
                 />
 

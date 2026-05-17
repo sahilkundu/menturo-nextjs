@@ -163,7 +163,7 @@ export default function RightSidebar() {
                                 justify-between
                                 items-center
                                 mb-5
-                                p-5
+                                p-2
                               `
                         }
                     >
@@ -175,7 +175,7 @@ export default function RightSidebar() {
                             </div>
                         )}
 
-                        <h3 className="text-lg md:text-xl font-semibold mt-2">
+                        <h3 className="text-lg text-center md:text-xl font-semibold mt-2">
                             Your Profile
                         </h3>
 
@@ -205,7 +205,7 @@ export default function RightSidebar() {
 
                     </div>}
 
-                <div className="p-5">
+                <div className="p-1">
 
                     {/* PROFILE INFO */}
                     {!liveBubbleOpen &&
@@ -219,9 +219,9 @@ export default function RightSidebar() {
                                 />
                             </div>
 
-                            <h2 className="text-xl md:text-2xl font-bold mt-4">
+                            <h4 className="text-xl md:text-2xl font-bold mt-2">
                                 Good Morning {user?.username}
-                            </h2>
+                            </h4>
 
                             <p className="text-sm md:text-base text-gray-500 mt-2 leading-6">
                                 Continue Your Journey And Achieve Target

@@ -565,9 +565,7 @@ export default function Register() {
 
             {/* MAIN CARD */}
 
-            <div className="relative z-10 w-[930px] max-w-[95%] min-h-[500px] rounded-[28px] overflow-hidden shadow-[0_25px_70px_rgba(0,0,0,0.40)] bg-white flex flex-col lg:flex-row">
-
-                {/* LEFT PANEL */}
+<div className="relative z-10 w-[850px] max-w-[95%] h-[90vh] rounded-[28px] overflow-y-auto shadow-[0_25px_70px_rgba(0,0,0,0.40)] bg-white flex flex-col lg:flex-row">                {/* LEFT PANEL */}
 
                 <div className="hidden lg:flex w-1/2 bg-gradient-to-br from-[#6a11cb] via-[#5b2be0] to-[#3f51f5] relative items-center justify-center px-10">
 
@@ -690,7 +688,7 @@ export default function Register() {
                                         }
                                         className={`
                 w-full
-                h-[54px]
+                h-[38px]
 
                 bg-[#f8fafc]
                 border
@@ -714,7 +712,8 @@ export default function Register() {
                 pr-4
 
                 appearance-none
-                leading-[54px]
+               
+                
 
                 my-2
             `}
@@ -773,7 +772,7 @@ export default function Register() {
                         <button
                             type="submit"
                             disabled={isLoading}
-                            className="mt-6 w-full h-[48px] rounded-full bg-gradient-to-r from-[#6a11cb] to-[#2575fc] text-white text-[13px] font-semibold tracking-wide shadow-lg hover:scale-[1.01] transition-all duration-300"
+                            className="mt-6 w-full h-[38px] rounded-full bg-gradient-to-r from-[#6a11cb] to-[#2575fc] text-white text-[13px] font-semibold tracking-wide shadow-lg hover:scale-[1.01] transition-all duration-300"
                         >
 
                             {isLoading

@@ -43,7 +43,7 @@ export default function LeftSidebar() {
             {/* SIDEBAR */}
             <div
                 className={`
-                    w-[280px]
+                    w-[250px]
                     bg-white
                     overflow-y-auto
                     rounded-r-[24px]
@@ -77,7 +77,7 @@ export default function LeftSidebar() {
                 `}
             >
 
-                <div className="p-5">
+                <div className="p-2">
 
                     {/* MOBILE HEADER */}
                     {head && (
@@ -189,7 +189,7 @@ export default function LeftSidebar() {
                     </div>
 
                     {/* CARD */}
-                    <div className="mt-8 rounded-2xl bg-gradient-to-br from-gray-50 to-gray-100/50 p-5 transition-all hover:shadow-md">
+                    <div className="mt-8 rounded-2xl bg-gradient-to-br from-gray-50 to-gray-100/50 p-2 transition-all hover:shadow-md">
 
                         <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center text-white text-xl">
                             ✦
