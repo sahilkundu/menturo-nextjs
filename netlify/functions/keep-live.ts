@@ -28,6 +28,3 @@ export default async () => {
     }
 }
 
-export const config = {
-    schedule: "*/5 * * * *",
-}
