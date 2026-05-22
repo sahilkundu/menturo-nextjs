@@ -15,6 +15,7 @@ import {
 import { useRegistrationStore } from '../../../shared/store/createAccountStore'
 import LoginExtraFeatures from '../../../shared/components/LoginExtraFeatures'
 import { useUserStore } from '../../../shared/store/user'
+import { REGISTER } from '../../../../api'
 
 // =========================
 // VALIDATIONS
@@ -229,7 +230,7 @@ export default function Register() {
     ) {
 
         const response = await fetch(
-            'https://betaws.menturo.in/signup',
+            REGISTER,
             {
                 method: 'POST',
 

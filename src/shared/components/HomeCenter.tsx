@@ -207,6 +207,7 @@ export default function HomeCenter() {
     "
                                     >
                                         <TestCard
+                                            slug="ssc-cgl"
                                             board="SSC"
                                             liveName="Live"
                                             name="SSC CGL Titan Test Series"

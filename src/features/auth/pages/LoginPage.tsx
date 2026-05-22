@@ -10,6 +10,7 @@ import { Mail, Lock, User, Phone, MapPin } from 'lucide-react'
 import { useRegistrationStore } from '../../../shared/store/createAccountStore'
 import LoginExtraFeatures from '../../../shared/components/LoginExtraFeatures'
 import { useUserStore } from '../../../shared/store/user'
+import { LOGIN } from '../../../../api'
 
 // =========================
 // VALIDATIONS
@@ -220,7 +221,7 @@ export default function Login() {
         try {
 
             const response = await fetch(
-                "https://betaws.menturo.in/login",
+                LOGIN,
                 {
                     method: "POST",
 

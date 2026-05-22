@@ -5,6 +5,7 @@ import { useEffect, useState } from "react"
 import { useLayoutStore } from "../store/uiResStore"
 import Live from "./Live"
 import { useUserStore } from "../store/user"
+import { LOGOUT } from "../../../api"
 export default function RightSidebar() {
 
     const {
@@ -42,7 +43,7 @@ export default function RightSidebar() {
             // =========================
 
             await fetch(
-                "https://betaws.menturo.in/logout",
+                LOGOUT,
                 {
                     method: "POST",
 

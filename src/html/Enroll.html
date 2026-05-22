@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>BharatExam · Enroll Hub | Test Series Dashboard</title>
+    <!-- Tailwind CSS + Google Fonts (Inter) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800;14..32,900&display=swap"
+        rel="stylesheet">
+
+</head>
+
+<body class="antialiased">
+
+    <!-- MAIN WRAPPER: full responsive, no navbar, only username on top left -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-5 md:py-7">
+
+        <!-- simple user greeting row (no navigation) -->
+        <div class="flex justify-between items-center mb-6 md:mb-10 flex-wrap gap-3 border-b border-indigo-100 pb-4">
+            <div class="flex items-center gap-3">
+                <div
+                    class="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-xl font-black shadow-md">
+                    👤</div>
+                <div>
+                    <h1 class="text-xl md:text-2xl font-black tracking-tight text-gray-800">Welcome, <span
+                            class="bg-gradient-to-r from-indigo-700 to-indigo-500 bg-clip-text text-transparent">Aman
+                            Sharma</span></h1>
+                    <p class="text-xs text-gray-500 font-medium">Rolling ID: SSCEXP246 · Prepare Like a Topper</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2 bg-white/60 backdrop-blur-sm rounded-full px-4 py-2 shadow-sm">
+                <span class="text-indigo-500 text-sm font-bold">🎯 Rank Booster</span>
+                <span class="text-gray-600 text-xs font-semibold bg-indigo-50 px-2 py-1 rounded-full">Active Plan:
+                    Premium</span>
+            </div>
+        </div>
+
+        <!-- HERO SECTION: modern & clean (no nav bar, just enroll focus) -->
+        <div id="courseDetailSection" class="mb-8 transition-all">
+            <div id="dynamicDetailContainer"
+                class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+
+                <div class="grid grid-cols-1 lg:grid-cols-5 gap-5">
+
+                    <div class="lg:col-span-3 p-3 sm:p-5 md:p-7 min-w-0">
+                        <div class="flex items-center gap-2 mb-3 flex-wrap">
+                            <span
+                                class="bg-rose-100 text-rose-700 text-[10px] sm:text-xs font-bold px-3 py-1 rounded-full">⭐
+                                Bestseller</span>
+                            <span class="text-yellow-500 text-[11px] sm:text-sm">★★★★★ (2.4k reviews)</span>
+                        </div>
+
+                        <h5
+                            class="text-[14px] sm:text-3xl md:text-4xl font-black tracking-tight text-gray-900 leading-tight">
+                            SSC GD Constable 2026 Platinum Pack
+                            </h2>
+
+                            <p class="text-gray-600 text-[13px] sm:text-base leading-relaxed mt-3 mb-2">
+                                120+ full-length mock tests based on latest SSC GD pattern, previous year paper
+                                replicas, chapter-wise quizzes, GK special booster & All India Rank. Bilingual support
+                                (Hindi + English).
+                            </p>
+
+                            <div
+                                class="bg-[#f8fafc] max-w-4xl w-full rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh] sm:max-h-[95vh] animate-fade-in-up border border-gray-100">
+
+
+                                <div class="overflow-y-auto custom-scroll p-3 sm:p-4 space-y-4 flex-1">
+
+                                    <div class="flex gap-2 sm:gap-3 shrink-0">
+                                        <button
+                                            class="bg-[#00b4d8] text-white px-4 sm:px-5 py-2 rounded-full font-bold text-xs sm:text-sm shadow-sm transition">
+                                            Mock Tests
+                                        </button>
+                                        <button
+                                            class="bg-white border border-gray-200 text-gray-600 px-4 sm:px-5 py-2 rounded-full font-semibold text-xs sm:text-sm hover:bg-gray-50 transition">
+                                            PYPs
+                                        </button>
+                                    </div>
+
+                                    <div class="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
+
+
+                                        <div
+                                            class="p-3 bg-[#fafafa] border-b border-gray-100 flex gap-2 overflow-x-auto no-scrollbar">
+                                            <span
+                                                class="bg-slate-500 text-white text-[11px] px-3 py-1.5 rounded font-medium cursor-pointer shrink-0">All</span>
+                                            <span
+                                                class="bg-white border text-gray-600 text-[11px] px-3 py-1.5 rounded font-medium whitespace-nowrap shrink-0">General
+                                                Intelligence and Reasoning</span>
+                                            <span
+                                                class="bg-white border text-gray-600 text-[11px] px-3 py-1.5 rounded font-medium whitespace-nowrap shrink-0">General
+                                                Awareness</span>
+                                            <span
+                                                class="bg-white border text-gray-600 text-[11px] px-3 py-1.5 rounded font-medium whitespace-nowrap shrink-0">Quantitative
+                                                Aptitude</span>
+                                        </div>
+
+                                        <div class="p-2 sm:p-4 bg-[#f8fafc]/50 space-y-3">
+
+                                            <div
+                                                class="bg-white border border-gray-200 rounded-xl p-3 sm:p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 transition">
+                                                <div class="space-y-1.5 min-w-0 w-full sm:w-auto">
+                                                    <div class="flex items-center gap-2 flex-wrap">
+                                                        <h4
+                                                            class="font-bold text-gray-900 text-xs sm:text-sm leading-snug">
+                                                            General Intelligence and Reasoning Sectional Test - 1</h4>
+                                                        <span
+                                                            class="text-amber-500 text-[10px] font-bold bg-amber-50 px-1.5 py-0.5 rounded shrink-0">⚡
+                                                            64.1k Users</span>
+                                                    </div>
+                                                    <div
+                                                        class="flex gap-3 text-[11px] text-gray-400 font-medium flex-wrap">
+                                                        <span>📄 25 Questions</span> <span>📊 50 Marks</span> <span>⏱️
+                                                            15 Mins</span>
+                                                    </div>
+                                                    <div
+                                                        class="text-[11px] text-sky-600 font-semibold flex items-center gap-1">
+                                                        🌐 English, Hindi</div>
+                                                </div>
+                                                <a href="testMaster.html"> <button
+                                                        onclick="alert('Proceeding to unlock...')"
+                                                        class="w-full sm:w-auto shrink-0 bg-[#4A3F77] text-white font-[500] px-4 py-2 rounded-xl text-[11px] flex items-center justify-center gap-2 shadow-[0_4px_12px_rgba(74,63,119,0.3)] hover:shadow-[0_6px_18px_rgba(74,63,119,0.4)] hover:-translate-y-0.5 transition-all active:scale-95">
+                                                        <span class="bg-white/15 p-1 rounded-md text-[10px]">🔒</span>
+                                                        <span class="tracking-normal">Unlock Now</span>
+                                                    </button></a>
+                                            </div>
+
+                                            <div
+                                                class="bg-white border border-gray-200 rounded-xl p-3 sm:p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 transition">
+                                                <div class="space-y-1.5 min-w-0 w-full sm:w-auto">
+                                                    <div class="flex items-center gap-2 flex-wrap">
+                                                        <h4
+                                                            class="font-bold text-gray-900 text-xs sm:text-sm leading-snug">
+                                                            Science Sectional Test - 2</h4>
+                                                        <span
+                                                            class="text-amber-500 text-[10px] font-bold bg-amber-50 px-1.5 py-0.5 rounded shrink-0">⚡
+                                                            36.4k Users</span>
+                                                    </div>
+                                                    <div
+                                                        class="flex gap-3 text-[11px] text-gray-400 font-medium flex-wrap">
+                                                        <span>📄 25 Questions</span> <span>📊 50 Marks</span> <span>⏱️
+                                                            15 Mins</span>
+                                                    </div>
+                                                    <div
+                                                        class="text-[11px] text-sky-600 font-semibold flex items-center gap-1">
+                                                        🌐 English, Hindi</div>
+                                                </div>
+                                                <button onclick="alert('Proceeding to unlock...')"
+                                                    class="w-full sm:w-auto shrink-0 bg-[#4A3F77] text-white font-[500] px-4 py-2 rounded-xl text-[11px] flex items-center justify-center gap-2 shadow-[0_4px_12px_rgba(74,63,119,0.3)] hover:shadow-[0_6px_18px_rgba(74,63,119,0.4)] hover:-translate-y-0.5 transition-all active:scale-95">
+                                                    <span class="bg-white/15 p-1 rounded-md text-[10px]">🔒</span>
+                                                    <span class="tracking-normal">Unlock Now</span>
+                                                </button>
+                                            </div>
+                                            <div
+                                                class="bg-white border border-gray-200 rounded-xl p-3 sm:p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 transition">
+                                                <div class="space-y-1.5 min-w-0 w-full sm:w-auto">
+                                                    <div class="flex items-center gap-2 flex-wrap">
+                                                        <h4
+                                                            class="font-bold text-gray-900 text-xs sm:text-sm leading-snug">
+                                                            Math Algebra Sectional Test - 2</h4>
+                                                        <span
+                                                            class="text-amber-500 text-[10px] font-bold bg-amber-50 px-1.5 py-0.5 rounded shrink-0">⚡
+                                                            36.4k Users</span>
+                                                    </div>
+                                                    <div
+                                                        class="flex gap-3 text-[11px] text-gray-400 font-medium flex-wrap">
+                                                        <span>📄 25 Questions</span> <span>📊 50 Marks</span> <span>⏱️
+                                                            15 Mins</span>
+                                                    </div>
+                                                    <div
+                                                        class="text-[11px] text-sky-600 font-semibold flex items-center gap-1">
+                                                        🌐 English, Hindi</div>
+                                                </div>
+                                                <button onclick="alert('Proceeding to unlock...')"
+                                                    class="w-full sm:w-auto shrink-0 bg-[#4A3F77] text-white font-[500] px-4 py-2 rounded-xl text-[11px] flex items-center justify-center gap-2 shadow-[0_4px_12px_rgba(74,63,119,0.3)] hover:shadow-[0_6px_18px_rgba(74,63,119,0.4)] hover:-translate-y-0.5 transition-all active:scale-95">
+                                                    <span class="bg-white/15 p-1 rounded-md text-[10px]">🔒</span>
+                                                    <span class="tracking-normal">Unlock Now</span>
+                                                </button>
+                                            </div>
+                                            <div
+                                                class="bg-white border border-gray-200 rounded-xl p-3 sm:p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 transition">
+                                                <div class="space-y-1.5 min-w-0 w-full sm:w-auto">
+                                                    <div class="flex items-center gap-2 flex-wrap">
+                                                        <h4
+                                                            class="font-bold text-gray-900 text-xs sm:text-sm leading-snug">
+                                                            Reasoning Sectional Test - 2</h4>
+                                                        <span
+                                                            class="text-amber-500 text-[10px] font-bold bg-amber-50 px-1.5 py-0.5 rounded shrink-0">⚡
+                                                            36.4k Users</span>
+                                                    </div>
+                                                    <div
+                                                        class="flex gap-3 text-[11px] text-gray-400 font-medium flex-wrap">
+                                                        <span>📄 25 Questions</span> <span>📊 50 Marks</span> <span>⏱️
+                                                            15 Mins</span>
+                                                    </div>
+                                                    <div
+                                                        class="text-[11px] text-sky-600 font-semibold flex items-center gap-1">
+                                                        🌐 English, Hindi</div>
+                                                </div>
+                                                <button onclick="alert('Proceeding to unlock...')"
+                                                    class="w-full sm:w-auto shrink-0 bg-[#4A3F77] text-white font-[500] px-4 py-2 rounded-xl text-[11px] flex items-center justify-center gap-2 shadow-[0_4px_12px_rgba(74,63,119,0.3)] hover:shadow-[0_6px_18px_rgba(74,63,119,0.4)] hover:-translate-y-0.5 transition-all active:scale-95">
+                                                    <span class="bg-white/15 p-1 rounded-md text-[10px]">🔒</span>
+                                                    <span class="tracking-normal">Unlock Now</span>
+                                                </button>
+                                            </div>
+
+                                            <div
+                                                class="bg-white border border-gray-200 rounded-xl p-3 sm:p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 transition">
+                                                <div class="space-y-1.5 min-w-0 w-full sm:w-auto">
+                                                    <div class="flex items-center gap-2 flex-wrap">
+                                                        <h4
+                                                            class="font-bold text-gray-900 text-xs sm:text-sm leading-snug">
+                                                            General Intelligence and Reasoning Sectional Test - 3</h4>
+                                                        <span
+                                                            class="text-amber-500 text-[10px] font-bold bg-amber-50 px-1.5 py-0.5 rounded shrink-0">⚡
+                                                            25.8k Users</span>
+                                                    </div>
+                                                    <div
+                                                        class="flex gap-3 text-[11px] text-gray-400 font-medium flex-wrap">
+                                                        <span>📄 25 Questions</span> <span>📊 50 Marks</span> <span>⏱️
+                                                            15 Mins</span>
+                                                    </div>
+                                                    <div
+                                                        class="text-[11px] text-sky-600 font-semibold flex items-center gap-1">
+                                                        🌐 English, Hindi</div>
+                                                </div>
+                                                <button onclick="alert('Proceeding to unlock...')"
+                                                    class="w-full sm:w-auto shrink-0 bg-[#4A3F77] text-white font-[500] px-4 py-2 rounded-xl text-[11px] flex items-center justify-center gap-2 shadow-[0_4px_12px_rgba(74,63,119,0.3)] hover:shadow-[0_6px_18px_rgba(74,63,119,0.4)] hover:-translate-y-0.5 transition-all active:scale-95">
+                                                    <span class="bg-white/15 p-1 rounded-md text-[10px]">🔒</span>
+                                                    <span class="tracking-normal">Unlock Now</span>
+                                                </button>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                            </div>
+                    </div>
+
+                    <div class="lg:col-span-2 p-3 sm:p-5 md:p-7 mt-10">
+
+
+
+
+
+
+
+
+                        <div class="lg:col-span-1">
+                            <div
+                                class="bg-white rounded-2xl shadow-md border border-indigo-50 sticky top-6 overflow-hidden">
+                                <div class="bg-indigo-50 px-5 py-4 border-b border-indigo-100">
+                                    <h3 class="font-black text-gray-800 flex items-center gap-2"><span
+                                            class="text-indigo-600 text-xl">📋</span>What's Included in this Pack</h3>
+                                    <p class="text-xs text-gray-500 mt-1">Updated every week · Access on any device</p>
+                                </div>
+                                <div class="p-5 max-h-[550px] overflow-y-auto custom-scroll">
+                                    <div class="mb-5">
+                                        <div class="flex items-center justify-between mb-2"><span
+                                                class="font-bold text-indigo-800 text-sm">🔥 THIS WEEK (Free for
+                                                all)</span><span
+                                                class="bg-green-100 text-green-700 text-[10px] px-2 py-0.5 rounded-full">Live
+                                                Now</span></div>
+                                        <div class="space-y-3">
+                                            <div class="flex justify-between items-center border-b pb-2">
+                                                <div>
+                                                    <p class="font-medium text-sm">✓ 120 Full Mock Tests (Tier-I style)
+                                                    </p>
+                                                    <p class="text-[11px] text-gray-400">Starts: 18th May · 60 min</p>
+                                                </div><span
+                                                    class="bg-indigo-100 text-indigo-700 text-xs px-3 py-1 rounded-full">FREE</span>
+                                            </div>
+                                            <div class="flex justify-between items-center border-b pb-2">
+                                                <div>
+                                                    <p class="font-medium text-sm">✓ 35 Chapter-wise Topic Tests</p>
+                                                    <p class="text-[11px] text-gray-400">Weekly Challenge · 50 Qs</p>
+                                                </div><span
+                                                    class="bg-indigo-100 text-indigo-700 text-xs px-3 py-1 rounded-full">FREE</span>
+                                            </div>
+                                            <div class="flex justify-between items-center border-b pb-2">
+                                                <div>
+                                                    <p class="font-medium text-sm"> ✓ Weekly Sunday Grand Mock (FREE)
+                                                    </p>
+                                                    <p class="text-[11px] text-gray-400">Every Saturday · Rank Live</p>
+                                                </div><span
+                                                    class="bg-indigo-100 text-indigo-700 text-xs px-3 py-1 rounded-full">FREE</span>
+                                            </div>
+                                            <div class="flex justify-between items-center border-b pb-2">
+                                                <div>
+                                                    <p class="font-medium text-sm"> ✓ Access on Desktop, Laptop, Tablet,
+                                                        Mobile</p>
+                                                    <p class="text-[11px] text-gray-400">Starts: 18th May · 60 min</p>
+                                                </div><span
+                                                    class="bg-indigo-100 text-indigo-700 text-xs px-3 py-1 rounded-full">FREE</span>
+                                            </div>
+                                            <div class="flex justify-between items-center border-b pb-2">
+                                                <div>
+                                                    <p class="font-medium text-sm"> ✓ 15 Previous Year Solved Papers</p>
+                                                    <p class="text-[11px] text-gray-400">Weekly Challenge · 50 Qs</p>
+                                                </div><span
+                                                    class="bg-indigo-100 text-indigo-700 text-xs px-3 py-1 rounded-full">FREE</span>
+                                            </div>
+                                            <div class="flex justify-between items-center border-b pb-2">
+                                                <div>
+                                                    <p class="font-medium text-sm"> ✓ GK & Current Affairs booster
+                                                    </p>
+                                                    <p class="text-[11px] text-gray-400">Every Saturday · Rank Live</p>
+                                                </div><span
+                                                    class="bg-indigo-100 text-indigo-700 text-xs px-3 py-1 rounded-full">FREE</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="mb-4">
+                                        <div class="flex items-center gap-2"><span class="text-sm font-black">📌 All
+                                                Practice Tests (included)</span><span
+                                                class="bg-gray-200 text-[10px] px-2 rounded-full">450+</span></div>
+                                        <ul class="mt-3 space-y-2 text-sm text-gray-700">
+                                            <li class="flex gap-2 text-xs md:text-sm"><span
+                                                    class="text-indigo-500">✓</span> SSC CGL Tier 1 & 2 (Full length)
+                                            </li>
+                                            <li class="flex gap-2 text-xs md:text-sm"><span
+                                                    class="text-indigo-500">✓</span> SSC GD Constable Topic wise 95+
+                                                tests</li>
+                                            <li class="flex gap-2 text-xs md:text-sm"><span
+                                                    class="text-indigo-500">✓</span> Railway Group D previous year
+                                                papers set</li>
+                                            <li class="flex gap-2 text-xs md:text-sm"><span
+                                                    class="text-indigo-500">✓</span> Banking Puzzle Booster & DI master
+                                            </li>
+                                            <li class="flex gap-2 text-xs md:text-sm"><span
+                                                    class="text-indigo-500">✓</span> Weekly All India Open Mock (every
+                                                Sunday)</li>
+                                            <li class="flex gap-2 text-xs md:text-sm"><span
+                                                    class="text-indigo-500">✓</span> Chapter-wise quizzes & revision
+                                                tests</li>
+                                        </ul>
+                                    </div>
+                                    <div class="bg-gradient-to-r from-indigo-50 to-white p-4 rounded-xl border mt-3">
+                                        <p class="text-[12px] font-bold flex items-center gap-1">🖥️💻📱 Cross-Platform
+                                            Access</p>
+                                        <p class="text-[11px] text-gray-500 mt-1">Use your same account on Desktop,
+                                            Laptop, Tablet, Mobile. Progress sync automatically.</p>
+                                        <div class="flex mt-3 gap-2 text-gray-600 text-[10px] font-medium"><span>✔
+                                                Windows</span><span>✔ macOS</span><span>✔ Android</span><span>✔
+                                                iOS</span></div>
+                                    </div>
+                                </div>
+                                <!-- sidebar bottom note -->
+                                <div class="bg-gray-50 p-3 text-center text-[10px] text-gray-400 border-t">🎓 Enroll any
+                                    course & unlock full test library + weekly challenges</div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+        <!-- MAIN ENROLL & PAYMENT SECTION + SIDEBAR WITH FREE/WEEKLY TESTS -->
+        <div class="grid lg:grid-cols-3 gap-7 md:gap-9">
+            <div class="bg-white rounded-3xl  shadow-xl border border-gray-200 p-4 sm:p-6 lg:sticky lg:top-6">
+
+                <!-- Header -->
+                <h3 class="text-lg sm:text-xl font-black text-gray-800 flex items-center gap-2">
+                    <span>💰</span> Payment Summary
+                    <span class="bg-green-100 text-green-700 text-[10px] px-2 py-0.5 rounded-full ml-2">🔥 Limited
+                        Offer</span>
+                </h3>
+
+                <div class="mt-5 space-y-4">
+
+                    <!-- Original Price with Discount -->
+
+
+                    <!-- Course Price -->
+                    <div class="flex justify-between items-center pb-2 border-b border-dashed">
+                        <span class="text-gray-600 text-sm sm:text-base font-medium">Course Price</span>
+                        <div class="text-right">
+                            <span class="font-bold text-gray-900 text-lg sm:text-xl">₹399</span>
+                            <span class="text-green-600 text-[10px] ml-2 bg-green-50 px-1.5 py-0.5 rounded">73%
+                                OFF</span>
+                        </div>
+                    </div>
+
+                    <!-- You Save -->
+                    <div class="flex justify-between items-center pb-2 border-b border-dashed">
+                        <span class="text-green-600 text-sm sm:text-base font-medium">🎉 You Save</span>
+                        <span class="text-green-700 font-bold text-sm">- ₹1100</span>
+                    </div>
+
+                    <!-- Platform Fee -->
+
+                    <!-- 2 Devices Access -->
+
+
+                    <!-- EMI Option -->
+
+                    <!-- Coupon Code -->
+                    <div class="flex items-center gap-2 pb-2 border-b border-dashed">
+                        <input type="text" placeholder="Apply Coupon Code"
+                            class="w-full text-sm border border-gray-200 rounded-xl px-3 py-2 focus:outline-none focus:border-indigo-400">
+                        <button
+                            class="bg-gray-100 hover:bg-indigo-100 text-indigo-600 text-xs font-bold px-3 py-2 rounded-xl whitespace-nowrap">Apply</button>
+                    </div>
+
+                    <!-- Total Amount -->
+                    <div
+                        class="flex justify-between items-center pt-2 bg-gradient-to-r from-indigo-50 to-indigo-100 p-3 rounded-2xl">
+                        <span class="font-black text-gray-800 text-sm sm:text-base">Total Amount</span>
+                        <span class="text-xl sm:text-2xl font-black text-indigo-700">₹447</span>
+                    </div>
+                </div>
+
+                <!-- Payment Icons -->
+                <div class="mt-4 flex justify-center gap-4 text-gray-500 text-sm flex-wrap">
+                    <span class="flex items-center gap-1 bg-gray-50 px-2 py-1 rounded-lg">💳 UPI</span>
+                    <span class="flex items-center gap-1 bg-gray-50 px-2 py-1 rounded-lg">💳 Card</span>
+                    <span class="flex items-center gap-1 bg-gray-50 px-2 py-1 rounded-lg">🏦 NetBanking</span>
+                    <span class="flex items-center gap-1 bg-gray-50 px-2 py-1 rounded-lg">📱 Wallet</span>
+                </div>
+
+                <!-- Buy Button -->
+                <div class="mt-5">
+                    <button onclick="openTestDetailsModal('SSC GD Platinum Pack')"
+                        class="w-full bg-indigo-700 hover:bg-indigo-800 text-white font-bold py-3.5 rounded-2xl text-sm sm:text-base shadow-md transition flex items-center justify-center gap-2">
+                        🚀 Buy Now / Enroll Now
+                    </button>
+                </div>
+
+                <!-- Refund + Security + Device Info -->
+                <div class="mt-4 text-center space-y-2">
+                    <p class="text-[11px] text-gray-400 flex items-center justify-center gap-3 flex-wrap">
+                        <span>✅ 7-Day Money Back Guarantee</span>
+                        <span>🔒 100% Secure Payment</span>
+
+                    </p>
+                    <p class="text-[10px] text-gray-300">Instant Access · Lifetime Validity · 24x7 Support</p>
+                </div>
+
+            </div>
+            <!-- LEFT + CENTER : ENROLL COURSES + PAYMENT SIMULATION (Buy Now / Enroll) -->
+            <div class="lg:col-span-2 space-y-6 overflow-hidden">
+
+                <!-- TOP HEADER + MOBILE ICONS -->
+                <div class="flex items-center justify-between gap-3 flex-wrap">
+
+                    <div>
+                        <h3 class="text-xl sm:text-2xl font-black flex items-center gap-2 text-gray-900">
+                            <span class="bg-indigo-600 w-2 h-7 rounded-full"></span>
+                            🔥 Premium Test Series
+                        </h3>
+
+                        <p class="text-gray-500 text-xs sm:text-sm mt-1">
+                            Choose your exam pack. One-time payment gets full access.
+                        </p>
+                    </div>
+
+                    <!-- MOBILE SLIDER ICONS -->
+                    <div class="flex gap-2 md:hidden">
+                        <button onclick="premiumCardsPrev()"
+                            class="w-9 h-9 rounded-xl bg-white border border-gray-200 shadow-sm text-lg font-bold">
+                            ‹
+                        </button>
+
+                        <button onclick="premiumCardsNext()"
+                            class="w-9 h-9 rounded-xl bg-indigo-50 border border-indigo-200 text-indigo-700 shadow-sm text-lg font-bold">
+                            ›
+                        </button>
+                    </div>
+
+                </div>
+
+                <!-- PREMIUM CARDS -->
+                <div id="premiumCardsWrapper"
+                    class="flex md:grid md:grid-cols-2 gap-4 overflow-x-auto md:overflow-visible scroll-smooth no-scrollbar pb-2">
+
+                    <!-- CARD 1 -->
+                    <div
+                        class="min-w-[300px] sm:min-w-[340px] md:min-w-0 bg-white rounded-3xl shadow-md border border-gray-100 overflow-hidden transition hover:-translate-y-1 hover:shadow-xl">
+
+                        <div class="p-5">
+
+                            <div class="flex justify-between items-start gap-2">
+                                <span class="bg-rose-100 text-rose-700 text-[10px] font-bold px-3 py-1 rounded-full">
+                                    #1 Bestseller
+                                </span>
+
+                                <span class="text-yellow-500 text-xs">
+                                    ⭐⭐⭐⭐⭐
+                                </span>
+                            </div>
+
+                            <h4 class="text-xl font-black mt-4 text-gray-900">
+                                SSC GD Constable 2026
+                            </h4>
+
+                            <p class="text-gray-500 text-sm leading-relaxed mt-2">
+                                Full-length mocks + chapter-wise drills + All India percentile.
+                            </p>
+
+                            <div class="flex items-center gap-2 mt-5 flex-wrap">
+                                <span class="text-3xl font-black text-indigo-700">₹399</span>
+
+                                <span class="text-gray-400 line-through text-sm">
+                                    ₹1499
+                                </span>
+
+                                <span class="bg-green-100 text-green-700 text-[10px] font-bold px-2 py-1 rounded-full">
+                                    73% OFF
+                                </span>
+                            </div>
+
+                            <div class="mt-5 space-y-2 text-xs text-gray-600">
+                                <div class="flex items-center gap-2">
+                                    <span>✅</span>
+                                    <span>120+ Full Mock Tests</span>
+                                </div>
+
+                                <div class="flex items-center gap-2">
+                                    <span>✅</span>
+                                    <span>40 Sectional Tests</span>
+                                </div>
+
+                                <div class="flex items-center gap-2">
+                                    <span>✅</span>
+                                    <span>Weekly Challenge Exam</span>
+                                </div>
+                            </div>
+
+                            <button onclick="showPaymentSimulation('SSC GD Constable 2026', '₹399')"
+                                class="w-full mt-6 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-2xl text-sm shadow-md transition">
+                                🚀 Buy Now / Enroll
+                            </button>
+
+                        </div>
+                    </div>
+
+                    <!-- CARD 2 -->
+                    <div
+                        class="min-w-[300px] sm:min-w-[340px] md:min-w-0 bg-white rounded-3xl shadow-md border border-gray-100 overflow-hidden transition hover:-translate-y-1 hover:shadow-xl">
+
+                        <div class="p-5">
+
+                            <div class="flex justify-between items-start gap-2">
+                                <span class="bg-amber-100 text-amber-700 text-[10px] font-bold px-3 py-1 rounded-full">
+                                    🔥 Popular
+                                </span>
+
+                                <span class="text-yellow-500 text-xs">
+                                    ⭐⭐⭐⭐
+                                </span>
+                            </div>
+
+                            <h4 class="text-xl font-black mt-4 text-gray-900">
+                                Railway Group D + NTPC
+                            </h4>
+
+                            <p class="text-gray-500 text-sm leading-relaxed mt-2">
+                                CBT mocks, Physics, Reasoning & Current Affairs booster.
+                            </p>
+
+                            <div class="flex items-center gap-2 mt-5 flex-wrap">
+                                <span class="text-3xl font-black text-indigo-700">₹549</span>
+
+                                <span class="text-gray-400 line-through text-sm">
+                                    ₹1799
+                                </span>
+
+                                <span class="bg-green-100 text-green-700 text-[10px] font-bold px-2 py-1 rounded-full">
+                                    69% OFF
+                                </span>
+                            </div>
+
+                            <div class="mt-5 space-y-2 text-xs text-gray-600">
+                                <div class="flex items-center gap-2">
+                                    <span>✅</span>
+                                    <span>180+ Mock Exams</span>
+                                </div>
+
+                                <div class="flex items-center gap-2">
+                                    <span>✅</span>
+                                    <span>All India Rank</span>
+                                </div>
+
+                                <div class="flex items-center gap-2">
+                                    <span>✅</span>
+                                    <span>Weekly Live Tests</span>
+                                </div>
+                            </div>
+
+                            <button onclick="showPaymentSimulation('Railway Group D + NTPC Mega Pack', '₹549')"
+                                class="w-full mt-6 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-2xl text-sm shadow-md transition">
+                                💳 Buy Now / Enroll
+                            </button>
+
+                        </div>
+                    </div>
+
+                    <!-- CARD 3 -->
+                    <div
+                        class="min-w-[300px] sm:min-w-[340px] md:min-w-0 bg-white rounded-3xl shadow-md border border-gray-100 overflow-hidden transition hover:-translate-y-1 hover:shadow-xl">
+
+                        <div class="p-5">
+
+                            <div class="flex justify-between items-start gap-2">
+                                <span
+                                    class="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-3 py-1 rounded-full">
+                                    🎯 Expert Pick
+                                </span>
+
+                                <span class="text-yellow-500 text-xs">
+                                    ⭐⭐⭐⭐⭐
+                                </span>
+                            </div>
+
+                            <h4 class="text-xl font-black mt-4 text-gray-900">
+                                SBI PO + IBPS Clerk
+                            </h4>
+
+                            <p class="text-gray-500 text-sm leading-relaxed mt-2">
+                                Puzzle sets, DI mastery & mains simulator included.
+                            </p>
+
+                            <div class="flex items-center gap-2 mt-5 flex-wrap">
+                                <span class="text-3xl font-black text-indigo-700">₹649</span>
+
+                                <span class="text-gray-400 line-through text-sm">
+                                    ₹1999
+                                </span>
+
+                                <span class="bg-green-100 text-green-700 text-[10px] font-bold px-2 py-1 rounded-full">
+                                    67% OFF
+                                </span>
+                            </div>
+
+                            <div class="mt-5 space-y-2 text-xs text-gray-600">
+                                <div class="flex items-center gap-2">
+                                    <span>✅</span>
+                                    <span>45 Full Length Tests</span>
+                                </div>
+
+                                <div class="flex items-center gap-2">
+                                    <span>✅</span>
+                                    <span>20+ Weekly Challenges</span>
+                                </div>
+
+                                <div class="flex items-center gap-2">
+                                    <span>✅</span>
+                                    <span>Cross Device Sync</span>
+                                </div>
+                            </div>
+
+                            <button onclick="showPaymentSimulation('SBI PO + IBPS Clerk Premium', '₹649')"
+                                class="w-full mt-6 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-2xl text-sm shadow-md transition">
+                                💸 Enroll Now
+                            </button>
+
+                        </div>
+                    </div>
+
+                    <!-- CARD 4 -->
+                    <div
+                        class="min-w-[300px] sm:min-w-[340px] md:min-w-0 bg-white rounded-3xl shadow-md border border-gray-100 overflow-hidden transition hover:-translate-y-1 hover:shadow-xl">
+
+                        <div class="p-5">
+
+                            <div class="flex justify-between items-start gap-2">
+                                <span
+                                    class="bg-purple-100 text-purple-700 text-[10px] font-bold px-3 py-1 rounded-full">
+                                    ⭐ Combo Offer
+                                </span>
+
+                                <span class="text-yellow-500 text-xs">
+                                    ⭐⭐⭐⭐
+                                </span>
+                            </div>
+
+                            <h4 class="text-xl font-black mt-4 text-gray-900">
+                                SSC CGL + CHSL
+                            </h4>
+
+                            <p class="text-gray-500 text-sm leading-relaxed mt-2">
+                                Adaptive tests + descriptive practice with AI analysis.
+                            </p>
+
+                            <div class="flex items-center gap-2 mt-5 flex-wrap">
+                                <span class="text-3xl font-black text-indigo-700">₹799</span>
+
+                                <span class="text-gray-400 line-through text-sm">
+                                    ₹2499
+                                </span>
+
+                                <span class="bg-green-100 text-green-700 text-[10px] font-bold px-2 py-1 rounded-full">
+                                    68% OFF
+                                </span>
+                            </div>
+
+                            <div class="mt-5 space-y-2 text-xs text-gray-600">
+                                <div class="flex items-center gap-2">
+                                    <span>✅</span>
+                                    <span>250+ Full Tests</span>
+                                </div>
+
+                                <div class="flex items-center gap-2">
+                                    <span>✅</span>
+                                    <span>National Mock Weekly</span>
+                                </div>
+
+                                <div class="flex items-center gap-2">
+                                    <span>✅</span>
+                                    <span>Unlimited Access</span>
+                                </div>
+                            </div>
+
+                            <button onclick="showPaymentSimulation('SSC CGL + CHSL Titanium', '₹799')"
+                                class="w-full mt-6 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-2xl text-sm shadow-md transition">
+                                📚 Buy Now
+                            </button>
+
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- RIGHT SIDEBAR : FREE + WEEKLY TEST LIST + ALL AVAILABLE TESTS (desktop/mobile/laptop) -->
+
+        </div>
+
+        <!-- footer note about all free tests + small font but clean -->
+
+    </div>
+
+    <!-- payment + modal js (smooth) -->
+    <script>
+        // payment simulation: store current course name & price
+        let currentCourse = '';
+        let currentPrice = '';
+
+        function showPaymentSimulation(courseName, price) {
+            currentCourse = courseName;
+            currentPrice = price;
+            document.getElementById('paymentCourseName').innerText = courseName;
+            document.getElementById('paymentAmount').innerText = price;
+            const modal = document.getElementById('paymentModal');
+            modal.classList.remove('hidden');
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closePaymentModal() {
+            const modal = document.getElementById('paymentModal');
+            modal.classList.add('hidden');
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        function closePaymentModalIfOutside(event) {
+            const modal = document.getElementById('paymentModal');
+            if (event.target === modal) {
+                closePaymentModal();
+            }
+        }
+
+        function simulatePaymentSuccess() {
+            // payment success simulation -> success alert + enrollment complete + optional redirect feel
+            if (confirm(`✅ Payment of ${currentPrice} successful for "${currentCourse}"!\nYou have been enrolled. You can now access all premium tests + free weekly tests.`)) {
+                alert(`🎉 Welcome to ${currentCourse} 🎉\nCheck "Free & Weekly Test Series" sidebar. Happy learning!`);
+                closePaymentModal();
+                // optional: any UI feedback (toast style)
+                const toast = document.createElement('div');
+                toast.innerText = `✨ Enrolled in ${currentCourse} successfully! ✨`;
+                toast.className = 'fixed bottom-5 left-1/2 transform -translate-x-1/2 bg-indigo-800 text-white px-5 py-3 rounded-full text-sm font-bold shadow-2xl z-50 transition-all duration-500';
+                document.body.appendChild(toast);
+                setTimeout(() => toast.remove(), 3000);
+            } else {
+                // do nothing
+            }
+        }
+
+        // attach global functions to window for onclick handlers
+        window.showPaymentSimulation = showPaymentSimulation;
+        window.closePaymentModal = closePaymentModal;
+        window.closePaymentModalIfOutside = closePaymentModalIfOutside;
+        window.simulatePaymentSuccess = simulatePaymentSuccess;
+
+        // ensure modal hidden initially
+        document.getElementById('paymentModal').classList.add('hidden');
+        document.getElementById('paymentModal').style.display = 'none';
+        function premiumPrev() {
+            document.getElementById('premiumSlider').scrollLeft -= 170;
+        }
+
+        function premiumNext() {
+            document.getElementById('premiumSlider').scrollLeft += 170;
+        }
+
+        // Logic Window Setup
+        function openTestDetailsModal(packName) {
+            if (document.getElementById('modalPackTitle')) {
+                document.getElementById('modalPackTitle').innerText = packName + " Details";
+            }
+            let modal = document.getElementById('testDetailsModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeTestDetailsModal() {
+            let modal = document.getElementById('testDetailsModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            document.body.style.overflow = 'auto';
+        }
+
+        function closeModalIfOutside(event) {
+            if (event.target.id === 'testDetailsModal') {
+                closeTestDetailsModal();
+            }
+        } function premiumCardsNext() {
+            document.getElementById('premiumCardsWrapper').scrollLeft += 320;
+        }
+
+        function premiumCardsPrev() {
+            document.getElementById('premiumCardsWrapper').scrollLeft -= 320;
+        }
+    </script>
+    <!-- extra style to fix modal flex -->
+
+</body>
+
+</html>

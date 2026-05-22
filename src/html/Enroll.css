@@ -1,0 +1,77 @@
+.no-scrollbar::-webkit-scrollbar{
+display:none;
+}
+.no-scrollbar{
+scrollbar-width:none;
+-ms-overflow-style:none;
+}  #paymentModal {
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        #paymentModal:not(.hidden) {
+            display: flex !important;
+        }
+        .animate-fade-in-up {
+            animation: fadeInUp 0.2s ease-out;
+        }
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .custom-scroll::-webkit-scrollbar {
+            width: 3px;
+        }
+        .custom-scroll::-webkit-scrollbar-track {
+            background: #eef2ff;
+        }
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: #c7d2fe;
+            border-radius: 20px;
+        }  
+        * {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        }
+        /* small font refinement but fully accessible — all text is comfortably readable */
+        body {
+            background: #f9fafc;
+            font-size: 12px;
+        }
+        .enroll-card-hover {
+            transition: all 0.25s ease;
+        }
+        .enroll-card-hover:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 30px -12px rgba(79, 70, 229, 0.2);
+        }
+        /* no navigation bar — just user greeting */
+        .no-nav {
+            margin-top: 0;
+        }
+        /* custom scroll for devices */
+        ::-webkit-scrollbar {
+            width: 5px;
+            height: 5px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #eef2ff;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #a5b4fc;
+            border-radius: 10px;
+        }
+        @media (max-width: 640px) {
+            .enroll-grid {
+                gap: 1rem;
+            }
+            .test-list-item {
+                font-size: 0.8rem;
+            }
+        }

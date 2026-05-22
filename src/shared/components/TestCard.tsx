@@ -1,6 +1,9 @@
 'use client'
+import { useRouter } from "next/navigation"
+
 
 interface TestCardProps {
+    slug?: string
     board?: string
     liveName?: string
     name?: string
@@ -16,7 +19,7 @@ interface TestCardProps {
 }
 
 export default function TestCard({
-
+    slug,
     board = "SSC",
     liveName = "Live",
     name = "SSC CGL Titan Test Series",
@@ -32,6 +35,7 @@ export default function TestCard({
     btnTxtColor = "text-violet-700"
 
 }: TestCardProps) {
+    const router = useRouter()
 
     return (
         <>
@@ -197,6 +201,9 @@ export default function TestCard({
                             ${btnBgColor}
                             ${btnTxtColor}
                         `}
+                        onClick={() =>
+                            router.push(`/${slug}`)
+                        }
                     >
                         <i className="fas fa-bolt"></i>
 
