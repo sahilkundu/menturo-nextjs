@@ -258,7 +258,9 @@ export default function Login() {
                 setTimeout(() => {
 
                     router.replace(
-                        data.redirect || "/"
+                        decodeURIComponent(
+                            data.redirect || "/"
+                        )
                     )
 
                 }, 2000)
