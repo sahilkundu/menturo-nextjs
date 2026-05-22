@@ -257,7 +257,9 @@ export default function Login() {
 
                 setTimeout(() => {
 
-                    router.replace("/")
+                    router.replace(
+                        data.redirect || "/"
+                    )
 
                 }, 2000)
             }
