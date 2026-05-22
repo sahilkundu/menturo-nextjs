@@ -588,27 +588,29 @@ export default function Register() {
 
                 <div
                     className="
-                    w-full
-                    max-w-[1000px]
-                    
-                    bg-white
+        w-full
+        max-w-[1000px]
 
-                    shadow-[0_25px_70px_rgba(0,0,0,0.40)]
+        mx-2
+        sm:mx-0
+        
+        bg-white
 
-                    flex
-                    flex-col
-                    md:flex-row
+        shadow-[0_25px_70px_rgba(0,0,0,0.40)]
 
-                    rounded-none
-                    sm:rounded-2xl
-                    lg:rounded-[28px]
+        flex
+        flex-col
+        md:flex-row
 
-                    overflow-hidden
-                    
-                    max-h-[90vh]
-                    md:max-h-[85vh]
-                    overflow-y-auto
-                "
+        rounded-2xl
+        lg:rounded-[28px]
+
+        overflow-hidden
+        
+        max-h-[90vh]
+        md:max-h-[85vh]
+        overflow-y-auto
+    "
                 >
 
                     {/* LEFT SIDE */}
