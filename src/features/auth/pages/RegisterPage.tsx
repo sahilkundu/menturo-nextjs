@@ -280,17 +280,21 @@ export default function Register() {
             .getState()
             .setUser(data.user)
         // wait 2 sec
+        const redirectPath =
+            data.redirect || "/"
+
         setTimeout(() => {
 
-            router.replace("/")
+            router.replace(
+                redirectPath
+            )
 
         }, 2000)
-
         // =========================
         // Redirect Home
         // =========================
 
-        router.replace("/")
+        router.replace(redirectPath)
 
         return {
             success: true,
