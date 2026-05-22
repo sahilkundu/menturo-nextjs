@@ -1,5 +1,8 @@
 'use client'
 
+import { useUserStore } from "../store/user"
+import { useRouter } from "next/navigation"
+
 interface PaymentSummaryProps {
     courseName: string
     coursePrice: number
@@ -16,12 +19,51 @@ export default function PaymentSummary({
     totalAmount,
     onBuyNow,
 }: PaymentSummaryProps) {
-
+    const router =
+        useRouter()
     const savedAmount = originalPrice - coursePrice
 
     const discountPercent = Math.round(
         ((savedAmount / originalPrice) * 100)
     )
+    const authenticated =
+        useUserStore(
+            (state) =>
+                state.authenticated
+        )
+    const handleBuy =
+        async () => {
+
+            // not logged in
+            if (!authenticated) {
+
+                await fetch(
+                    "/redirect",
+                    {
+                        method: "POST",
+
+                        credentials: "include",
+
+                        headers: {
+                            "Content-Type":
+                                "application/json",
+                        },
+
+                        body: JSON.stringify({
+                            path:
+                                window.location.pathname,
+                        }),
+                    }
+                )
+
+                router.push("/login")
+
+                return
+            }
+
+            // logged in
+            // onBuyNow?.()
+        }
 
     return (
         <div className="m-3 bg-white rounded-3xl  border border-gray-200 p-4 sm:p-6 lg:sticky lg:top-6">
@@ -113,7 +155,7 @@ export default function PaymentSummary({
             <div className="mt-5">
 
                 <button
-                    onClick={onBuyNow}
+                    onClick={handleBuy}
                     className="w-full bg-indigo-700 hover:bg-indigo-800 text-white font-bold py-3.5 rounded-2xl text-sm sm:text-base shadow-md transition"
                 >
                     🚀 Buy Now / Enroll Now
