@@ -1,6 +1,6 @@
 'use client'
 import { useVirtualizer } from '@tanstack/react-virtual'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTestSeriesStore } from "../../shared/store/testSeriesStore"
 import TestCardSkeleton from './Skeleton/TestSection/TestCardSkeleton'
@@ -21,49 +21,14 @@ export default function TestSection({ series }: Props) {
 
     const {
         testsMap,
-        seriesMap,
         fetchTests,
         loadingTests,
         isFetchingMore,
-        testsPaginationBySeries,
-        testsBySubjectMap,
-        fetchTestsBySubject,
-        testsPaginationBySubject
+        testsPaginationBySeries
     } = useTestSeriesStore()
-    console.log(seriesMap)
-    // const tests = testsMap[series?._id] || []
-    const allTests =
-        testsMap[series?._id] || []
 
-    const [selectedSubject, setSelectedSubject] =
-        useState('all')
-    const normalizedSelectedSubject =
-        selectedSubject
-            .trim()
-            .toLowerCase()
-
-    const pagination =
-        normalizedSelectedSubject === 'all'
-
-            ? testsPaginationBySeries[series?._id]
-
-            : testsPaginationBySubject?.[
-            series?._id
-            ]?.[
-            normalizedSelectedSubject
-            ]
-
-    const subjectTests =
-        testsBySubjectMap?.[
-        series?._id
-        ]?.[
-        normalizedSelectedSubject
-        ] || []
-
-    const tests =
-        normalizedSelectedSubject === 'all'
-            ? allTests
-            : subjectTests
+    const tests = testsMap[series?._id] || []
+    const pagination = testsPaginationBySeries[series?._id]
     const rowVirtualizer = useVirtualizer({
         count: tests.length,
 
@@ -139,45 +104,19 @@ export default function TestSection({ series }: Props) {
         if (loadingTests) return
         if (!pagination?.hasMore) return
 
-        if (normalizedSelectedSubject === 'all') {
-
-            await fetchTests(series._id, {
-                page: pagination.currentPage + 1,
-                limit: 3
-            })
-
-        } else {
-
-            await fetchTestsBySubject(
-                series._id,
-                selectedSubject,
-                {
-                    page: pagination.currentPage + 1,
-                    limit: 3
-                }
-            )
-        }
+        await fetchTests(series._id, {
+            page: pagination.currentPage + 1,
+            limit: 3
+        })
     }
 
     // Categories logic
     const categories = [
-
-        {
-            id: 1,
-            name: 'All'
-        },
-
-        ...((series?.sub || []).map(
-            (
-                sub: string,
-                index: number
-            ) => ({
-
-                id: index + 2,
-
-                name: sub
-            })
-        ))
+        { id: 1, name: 'All' },
+        ...(series?.tags || []).map((tag: string, index: number) => ({
+            id: index + 2,
+            name: tag
+        }))
     ]
 
     const includedFeatures = series?.info || []
@@ -287,7 +226,7 @@ export default function TestSection({ series }: Props) {
 
                                     <div className="p-3 bg-[#fafafa] border-b border-gray-100 flex gap-2 overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
 
-                                        {/* {categories.map((category, index) => (
+                                        {categories.map((category, index) => (
 
                                             <span
                                                 key={category.id}
@@ -300,94 +239,7 @@ export default function TestSection({ series }: Props) {
                                                 {category.name}
 
                                             </span>
-                                        ))} */}
-                                        {categories.map((category) => {
-
-                                            const isActive =
-
-                                                selectedSubject
-                                                    .toLowerCase() ===
-
-                                                category.name
-                                                    .toLowerCase()
-
-                                            return (
-
-                                                <button
-                                                    key={category.id}
-
-                                                    onClick={async () => {
-
-                                                        // =========================
-                                                        // ALL
-                                                        // =========================
-
-                                                        if (
-                                                            category.name === 'All'
-                                                        ) {
-
-                                                            setSelectedSubject('all')
-
-                                                            return
-                                                        }
-
-                                                        // =========================
-                                                        // SUBJECT
-                                                        // =========================
-
-                                                        const normalizedSubject =
-                                                            category.name
-                                                                .trim()
-                                                                .toLowerCase()
-
-                                                        setSelectedSubject(
-                                                            normalizedSubject
-                                                        )
-
-                                                        // already loaded
-                                                        const alreadyLoaded =
-                                                            testsBySubjectMap?.[
-                                                                series._id
-                                                            ]?.[
-                                                                normalizedSubject
-                                                            ]?.length > 0
-
-                                                        if (alreadyLoaded)
-                                                            return
-
-                                                        // backend call
-                                                        await fetchTestsBySubject(
-                                                            series._id,
-                                                            normalizedSubject,
-                                                            {
-                                                                page: 1,
-                                                                limit: 3
-                                                            }
-                                                        )
-                                                    }}
-
-                                                    className={`
-                text-[11px]
-                px-3
-                py-1.5
-                rounded
-                font-medium
-                whitespace-nowrap
-                shrink-0
-                cursor-pointer
-                transition
-
-                ${isActive
-                                                            ? 'bg-slate-500 text-white'
-                                                            : 'bg-white border text-gray-600'}
-            `}
-                                                >
-
-                                                    {category.name}
-
-                                                </button>
-                                            )
-                                        })}
+                                        ))}
 
                                     </div>
 
@@ -398,183 +250,137 @@ export default function TestSection({ series }: Props) {
                         </div>
 
                         {/* TESTS */}
-                        {/* TESTS */}
                         <div
                             ref={scrollRef}
                             onScroll={handleScroll}
-                            className="
-        max-h-[650px]
-        overflow-y-auto
-        [scrollbar-width:thin]
-        [&::-webkit-scrollbar]:w-[4px]
-        [&::-webkit-scrollbar-track]:bg-indigo-100
-        [&::-webkit-scrollbar-thumb]:bg-indigo-300
-        [&::-webkit-scrollbar-thumb]:rounded-full
-    "
-                        >
+                            className="max-h-[650px] overflow-y-auto p-3 sm:p-4 space-y-3 [scrollbar-width:thin] [&::-webkit-scrollbar]:w-[4px] [&::-webkit-scrollbar-track]:bg-indigo-100 [&::-webkit-scrollbar-thumb]:bg-indigo-300 [&::-webkit-scrollbar-thumb]:rounded-full">
+                            {/* skeleton */}
 
-                            {/* LOADING */}
-                            {loadingTests && tests.length === 0 && (
-                                <div className="p-3 sm:p-4">
-                                    <TestCardSkeleton count={3} />
-                                </div>
-                            )}
+                            {loadingTests && tests.length === 0 &&
 
-                            {/* VIRTUAL CONTAINER */}
-                            <div
-                                style={{
-                                    height: `${rowVirtualizer.getTotalSize()}px`,
-                                    width: '100%',
-                                    position: 'relative'
-                                }}
-                            >
+                                Array.from({ length: 3 }).map((_, index) => (
 
-                                {rowVirtualizer.getVirtualItems().map((virtualRow) => {
+                                    <div
+                                        key={`skeleton-${index}`}
+                                        className="bg-white border border-gray-200 rounded-xl p-3 sm:p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 animate-pulse"
+                                    >
 
-                                    const test =
-                                        tests[virtualRow.index]
+                                        {/* LEFT */}
+                                        <div className="space-y-3 min-w-0 w-full sm:w-auto flex-1">
 
-                                    if (!test) return null
+                                            <div className="flex items-center gap-2 flex-wrap">
 
-                                    return (
+                                                <div className="h-4 w-40 bg-gray-200 rounded-md"></div>
 
-                                        <div
-                                            key={test._id}
-                                            ref={rowVirtualizer.measureElement}
-                                            data-index={virtualRow.index}
-                                            style={{
-                                                position: 'absolute',
-                                                top: 0,
-                                                left: 0,
-                                                width: '100%',
-                                                transform: `translateY(${virtualRow.start}px)`
-                                            }}
-                                            className="p-3 sm:p-4"
-                                        >
-
-                                            <div
-                                                className="
-                            bg-white
-                            border
-                            border-gray-200
-                            rounded-xl
-                            p-3
-                            sm:p-4
-                            flex
-                            flex-col
-                            sm:flex-row
-                            justify-between
-                            items-start
-                            sm:items-center
-                            gap-3
-                            transition
-                            hover:shadow-md
-                        "
-                                            >
-
-                                                {/* LEFT */}
-                                                <div className="space-y-1.5 min-w-0 w-full sm:w-auto">
-
-                                                    <div className="flex items-center gap-2 flex-wrap">
-
-                                                        <h4 className="font-bold text-gray-900 text-xs sm:text-sm leading-snug">
-
-                                                            {test.n}
-
-                                                        </h4>
-
-                                                        <span className="text-amber-500 text-[10px] font-bold bg-amber-50 px-1.5 py-0.5 rounded shrink-0">
-
-                                                            ⚡ {(test.totalAttempt || 0)} Users
-
-                                                        </span>
-
-                                                    </div>
-
-                                                    <div className="flex gap-3 text-[11px] text-gray-400 font-medium flex-wrap">
-
-                                                        <span>
-                                                            📄 {test.totalQuestions || 0} Questions
-                                                        </span>
-
-                                                        <span>
-                                                            📊 {test.totalMarks || 0} Marks
-                                                        </span>
-
-                                                        <span>
-                                                            ⏱️ {test.duration || '0 Min'}
-                                                        </span>
-
-                                                    </div>
-
-                                                    <div className="text-[11px] text-sky-600 font-semibold flex items-center gap-1">
-
-                                                        🌐 {(test.lan || []).join(', ')}
-
-                                                    </div>
-
-                                                </div>
-
-                                                {/* BUTTON */}
-                                                <button
-                                                    onClick={() =>
-                                                        handleTestClick(test)
-                                                    }
-                                                    className="
-                                cursor-pointer
-                                w-full
-                                sm:w-auto
-                                shrink-0
-                                bg-[#4A3F77]
-                                text-white
-                                font-medium
-                                px-4
-                                py-2
-                                rounded-xl
-                                text-[11px]
-                                flex
-                                items-center
-                                justify-center
-                                gap-2
-                                shadow-[0_4px_12px_rgba(74,63,119,0.3)]
-                                hover:shadow-[0_6px_18px_rgba(74,63,119,0.4)]
-                                hover:-translate-y-0.5
-                                transition-all
-                                active:scale-95
-                            "
-                                                >
-
-                                                    <span className="bg-white/15 p-1 rounded-md text-[10px]">
-
-                                                        🔒
-
-                                                    </span>
-
-                                                    <span>
-
-                                                        {test.demo
-                                                            ? 'Start Demo'
-                                                            : 'Unlock Now'}
-
-                                                    </span>
-
-                                                </button>
+                                                <div className="h-5 w-20 bg-amber-100 rounded-full"></div>
 
                                             </div>
 
-                                        </div>
-                                    )
-                                })}
-                            </div>
+                                            <div className="flex gap-3 flex-wrap">
 
-                            {/* FETCH MORE */}
-                            {isFetchingMore && (
-                                <div className="p-3 sm:p-4">
-                                    <TestCardSkeleton count={2} />
+                                                <div className="h-3 w-24 bg-gray-200 rounded"></div>
+
+                                                <div className="h-3 w-20 bg-gray-200 rounded"></div>
+
+                                                <div className="h-3 w-16 bg-gray-200 rounded"></div>
+
+                                            </div>
+
+                                            <div className="h-3 w-28 bg-sky-100 rounded"></div>
+
+                                        </div>
+
+                                        {/* BUTTON */}
+                                        <div className="w-full sm:w-[130px] h-10 bg-[#4A3F77]/20 rounded-xl shrink-0"></div>
+
+                                    </div>
+                                ))
+                            }
+
+                            {/* actual tests */}
+                            {loadingTests && tests.length === 0 && (
+                                <TestCardSkeleton count={3} />
+                            )}
+                            {tests?.map((test, index) => (
+
+                                <div
+                                    key={test._id || index}
+                                    className="bg-white border border-gray-200 rounded-xl p-3 sm:p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 transition hover:shadow-md"
+                                >
+
+                                    <div className="space-y-1.5 min-w-0 w-full sm:w-auto">
+
+                                        <div className="flex items-center gap-2 flex-wrap">
+
+                                            <h4 className="font-bold text-gray-900 text-xs sm:text-sm leading-snug">
+
+                                                {test.n}
+
+                                            </h4>
+
+                                            <span className="text-amber-500 text-[10px] font-bold bg-amber-50 px-1.5 py-0.5 rounded shrink-0">
+
+                                                ⚡ {(test.totalAttempt || 0)} Users
+
+                                            </span>
+
+                                        </div>
+
+                                        <div className="flex gap-3 text-[11px] text-gray-400 font-medium flex-wrap">
+
+                                            <span>
+                                                📄 {test.totalQuestions || 0} Questions
+                                            </span>
+
+                                            <span>
+                                                📊 {test.totalMarks || 0} Marks
+                                            </span>
+
+                                            <span>
+                                                ⏱️ {test.duration || '0 Min'}
+                                            </span>
+
+                                        </div>
+
+                                        <div className="text-[11px] text-sky-600 font-semibold flex items-center gap-1">
+
+                                            🌐 {(test.lan || []).join(', ')}
+
+                                        </div>
+
+                                    </div>
+
+                                    <button
+                                        onClick={() =>
+                                            handleTestClick(test)
+                                        }
+                                        className="cursor-pointer w-full sm:w-auto shrink-0 bg-[#4A3F77] text-white font-medium px-4 py-2 rounded-xl text-[11px] flex items-center justify-center gap-2 shadow-[0_4px_12px_rgba(74,63,119,0.3)] hover:shadow-[0_6px_18px_rgba(74,63,119,0.4)] hover:-translate-y-0.5 transition-all active:scale-95"
+                                    >
+
+                                        <span className="bg-white/15 p-1 rounded-md text-[10px]">
+
+                                            🔒
+
+                                        </span>
+
+                                        <span>
+
+                                            {test.demo
+                                                ? 'Start Demo'
+                                                : 'Unlock Now'}
+
+                                        </span>
+
+                                    </button>
+
                                 </div>
+                            ))}
+                            {isFetchingMore && (
+                                <TestCardSkeleton count={3} />
                             )}
 
                         </div>
+
                     </div>
 
                 </div>

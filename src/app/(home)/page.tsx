@@ -1,128 +1,294 @@
 'use client'
 
+import dynamic from 'next/dynamic'
+
 import { useEffect } from "react"
 
-import HomeCenter from "../../shared/components/HomeCenter"
-import LeftSidebar from "../../shared/components/LeftSidebar"
-import RightSidebar from "../../shared/components/RightSidebar"
-import Footer from "../../shared/components/Footer"
-import LiveBubbleBtn from "../../shared/components/LiveBubbleBtn"
 import { useLayoutStore } from "../../shared/store/uiResStore"
 import { useUserStore } from "../../shared/store/user"
+
+import { useWSStore } from "../../shared/store/wsStore"
+
 import { useRouter } from "next/navigation"
 
+// ========================================
+// LAZY LOAD COMPONENTS
+// ========================================
+
+const HomeCenter = dynamic(
+    () => import("../../shared/components/HomeCenter"),
+)
+
+const LeftSidebar = dynamic(
+    () => import("../../shared/components/LeftSidebar"),
+    {
+        ssr: false
+    }
+)
+
+const RightSidebar = dynamic(
+    () => import("../../shared/components/RightSidebar"),
+    {
+        ssr: false
+    }
+)
+
+const Footer = dynamic(
+    () => import("../../shared/components/Footer")
+)
+
+const LiveBubbleBtn = dynamic(
+    () => import("../../shared/components/LiveBubbleBtn"),
+    {
+        ssr: false
+    }
+)
+
 export default function HomePage() {
-    const router = useRouter()
+
+    const router =
+        useRouter()
+
+    // ================= USER =================
 
     const {
         user,
         authenticated
+    } =
+        useUserStore()
 
-    } = useUserStore()
+    // ================= WS =================
+
+    const connect =
+        useWSStore(
+            (state) => state.connect
+        )
+
+    const login =
+        useWSStore(
+            (state) => state.login
+        )
+
+    const disconnect =
+        useWSStore(
+            (state) => state.disconnect
+        )
+
+    // ================= LAYOUT =================
+
     const {
-
         leftMobile,
         rightMobile,
 
         setLeftMobile,
         setRightMobile
 
-    } = useLayoutStore()
-    const rightSidebarOpen = useLayoutStore(
-        (state) => state.rightSidebarOpen
-    )
+    } =
+        useLayoutStore()
 
-    const setRightSidebarOpen = useLayoutStore(
-        (state) => state.setRightSidebarOpen
-    )
+    const rightSidebarOpen =
+        useLayoutStore(
+            (state) => state.rightSidebarOpen
+        )
 
-    const liveBubbleOpen = useLayoutStore(
-        (state) => state.liveBubbleOpen
-    )
+    const setRightSidebarOpen =
+        useLayoutStore(
+            (state) => state.setRightSidebarOpen
+        )
+
+    // =========================================
+    // CONNECT WS
+    // =========================================
+
+    // useEffect(() => {
+
+    //     connect()
+
+    //     return () => {
+
+    //         disconnect()
+    //     }
+
+    // }, [])
+
+    // =========================================
+    // LOGIN UPGRADE
+    // =========================================
 
     useEffect(() => {
 
-        const handleResize = () => {
-
-            setRightMobile(window.innerWidth < 900)
-
-            setLeftMobile(window.innerWidth < 1280)
+        if (
+            authenticated &&
+            user?.id
+        ) {
+            login(
+                user.id
+            )
         }
+
+    }, [
+        authenticated,
+        user?.id
+    ])
+
+    // =========================================
+    // MOBILE CHECK
+    // =========================================
+
+    useEffect(() => {
+
+        const handleResize =
+            () => {
+
+                setRightMobile(
+                    window.innerWidth < 900
+                )
+
+                setLeftMobile(
+                    window.innerWidth < 1280
+                )
+            }
 
         handleResize()
 
-        window.addEventListener("resize", handleResize)
+        window.addEventListener(
+            "resize",
+            handleResize
+        )
 
         return () => {
-            window.removeEventListener("resize", handleResize)
+
+            window.removeEventListener(
+                "resize",
+                handleResize
+            )
         }
 
     }, [])
-    //
+
+    // =========================================
+    // UI
+    // =========================================
 
     return (
-        <div className="min-h-screen bg-gray-100 flex flex-col">
+
+        <div
+            className="
+                min-h-screen
+                bg-gray-100
+                flex
+                flex-col
+            "
+        >
 
             {/* MAIN */}
-            <div className="flex w-full items-start">
+            <div
+                className="
+                    flex
+                    w-full
+                    items-start
+                "
+            >
 
                 {/* LEFT */}
-                {!leftMobile && authenticated && (
-                    <div className="w-[250px] shrink-0 sticky top-0 h-screen overflow-y-auto">
-                        <LeftSidebar />
-                    </div>
-                )}
+                {
+                    !leftMobile &&
+                    authenticated && (
+
+                        <div
+                            className="
+                                w-[250px]
+                                shrink-0
+                                sticky
+                                top-0
+                                h-screen
+                                overflow-y-auto
+                            "
+                        >
+                            <LeftSidebar />
+                        </div>
+                    )
+                }
 
                 {/* CENTER */}
-                <div className="flex-1 min-w-0 w-[300px]">
+                <div
+                    className="
+                        flex-1
+                        min-w-0
+                        w-[300px]
+                    "
+                >
                     <HomeCenter />
                 </div>
 
                 {/* RIGHT */}
-                {!rightMobile && authenticated && (
-                    <div className="w-[250px] shrink-0 sticky top-0 h-screen overflow-y-auto">
-                        <RightSidebar />
-                    </div>
-                )}
+                {
+                    !rightMobile &&
+                    authenticated && (
+
+                        <div
+                            className="
+                                w-[250px]
+                                shrink-0
+                                sticky
+                                top-0
+                                h-screen
+                                overflow-y-auto
+                            "
+                        >
+                            <RightSidebar />
+                        </div>
+                    )
+                }
 
                 {/* MOBILE DRAWERS */}
-                {leftMobile && authenticated && (
-                    <LeftSidebar />
-                )}
+                {
+                    leftMobile &&
+                    authenticated && (
+                        <LeftSidebar />
+                    )
+                }
 
-                {rightMobile && authenticated && (
-                    <RightSidebar />
-                )}
+                {
+                    rightMobile &&
+                    authenticated && (
+                        <RightSidebar />
+                    )
+                }
 
             </div>
 
             {/* FOOTER */}
             <Footer />
-            {/* FLOATING LIVE BUTTON */}
-            {/* FLOATING LIVE BUTTON */}
-            {/* FLOATING LIVE BUTTON */}
-            {rightMobile && leftMobile && !rightSidebarOpen && (
-                <div
-                    className="
-            fixed
-            bottom-5
-            right-5
-            z-[1200]
-        "
-                >
+
+            {/* FLOAT BUTTON */}
+            {
+                rightMobile &&
+                leftMobile &&
+                !rightSidebarOpen && (
 
                     <div
-                        onClick={() =>
-                            authenticated
-                                ? setRightSidebarOpen(true)
-                                : router.push("/login")
-                        }
+                        className="
+                            fixed
+                            bottom-5
+                            right-5
+                            z-[1200]
+                        "
                     >
-                        <LiveBubbleBtn />
-                    </div>
 
-                </div>
-            )}
+                        <div
+                            onClick={() =>
+                                authenticated
+                                    ? setRightSidebarOpen(true)
+                                    : router.push("/login")
+                            }
+                        >
+                            <LiveBubbleBtn />
+                        </div>
+
+                    </div>
+                )
+            }
 
         </div>
     )

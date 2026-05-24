@@ -1,5 +1,8 @@
 'use client'
 
+import { useUserStore } from "../store/user"
+import TestSectionHeadSkeleton from "./Skeleton/TestSection/TestSectionHeadSkeleton"
+
 interface TestSectionHeadProps {
     userName: string
     rollingId: string
@@ -16,6 +19,15 @@ export default function TestSectionHead({
     badgeText = '🎯 Rank Booster',
     className = '',
 }: TestSectionHeadProps) {
+    const user = useUserStore((state) => state.user)
+    const loadingUser = useUserStore((state) => state.loading)
+
+    if (loadingUser || !user) {
+        return (
+            <TestSectionHeadSkeleton />
+
+        )
+    }
     return (
         <div
             className={`
@@ -40,12 +52,12 @@ export default function TestSectionHead({
                         Welcome{' '}
 
                         <span className="bg-gradient-to-r from-indigo-700 to-indigo-500 bg-clip-text text-transparent">
-                            {userName}
+                            {`${user?.firstName} ${user?.lastName} ${user?.username}`}
                         </span>
                     </h1>
 
                     <p className="text-xs text-gray-500 font-medium">
-                        Rolling ID: {rollingId} · Prepare Like a Topper
+                        Rolling ID: {user?.id} · Prepare Like a Topper
                     </p>
                 </div>
             </div>

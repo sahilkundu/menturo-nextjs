@@ -1,27 +1,176 @@
 'use client'
 
-import { useRef } from 'react'
+import { useRef, useEffect } from 'react'
 
-interface SuggestedPaymentCard {
-    id: number
-    badge: string
-    title: string
-    description: string
-    price: number
-    originalPrice: number
-    features: string[]
-    buttonText: string
-}
+import { useTestSeriesStore }
+    from "../store/testSeriesStore"
 
-interface SuggestedPaymentCardProps {
-    cards: SuggestedPaymentCard[]
-}
+import SuggestedPaymentCardSkeleton
+    from "./Skeleton/SuggestedPaymentCardSkeleton"
 
-export default function SuggestedPaymentCard({
-    cards,
-}: SuggestedPaymentCardProps) {
+export default function SuggestedPaymentCard() {
 
-    const scrollRef = useRef<HTMLDivElement>(null)
+    // ======================================================
+    // REFS
+    // ======================================================
+
+    const scrollRef =
+        useRef<HTMLDivElement>(null)
+
+    const autoLoadingRef =
+        useRef(false)
+
+    // ======================================================
+    // STORE
+    // ======================================================
+
+    const {
+        seriesMap,
+        fetchSeries,
+        loadingSeries,
+        seriesPaginationByTag
+    } = useTestSeriesStore()
+
+    // ======================================================
+    // DATA
+    // ======================================================
+
+    const cards =
+        Object.values(seriesMap)
+
+    const pagination =
+        seriesPaginationByTag['']
+
+    // ======================================================
+    // INITIAL FETCH
+    // ======================================================
+
+    useEffect(() => {
+
+        if (cards.length > 0) return
+
+        fetchSeries({
+            page: 1,
+            limit: 6
+        })
+
+    }, [])
+
+    // ======================================================
+    // AUTO LOAD IF NO SCROLLBAR
+    // ======================================================
+
+    useEffect(() => {
+
+        if (!pagination?.hasMore) return
+
+        if (loadingSeries) return
+
+        if (autoLoadingRef.current) return
+
+        const timer =
+            setTimeout(() => {
+
+                const element =
+                    scrollRef.current
+
+                if (!element) return
+
+                const noVerticalScroll =
+                    element.scrollHeight <=
+                    element.clientHeight
+
+                if (noVerticalScroll) {
+
+                    autoLoadingRef.current =
+                        true
+
+                    fetchSeries({
+                        page:
+                            pagination.currentPage + 1,
+
+                        limit: 6
+                    }).finally(() => {
+
+                        setTimeout(() => {
+
+                            autoLoadingRef.current =
+                                false
+
+                        }, 100)
+                    })
+                }
+
+            }, 150)
+
+        return () =>
+            clearTimeout(timer)
+
+    }, [
+        cards.length,
+        loadingSeries,
+        pagination?.currentPage,
+        pagination?.hasMore
+    ])
+
+    // ======================================================
+    // SCROLL FETCH
+    // ======================================================
+
+    const handleScroll =
+        async () => {
+
+            const element =
+                scrollRef.current
+
+            if (!element) return
+
+            const isMobile =
+                window.innerWidth < 768
+
+            let reachedEnd = false
+
+            // =========================================
+            // MOBILE → HORIZONTAL
+            // =========================================
+
+            if (isMobile) {
+
+                reachedEnd =
+                    element.scrollLeft +
+                    element.clientWidth >=
+                    element.scrollWidth - 100
+            }
+
+            // =========================================
+            // DESKTOP → VERTICAL
+            // =========================================
+
+            else {
+
+                reachedEnd =
+                    element.scrollTop +
+                    element.clientHeight >=
+                    element.scrollHeight - 100
+            }
+
+            if (!reachedEnd) return
+
+            if (loadingSeries) return
+
+            if (!pagination?.hasMore) return
+
+            await fetchSeries({
+                page:
+                    pagination.currentPage + 1,
+
+                limit: 6
+            })
+        }
+
+    // ======================================================
+    // MOBILE BUTTON SCROLL
+    // ======================================================
 
     const scrollLeft = () => {
 
@@ -45,25 +194,47 @@ export default function SuggestedPaymentCard({
         }
     }
 
+    // ======================================================
+    // INITIAL SKELETON
+    // ======================================================
+
+    if (
+
+        cards.length === 0
+    ) {
+        return (
+            <SuggestedPaymentCardSkeleton
+                count={4}
+            />
+        )
+    }
+
     return (
+
         <div className="m-3 lg:col-span-2 space-y-6 overflow-hidden">
 
             {/* HEADER */}
             <div className="flex items-center justify-between gap-3 flex-wrap">
 
                 <div>
+
                     <h3 className="text-xl sm:text-2xl font-black flex items-center gap-2 text-gray-900">
+
                         <span className="bg-indigo-600 w-2 h-7 rounded-full"></span>
 
                         🔥 Premium Test Series
+
                     </h3>
 
                     <p className="text-gray-500 text-xs sm:text-sm mt-1">
+
                         Choose your exam pack. One-time payment gets full access.
+
                     </p>
+
                 </div>
 
-                {/* MOBILE SLIDER ICONS */}
+                {/* MOBILE SLIDER */}
                 <div className="flex gap-2 md:hidden">
 
                     <button
@@ -79,85 +250,227 @@ export default function SuggestedPaymentCard({
                     >
                         ›
                     </button>
+
                 </div>
+
             </div>
 
             {/* CARDS */}
             <div
                 ref={scrollRef}
-                className="flex md:grid md:grid-cols-2 gap-4 overflow-x-auto md:overflow-visible scroll-smooth [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden pb-2"
+                onScroll={handleScroll}
+                className="
+                    flex
+                    md:grid
+                    md:grid-cols-2
+                    gap-4
+
+                    overflow-x-auto
+                    md:overflow-x-hidden
+                    md:overflow-y-auto
+
+                    max-h-[650px]
+
+                    scroll-smooth
+
+                    scrollbar-thin
+                    scrollbar-thumb-indigo-300
+                    scrollbar-track-indigo-100
+
+                    pb-2
+                "
             >
 
-                {cards.map((card) => {
+                {cards.flatMap((series: any) =>
 
-                    const discountPercent = Math.round(
-                        ((card.originalPrice - card.price) / card.originalPrice) * 100
-                    )
+                    (series.plans || []).map((plan: any) => {
 
-                    return (
-                        <div
-                            key={card.id}
-                            className="min-w-[300px] sm:min-w-[340px] md:min-w-0 bg-white rounded-3xl shadow-md border border-gray-100 overflow-hidden transition hover:-translate-y-1 hover:shadow-xl"
-                        >
+                        const discountPercent = Math.round(
+                            (
+                                (
+                                    plan.price -
+                                    plan.offerPrice
+                                ) /
+                                plan.price
+                            ) * 100
+                        )
 
-                            <div className="p-5">
+                        return (
 
-                                <div className="flex justify-between items-start gap-2">
+                            <div
+                                key={`${series._id}-${plan.planID}`}
+                                className="
+                                    min-w-[300px]
+                                    sm:min-w-[340px]
+                                    md:min-w-0
 
-                                    <span className="bg-rose-100 text-rose-700 text-[10px] font-bold px-3 py-1 rounded-full">
-                                        {card.badge}
-                                    </span>
+                                    bg-white
+                                    rounded-3xl
+                                    shadow-md
+                                    border
+                                    border-gray-100
+                                    overflow-hidden
+                                    transition
+                                    hover:-translate-y-1
+                                    hover:shadow-xl
+                                "
+                            >
 
-                                    <span className="text-yellow-500 text-xs">
-                                        ⭐⭐⭐⭐⭐
-                                    </span>
-                                </div>
+                                <div className="p-5">
 
-                                <h4 className="text-xl font-black mt-4 text-gray-900">
-                                    {card.title}
-                                </h4>
+                                    {/* TOP */}
+                                    <div className="flex justify-between items-start gap-2">
 
-                                <p className="text-gray-500 text-sm leading-relaxed mt-2">
-                                    {card.description}
-                                </p>
+                                        <span className="bg-rose-100 text-rose-700 text-[10px] font-bold px-3 py-1 rounded-full">
 
-                                <div className="flex items-center gap-2 mt-5 flex-wrap">
+                                            🔥 Popular
 
-                                    <span className="text-3xl font-black text-indigo-700">
-                                        ₹{card.price}
-                                    </span>
+                                        </span>
 
-                                    <span className="text-gray-400 line-through text-sm">
-                                        ₹{card.originalPrice}
-                                    </span>
+                                        <span className="text-yellow-500 text-xs">
 
-                                    <span className="bg-green-100 text-green-700 text-[10px] font-bold px-2 py-1 rounded-full">
-                                        {discountPercent}% OFF
-                                    </span>
-                                </div>
+                                            ⭐⭐⭐⭐⭐
 
-                                <div className="mt-5 space-y-2 text-xs text-gray-600">
+                                        </span>
 
-                                    {card.features.map((feature, index) => (
-                                        <div
-                                            key={index}
-                                            className="flex items-center gap-2"
-                                        >
+                                    </div>
+
+                                    {/* PLAN NAME */}
+                                    {/* <h4 className="text-xl font-black mt-4 text-gray-900">
+
+                                        {plan.name}
+
+                                    </h4> */}
+                                    {/* PLAN NAME + DURATION */}
+                                    <div className="flex items-start justify-between gap-3 mt-4">
+
+                                        <h4 className="text-xl font-black text-gray-900 leading-tight">
+
+                                            {plan.name}
+
+                                        </h4>
+
+                                        <span className="
+        shrink-0
+        bg-indigo-100
+        text-indigo-700
+        text-[11px]
+        font-bold
+        px-3
+        py-1
+        rounded-full
+    ">
+
+                                            {plan.duration}
+
+                                        </span>
+
+                                    </div>
+
+                                    {/* SERIES */}
+                                    <p className="text-indigo-600 text-xs font-semibold mt-1">
+
+                                        {series.n}
+
+                                    </p>
+
+                                    {/* TAGLINE */}
+                                    <p className="text-gray-500 text-sm leading-relaxed mt-2">
+
+                                        {plan.tagline}
+
+                                    </p>
+
+                                    {/* PRICE */}
+                                    <div className="flex items-center gap-2 mt-5 flex-wrap">
+
+                                        <span className="text-3xl font-black text-indigo-700">
+
+                                            ₹{plan.offerPrice}
+
+                                        </span>
+
+                                        <span className="text-gray-400 line-through text-sm">
+
+                                            ₹{plan.price}
+
+                                        </span>
+
+                                        <span className="bg-green-100 text-green-700 text-[10px] font-bold px-2 py-1 rounded-full">
+
+                                            {discountPercent}% OFF
+
+                                        </span>
+
+                                    </div>
+
+                                    {/* FEATURES */}
+                                    <div className="mt-5 space-y-2 text-xs text-gray-600">
+
+                                        <div className="flex items-center gap-2">
+
                                             <span>✅</span>
 
-                                            <span>{feature}</span>
+                                            <span>
+                                                {plan.duration}
+                                            </span>
+
                                         </div>
-                                    ))}
+
+                                        <div className="flex items-center gap-2">
+
+                                            <span>✅</span>
+
+                                            <span>
+                                                {plan.allowedAttempt} Attempts
+                                            </span>
+
+                                        </div>
+
+                                        {(series.info || [])
+                                            .slice(0, 3)
+                                            .map((feature: string, index: number) => (
+
+                                                <div
+                                                    key={index}
+                                                    className="flex items-center gap-2"
+                                                >
+
+                                                    <span>✅</span>
+
+                                                    <span>{feature}</span>
+
+                                                </div>
+
+                                            ))}
+
+                                    </div>
+
+                                    {/* BUTTON */}
+                                    <button className="w-full mt-6 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-2xl text-sm shadow-md transition">
+
+                                        🚀 Buy Now
+
+                                    </button>
+
                                 </div>
 
-                                <button className="w-full mt-6 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-2xl text-sm shadow-md transition">
-                                    {card.buttonText}
-                                </button>
                             </div>
-                        </div>
-                    )
-                })}
+                        )
+                    })
+                )}
+
+                {/* LOADING MORE */}
+                {loadingSeries && cards.length > 0 && (
+
+                    <SuggestedPaymentCardSkeleton
+                        count={2}
+                    />
+
+                )}
+
             </div>
+
         </div>
     )
 }

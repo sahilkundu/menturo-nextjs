@@ -1,6 +1,6 @@
 'use client'
 import { useRouter } from "next/navigation"
-
+import Image from "next/image"
 
 interface TestCardProps {
     slug?: string
@@ -44,6 +44,7 @@ export default function TestCard({
                 className="
                     min-w-[240px]
                     max-w-[240px]
+                    flex-shrink-0
                     rounded-[28px]
                     overflow-hidden
                     border
@@ -61,9 +62,22 @@ export default function TestCard({
                 {/* IMAGE */}
                 <div className="relative">
 
-                    <img
+                    {/* <img
                         src={img}
                         className="w-full h-[130px] object-cover"
+                    /> */}
+                    <Image
+                        src={img}
+                        alt={name}
+                        width={240}
+                        height={130}
+                        loading="lazy"
+                        className="
+        w-full
+        h-[130px]
+        object-contain
+        bg-white
+    "
                     />
 
                     <div
