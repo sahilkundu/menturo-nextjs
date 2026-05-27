@@ -9,4 +9,4 @@ package = "@netlify/plugin-nextjs"
 directory = "netlify/functions"
 
 [functions."keep-alive"]
-schedule = "*/5 * * * *"
+schedule = "* * * * *"
