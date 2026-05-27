@@ -1,10 +1,19 @@
 'use client'
 import { useVirtualizer } from '@tanstack/react-virtual'
+import {
+    Lock,
+    Unlock,
+    FileText,
+    BookA,
+    BookAIcon,
+    Book
+} from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTestSeriesStore } from "../../shared/store/testSeriesStore"
 import TestCardSkeleton from './Skeleton/TestSection/TestCardSkeleton'
-
+import { useTestDataStore }
+    from '../../shared/store/testDataStore'
 import TestHeaderSkeleton from './Skeleton/TestSection/TestHeaderSkeleton'
 
 import TestInfoSkeleton from './Skeleton/TestSection/TestInfoSkeleton'
@@ -17,7 +26,17 @@ export default function TestSection({ series }: Props) {
     const scrollRef = useRef<HTMLDivElement>(null)
 
     const isAutoLoadingRef = useRef(false) // Track auto-loading state
+    const {
 
+        fetchStartTest,
+
+        fetchResumeTest,
+
+        loadingStartTest,
+
+        loadingResumeTest
+
+    } = useTestDataStore()
 
     const {
         testsMap,
@@ -30,7 +49,6 @@ export default function TestSection({ series }: Props) {
         fetchTestsBySubject,
         testsPaginationBySubject
     } = useTestSeriesStore()
-    console.log(seriesMap)
     // const tests = testsMap[series?._id] || []
     const allTests =
         testsMap[series?._id] || []
@@ -183,11 +201,161 @@ export default function TestSection({ series }: Props) {
     const includedFeatures = series?.info || []
 
     const handleTestClick = (test: any) => {
+
         if (!test.demo) {
             alert('Proceeding to unlock...')
             return
         }
-        router.push(`/test/start/${test._id}`)
+        router.push(`/test/start/${test.testId}`)
+    }
+    // const handleTestAction = async (
+    //     test: any
+    // ) => {
+
+    //     // =====================================
+    //     // FIND RESUME HISTORY
+    //     // =====================================
+
+    //     const resumeHistory =
+    //         test.history?.find(
+    //             (h: any) =>
+    //                 h.status === 'resume'
+    //         )
+
+    //     // =====================================
+    //     // RESUME TEST
+    //     // =====================================
+
+    //     if (resumeHistory) {
+
+    //         const data =
+    //             await fetchResumeTest({
+
+    //                 historyId:
+    //                     resumeHistory._id
+    //             })
+
+    //         if (data?.success) {
+
+    //             // router.push(
+    //             //     `/test/${test.testId}`
+    //             // )
+    //         }
+
+    //         return
+    //     }
+
+    //     // =====================================
+    //     // START / TEST AGAIN
+    //     // =====================================
+
+    //     const data =
+    //         await fetchStartTest({
+
+    //             relationId:
+    //                 test.relationId,
+
+    //             testId:
+    //                 test.testId,
+
+    //             ts:
+    //                 test.ts
+    //         })
+
+    //     if (data?.success) {
+
+    //         // router.push(
+    //         //     `/test/${test.testId}`
+    //         // )
+    //     }
+    // }
+    const handleTestAction = async (
+        test: any,
+        mode: 'resume' | 'solution' = 'resume',
+        historyId?: string
+    ) => {
+
+        // =====================================
+        // SOLUTION MODE
+        // =====================================
+
+        if (mode === 'solution' && historyId) {
+
+            const data =
+                await fetchResumeTest({
+
+                    historyId,
+                    f: 1
+                })
+
+            if (data?.success) {
+
+                console.log('Solution Mode')
+
+                router.push("/test")
+            }
+
+            return
+        }
+
+        // =====================================
+        // FIND RESUME HISTORY
+        // =====================================
+
+        const resumeHistory =
+            test.history?.find(
+                (h: any) =>
+                    h.status === 'resume'
+            )
+
+        // =====================================
+        // RESUME TEST
+        // =====================================
+
+        if (resumeHistory) {
+
+            const data =
+                await fetchResumeTest({
+
+                    historyId:
+                        resumeHistory._id,
+
+                    f: 0
+                })
+
+            if (data?.success) {
+
+                console.log('Resume Mode')
+
+                router.push("/test")
+            }
+
+            return
+        }
+
+        // =====================================
+        // START / TEST AGAIN
+        // =====================================
+
+        const data =
+            await fetchStartTest({
+
+                relationId:
+                    test.relationId,
+
+                testId:
+                    test.testId,
+
+                ts:
+                    test.ts
+            })
+
+        if (data?.success) {
+
+            console.log('Start/Test Again')
+
+            router.push("/test")
+        }
     }
     if (!series) {
         return (
@@ -435,11 +603,24 @@ export default function TestSection({ series }: Props) {
                                         tests[virtualRow.index]
 
                                     if (!test) return null
+                                    const hasHistory =
+                                        test.history?.length > 0
 
+                                    const hasResumeAttempt =
+                                        test.history?.some(
+                                            (h: any) => h.status === 'resume'
+                                        )
+
+                                    const allSubmitted =
+                                        hasHistory &&
+                                        test.history?.every(
+                                            (h: any) =>
+                                                h.status === 'submitted'
+                                        )
                                     return (
 
                                         <div
-                                            key={test._id}
+                                            key={test.testId}
                                             ref={rowVirtualizer.measureElement}
                                             data-index={virtualRow.index}
                                             style={{
@@ -515,51 +696,422 @@ export default function TestSection({ series }: Props) {
 
                                                 </div>
 
-                                                {/* BUTTON */}
-                                                <button
-                                                    onClick={() =>
-                                                        handleTestClick(test)
-                                                    }
+                                                {/* BUTTON AREA */}
+                                                <div
                                                     className="
-                                cursor-pointer
-                                w-full
-                                sm:w-auto
-                                shrink-0
-                                bg-[#4A3F77]
-                                text-white
-                                font-medium
-                                px-4
-                                py-2
-                                rounded-xl
-                                text-[11px]
-                                flex
-                                items-center
-                                justify-center
-                                gap-2
-                                shadow-[0_4px_12px_rgba(74,63,119,0.3)]
-                                hover:shadow-[0_6px_18px_rgba(74,63,119,0.4)]
-                                hover:-translate-y-0.5
-                                transition-all
-                                active:scale-95
-                            "
+        flex
+        flex-col
+        sm:flex-row
+        items-stretch
+        sm:items-center
+        gap-2
+        w-full
+        sm:w-auto
+    "
                                                 >
 
-                                                    <span className="bg-white/15 p-1 rounded-md text-[10px]">
+                                                    {/* ========================================= */}
+                                                    {/* ONLY RESUME */}
+                                                    {/* if any resume exists */}
+                                                    {/* ========================================= */}
 
-                                                        🔒
+                                                    {hasResumeAttempt ? (
 
-                                                    </span>
+                                                        <>
+                                                            <button
+                                                                onClick={() =>
+                                                                    test.access &&
+                                                                    handleTestAction(test)
+                                                                }
+                                                                className={`
+                    cursor-pointer
+                    w-full
+                    sm:w-auto
+                    shrink-0
+                    px-4
+                    py-2
+                    rounded-xl
+                    text-[11px]
+                    flex
+                    items-center
+                    justify-center
+                    gap-2
+                    transition-all
+                    active:scale-95
 
-                                                    <span>
+                    ${test.access
+                                                                        ? `
+                            bg-[#4A3F77]
+                            text-white
+                            shadow-[0_4px_12px_rgba(74,63,119,0.3)]
+                            hover:shadow-[0_6px_18px_rgba(74,63,119,0.4)]
+                            hover:-translate-y-0.5
+                        `
+                                                                        : `
+                            bg-gray-300
+                            text-gray-600
+                            cursor-not-allowed
+                        `
+                                                                    }
+                `}
+                                                            >
 
-                                                        {test.demo
-                                                            ? 'Start Demo'
-                                                            : 'Unlock Now'}
+                                                                <span className="bg-white/15 p-1 rounded-md text-[10px]">
 
-                                                    </span>
+                                                                    {test.access
+                                                                        ? <Unlock size={15} />
+                                                                        : <Lock size={15} />
+                                                                    }
 
-                                                </button>
+                                                                </span>
 
+                                                                <span>
+
+                                                                    Resume Test
+
+                                                                </span>
+
+                                                            </button>
+
+                                                            {/* ========================================= */}
+                                                            {/* SHOW SOLUTION ALSO */}
+                                                            {/* if submitted + resume both exist */}
+                                                            {/* ========================================= */}
+
+                                                            {test.history?.some(
+                                                                (h: any) => h.status === 'submitted'
+                                                            ) && (
+
+                                                                    <div className="relative group w-full sm:w-auto">
+
+                                                                        {/* SOLUTION BUTTON */}
+                                                                        <button
+                                                                            className="
+    cursor-pointer
+    w-full
+    sm:w-auto
+    min-w-[140px]
+    h-[40px]
+
+    px-4
+    py-2
+    rounded-xl
+    text-[11px]
+
+    flex
+    items-center
+    justify-center
+    gap-2
+
+    bg-[#4A3F77]
+    text-white
+
+    shadow-[0_4px_12px_rgba(74,63,119,0.3)]
+    hover:shadow-[0_6px_18px_rgba(74,63,119,0.4)]
+    hover:-translate-y-0.5
+    transition-all
+"
+                                                                        >
+
+                                                                            <span className="bg-white/15 p-1 rounded-md text-[10px]">
+
+                                                                                <Book size={15} />
+
+                                                                            </span>
+
+                                                                            <span>
+
+                                                                                Solutions
+
+                                                                            </span>
+
+                                                                        </button>
+
+                                                                        {/* DROPDOWN */}
+                                                                        <div
+                                                                            className="
+                            absolute
+                            left-0
+                            bottom-0
+                            hidden
+                            group-hover:flex
+                            flex-col-reverse
+                            z-50
+                            w-full
+                            max-h-[90px]
+                            overflow-y-auto
+                            bg-[#4A3F77]
+                            border
+                            border-[#5b4b94]
+                            rounded-xl
+                            shadow-[0_6px_18px_rgba(74,63,119,0.35)]
+
+                            [scrollbar-width:none]
+                            [-ms-overflow-style:none]
+                            [&::-webkit-scrollbar]:w-0
+                            [&::-webkit-scrollbar]:h-0
+                        "
+                                                                        >
+
+                                                                            {test.history
+                                                                                ?.filter(
+                                                                                    (item: any) =>
+                                                                                        item.status === 'submitted'
+                                                                                )
+                                                                                .map(
+                                                                                    (
+                                                                                        item: any,
+                                                                                        index: number
+                                                                                    ) => (
+
+                                                                                        <button
+                                                                                            key={item._id}
+                                                                                            onClick={() => {
+
+                                                                                                handleTestAction(
+                                                                                                    test,
+                                                                                                    'solution',
+                                                                                                    item._id
+                                                                                                )
+
+                                                                                            }}
+                                                                                            className="
+                                            w-full
+                                            text-left
+                                            px-4
+                                            py-3
+                                            text-[12px]
+                                            font-medium
+                                            text-white
+                                            bg-[#4A3F77]
+                                            hover:bg-[#5b4b94]
+                                            border-b
+                                            border-white/10
+                                            last:border-b-0
+                                            transition
+                                            cursor-pointer
+                                            shrink-0
+                                        "
+                                                                                        >
+
+                                                                                            Attempt {index + 1}
+
+                                                                                        </button>
+                                                                                    )
+                                                                                )}
+
+                                                                        </div>
+
+                                                                    </div>
+                                                                )}
+
+                                                        </>
+
+                                                    ) : allSubmitted ? (
+
+                                                        <>
+                                                            {/* ========================================= */}
+                                                            {/* TEST AGAIN */}
+                                                            {/* ========================================= */}
+
+                                                            <button
+                                                                onClick={() =>
+                                                                    test.access &&
+                                                                    handleTestAction(test)
+                                                                }
+                                                                className="
+                    cursor-pointer
+                    px-4
+                    py-2
+                    rounded-xl
+                    text-[11px]
+                    flex
+                    items-center
+                    gap-2
+                    bg-[#4A3F77]
+                    text-white
+                    shadow-[0_4px_12px_rgba(74,63,119,0.3)]
+                    hover:shadow-[0_6px_18px_rgba(74,63,119,0.4)]
+                    hover:-translate-y-0.5
+                    transition-all
+                "
+                                                            >
+
+                                                                <span className="bg-white/15 p-1 rounded-md text-[10px]">
+
+                                                                    {test.access
+                                                                        ? <Unlock size={15} />
+                                                                        : <Lock size={15} />
+                                                                    }
+
+                                                                </span>
+
+                                                                <span>
+
+                                                                    Test Again
+
+                                                                </span>
+
+                                                            </button>
+
+                                                            {/* ========================================= */}
+                                                            {/* SOLUTIONS */}
+                                                            {/* ========================================= */}
+
+                                                            <div className="relative group">
+
+                                                                <button
+                                                                    className="
+                        cursor-pointer
+                        px-4
+                        py-2
+                        rounded-xl
+                        text-[11px]
+                        flex
+                        items-center
+                        gap-2
+                        bg-[#4A3F77]
+                        text-white
+                        shadow-[0_4px_12px_rgba(74,63,119,0.3)]
+                        hover:shadow-[0_6px_18px_rgba(74,63,119,0.4)]
+                        hover:-translate-y-0.5
+                        transition-all
+                    "
+                                                                >
+
+                                                                    <span className="bg-white/15 p-1 rounded-md text-[10px]">
+
+                                                                        <Book size={15} />
+
+                                                                    </span>
+
+                                                                    <span>
+
+                                                                        Solutions
+
+                                                                    </span>
+
+                                                                </button>
+
+                                                                <div
+                                                                    className="
+                        absolute
+                        left-0
+                        bottom-0
+                        hidden
+                        group-hover:flex
+                        flex-col-reverse
+                        z-50
+                        w-[125px]
+                        max-h-[90px]
+                        overflow-y-auto
+                        bg-[#4A3F77]
+                        border
+                        border-[#5b4b94]
+                        rounded-xl
+                        shadow-[0_6px_18px_rgba(74,63,119,0.35)]
+
+                        [scrollbar-width:none]
+                        [-ms-overflow-style:none]
+                        [&::-webkit-scrollbar]:w-0
+                        [&::-webkit-scrollbar]:h-0
+                    "
+                                                                >
+
+                                                                    {test.history.map(
+                                                                        (
+                                                                            item: any,
+                                                                            index: number
+                                                                        ) => (
+
+                                                                            <button
+                                                                                key={item._id}
+                                                                                onClick={() => {
+
+                                                                                    console.log(
+                                                                                        'solution id',
+                                                                                        item._id
+                                                                                    )
+
+                                                                                }}
+                                                                                className="
+                                    w-full
+                                    text-left
+                                    px-4
+                                    py-3
+                                    text-[12px]
+                                    font-medium
+                                    text-white
+                                    bg-[#4A3F77]
+                                    hover:bg-[#5b4b94]
+                                    border-b
+                                    border-white/10
+                                    last:border-b-0
+                                    transition
+                                    cursor-pointer
+                                    shrink-0
+                                "
+                                                                            >
+
+                                                                                Attempt {index + 1}
+
+                                                                            </button>
+                                                                        )
+                                                                    )}
+
+                                                                </div>
+
+                                                            </div>
+                                                        </>
+
+                                                    ) : (
+
+                                                        /* ========================================= */
+                                                        /* NO HISTORY => START TEST */
+                                                        /* ========================================= */
+
+                                                        <button
+                                                            onClick={() =>
+                                                                test.access &&
+                                                                handleTestAction(test)
+                                                            }
+                                                            className="
+                cursor-pointer
+                px-4
+                py-2
+                rounded-xl
+                text-[11px]
+                flex
+                items-center
+                gap-2
+                bg-[#4A3F77]
+                text-white
+                shadow-[0_4px_12px_rgba(74,63,119,0.3)]
+                hover:shadow-[0_6px_18px_rgba(74,63,119,0.4)]
+                hover:-translate-y-0.5
+                transition-all
+            "
+                                                        >
+
+                                                            <span className="bg-white/15 p-1 rounded-md text-[10px]">
+
+                                                                {test.access
+                                                                    ? <Unlock size={15} />
+                                                                    : <Lock size={15} />
+                                                                }
+
+                                                            </span>
+
+                                                            <span>
+
+                                                                Start Test
+
+                                                            </span>
+
+                                                        </button>
+                                                    )}
+
+                                                </div>
                                             </div>
 
                                         </div>
@@ -811,6 +1363,6 @@ export default function TestSection({ series }: Props) {
 
             </div>
 
-        </div>
+        </div >
     )
 }

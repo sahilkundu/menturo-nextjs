@@ -17,7 +17,11 @@ export const LOAD_SERIES = `${BASE_URL}/api/test-series/load`
 export const LOAD_ONE_SERIES = `${BASE_URL}/api/test-series/loadone`
 export const LOAD_TESTS = `${BASE_URL}/api/tests/load`
 export const LOAD_TESTS_BY_SUB = `${BASE_URL}/api/tests/loadsub`
-export const START_TEST = `${BASE_URL}/api/test/start'`
-// export const WEBSOCKET = `ws://localhost:8080/ws`
-export const WEBSOCKET =
-    `wss://betaws.menturo.in/ws`
+export const START_TEST = `${BASE_URL}/api/test/start`
+export const RESUME_TEST = `${BASE_URL}/api/test/resume`
+export const SAVE_TEST = `${BASE_URL}/api/test/save`
+export const FETCH_SOLUTION = `${BASE_URL}/api/test/solution`
+export const SUBMIT_TEST = `${BASE_URL}/api/test/result`
+export const WEBSOCKET = `ws://localhost:8080/ws`
+// export const WEBSOCKET =
+//     `wss://betaws.menturo.in/ws`

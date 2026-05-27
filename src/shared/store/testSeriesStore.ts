@@ -261,7 +261,7 @@ export const useTestSeriesStore =
                                 'Content-Type':
                                     'application/json'
                             },
-
+                            credentials: "include",
                             body: JSON.stringify({
 
                                 seriesId,
@@ -303,7 +303,7 @@ export const useTestSeriesStore =
 
                                 mergedTests.map(
                                     (item: any) => [
-                                        item._id,
+                                        item.testId,
                                         item
                                     ]
                                 )
@@ -390,6 +390,7 @@ export const useTestSeriesStore =
                     headers: {
                         'Content-Type': 'application/json'
                     },
+                    credentials: "include",
                     body: JSON.stringify({
                         seriesId,
                         userId
@@ -470,7 +471,7 @@ export const useTestSeriesStore =
                                 'Content-Type':
                                     'application/json'
                             },
-
+                            credentials: "include",
                             body:
                                 JSON.stringify({
 
@@ -602,7 +603,7 @@ export const useTestSeriesStore =
                                 'Content-Type':
                                     'application/json'
                             },
-
+                            credentials: "include",
                             body:
                                 JSON.stringify({
 
@@ -647,7 +648,7 @@ export const useTestSeriesStore =
 
                                 mergedTests.map(
                                     (item: any) => [
-                                        item._id,
+                                        item.testId,
                                         item
                                     ]
                                 )

@@ -1,10 +1,11 @@
 'use client'
 import dynamic from 'next/dynamic'
 import { useEffect, useRef } from 'react'
-import { useParams } from 'next/navigation'
+import { useParams, usePathname } from 'next/navigation'
 
 import { useWSStore } from "../../../shared/store/wsStore"
 import { useTestSeriesStore } from "../../../shared/store/testSeriesStore"
+import { useTestDataStore } from '../../../shared/store/testDataStore'
 const PaymentSummary = dynamic(
     () => import(
         "../../../shared/components/PaymentSummary"
@@ -40,6 +41,23 @@ const PaymentSummarySkeleton = dynamic(
 
 
 export default function TestPage() {
+    const {
+
+        clearActiveTest
+    } = useTestDataStore()
+
+    const pathname = usePathname()
+
+    useEffect(() => {
+
+        if (
+            !pathname.includes("/test")
+        ) {
+
+            clearActiveTest()
+        }
+
+    }, [pathname, clearActiveTest])
     // ======================================================
     // PARAMS
     // ======================================================

@@ -1,5 +1,7 @@
 'use client'
 
+import Image from "next/image"
+
 
 
 export default function Footer() {
@@ -31,12 +33,31 @@ export default function Footer() {
                             <div className="text-center lg:text-left">
                                 <div className="flex items-center justify-center lg:justify-start gap-3 mb-3">
                                     <div
-                                        className="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-400 to-indigo-500 flex items-center justify-center text-white text-2xl shadow-lg shadow-purple-500/30">
-                                        🎓
+                                        className="
+        w-15
+        h-12
+        rounded-2xl
+        overflow-hidden
+        shadow-lg
+        shadow-purple-500/30
+        shrink-0
+        flex
+        items-center
+        justify-center
+        p-1
+    "
+                                    >
+                                        <Image
+                                            src="https://cdn.menturo.in/img/M3.png"
+                                            alt="logo"
+                                            width={48}
+                                            height={48}
+                                            loading="lazy"
+                                            className="w-full h-full object-contain"
+                                        />
                                     </div>
                                     <div>
-                                        <span className="font-black text-2xl text-white tracking-tight">Exam<span
-                                            className="text-purple-400">Mitra</span></span>
+                                        <span className="font-black text-2xl text-white tracking-tight">Menturo</span>
                                         <p className="text-xs text-purple-300/70">Empowering Dreams</p>
                                     </div>
                                 </div>
@@ -172,7 +193,7 @@ export default function Footer() {
                                     </div>
                                     <div className="flex items-center gap-2 text-sm text-purple-200/70">
                                         <i className="fas fa-envelope text-purple-400 text-xs"></i>
-                                        <span className="text-xs">support@mentor.com</span>
+                                        <span className="text-xs">support@menturo.in</span>
                                     </div>
                                     <div className="flex items-center gap-2 text-sm text-purple-200/70">
                                         <i className="fas fa-envelope text-purple-400 text-xs"></i>
@@ -186,7 +207,7 @@ export default function Footer() {
                         <div className="mt-10 pt-6 border-t border-purple-500/20">
                             <div className="flex flex-col md:flex-row justify-between items-center gap-3">
                                 <p className="text-xs text-purple-300/60">
-                                    © 2025 Exam Mitra. All rights reserved. Made with ❤️ for students
+                                    © 2026 Menturo. All rights reserved. Made with ❤️ for students
                                 </p>
                                 <div className="flex gap-4">
                                     <a href="#" className="text-xs text-purple-300/60 hover:text-purple-300 transition">Sitemap</a>

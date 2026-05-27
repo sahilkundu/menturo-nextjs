@@ -27,6 +27,7 @@ export default function HomeCenter() {
         loadingSeries
 
     } = useTestSeriesStore()
+    // console.log(seriesMap)
     const autoLoadedRef = useRef(false)
 
     const {
@@ -347,19 +348,7 @@ export default function HomeCenter() {
 
                                     </div>
 
-                                    <div className="flex gap-3 flex-wrap">
 
-                                        <button className="h-10 px-4 rounded-xl border text-sm border-gray-200">
-                                            Import
-                                        </button>
-
-
-
-                                        <button className="h-10 px-5 rounded-xl bg-violet-600 text-white text-sm border-gray-200">
-                                            Categories
-                                        </button>
-
-                                    </div>
 
                                 </div>
 
@@ -479,6 +468,7 @@ export default function HomeCenter() {
                                             series?.map((item: any) => (
 
                                                 <TestCard
+                                                    access={item.access}
                                                     key={item._id}
                                                     slug={item._id}
                                                     board={item.tags?.[0] || "TEST"}

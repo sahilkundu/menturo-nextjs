@@ -232,8 +232,15 @@ export default function RightSidebar() {
                                 />
                             </div>
 
-                            <h4 className="text-xl md:text-2xl font-bold mt-2">
-                                Good Morning {user?.username}
+                            <h4 className="text-sm md:text-base font-semibold mt-2">
+                                {new Date().getHours() < 12
+                                    ? "Good Morning"
+                                    : new Date().getHours() < 17
+                                        ? "Good Afternoon"
+                                        : new Date().getHours() < 21
+                                            ? "Good Evening"
+                                            : "Good Night"}{" "}
+                                {user?.username}
                             </h4>
 
                             <p className="text-sm md:text-base text-gray-500 mt-2 leading-6">

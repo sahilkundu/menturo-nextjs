@@ -246,6 +246,7 @@ export const useWSStore =
                                 event
                             ) => {
                                 try {
+
                                     const data =
                                         JSON.parse(
                                             event.data
@@ -255,6 +256,27 @@ export const useWSStore =
                                         'WS:',
                                         data
                                     )
+
+                                    // ============================
+                                    // TEST HISTORY SAVED
+                                    // ============================
+
+                                    if (
+                                        data.event ===
+                                        'test-history-saved'
+                                    ) {
+
+                                        alert(
+                                            `Test Saved Successfully\nAttempt: ${data.attempt}`
+                                        )
+
+                                        console.log(
+                                            'History Saved:',
+                                            data
+                                        )
+
+                                        return
+                                    }
 
                                     // ============
                                     // PONG
@@ -275,11 +297,14 @@ export const useWSStore =
                                         data.event ===
                                         'user-connected'
                                     ) {
+
                                         set({
 
                                             authType:
                                                 'user'
                                         })
+
+                                        return
                                     }
 
                                 }
@@ -287,6 +312,7 @@ export const useWSStore =
                                 catch (
                                 err
                                 ) {
+
                                     console.log(
                                         err
                                     )

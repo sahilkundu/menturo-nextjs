@@ -1,0 +1,383 @@
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+}
+
+body{
+  overflow:hidden;
+  font-family:Arial, Helvetica, sans-serif;
+  background:#fff;
+}
+
+/* =========================
+   EXACT LOGO COLOR PICKED
+   FROM YOUR REAL LOGO (Mint Green / Teal)
+========================= */
+:root{
+  /* Exact matched brand color from M3.png */
+  --menturo: #1cd1a1;
+  --menturo-glow: rgba(28, 209, 161, 0.18);
+  --menturo-shadow: rgba(28, 209, 161, 0.12);
+  --menturo-border: rgba(28, 209, 161, 0.15);
+}
+
+/* =========================
+   MAIN SCREEN
+========================= */
+.main-content{
+  width:100%;
+  height:100vh;
+  background:
+  linear-gradient(rgba(0,0,0,.70),rgba(0,0,0,.70)),
+  url('https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=1400&auto=format&fit=crop');
+  background-size:cover;
+  background-position:center;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  flex-direction:column;
+  color:#fff;
+}
+
+.main-content h1{
+  font-size:60px;
+  font-weight:900;
+  letter-spacing:4px;
+}
+
+.main-content p{
+  margin-top:12px;
+  font-size:20px;
+  letter-spacing:3px;
+}
+
+/* =========================
+   LOADER
+========================= */
+.loader-screen{
+  position:fixed;
+  inset:0;
+  background:#ffffff;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  flex-direction:column;
+  overflow:hidden;
+  z-index:9999;
+}
+
+/* =========================
+   TEXT
+========================= */
+.text-loader{
+  display:flex;
+  gap:8px;
+  margin-bottom:35px;
+  animation:hideText .6s forwards;
+  animation-delay:2.2s;
+}
+
+.letter{
+  font-size:82px;
+  font-weight:900;
+  color:var(--menturo);
+  opacity:0;
+  transform:
+  translateY(70px)
+  scale(.5);
+  animation:showLetter .5s forwards;
+  text-shadow: 0 0 10px var(--menturo-glow);
+}
+
+.letter:nth-child(1){animation-delay:.1s;}
+.letter:nth-child(2){animation-delay:.3s;}
+.letter:nth-child(3){animation-delay:.5s;}
+.letter:nth-child(4){animation-delay:.7s;}
+.letter:nth-child(5){animation-delay:.9s;}
+.letter:nth-child(6){animation-delay:1.1s;}
+.letter:nth-child(7){animation-delay:1.3s;}
+
+/* =========================
+   LOGO WRAPPER
+========================= */
+.logo-wrapper{
+  position:absolute;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  opacity:0;
+  animation:showLogo .6s forwards;
+  animation-delay:2.7s;
+}
+
+/* =========================
+   LOGO BOX
+========================= */
+.logo-box{
+  position:relative;
+  width:170px;
+  height:170px;
+  border-radius:38px;
+  background:#ffffff;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  overflow:hidden;
+  border:2px solid var(--menturo-border);
+  box-shadow: 0 20px 45px rgba(28, 209, 161, 0.2);
+  animation:floatLogo 2s infinite ease-in-out;
+}
+
+/* BRAND COLOR GLOW */
+.logo-box::before{
+  content:'';
+  position:absolute;
+  width:230px;
+  height:230px;
+  border-radius:50%;
+  background: radial-gradient(rgba(28, 209, 161, 0.2), transparent 70%);
+}
+
+/* FLASH */
+.flash{
+  position:absolute;
+  top:-40%;
+  left:-120%;
+  width:70px;
+  height:240%;
+  background:
+  linear-gradient(
+    90deg,
+    transparent,
+    rgba(255,255,255,.95),
+    transparent
+  );
+  transform:rotate(20deg);
+  animation:flashMove 1.4s infinite linear;
+  z-index:5;
+}
+
+/* LOGO */
+.logo-img{
+  width:115px;
+  position:relative;
+  z-index:2;
+  filter: drop-shadow(0 0 10px var(--menturo-glow));
+}
+
+/* =========================
+   SHADOW
+========================= */
+.shadow{
+  width:100px;
+  height:18px;
+  background:var(--menturo-shadow);
+  border-radius:50%;
+  margin-top:22px;
+  filter:blur(5px);
+  animation:shadowAnim 2s infinite ease-in-out;
+}
+
+/* =========================
+   LOADING
+========================= */
+.loading{
+  margin-top:22px;
+  font-size:19px;
+  font-weight:800;
+  color:var(--menturo);
+  letter-spacing:3px;
+}
+
+/* =========================
+   DOTS
+========================= */
+.dots{
+  display:flex;
+  gap:8px;
+  margin-top:16px;
+}
+
+.dot{
+  width:10px;
+  height:10px;
+  border-radius:50%;
+  background:var(--menturo);
+  animation:bounce 1.2s infinite;
+}
+
+.dot:nth-child(2){animation-delay:.2s;}
+.dot:nth-child(3){animation-delay:.4s;}
+
+/* =========================
+   BOTTOM EXPAND
+========================= */
+.green-expand{
+  position:absolute;
+  width:280px;
+  height:280px;
+  border-radius:50%;
+  background:var(--menturo);
+  bottom:-380px;
+  transform:scale(0);
+  animation:expandScreen 2s forwards;
+  animation-delay:5s;
+}
+
+/* =========================
+   FINAL SCREEN
+========================= */
+.final-screen{
+  position:absolute;
+  inset:0;
+  background:var(--menturo);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  flex-direction:column;
+  opacity:0;
+  animation:showFinal 1s forwards;
+  animation-delay:6s;
+}
+
+.final-screen img{
+  width:130px;
+  margin-bottom:24px;
+}
+
+.final-screen h1{
+  color:#fff;
+  font-size:80px;
+  font-weight:900;
+  letter-spacing:6px;
+}
+
+.final-screen p{
+  margin-top:12px;
+  color:#fff;
+  font-size:20px;
+  letter-spacing:4px;
+}
+
+/* =========================
+   HIDE
+========================= */
+.hide-loader{
+  animation:hideLoader 1s forwards;
+  animation-delay:7.2s;
+}
+
+/* =========================
+   ANIMATIONS
+========================= */
+@keyframes showLetter{
+  0%{
+    opacity:0;
+    transform: translateY(70px) scale(.5);
+  }
+  100%{
+    opacity:1;
+    transform: translateY(0px) scale(1);
+  }
+}
+
+@keyframes hideText{
+  to{
+    opacity:0;
+    transform:scale(1.3);
+  }
+}
+
+@keyframes showLogo{
+  from{
+    opacity:0;
+    transform:scale(.4);
+  }
+  to{
+    opacity:1;
+    transform:scale(1);
+  }
+}
+
+@keyframes flashMove{
+  from{ left:-120%; }
+  to{ left:180%; }
+}
+
+@keyframes floatLogo{
+  0%{ transform:translateY(0px); }
+  50%{ transform:translateY(-14px); }
+  100%{ transform:translateY(0px); }
+}
+
+@keyframes shadowAnim{
+  0%{
+    transform:scale(1);
+    opacity:.18;
+  }
+  50%{
+    transform:scale(.65);
+    opacity:.05;
+  }
+  100%{
+    transform:scale(1);
+    opacity:.18;
+  }
+}
+
+@keyframes bounce{
+  0%,100%{ transform:translateY(0); }
+  50%{ transform:translateY(-9px); }
+}
+
+@keyframes expandScreen{
+  0%{ transform:scale(0); }
+  50%{ transform:scale(3); }
+  100%{ transform:scale(12); }
+}
+
+@keyframes showFinal{
+  from{ opacity:0; }
+  to{ opacity:1; }
+}
+
+@keyframes hideLoader{
+  from{ opacity:1; }
+  to{
+    opacity:0;
+    visibility:hidden;
+  }
+}
+
+/* =========================
+   MOBILE
+========================= */
+@media(max-width:768px){
+  .letter{ font-size:40px; }
+  .text-loader{ gap:4px; }
+  .logo-box{
+    width:120px;
+    height:120px;
+    border-radius:28px;
+  }
+  .logo-img{ width:78px; }
+  .loading{ font-size:14px; }
+  .final-screen img{ width:90px; }
+  .final-screen h1{ font-size:46px; }
+  .final-screen p{
+    font-size:14px;
+    letter-spacing:2px;
+    text-align:center;
+  }
+  .main-content h1{
+    font-size:30px;
+    text-align:center;
+    padding:0 20px;
+  }
+  .main-content p{
+    font-size:14px;
+    text-align:center;
+    padding:0 20px;
+  }
+}

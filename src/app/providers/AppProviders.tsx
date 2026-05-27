@@ -1,20 +1,19 @@
-'use client'
+"use client"
 
-import { ReactNode, useEffect } from 'react'
+import { ReactNode, useEffect } from "react"
 
-import { ThemeProvider } from './ThemeProvider'
+import { ThemeProvider } from "./ThemeProvider"
 
-import { useWSStore } from '../../shared/store/wsStore'
-
-import { useUserStore } from '../../shared/store/user'
+import { useWSStore } from "../../shared/store/wsStore"
+import { useUserStore } from "../../shared/store/user"
 
 interface Props {
     children: ReactNode
 }
 
-export const AppProviders = ({
+export default function AppProviders({
     children
-}: Props) => {
+}: Props) {
 
     // =====================================
     // USER
@@ -35,7 +34,7 @@ export const AppProviders = ({
         )
 
     // =====================================
-    // CONNECT ONLY ONCE
+    // CONNECT WS
     // =====================================
 
     useEffect(() => {
@@ -47,45 +46,30 @@ export const AppProviders = ({
     }, [])
 
     // =====================================
-    // LOGIN AFTER AUTH
+    // LOGIN WS USER
     // =====================================
 
     useEffect(() => {
 
-        if (
-            !authenticated
-        ) {
+        if (!authenticated) {
             return
         }
 
-        if (
-            !user?.id
-        ) {
+        if (!user?.id) {
             return
         }
 
-        // =============================
-        // ALREADY LOGGED
-        // =============================
-
-        if (
-            wsUserId === user.id
-        ) {
+        if (wsUserId === user.id) {
             return
         }
 
         useWSStore
             .getState()
-            .login(
-                user.id
-            )
+            .login(user.id)
 
     }, [
-
         authenticated,
-
         user?.id,
-
         wsUserId
     ])
 
