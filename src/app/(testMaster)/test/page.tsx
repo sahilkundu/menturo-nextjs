@@ -1,8 +1,6 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import Head from 'next/head';
-import QuestionHistory from '../../../shared/components/QuestionHistory';
 import TestMasterHeader from '../../../shared/components/TestMasterHeader';
 import TestMasterBody from '../../../shared/components/TestMasterBody';
 import TestMasterUserInfo from '../../../shared/components/TestMasterUserInfo';
@@ -41,7 +39,7 @@ export default function MockTestPage() {
     }, [pathname, clearActiveTest])
     return (
         <>
-            <div className="w-full h-[100dvh] p-2 md:p-3 overflow-hidden flex flex-col">
+            <div className="w-full h-[100dvh]  p-2 md:p-3 overflow-hidden flex flex-col">
 
                 <div className="
 bg-white
