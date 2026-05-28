@@ -19,8 +19,5 @@ export const SAVE_TEST = `${BASE_URL}/api/test/save`
 export const FETCH_SOLUTION = `${BASE_URL}/api/test/solution`
 export const SUBMIT_TEST = `${BASE_URL}/api/test/result`
 // export const WEBSOCKET = `ws://localhost:8080/ws`
-// export const WEBSOCKET =
-//     `wss://betaws.menturo.in/ws`
 export const WEBSOCKET =
-    `wss://myapp-ws-latest.onrender.com/ws`
-// wss://myapp-ws-latest.onrender.com/ws
+    `wss://betaws.menturo.in/ws`
