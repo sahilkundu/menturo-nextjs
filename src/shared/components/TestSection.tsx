@@ -610,6 +610,10 @@ export default function TestSection({ series }: Props) {
                                         test.history?.some(
                                             (h: any) => h.status === 'resume'
                                         )
+                                    const hasRunningTest =
+                                        test.history?.some(
+                                            (h: any) => h.status === 'running'
+                                        )
 
                                     const allSubmitted =
                                         hasHistory &&
@@ -715,7 +719,7 @@ export default function TestSection({ series }: Props) {
                                                     {/* if any resume exists */}
                                                     {/* ========================================= */}
 
-                                                    {hasResumeAttempt ? (
+                                                    {hasResumeAttempt || hasRunningTest ? (
 
                                                         <>
                                                             <button
@@ -759,16 +763,14 @@ export default function TestSection({ series }: Props) {
                                                                 <span className="bg-white/15 p-1 rounded-md text-[10px]">
 
                                                                     {test.access
-                                                                        ? <Unlock size={15} />
+                                                                        ? hasRunningTest ? <Lock size={15} /> : <Unlock size={15} />
                                                                         : <Lock size={15} />
                                                                     }
 
                                                                 </span>
 
                                                                 <span>
-
-                                                                    Resume Test
-
+                                                                    {hasRunningTest ? "Test running..." : "Resume Test"}
                                                                 </span>
 
                                                             </button>

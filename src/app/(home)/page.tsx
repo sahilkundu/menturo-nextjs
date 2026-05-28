@@ -59,20 +59,11 @@ export default function HomePage() {
 
     // ================= WS =================
 
-    const connect =
-        useWSStore(
-            (state) => state.connect
-        )
 
-    const login =
-        useWSStore(
-            (state) => state.login
-        )
 
-    const disconnect =
-        useWSStore(
-            (state) => state.disconnect
-        )
+
+
+
 
     // ================= LAYOUT =================
 
@@ -115,21 +106,7 @@ export default function HomePage() {
     // LOGIN UPGRADE
     // =========================================
 
-    useEffect(() => {
 
-        if (
-            authenticated &&
-            user?.id
-        ) {
-            login(
-                user.id
-            )
-        }
-
-    }, [
-        authenticated,
-        user?.id
-    ])
 
     // =========================================
     // MOBILE CHECK

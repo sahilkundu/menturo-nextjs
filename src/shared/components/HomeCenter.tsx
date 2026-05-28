@@ -10,6 +10,15 @@ import TestCardSkeleton from "./Skeleton/TestCardSkeleton"
 
 
 export default function HomeCenter() {
+    const {
+
+
+        authType,
+
+        guestId,
+
+
+    } = useWSStore()
     const sliderRef = useRef<HTMLDivElement | null>(null)
     const [showSkeleton, setShowSkeleton] =
         useState(false)
