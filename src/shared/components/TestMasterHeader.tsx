@@ -1,6 +1,7 @@
 'use client'
 import { useTestDataStore } from "../store/testDataStore";
 import QuestionHistory from "./QuestionHistory";
+import TestTimer from "./TestTimer";
 
 export default function TestMasterHeader() {
     const {
@@ -91,6 +92,33 @@ export default function TestMasterHeader() {
                     }
 
                 </select>
+                <div className="
+                 xl:hidden
+                                  shrink-0
+                                  bg-rose-50
+                                  border
+                                  border-rose-100
+                                  rounded-xl
+                                  px-2.5
+                                  py-1.5
+                                  text-center
+                              ">
+
+
+
+                    <div className="
+                                      text-[12px]
+                                      font-black
+                                      text-rose-600
+                                      tracking-wide
+                                  ">
+
+                        <TestTimer />
+
+                    </div>
+
+                </div>
+
             </div>
             {/* <div className="md:hidden overflow-x-auto whitespace-nowrap scroll-hide px-3 py-2 border-b border-slate-200 bg-white">
                 <div className="flex gap-2 w-max text-[10px] font-bold">

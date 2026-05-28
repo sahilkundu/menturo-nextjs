@@ -2,41 +2,26 @@
 
 import { create } from 'zustand'
 
-import { v4 as uuidv4 } from 'uuid'
 import { WEBSOCKET } from '../../../api'
+
+import { useTestSeriesStore } from './testSeriesStore'
+
+import { showPopupMessage } from '../utils/popup'
 declare global {
     interface Window {
         __wsHeartbeat: any
     }
 }
-// =====================================================
-// TYPES
-// =====================================================
 
 type WSStatus =
     'connecting' |
     'connected' |
     'disconnected'
 
-type AuthType =
-    'guest' |
-    'user'
-
-// =====================================================
-// STORE
-// =====================================================
-
 interface WSStore {
-    // =========================================
-    // SOCKET
-    // =========================================
 
     socket:
     WebSocket | null
-
-    // =========================================
-    // STATUS
-    // =========================================
 
     status:
     WSStatus
@@ -44,33 +29,16 @@ interface WSStore {
     online:
     boolean
 
-    // =========================================
-    // USER
-    // =========================================
-
-    authType:
-    AuthType
-
-    guestId:
-    string
-
     userId:
     string | null
 
-    // =========================================
-    // ACTIONS
-    // =========================================
-
     connect:
-    () => void
-
-    disconnect:
-    () => void
-
-    login:
     (
         userId: string
     ) => void
+
+    disconnect:
+    () => void
 
     send:
     (
@@ -78,463 +46,323 @@ interface WSStore {
     ) => void
 }
 
-// =====================================================
-// STORE
-// =====================================================
-
 export const useWSStore =
     create<WSStore>(
         (
             set,
             get
-        ) => {
+        ) => ({
+
+            socket: null,
+
+            status:
+                'disconnected',
+
+            online: false,
+
+            userId: null,
+
             // =====================================
-            // GUEST ID
+            // CONNECT
             // =====================================
 
-            let guestId =
-                ''
+            connect:
+                (
+                    userId
+                ) => {
 
-            if (
-                typeof window !==
-                'undefined'
-            ) {
-                guestId =
-                    localStorage.getItem(
-                        'guestId'
-                    ) || ''
+                    const current =
+                        get().socket
 
-                // ===============================
-                // CREATE NEW
-                // ===============================
+                    // =========================
+                    // ALREADY CONNECTED
+                    // =========================
 
-                if (!guestId) {
-                    guestId =
-                        uuidv4()
+                    if (
+                        current &&
+                        (
+                            current.readyState === WebSocket.OPEN ||
+                            current.readyState === WebSocket.CONNECTING
+                        )
+                    ) {
+                        return
+                    }
 
-                    localStorage.setItem(
-                        'guestId',
-                        guestId
-                    )
-                }
-            }
+                    set({
 
-            return {
+                        status:
+                            'connecting'
+                    })
 
-                // =================================
-                // DEFAULTS
-                // =================================
+                    // =========================
+                    // CREATE SOCKET
+                    // =========================
 
-                socket:
-                    null,
+                    const ws =
+                        new WebSocket(
+                            WEBSOCKET
+                        )
 
-                status:
-                    'disconnected',
+                    set({
+                        socket: ws,
+                        userId
+                    })
 
-                online:
-                    false,
+                    // =========================
+                    // OPEN
+                    // =========================
 
-                authType:
-                    'guest',
+                    ws.onopen =
+                        () => {
 
-                guestId,
-
-                userId:
-                    null,
-
-                // =================================
-                // CONNECT
-                // =================================
-
-                connect:
-                    () => {
-                        // =========================
-                        // ALREADY CONNECTED
-                        // =========================
-
-                        const current =
-                            get()
-                                .socket
-
-                        // if (
-                        //     current &&
-                        //     current
-                        //         .readyState === 1
-                        // ) {
-                        //     return
-                        // }
-                        if (
-                            current &&
-                            (
-                                current.readyState === WebSocket.OPEN ||
-                                current.readyState === WebSocket.CONNECTING
+                            console.log(
+                                'WS CONNECTED'
                             )
-                        ) {
-                            return
+
+                            set({
+
+                                socket: ws,
+
+                                online: true,
+
+                                status:
+                                    'connected'
+                            })
+
+                            // =====================
+                            // AUTH USER
+                            // =====================
+
+                            ws.send(
+                                JSON.stringify({
+
+                                    event:
+                                        'user-connect',
+
+                                    userId
+                                })
+                            )
                         }
 
-                        // =========================
-                        // STATUS
-                        // =========================
+                    // =========================
+                    // MESSAGE
+                    // =========================
 
+                    ws.onmessage =
+                        (
+                            event
+                        ) => {
 
-                        set({
+                            try {
 
-                            status:
-                                'connecting',
-
-                            socket:
-                                current || null
-                        })
-                        // =========================
-                        // CREATE SOCKET
-                        // =========================
-
-                        const ws =
-                            new WebSocket(
-                                WEBSOCKET
-                            )
-                        set({
-                            socket: ws
-                        })
-
-                        // =========================
-                        // OPEN
-                        // =========================
-
-                        ws.onopen =
-                            () => {
-                                console.log(
-                                    'WS CONNECTED'
-                                )
-
-                                set({
-
-                                    socket:
-                                        ws,
-
-                                    online:
-                                        true,
-
-                                    status:
-                                        'connected'
-                                })
-
-                                // =================
-                                // GUEST CONNECT
-                                // =================
-
-                                ws.send(
-
-                                    JSON.stringify({
-
-                                        event:
-                                            'guest-connect',
-
-                                        guestId:
-                                            get()
-                                                .guestId
-                                    }))
-                            }
-
-                        // =========================
-                        // MESSAGE
-                        // =========================
-
-                        ws.onmessage =
-                            (
-                                event
-                            ) => {
-                                try {
-
-                                    const data =
-                                        JSON.parse(
-                                            event.data
-                                        )
-
-                                    console.log(
-                                        'WS:',
-                                        data
+                                const data =
+                                    JSON.parse(
+                                        event.data
                                     )
 
-                                    // ============================
-                                    // TEST HISTORY SAVED
-                                    // ============================
+                                console.log(
+                                    'WS:',
+                                    data
+                                )
 
-                                    if (
-                                        data.event ===
-                                        'test-history-saved'
-                                    ) {
+                                // =====================
+                                // TEST UPDATE
+                                // =====================
 
-                                        alert(
-                                            `Test Saved Successfully\nAttempt: ${data.attempt}`
-                                        )
-
-                                        console.log(
-                                            'History Saved:',
-                                            data
-                                        )
-
-                                        return
-                                    }
-
-                                    // ============
-                                    // PONG
-                                    // ============
-
-                                    if (
-                                        data.event ===
-                                        'pong'
-                                    ) {
-                                        return
-                                    }
-
-                                    // ============
-                                    // USER
-                                    // ============
-
-                                    if (
-                                        data.event ===
-                                        'user-connected'
-                                    ) {
-
-                                        set({
-
-                                            authType:
-                                                'user'
-                                        })
-
-                                        return
-                                    }
-
-                                }
-
-                                catch (
-                                err
+                                if (
+                                    data.event ===
+                                    'test-updated'
                                 ) {
 
-                                    console.log(
-                                        err
+                                    useTestSeriesStore
+                                        .getState()
+                                        .updateTestHistory(
+                                            data.history
+                                        )
+                                    showPopupMessage(
+                                        "Test started on another device",
+                                        true
                                     )
+                                    return
                                 }
+
+                                // =====================
+                                // PONG
+                                // =====================
+
+                                if (
+                                    data.event ===
+                                    'pong'
+                                ) {
+                                    return
+                                }
+
+                            } catch (err) {
+
+                                console.log(err)
                             }
+                        }
 
-                        // =========================
-                        // CLOSE
-                        // =========================
+                    // =========================
+                    // CLOSE
+                    // =========================
 
-                        ws.onclose =
-                            () => {
-                                console.log(
-                                    'WS CLOSED'
-                                )
+                    ws.onclose =
+                        () => {
 
-                                set({
+                            console.log(
+                                'WS CLOSED'
+                            )
 
-                                    socket:
-                                        null,
+                            set({
 
-                                    online:
-                                        false,
+                                socket: null,
 
-                                    status:
-                                        'disconnected'
-                                })
+                                online: false,
 
-                                // =================
-                                // AUTO RECONNECT
-                                // =================
+                                status:
+                                    'disconnected'
+                            })
 
-                                setTimeout(
-                                    () => {
+                            // AUTO RECONNECT
+
+                            setTimeout(
+                                () => {
+
+                                    const uid =
                                         get()
-                                            .connect()
-                                    },
-                                    3000
-                                )
-                            }
+                                            .userId
 
-                        // =========================
-                        // ERROR
-                        // =========================
+                                    if (uid) {
 
-                        ws.onerror =
-                            (
-                                err
-                            ) => {
-                                console.log(
-                                    'WS ERROR',
-                                    err
-                                )
-
-                                set({
-
-                                    online:
-                                        false,
-
-                                    status:
-                                        'disconnected'
-                                })
-                            }
-
-                        // =========================
-                        // HEARTBEAT
-                        // =========================
-
-                        //     setInterval(
-                        //         () => {
-                        //             const socket =
-                        //                 get()
-                        //                     .socket
-
-                        //             if (
-                        //                 socket &&
-                        //                 socket
-                        //                     .readyState === 1
-                        //             ) {
-                        //                 socket.send(
-
-                        //                     JSON.stringify({
-
-                        //                         event:
-                        //                             'ping'
-                        //                     }))
-                        //             }
-
-                        //         },
-                        //         30000
-                        //     )
-                        // },
-                        // =========================
-                        // HEARTBEAT
-                        // =========================
-
-                        if (
-                            typeof window !== 'undefined'
-                        ) {
-
-                            const existing =
-                                window.__wsHeartbeat
-
-                            if (existing) {
-                                clearInterval(existing)
-                            }
-
-                            window.__wsHeartbeat =
-                                setInterval(
-                                    () => {
-
-                                        const socket =
-                                            get().socket
-
-                                        if (
-                                            socket &&
-                                            socket.readyState === WebSocket.OPEN
-                                        ) {
-
-                                            socket.send(
-                                                JSON.stringify({
-                                                    event: 'ping'
-                                                })
+                                        get()
+                                            .connect(
+                                                uid
                                             )
-                                        }
+                                    }
 
-                                    },
-                                    30000
-                                )
-                        }
-                    },
-
-                // =================================
-                // LOGIN
-                // =================================
-
-                login:
-                    (
-                        userId
-                    ) => {
-                        const socket =
-                            get()
-                                .socket
-
-                        if (
-                            !socket ||
-                            socket
-                                .readyState !== 1
-                        ) {
-                            return
+                                },
+                                3000
+                            )
                         }
 
-                        socket.send(
+                    // =========================
+                    // ERROR
+                    // =========================
 
-                            JSON.stringify({
+                    ws.onerror =
+                        (
+                            err
+                        ) => {
 
-                                event:
-                                    'user-login',
+                            console.log(
+                                'WS ERROR',
+                                err
+                            )
 
-                                guestId:
-                                    get()
-                                        .guestId,
+                            set({
 
-                                userId
-                            }))
+                                online:
+                                    false,
 
-                        set({
-
-                            userId,
-
-                            authType:
-                                'user'
-                        })
-                    },
-
-                // =================================
-                // SEND
-                // =================================
-
-                send:
-                    (
-                        data
-                    ) => {
-                        const socket =
-                            get()
-                                .socket
-
-                        if (
-                            !socket ||
-                            socket
-                                .readyState !== 1
-                        ) {
-                            return
+                                status:
+                                    'disconnected'
+                            })
                         }
 
-                        socket.send(
-                            JSON.stringify(
-                                data
-                            ))
-                    },
+                    // =========================
+                    // HEARTBEAT
+                    // =========================
 
-                // =================================
-                // DISCONNECT
-                // =================================
+                    if (
+                        typeof window !==
+                        'undefined'
+                    ) {
 
-                disconnect:
-                    () => {
+                        const existing =
+                            window.__wsHeartbeat
+
+                        if (existing) {
+                            clearInterval(
+                                existing
+                            )
+                        }
+
+                        window.__wsHeartbeat =
+                            setInterval(
+                                () => {
+
+                                    const socket =
+                                        get()
+                                            .socket
+
+                                    if (
+                                        socket &&
+                                        socket.readyState === WebSocket.OPEN
+                                    ) {
+
+                                        socket.send(
+                                            JSON.stringify({
+                                                event:
+                                                    'ping'
+                                            })
+                                        )
+                                    }
+
+                                },
+                                30000
+                            )
+                    }
+                },
+
+            // =====================================
+            // SEND
+            // =====================================
+
+            send:
+                (
+                    data
+                ) => {
+
+                    const socket =
                         get()
                             .socket
-                            ?.close()
 
-                        set({
-
-                            socket:
-                                null,
-
-                            online:
-                                false,
-
-                            status:
-                                'disconnected'
-                        })
+                    if (
+                        !socket ||
+                        socket.readyState !== WebSocket.OPEN
+                    ) {
+                        return
                     }
-            }
-        })
+
+                    socket.send(
+                        JSON.stringify(
+                            data
+                        )
+                    )
+                },
+
+            // =====================================
+            // DISCONNECT
+            // =====================================
+
+            disconnect:
+                () => {
+
+                    get()
+                        .socket
+                        ?.close()
+
+                    set({
+
+                        socket: null,
+
+                        online: false,
+
+                        status:
+                            'disconnected',
+
+                        userId: null
+                    })
+                }
+        }))

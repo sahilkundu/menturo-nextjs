@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 
 import { useUserStore } from "../store/user"
 import { useTestDataStore } from "../store/testDataStore"
+import TestTimer from "./TestTimer"
 
 export default function TestMasterUserInfo() {
 
@@ -87,44 +88,9 @@ export default function TestMasterUserInfo() {
     // TIMER
     // =====================================
 
-    const duration =
-        activeTest?.duration || 0
 
-    const [timeLeft, setTimeLeft] =
-        useState(duration)
 
-    useEffect(() => {
 
-        setTimeLeft(duration)
-
-    }, [duration])
-
-    useEffect(() => {
-
-        if (!timeLeft) return
-
-        const timer =
-            setInterval(() => {
-
-                setTimeLeft((prev: number) => {
-
-                    if (prev <= 1) {
-
-                        clearInterval(timer)
-
-                        return 0
-                    }
-
-                    return prev - 1
-
-                })
-
-            }, 1000)
-
-        return () =>
-            clearInterval(timer)
-
-    }, [timeLeft])
 
     // =====================================
     // FORMAT TIME
@@ -272,7 +238,7 @@ export default function TestMasterUserInfo() {
                         tracking-wide
                     ">
 
-                        {formatTime(timeLeft)}
+                        <TestTimer />
 
                     </div>
 

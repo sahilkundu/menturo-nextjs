@@ -8,6 +8,7 @@ import {
     SAVE_TEST,
     FETCH_SOLUTION
 } from '../../../api'
+import { useTestSeriesStore } from './testSeriesStore'
 
 // =====================================
 // PAYLOADS
@@ -94,6 +95,11 @@ type TestDataStore = {
     // =====================================
     // STATE
     // =====================================
+    timeLeft: number
+
+    setTimeLeft: (
+        time: number
+    ) => void
     loadingSolution: boolean
 
     solutionError: string | null
@@ -154,6 +160,12 @@ export const useTestDataStore =
     create<TestDataStore>()(
 
         (set, get) => ({
+            timeLeft: 0,
+
+            setTimeLeft: (time) =>
+                set({
+                    timeLeft: time
+                }),
             activeQuestionIndex: 0,
 
             selectedOptions: {},
@@ -930,7 +942,18 @@ export const useTestDataStore =
                     // =====================================
                     // SUCCESS
                     // =====================================
+                    // =====================================
+                    // UPDATE TEST HISTORY GLOBALLY
+                    // =====================================
 
+                    if (data.history) {
+
+                        useTestSeriesStore
+                            .getState()
+                            .updateTestHistory(
+                                data.history
+                            )
+                    }
                     set({
                         activeSubject:
                             data?.test?.allSubj?.[0] || '',
@@ -945,6 +968,7 @@ export const useTestDataStore =
 
                             deviceInfo:
                                 data?.deviceInfo || {},
+
 
                             allSubj:
                                 data?.test?.allSubj || [],

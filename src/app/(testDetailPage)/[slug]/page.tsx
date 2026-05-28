@@ -89,16 +89,6 @@ export default function TestPage() {
     // ======================================================
     useEffect(() => {
 
-        // ======================================
-        // WAIT FOR WS CONNECTION
-        // ======================================
-
-        if (
-            status !== 'connected'
-        ) {
-            return
-        }
-
         // Don't fetch if no slug
         if (!slug) return
 

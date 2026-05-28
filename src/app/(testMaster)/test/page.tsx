@@ -15,7 +15,7 @@ export default function MockTestPage() {
         activeTest,
         activeSubject,
         setActiveSubject,
-        clearActiveTest
+        clearActiveTest,
     } = useTestDataStore()
     const [isSideBarOpen, setIsSideBarOpen] = useState(false)
     const handleSidebarOpen = () => {
@@ -53,11 +53,11 @@ min-h-0
 flex
 flex-col
 ">
-                    <div className="px-4 py-3.5 border-b border-slate-200 bg-gradient-to-r from-white to-slate-50/50">
+                    <div className=" px-4 py-3.5 border-b border-slate-200 bg-gradient-to-r from-white to-slate-50/50">
                         <TestMasterHeader />
                     </div>
 
-                    <div className="md:hidden overflow-x-auto whitespace-nowrap scroll-hide px-3 py-2 border-b border-slate-200 bg-white">
+                    {/* <div className="md:hidden overflow-x-auto whitespace-nowrap scroll-hide px-3 py-2 border-b border-slate-200 bg-white">
                         <div className="flex gap-2 w-max text-[10px] font-bold">
                             <div className="flex items-center gap-1.5 bg-green-50 text-green-700 px-2.5 py-1 rounded-lg border border-green-100">
                                 <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>Correct : 10
@@ -69,19 +69,10 @@ flex-col
                                 <span className="w-1.5 h-1.5 rounded-full bg-yellow-400"></span>Review : 02
                             </div>
                         </div>
-                    </div>
+                    </div> */}
 
                     <div className="flex flex-col xl:flex-row flex-1 min-h-0">
-                        <div className="
-flex-1
-p-4
-border-r
-border-slate-200
-overflow-hidden
-flex
-flex-col
-min-h-0
-">
+                        <div className="flex-1 p-4 border-r border-slate-200 overflow-hidden flex flex-col min-h-0">
                             <div className="flex flex-nowrap overflow-x-auto whitespace-nowrap scroll-hide gap-1.5 pb-2 -mx-1 px-1">
 
                                 {activeTest?.allSubj?.map(
@@ -152,7 +143,9 @@ p-4
 flex-1
 min-h-0
 overflow-hidden
-">                                <TestMasterBody />
+">
+
+                                <TestMasterBody />
                                 <div className="mt-6 border-t border-slate-200 pt-5">
 
                                     {/* <!-- 1. The Interactive Button --> */}
@@ -216,36 +209,37 @@ overflow-hidden
                     </div>
                 </div>
             </div>
+            {!isSideBarOpen &&
+                <div
+                    id="statusIconBtn"
+                    className="z-[9999] fixed bottom-5 right-5 flex flex-col items-center gap-1 xl:hidden select-none outline-none group cursor-pointer"
+                    style={{
+                        WebkitTapHighlightColor: 'transparent',
+                        perspective: '1000px',
+                    }}
+                    onClick={handleSidebarOpen}
+                >
 
-            <div
-                id="statusIconBtn"
-                className="fixed bottom-5 right-5 flex flex-col items-center gap-1 xl:hidden select-none outline-none group cursor-pointer"
-                style={{
-                    WebkitTapHighlightColor: 'transparent',
-                    perspective: '1000px',
-                }}
-                onClick={handleSidebarOpen}
-            >
+                    <div className="relative w-12 h-12 flex items-center justify-center" style={{ transformStyle: 'preserve-3d' }}>
 
-                <div className="relative w-12 h-12 flex items-center justify-center" style={{ transformStyle: 'preserve-3d' }}>
+                        <div className="absolute w-[3.4rem] h-[3.4rem] rounded-full border border-cyan-400/40 tight-ring-1 pointer-events-none">
+                            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-cyan-400 rounded-full shadow-[0_0_8px_#22d3ee]"></div>
+                        </div>
 
-                    <div className="absolute w-[3.4rem] h-[3.4rem] rounded-full border border-cyan-400/40 tight-ring-1 pointer-events-none">
-                        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-cyan-400 rounded-full shadow-[0_0_8px_#22d3ee]"></div>
+                        <div className="absolute w-[3.8rem] h-[3.8rem] rounded-full border border-purple-500/30 tight-ring-2 pointer-events-none">
+                            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1 h-1 bg-emerald-400 rounded-full shadow-[0_0_6px_#34d399]"></div>
+                        </div>
+                        <div className="absolute inset-1 rounded-full border border-cyan-400/40 bg-gradient-to-br from-indigo-950/95 via-purple-900/85 to-slate-950/95 shadow-[inset_0_0_10px_rgba(34,211,238,0.6)] backdrop-blur-sm overflow-hidden z-10">
+                            <div className="absolute inset-0 opacity-25 bg-[linear-gradient(to_right,#38bdf8_1px,transparent_1px),linear-gradient(to_bottom,#38bdf8_1px,transparent_1px)] bg-[size:4px_4px]"></div>
+                            <div className="absolute inset-2 rounded-full bg-gradient-to-tr from-cyan-400 to-purple-500 opacity-50 blur-[1px] animate-pulse"></div>
+                        </div>
+
+                        <span className="relative z-20 text-sm drop-shadow-[0_2px_5px_rgba(255,255,255,0.7)]">📊</span>
                     </div>
 
-                    <div className="absolute w-[3.8rem] h-[3.8rem] rounded-full border border-purple-500/30 tight-ring-2 pointer-events-none">
-                        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1 h-1 bg-emerald-400 rounded-full shadow-[0_0_6px_#34d399]"></div>
-                    </div>
-                    <div className="absolute inset-1 rounded-full border border-cyan-400/40 bg-gradient-to-br from-indigo-950/95 via-purple-900/85 to-slate-950/95 shadow-[inset_0_0_10px_rgba(34,211,238,0.6)] backdrop-blur-sm overflow-hidden z-10">
-                        <div className="absolute inset-0 opacity-25 bg-[linear-gradient(to_right,#38bdf8_1px,transparent_1px),linear-gradient(to_bottom,#38bdf8_1px,transparent_1px)] bg-[size:4px_4px]"></div>
-                        <div className="absolute inset-2 rounded-full bg-gradient-to-tr from-cyan-400 to-purple-500 opacity-50 blur-[1px] animate-pulse"></div>
-                    </div>
 
-                    <span className="relative z-20 text-sm drop-shadow-[0_2px_5px_rgba(255,255,255,0.7)]">📊</span>
-                </div>
-
-
-            </div >
+                </div >
+            }
 
             <div
                 id="sliderOverlay"
@@ -321,6 +315,7 @@ overflow-hidden"
                 </div>
 
             </div>
+
         </>
     )
 }

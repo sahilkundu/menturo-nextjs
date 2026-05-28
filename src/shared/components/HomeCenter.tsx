@@ -27,16 +27,10 @@ export default function HomeCenter() {
         loadingSeries
 
     } = useTestSeriesStore()
-    // console.log(seriesMap)
-    const autoLoadedRef = useRef(false)
 
     const {
 
         status,
-
-        authType,
-
-        guestId,
 
         userId
 
@@ -127,41 +121,6 @@ export default function HomeCenter() {
     // =====================================================
 
     useEffect(() => {
-
-        // =====================================
-        // WAIT FOR WS CONNECTION
-        // =====================================
-
-        if (
-            status !== 'connected'
-        ) {
-            return
-        }
-
-        // =====================================
-        // WAIT FOR GUEST/USER READY
-        // =====================================
-
-        if (
-
-            authType === 'guest' &&
-
-            !guestId
-
-        ) {
-            return
-        }
-
-        if (
-
-            authType === 'user' &&
-
-            !userId
-
-        ) {
-            return
-        }
-
         // =====================================
         // LOAD ONLY ONCE
         // =====================================
@@ -225,71 +184,67 @@ export default function HomeCenter() {
 
     useEffect(() => {
 
-        let timer: any
+        const timer =
+            setTimeout(() => {
 
-        if (loadingSeries) {
+                setShowSkeleton(
+                    loadingSeries
+                )
 
-            setShowSkeleton(true)
+            }, loadingSeries ? 0 : 300)
 
-        } else {
+        return () => {
 
-            timer = setTimeout(() => {
+            clearTimeout(timer)
 
-                setShowSkeleton(false)
-
-            }, 300)
         }
-
-        return () => clearTimeout(timer)
 
     }, [loadingSeries])
     // =====================================================
     // AUTO LOAD UNTIL HORIZONTAL SCROLL APPEARS
     // =====================================================
+    // =====================================================
+    // AUTO LOAD UNTIL CARDS FILL AVAILABLE WIDTH
+    // =====================================================
 
     useEffect(() => {
 
-        if (!sliderRef.current) return
+        const element = sliderRef.current
+
+        if (!element) return
 
         if (loadingSeries) return
 
         if (!pagination?.hasMore) return
 
-        if (autoLoadedRef.current) return
+        // wait for DOM paint
+        const timer = setTimeout(() => {
 
-        const element = sliderRef.current
+            const cards =
+                element.querySelectorAll('[data-test-card]')
 
-        const timer = setTimeout(async () => {
+            if (cards.length === 0) return
 
-            const hasScrollbar =
-                element.scrollWidth >
-                element.clientWidth
+            const lastCard =
+                cards[cards.length - 1] as HTMLElement
 
-            // KEEP LOADING UNTIL
-            // SCROLLBAR APPEARS
-            if (!hasScrollbar) {
+            if (!lastCard) return
 
-                autoLoadedRef.current = true
+            // detect remaining empty space
+            const remainingSpace =
+                element.clientWidth -
+                (lastCard.offsetLeft + lastCard.offsetWidth)
 
-                try {
+            // if empty space still exists => fetch more
+            if (remainingSpace > 20) {
 
-                    await fetchSeries({
-                        page:
-                            pagination.currentPage + 1,
-                        limit: 5
-                    })
-
-                } finally {
-
-                    setTimeout(() => {
-
-                        autoLoadedRef.current = false
-
-                    }, 100)
-                }
+                fetchSeries({
+                    page: pagination.currentPage + 1,
+                    limit: 5
+                })
             }
 
-        }, 100)
+        }, 300)
 
         return () => clearTimeout(timer)
 
@@ -465,55 +420,66 @@ export default function HomeCenter() {
                                     >
 
                                         {
-                                            series?.map((item: any) => (
-
-                                                <TestCard
-                                                    access={item.access}
-                                                    key={item._id}
-                                                    slug={item._id}
-                                                    board={item.tags?.[0] || "TEST"}
-                                                    liveName={
-                                                        item.demo
-                                                            ? "Demo"
-                                                            : "Live"
-                                                    }
-                                                    name={item.n}
-                                                    totalTest={`${item?.plans?.[0]?.allowedAttempt || 0} Attempts`}
-                                                    totalPrice={
-                                                        item?.plans?.[0]?.price
-                                                            ? `₹${item.plans[0].price}`
-                                                            : "₹0"
-                                                    }
-                                                    offerPrice={
-                                                        item?.plans?.[0]?.offerPrice
-                                                            ? `₹${item.plans[0].offerPrice}`
-                                                            : "₹0"
-                                                    }
-                                                    demoInfo={
-                                                        item.demo
-                                                            ? "Free Demo Available"
-                                                            : "Premium Test Series"
-                                                    }
-                                                    demoHead={
-                                                        item.demo
-                                                            ? "Demo Free"
-                                                            : "Premium"
-                                                    }
-                                                    btnName={
-                                                        item.demo
-                                                            ? "Start Demo"
-                                                            : "Buy Now"
-                                                    }
-                                                    img={item.i}
-                                                    btnBgColor="
+                                            series
+                                                ?.filter(
+                                                    (item: any) =>
+                                                        item &&
+                                                        item._id &&
+                                                        item.n
+                                                )
+                                                .map((item: any) => (
+                                                    <div
+                                                        key={item._id}
+                                                        data-test-card
+                                                    >
+                                                        <TestCard
+                                                            access={item?.access}
+                                                            key={item._id}
+                                                            slug={item._id}
+                                                            board={item.tags?.[0] || "TEST"}
+                                                            liveName={
+                                                                item.demo
+                                                                    ? "Demo"
+                                                                    : "Live"
+                                                            }
+                                                            name={item.n}
+                                                            totalTest={`${item?.plans?.[0]?.allowedAttempt || 0} Attempts`}
+                                                            totalPrice={
+                                                                item?.plans?.[0]?.price
+                                                                    ? `₹${item.plans[0].price}`
+                                                                    : "₹0"
+                                                            }
+                                                            offerPrice={
+                                                                item?.plans?.[0]?.offerPrice
+                                                                    ? `₹${item.plans[0].offerPrice}`
+                                                                    : "₹0"
+                                                            }
+                                                            demoInfo={
+                                                                item.demo
+                                                                    ? "Free Demo Available"
+                                                                    : "Premium Test Series"
+                                                            }
+                                                            demoHead={
+                                                                item.demo
+                                                                    ? "Demo Free"
+                                                                    : "Premium"
+                                                            }
+                                                            btnName={
+                                                                item.demo
+                                                                    ? "Start Demo"
+                                                                    : "Buy Now"
+                                                            }
+                                                            img={item.i}
+                                                            btnBgColor="
                 bg-violet-50
                 hover:bg-violet-100
             "
-                                                    btnTxtColor="
+                                                            btnTxtColor="
                 text-violet-700
             "
-                                                />
-                                            ))
+                                                        />
+                                                    </div>
+                                                ))
                                         }
 
 

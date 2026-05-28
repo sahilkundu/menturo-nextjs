@@ -147,7 +147,9 @@ interface Store {
     startTest: (
         test: any
     ) => Promise<void>
-
+    updateTestHistory: (
+        history: any
+    ) => void
     // CLEAR
     clearStore: () => void
 }
@@ -197,6 +199,133 @@ export const useTestSeriesStore =
                     tag
                         .trim()
                         .toLowerCase()
+            })
+        },
+        updateTestHistory: (
+            history
+        ) => {
+
+            set((state) => {
+
+                // =====================================
+                // UPDATE testsMap
+                // =====================================
+
+                const updatedTestsMap = {
+                    ...state.testsMap
+                }
+
+                Object.keys(
+                    updatedTestsMap
+                ).forEach((seriesId) => {
+
+                    updatedTestsMap[
+                        seriesId
+                    ] =
+                        updatedTestsMap[
+                            seriesId
+                        ].map((test: any) => {
+
+                            if (
+                                test.testId !==
+                                history.testId
+                            ) {
+                                return test
+                            }
+
+                            // =================================
+                            // REMOVE OLD RUNNING HISTORY
+                            // =================================
+
+                            const filteredHistory =
+                                (
+                                    test.history || []
+                                ).filter(
+                                    (h: any) =>
+                                        h._id !==
+                                        history._id
+                                )
+
+                            return {
+
+                                ...test,
+
+                                history: [
+
+                                    history,
+
+                                    ...filteredHistory
+                                ]
+                            }
+                        })
+                })
+
+                // =====================================
+                // UPDATE testsBySubjectMap
+                // =====================================
+
+                const updatedSubjectMap = {
+                    ...state.testsBySubjectMap
+                }
+
+                Object.keys(
+                    updatedSubjectMap
+                ).forEach((seriesId) => {
+
+                    Object.keys(
+                        updatedSubjectMap[
+                        seriesId
+                        ]
+                    ).forEach((subject) => {
+
+                        updatedSubjectMap[
+                            seriesId
+                        ][subject] =
+                            updatedSubjectMap[
+                                seriesId
+                            ][subject].map(
+                                (test: any) => {
+
+                                    if (
+                                        test.testId !==
+                                        history.testId
+                                    ) {
+                                        return test
+                                    }
+
+                                    const filteredHistory =
+                                        (
+                                            test.history || []
+                                        ).filter(
+                                            (h: any) =>
+                                                h._id !==
+                                                history._id
+                                        )
+
+                                    return {
+
+                                        ...test,
+
+                                        history: [
+
+                                            history,
+
+                                            ...filteredHistory
+                                        ]
+                                    }
+                                }
+                            )
+                    })
+                })
+
+                return {
+
+                    testsMap:
+                        updatedTestsMap,
+
+                    testsBySubjectMap:
+                        updatedSubjectMap
+                }
             })
         },
 

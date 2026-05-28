@@ -5,6 +5,7 @@ import { ReactNode, useEffect } from "react"
 import { ThemeProvider } from "./ThemeProvider"
 
 import { useWSStore } from "../../shared/store/wsStore"
+
 import { useUserStore } from "../../shared/store/user"
 
 interface Props {
@@ -25,53 +26,40 @@ export default function AppProviders({
     } = useUserStore()
 
     // =====================================
-    // WS USER
-    // =====================================
-
-    const wsUserId =
-        useWSStore(
-            (state) => state.userId
-        )
-
-    // =====================================
     // CONNECT WS
     // =====================================
 
     useEffect(() => {
 
-        useWSStore
-            .getState()
-            .connect()
+        if (
+            authenticated &&
+            user?.id
+        ) {
 
-    }, [])
+            useWSStore
+                .getState()
+                .connect(user.id)
+        }
+
+    }, [
+        authenticated,
+        user?.id
+    ])
 
     // =====================================
-    // LOGIN WS USER
+    // DISCONNECT WS
     // =====================================
 
     useEffect(() => {
 
         if (!authenticated) {
-            return
+
+            useWSStore
+                .getState()
+                .disconnect()
         }
 
-        if (!user?.id) {
-            return
-        }
-
-        if (wsUserId === user.id) {
-            return
-        }
-
-        useWSStore
-            .getState()
-            .login(user.id)
-
-    }, [
-        authenticated,
-        user?.id,
-        wsUserId
-    ])
+    }, [authenticated])
 
     return (
 

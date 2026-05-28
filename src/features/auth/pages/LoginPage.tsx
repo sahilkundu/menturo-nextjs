@@ -1,11 +1,10 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useEffect } from 'react'
 import Link from 'next/link'
 import Swal from 'sweetalert2'
 import { useRouter } from "next/navigation"
 import Input from "../../../shared/components/Input"
-import { Mail, Lock, User, Phone, MapPin } from 'lucide-react'
 
 import { useRegistrationStore } from '../../../shared/store/createAccountStore'
 import LoginExtraFeatures from '../../../shared/components/LoginExtraFeatures'
@@ -177,8 +176,6 @@ export default function Login() {
 
     const {
         fetchUser,
-        authenticated,
-        loading,
     } = useUserStore()
 
     async function apiLogin(
@@ -338,88 +335,7 @@ export default function Login() {
     // REGISTER
     // =========================
 
-    const handleRegister = async (
-        e: React.FormEvent
-    ) => {
 
-        e.preventDefault()
-
-        const usernameValidation =
-            validateUsername(regForm.username)
-
-        if (!usernameValidation.valid) {
-            showPopupMessage(usernameValidation.message)
-            return
-        }
-
-        const emailValidation =
-            validateEmail(regForm.email)
-
-        if (!emailValidation.valid) {
-            showPopupMessage(emailValidation.message)
-            return
-        }
-
-        const mobileValidation =
-            validateMobile(regForm.mobile)
-
-        if (!mobileValidation.valid) {
-            showPopupMessage(mobileValidation.message)
-            return
-        }
-
-        const passwordValidation =
-            validatePassword(regForm.password)
-
-        if (!passwordValidation.valid) {
-            showPopupMessage(passwordValidation.message)
-            return
-        }
-
-        if (regForm.password !== regForm.confirmPassword) {
-            showPopupMessage("Passwords do not match")
-            return
-        }
-
-        if (!regForm.state) {
-            showPopupMessage("Please select state")
-            return
-        }
-
-        setLoading(true)
-
-        try {
-
-            const response = await apiSignup({
-                username: regForm.username,
-                email: regForm.email,
-                mobile: regForm.mobile,
-                state: regForm.state,
-                password: regForm.password
-            })
-
-            if (response.success) {
-
-                showPopupMessage(response.message, true)
-
-                resetRegForm()
-
-                // setIsRightPanelActive(false)
-
-            } else {
-
-                showPopupMessage(response.message)
-            }
-
-        } catch {
-
-            showPopupMessage("Network error")
-
-        } finally {
-
-            setLoading(false)
-        }
-    }
 
     // =========================
     // LOGIN

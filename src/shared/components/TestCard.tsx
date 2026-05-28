@@ -22,17 +22,16 @@ interface TestCardProps {
 export default function TestCard({
     access,
     slug,
-    board = "SSC",
-    liveName = "Live",
-    name = "SSC CGL Titan Test Series",
-    totalTest = "140+ Mocks",
-    totalPrice = "₹899",
-    offerPrice = "₹299",
-    demoInfo = "1 Free Demo Mock",
-    demoHead = "1 Demo Free",
-    btnName = "Start Free Trial",
-    img = "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?q=80&w=1200&auto=format&fit=crop",
-
+    board,
+    liveName,
+    name,
+    totalTest,
+    totalPrice,
+    offerPrice,
+    demoInfo,
+    demoHead,
+    btnName,
+    img,
     btnBgColor = "bg-violet-50",
     btnTxtColor = "text-violet-700"
 
