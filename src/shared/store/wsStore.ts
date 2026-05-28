@@ -1,17 +1,36 @@
+
 // stores/wsStore.ts
 
 import { create } from 'zustand'
+
+import { v4 as uuidv4 } from 'uuid'
 
 import { WEBSOCKET } from '../../../api'
 
 import { useTestSeriesStore } from './testSeriesStore'
 
 import { showPopupMessage } from '../utils/popup'
+
+// =====================================================
+// GLOBAL SESSION
+// =====================================================
+
+const sessionId =
+    uuidv4()
+
 declare global {
+
     interface Window {
+
         __wsHeartbeat: any
+
+        __wsReconnect: any
     }
 }
+
+// =====================================================
+// TYPES
+// =====================================================
 
 type WSStatus =
     'connecting' |
@@ -32,6 +51,12 @@ interface WSStore {
     userId:
     string | null
 
+    sessionId:
+    string
+
+    currentRoute:
+    string
+
     connect:
     (
         userId: string
@@ -44,7 +69,16 @@ interface WSStore {
     (
         data: any
     ) => void
+
+    routeChange:
+    (
+        route: string
+    ) => void
 }
+
+// =====================================================
+// STORE
+// =====================================================
 
 export const useWSStore =
     create<WSStore>(
@@ -52,6 +86,10 @@ export const useWSStore =
             set,
             get
         ) => ({
+
+            // =====================================
+            // STATE
+            // =====================================
 
             socket: null,
 
@@ -61,6 +99,10 @@ export const useWSStore =
             online: false,
 
             userId: null,
+
+            sessionId,
+
+            currentRoute: '',
 
             // =====================================
             // CONNECT
@@ -74,9 +116,9 @@ export const useWSStore =
                     const current =
                         get().socket
 
-                    // =========================
+                    // =================================
                     // ALREADY CONNECTED
-                    // =========================
+                    // =================================
 
                     if (
                         current &&
@@ -88,15 +130,21 @@ export const useWSStore =
                         return
                     }
 
+                    console.log(
+                        'WS CONNECTING...'
+                    )
+
                     set({
 
                         status:
-                            'connecting'
+                            'connecting',
+
+                        userId
                     })
 
-                    // =========================
+                    // =================================
                     // CREATE SOCKET
-                    // =========================
+                    // =================================
 
                     const ws =
                         new WebSocket(
@@ -104,13 +152,12 @@ export const useWSStore =
                         )
 
                     set({
-                        socket: ws,
-                        userId
+                        socket: ws
                     })
 
-                    // =========================
+                    // =================================
                     // OPEN
-                    // =========================
+                    // =================================
 
                     ws.onopen =
                         () => {
@@ -129,24 +176,113 @@ export const useWSStore =
                                     'connected'
                             })
 
-                            // =====================
-                            // AUTH USER
-                            // =====================
+                            // =============================
+                            // SEND USER CONNECT
+                            // =============================
 
                             ws.send(
+
                                 JSON.stringify({
 
                                     event:
                                         'user-connect',
 
-                                    userId
+                                    userId,
+
+                                    sessionId,
+
+                                    route:
+                                        window.location.pathname,
+
+                                    device: {
+
+                                        browser:
+                                            navigator.userAgent,
+
+                                        os:
+                                            navigator.platform,
+
+                                        language:
+                                            navigator.language,
+
+                                        width:
+                                            window.innerWidth,
+
+                                        height:
+                                            window.innerHeight,
+
+                                        deviceType:
+                                            window.innerWidth < 768
+                                                ? 'mobile'
+                                                : 'desktop',
+
+                                        userAgent:
+                                            navigator.userAgent
+                                    }
                                 })
                             )
+
+                            // =============================
+                            // CLEAR OLD HEARTBEAT
+                            // =============================
+
+                            if (
+                                window.__wsHeartbeat
+                            ) {
+
+                                clearInterval(
+                                    window.__wsHeartbeat
+                                )
+                            }
+
+                            // =============================
+                            // HEARTBEAT
+                            // =============================
+
+                            window.__wsHeartbeat =
+                                setInterval(
+                                    () => {
+
+                                        const socket =
+                                            get()
+                                                .socket
+
+                                        if (
+                                            socket &&
+                                            socket.readyState === WebSocket.OPEN
+                                        ) {
+
+                                            socket.send(
+
+                                                JSON.stringify({
+
+                                                    event:
+                                                        'ping',
+
+                                                    userId:
+                                                        get()
+                                                            .userId,
+
+                                                    sessionId:
+                                                        get()
+                                                            .sessionId,
+
+                                                    route:
+                                                        get()
+                                                            .currentRoute ||
+                                                        window.location.pathname
+                                                })
+                                            )
+                                        }
+
+                                    },
+                                    30000
+                                )
                         }
 
-                    // =========================
+                    // =================================
                     // MESSAGE
-                    // =========================
+                    // =================================
 
                     ws.onmessage =
                         (
@@ -161,13 +297,13 @@ export const useWSStore =
                                     )
 
                                 console.log(
-                                    'WS:',
+                                    'WS MESSAGE:',
                                     data
                                 )
 
-                                // =====================
-                                // TEST UPDATE
-                                // =====================
+                                // =========================
+                                // TEST UPDATED
+                                // =========================
 
                                 if (
                                     data.event ===
@@ -179,16 +315,71 @@ export const useWSStore =
                                         .updateTestHistory(
                                             data.history
                                         )
+
                                     showPopupMessage(
-                                        "Test started on another device",
+                                        data.message ||
+                                        'Test started on another device',
                                         true
                                     )
+
                                     return
                                 }
 
-                                // =====================
+                                // =========================
+                                // USER ONLINE
+                                // =========================
+
+                                if (
+                                    data.event ===
+                                    'user-online'
+                                ) {
+
+                                    console.log(
+                                        `${data.username} is online`
+                                    )
+
+                                    return
+                                }
+
+                                // =========================
+                                // USER OFFLINE
+                                // =========================
+
+                                if (
+                                    data.event ===
+                                    'user-offline'
+                                ) {
+
+                                    console.log(
+                                        `${data.username} is offline`
+                                    )
+
+                                    return
+                                }
+
+                                // =========================
+                                // FORCE LOGOUT
+                                // =========================
+
+                                if (
+                                    data.event ===
+                                    'force-logout'
+                                ) {
+
+                                    showPopupMessage(
+                                        'Logged in from another device',
+                                        false
+                                    )
+
+                                    get()
+                                        .disconnect()
+
+                                    return
+                                }
+
+                                // =========================
                                 // PONG
-                                // =====================
+                                // =========================
 
                                 if (
                                     data.event ===
@@ -199,13 +390,16 @@ export const useWSStore =
 
                             } catch (err) {
 
-                                console.log(err)
+                                console.log(
+                                    'WS PARSE ERROR',
+                                    err
+                                )
                             }
                         }
 
-                    // =========================
+                    // =================================
                     // CLOSE
-                    // =========================
+                    // =================================
 
                     ws.onclose =
                         () => {
@@ -224,31 +418,60 @@ export const useWSStore =
                                     'disconnected'
                             })
 
+                            // =============================
+                            // CLEAR HEARTBEAT
+                            // =============================
+
+                            if (
+                                window.__wsHeartbeat
+                            ) {
+
+                                clearInterval(
+                                    window.__wsHeartbeat
+                                )
+                            }
+
+                            // =============================
                             // AUTO RECONNECT
+                            // =============================
 
-                            setTimeout(
-                                () => {
+                            if (
+                                window.__wsReconnect
+                            ) {
 
-                                    const uid =
-                                        get()
-                                            .userId
+                                clearTimeout(
+                                    window.__wsReconnect
+                                )
+                            }
 
-                                    if (uid) {
+                            window.__wsReconnect =
+                                setTimeout(
+                                    () => {
 
-                                        get()
-                                            .connect(
-                                                uid
+                                        const uid =
+                                            get()
+                                                .userId
+
+                                        if (uid) {
+
+                                            console.log(
+                                                'WS RECONNECTING...'
                                             )
-                                    }
 
-                                },
-                                3000
-                            )
+                                            get()
+                                                .connect(
+                                                    uid
+                                                )
+                                        }
+
+                                    },
+                                    3000
+                                )
                         }
 
-                    // =========================
+                    // =================================
                     // ERROR
-                    // =========================
+                    // =================================
 
                     ws.onerror =
                         (
@@ -269,50 +492,51 @@ export const useWSStore =
                                     'disconnected'
                             })
                         }
+                },
 
-                    // =========================
-                    // HEARTBEAT
-                    // =========================
+            // =====================================
+            // ROUTE CHANGE
+            // =====================================
+
+            routeChange:
+                (
+                    route
+                ) => {
+
+                    set({
+                        currentRoute:
+                            route
+                    })
+
+                    const socket =
+                        get()
+                            .socket
 
                     if (
-                        typeof window !==
-                        'undefined'
+                        !socket ||
+                        socket.readyState !== WebSocket.OPEN
                     ) {
-
-                        const existing =
-                            window.__wsHeartbeat
-
-                        if (existing) {
-                            clearInterval(
-                                existing
-                            )
-                        }
-
-                        window.__wsHeartbeat =
-                            setInterval(
-                                () => {
-
-                                    const socket =
-                                        get()
-                                            .socket
-
-                                    if (
-                                        socket &&
-                                        socket.readyState === WebSocket.OPEN
-                                    ) {
-
-                                        socket.send(
-                                            JSON.stringify({
-                                                event:
-                                                    'ping'
-                                            })
-                                        )
-                                    }
-
-                                },
-                                30000
-                            )
+                        return
                     }
+
+                    socket.send(
+
+                        JSON.stringify({
+
+                            event:
+                                'route-change',
+
+                            route,
+
+                            userId:
+                                get()
+                                    .userId,
+
+                            sessionId:
+                                get()
+                                    .sessionId
+                        })
+                    )
                 },
 
             // =====================================
@@ -348,6 +572,24 @@ export const useWSStore =
 
             disconnect:
                 () => {
+
+                    if (
+                        window.__wsHeartbeat
+                    ) {
+
+                        clearInterval(
+                            window.__wsHeartbeat
+                        )
+                    }
+
+                    if (
+                        window.__wsReconnect
+                    ) {
+
+                        clearTimeout(
+                            window.__wsReconnect
+                        )
+                    }
 
                     get()
                         .socket
