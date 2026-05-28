@@ -1,7 +1,7 @@
 'use client'
 
 import { useTestSeriesStore } from "../../shared/store/testSeriesStore"
-import { useWSStore } from "../../shared/store/wsStore"
+import { useWSStore } from "../utils/wsStore"
 import Header from "./Header"
 import TestCard from "./TestCard"
 import StateCard from "./StateCard"

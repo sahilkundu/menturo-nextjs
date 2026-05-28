@@ -4,7 +4,7 @@ import { ReactNode, useEffect } from "react"
 
 import { ThemeProvider } from "./ThemeProvider"
 
-import { useWSStore } from "../../shared/store/wsStore"
+import { useWSStore } from "../../shared/utils/wsStore"
 
 import { useUserStore } from "../../shared/store/user"
 

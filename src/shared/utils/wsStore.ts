@@ -7,10 +7,10 @@ import { v4 as uuidv4 } from 'uuid'
 
 import { WEBSOCKET } from '../../../api'
 
-import { useTestSeriesStore } from './testSeriesStore'
+import { useTestSeriesStore } from '../store/testSeriesStore'
 
-import { showPopupMessage } from '../utils/popup'
-
+import { showPopupMessage } from './popup'
+import { useWSChatStore } from '../store/wsChat'
 // =====================================================
 // GLOBAL SESSION
 // =====================================================
@@ -326,36 +326,32 @@ export const useWSStore =
                                 }
 
                                 // =========================
-                                // USER ONLINE
+                                // USER ONLINE STATUS
                                 // =========================
 
                                 if (
                                     data.event ===
-                                    'user-online'
+                                    'user-online-status'
                                 ) {
 
-                                    console.log(
-                                        `${data.username} is online`
-                                    )
+                                    useWSChatStore
+                                        .getState()
+                                        .setUserStatus({
+
+                                            username:
+                                                data.username,
+
+                                            online:
+                                                data.online,
+
+                                            connections:
+                                                data.connections || 0
+                                        })
 
                                     return
                                 }
 
-                                // =========================
-                                // USER OFFLINE
-                                // =========================
 
-                                if (
-                                    data.event ===
-                                    'user-offline'
-                                ) {
-
-                                    console.log(
-                                        `${data.username} is offline`
-                                    )
-
-                                    return
-                                }
 
                                 // =========================
                                 // FORCE LOGOUT

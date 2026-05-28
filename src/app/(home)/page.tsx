@@ -7,7 +7,7 @@ import { useEffect } from "react"
 import { useLayoutStore } from "../../shared/store/uiResStore"
 import { useUserStore } from "../../shared/store/user"
 
-import { useWSStore } from "../../shared/store/wsStore"
+import { useWSStore } from "../../shared/utils/wsStore"
 
 import { useRouter } from "next/navigation"
 
