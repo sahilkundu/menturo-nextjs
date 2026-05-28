@@ -7,11 +7,8 @@ const nextConfig = {
 
             "cdn.menturo.in",
             "www.google.com",
-            "https://menturo-c-plus.onrender.com",
             "images.unsplash.com",
-
             "i.pravatar.cc",
-
             "localhost",
             "127.0.0.1"
 
@@ -62,7 +59,9 @@ const nextConfig = {
                             http://localhost:*
                             http://127.0.0.1:*
                             ws://localhost:*
-                            ws://127.0.0.1:*;
+                            ws://127.0.0.1:*
+                            wss://myapp-ws-latest.onrender.com
+                            https://myapp-ws-latest.onrender.com;
 
                             frame-src 'self'
                             https://challenges.cloudflare.com;
