@@ -1,6 +1,7 @@
 'use client'
 
 import { useTestDataStore } from "../store/testDataStore"
+import { useTestSeriesStore } from "../store/testSeriesStore"
 
 export default function TestMasterButtons({
 
@@ -90,7 +91,7 @@ export default function TestMasterButtons({
                 </button>
 
                 <button
-                    onClick={() => {
+                    onClick={async () => {
 
                         const tempAnswer =
                             tempSelections[qId]
@@ -107,10 +108,101 @@ export default function TestMasterButtons({
                             .getState()
                             .saveAndNext(qId)
 
+                        // =================================
+                        // FLOOD BLOCK
+                        // =================================
+
+                        const store =
+                            useTestDataStore.getState()
+
+                        if (
+                            store.loadingSave
+                        ) {
+                            return
+                        }
+
+                        // =================================
+                        // ACTIVE DATA
+                        // =================================
+
+                        const activeSubject =
+                            store.activeSubject
+
+                        const history =
+                            store.activeTest
+                                ?.activeQuestionHistoryObj
+
+                        // =================================
+                        // GET historyId
+                        // =================================
+
+                        const testsMap =
+                            useTestSeriesStore
+                                .getState()
+                                .testsMap
+
+                        let historyId = ''
+
+                        Object.values(
+                            testsMap
+                        ).forEach((tests: any) => {
+
+                            tests.forEach((test: any) => {
+
+                                const runningHistory =
+                                    test?.history?.find(
+                                        (h: any) =>
+                                            h.status ===
+                                            'running'
+                                    )
+
+                                if (
+                                    runningHistory
+                                ) {
+
+                                    historyId =
+                                        runningHistory._id
+                                }
+                            })
+                        })
+
+                        // =================================
+                        // NO historyId
+                        // =================================
+
+                        if (!historyId) {
+                            return
+                        }
+
+                        // =================================
+                        // SEND SAVE
+                        // =================================
+
+                        await store.fetchSave({
+
+                            historyId,
+
+                            data: {
+
+                                [activeSubject]: {
+
+                                    ...history[
+                                    activeSubject
+                                    ],
+
+                                    activeIndex:
+                                        store.activeQuestionIndex,
+
+                                    language:
+                                        store.activeLan
+                                }
+                            }
+                        })
+
                     }}
                     className="bg-emerald-600 text-white px-5 py-2 rounded-xl hover:bg-emerald-700"
                 >
-                    Save & Next ✓
+                    Save & Next
                 </button>
 
             </div>

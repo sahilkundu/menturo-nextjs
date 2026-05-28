@@ -101,7 +101,7 @@ type TestDataStore = {
         time: number
     ) => void
     loadingSolution: boolean
-
+    isSavingProgress: boolean
     solutionError: string | null
     activeTest: any | null
 
@@ -161,7 +161,7 @@ export const useTestDataStore =
 
         (set, get) => ({
             timeLeft: 0,
-
+            isSavingProgress: false,
             setTimeLeft: (time) =>
                 set({
                     timeLeft: time
