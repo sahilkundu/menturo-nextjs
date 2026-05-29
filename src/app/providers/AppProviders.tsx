@@ -1,6 +1,6 @@
 "use client"
 
-import { ReactNode, useEffect } from "react"
+import { ReactNode, useEffect, useRef } from "react"
 
 import { ThemeProvider } from "./ThemeProvider"
 
@@ -29,38 +29,62 @@ export default function AppProviders({
 
 
 
-    setInterval(async () => {
+    const fetchedRef =
+        useRef(false)
 
-        try {
-            const res =
-                await fetch(
-                    SITE_STATUS
-                )
+    useEffect(() => {
 
-            const data =
-                await res.json()
+        if (fetchedRef.current && authenticated) {
+            return
+        }
 
-            if (
-                data.success
-            ) {
-                useWSChatStore
-                    .getState()
-                    .setSiteStats({
+        fetchedRef.current = true
 
-                        totalUsers:
-                            data.totalUsers,
+        const fetchStats =
+            async () => {
 
-                        totalOnline:
-                            data.totalOnline
-                    })
+                try {
+
+                    const res =
+                        await fetch(
+                            SITE_STATUS
+                        )
+
+                    const data =
+                        await res.json()
+
+                    if (data.success) {
+
+                        useWSChatStore
+                            .getState()
+                            .setSiteStats({
+
+                                totalUsers:
+                                    data.totalUsers,
+
+                                totalOnline:
+                                    data.totalOnline
+                            })
+                    }
+                }
+                catch (err) {
+
+                    console.log(err)
+                }
             }
-        }
-        catch (err) {
-            console.log(err)
-        }
 
-    }, 10000)
+        fetchStats()
 
+        const interval =
+            setInterval(
+                fetchStats,
+                60000
+            )
+
+        return () =>
+            clearInterval(interval)
+
+    }, [])
     // =====================================
     // CONNECT WS
     // =====================================

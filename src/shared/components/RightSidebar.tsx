@@ -25,6 +25,7 @@ export default function RightSidebar() {
         useWSChatStore(
             s => s.site
         )
+    console.log(site)
     const setRightSidebarOpen = useLayoutStore(
         (state) => state.setRightSidebarOpen
     )
@@ -304,11 +305,11 @@ export default function RightSidebar() {
                             <div className="rounded-2xl bg-violet-50 p-4">
 
                                 <p className="text-xs md:text-sm text-gray-500 mb-2">
-                                    {site?.totalUsers}
+                                    Total Users
                                 </p>
 
                                 <h2 className="text-2xl md:text-3xl font-black text-violet-700">
-                                    {site?.totalOnline}
+                                    {site?.totalUsers}
                                 </h2>
 
                             </div>
@@ -324,7 +325,7 @@ export default function RightSidebar() {
                                     <span className="w-3 h-3 rounded-full bg-green-500 animate-pulse"></span>
 
                                     <h2 className="text-2xl md:text-3xl font-black text-green-600">
-                                        26
+                                        {site.totalOnline}
                                     </h2>
 
                                 </div>
