@@ -35,14 +35,7 @@ export default function TestMasterBody() {
         activeQuestionIndex
         ]
 
-    useEffect(() => {
 
-        if (qId) {
-
-            visitQuestion(qId)
-        }
-
-    }, [qId, visitQuestion])
 
     // =========================================
     // QUESTION
@@ -69,25 +62,33 @@ export default function TestMasterBody() {
     const savedPrompt =
         selectedOptions?.[qId]
 
-    const [tempSelections, setTempSelections] =
-        useState<Record<string, number>>({})
 
     // =========================================
     // TEST SUBMITTED
     // =========================================
 
     const isSubmitted =
-        !!activeTest?.solution
+        useTestDataStore(
+            (state) => state.isSubmitted
+        )
     // =========================================
     // ANSWER STATUS
     // =========================================
 
+    const solution =
+        activeTest?.solution?.[qId]
+
     const correctAnswer =
-        question?.correctAnswer
+        solution?.answer
+
+    const obtainedMarks =
+        Number(solution?.ob || 0)
+
+    const selectedAnswer =
+        solution?.selected
 
     const isCorrect =
-        String(savedPrompt) ===
-        String(correctAnswer)
+        obtainedMarks > 0
 
     // =========================================
     // SOLUTION TOGGLE
@@ -95,7 +96,21 @@ export default function TestMasterBody() {
 
     const [showSolution, setShowSolution] =
         useState(false)
+    useEffect(() => {
 
+        if (
+            qId &&
+            !isSubmitted
+        ) {
+
+            visitQuestion(qId)
+        }
+
+    }, [
+        qId,
+        isSubmitted,
+        visitQuestion
+    ])
     return (
 
         <div className="relative flex flex-col h-full min-h-0 bg-white">
@@ -107,10 +122,41 @@ export default function TestMasterBody() {
 
                     <div className="flex flex-wrap justify-between items-center gap-2">
 
-                        <h2 className="text-base font-black text-slate-800">
-                            Question No: {activeQuestionIndex + 1}
-                        </h2>
+                        <div className="flex items-center gap-2">
 
+                            <h2 className="text-base font-black text-slate-800">
+                                Question No: {activeQuestionIndex + 1}
+                            </h2>
+
+                            {
+                                isSubmitted && (
+                                    <div
+                                        className={`
+                    w-8
+                    h-8
+                    rounded-full
+                    flex
+                    items-center
+                    justify-center
+                    text-xs
+                    font-black
+                    text-white
+                    ${isCorrect
+                                                ? "bg-green-500"
+                                                : "bg-red-500"
+                                            }
+                `}
+                                    >
+                                        {
+                                            isCorrect
+                                                ? `+${question?.qPosMarks}`
+                                                : `-${question?.qNegMarks}`
+                                        }
+                                    </div>
+                                )
+                            }
+
+                        </div>
                         <div className="flex flex-wrap gap-3 text-xs">
 
                             <div className="bg-green-100 text-green-600 px-3 py-2 rounded-xl font-medium">
@@ -164,52 +210,138 @@ export default function TestMasterBody() {
                         currentQuestion?.options?.map(
                             (option: any) => {
 
+                                const currentSelected =
+                                    savedPrompt
                                 const isSelected =
-                                    (
-                                        tempSelections[qId] ??
-                                        savedPrompt
-                                    ) === option.prompt
+                                    Number(currentSelected) ===
+                                    Number(option.prompt)
+                                const isCorrectOption =
+                                    isSubmitted &&
+                                    Number(option.prompt) ===
+                                    Number(correctAnswer)
 
+                                const isWrongSelected =
+                                    isSubmitted &&
+                                    Number(option.prompt) ===
+                                    Number(selectedAnswer) &&
+                                    Number(selectedAnswer) !==
+                                    Number(correctAnswer)
                                 return (
 
                                     <label
                                         key={option.prompt}
                                         className={`
-                                            w-full flex items-center gap-3 cursor-pointer
-                                            rounded-xl px-4 py-3 text-xs md:text-sm
-                                            transition-colors
-                                            ${isSelected
-                                                ? `
-                                                        border-2
-                                                        border-emerald-500
-                                                        bg-emerald-50
-                                                        text-emerald-800
-                                                        font-bold
-                                                    `
-                                                : `
-                                                        border border-slate-200
-                                                        bg-white
-                                                        hover:bg-slate-50
-                                                    `
+    w-full
+    flex
+    items-center
+    gap-3
+    cursor-pointer
+    rounded-xl
+    px-4
+    py-3
+    text-xs
+    md:text-sm
+    transition-colors
+
+    ${isSubmitted
+                                                ? isCorrectOption
+                                                    ? `
+                    border-2
+                    border-green-600
+                    bg-green-50
+                    text-green-800
+                    font-bold
+                `
+                                                    : isWrongSelected
+                                                        ? `
+                        border-2
+                        border-red-600
+                        bg-red-50
+                        text-red-700
+                        font-bold
+                    `
+                                                        : `
+                        border
+                        border-slate-200
+                        bg-white
+                    `
+                                                : isSelected
+                                                    ? `
+                    border-2
+                    border-emerald-500
+                    bg-emerald-50
+                    text-emerald-800
+                    font-bold
+                `
+                                                    : `
+                    border
+                    border-slate-200
+                    bg-white
+                    hover:bg-slate-50
+                `
                                             }
-                                        `}
+`}
                                     >
 
-                                        <input
-                                            type="radio"
-                                            name={qId}
-                                            checked={isSelected}
-                                            onChange={() =>
-                                                setTempSelections(prev => ({
-                                                    ...prev,
-                                                    [qId]: option.prompt
-                                                }))
-                                            }
-                                        />
+                                        {
+                                            !isSubmitted && (
+                                                <input
+                                                    type="radio"
+                                                    name={qId}
+                                                    checked={isSelected}
+                                                    onChange={() =>
+                                                        useTestDataStore
+                                                            .getState()
+                                                            .selectOption(
+                                                                qId,
+                                                                option.prompt
+                                                            )
+                                                    }
+                                                />
+                                            )
+                                        }
 
-                                        <span>
-                                            {option.opKey} {option.value}
-                                        </span>
+                                        <div className="flex items-center justify-between w-full">
+
+                                            <span>
+                                                {option.opKey} {option.value}
+                                            </span>
+
+                                            {
+                                                isSubmitted && isCorrectOption && (
+                                                    <span className="
+                ml-3
+                text-[10px]
+                bg-green-600
+                text-white
+                px-2
+                py-1
+                rounded-full
+                font-bold
+            ">
+                                                        Correct
+                                                    </span>
+                                                )
+                                            }
+
+                                            {
+                                                isSubmitted && isWrongSelected && (
+                                                    <span className="
+                ml-3
+                text-[10px]
+                bg-red-600
+                text-white
+                px-2
+                py-1
+                rounded-full
+                font-bold
+            ">
+                                                        Wrong
+                                                    </span>
+                                                )
+                                            }
+
+                                        </div>
 
                                     </label>
                                 )
@@ -277,8 +409,6 @@ export default function TestMasterBody() {
             {/* FIXED FOOTER */}
             <TestMasterButtons
                 qId={qId}
-                tempSelections={tempSelections}
-                setTempSelections={setTempSelections}
             />
 
         </div>

@@ -264,48 +264,26 @@ export default function TestMasterReviewInfo({
             <div className="flex items-center gap-3">
 
                 <div className="
-                    relative
-                    w-8
-                    h-8
-                    rounded-lg
-                    bg-[#7D589E]
-                    flex
-                    items-center
-                    justify-center
-                    text-white
-                    text-sm
-                    font-bold
-                    shadow-sm
-                ">
+        w-8
+        h-8
+        rounded-lg
+        bg-[#7D589E]
+        flex
+        items-center
+        justify-center
+        text-white
+        text-sm
+        font-bold
+        shadow-sm
+    ">
 
                     {counts.review}
-
-                    <span className="
-                        absolute
-                        -bottom-1
-                        -right-1
-                        w-4
-                        h-4
-                        rounded-full
-                        bg-white
-                        border
-                        border-[#7D589E]
-                        flex
-                        items-center
-                        justify-center
-                        text-[10px]
-                        text-[#7D589E]
-                        font-black
-                    ">
-                        ★
-                    </span>
 
                 </div>
 
                 <span>Review</span>
 
             </div>
-
             {/* ANSWERED / CORRECT */}
 
             <div className="flex items-center gap-3">

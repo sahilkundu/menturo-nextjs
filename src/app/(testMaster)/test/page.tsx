@@ -22,9 +22,6 @@ export default function MockTestPage() {
         setIsSideBarOpen(true)
     }
 
-
-
-
     const pathname = usePathname()
 
     useEffect(() => {
@@ -305,14 +302,7 @@ overflow-hidden"
                     <TestMasterQuestionChooser />
                 </div>
 
-                <div className="p-4 border-t border-slate-200 bg-slate-50/90 backdrop-blur-md space-y-2">
-                    <button className="w-full bg-gradient-to-r from-blue-600 to-blue-500 text-white py-2.5 rounded-xl text-xs font-bold shadow-md shadow-blue-500/10 active:scale-[0.99] transition-all">
-                        Resume Test Console
-                    </button>
-                    <button className="w-full bg-gradient-to-r from-emerald-600 to-emerald-500 text-white py-2.5 rounded-xl text-xs font-bold shadow-md shadow-emerald-600/10 active:scale-[0.99] transition-all">
-                        Submit Entire Mock Test ✓
-                    </button>
-                </div>
+
 
             </div>
 

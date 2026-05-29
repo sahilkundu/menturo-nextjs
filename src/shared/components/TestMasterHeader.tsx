@@ -32,6 +32,41 @@ export default function TestMasterHeader() {
         activeTest?.questions?.[
             firstQId
         ]?.multiLanguage || {}
+    const solution =
+        activeTest?.solution || {}
+
+    const stats =
+        Object.values(solution).reduce(
+            (acc: any, item: any) => {
+
+                if (item?.selected !== null) {
+
+                    if (Number(item?.ob || 0) > 0) {
+
+                        acc.correct += 1
+                    }
+
+                    else {
+
+                        acc.wrong += 1
+                    }
+                }
+
+                return acc
+            },
+            {
+                correct: 0,
+                wrong: 0
+            }
+        )
+
+    const totalQuestions =
+        Object.keys(solution).length
+
+    const notVisited =
+        totalQuestions -
+        stats.correct -
+        stats.wrong
     return (
         <div suppressHydrationWarning className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
             <div suppressHydrationWarning>
@@ -45,10 +80,43 @@ export default function TestMasterHeader() {
             </div>
             <QuestionHistory />
             <div className="hidden md:flex flex-wrap gap-2 text-[11px] font-bold">
-                <div className="bg-green-50 text-green-700 border border-green-200 px-2.5 py-1 rounded-lg">✅ Correct : 10</div>
-                <div className="bg-red-50 text-red-600 border border-red-200 px-2.5 py-1 rounded-lg">❌ Wrong : 03</div>
-                <div className="bg-yellow-50 text-yellow-700 border border-yellow-200 px-2.5 py-1 rounded-lg">🔄 Review : 02</div>
-                <div className="bg-slate-100 text-slate-700 border border-slate-200 px-2.5 py-1 rounded-lg">📌 Not Visited : 05</div>
+
+                <div className="
+        bg-green-50
+        text-green-700
+        border
+        border-green-200
+        px-2.5
+        py-1
+        rounded-lg
+    ">
+                    ✅ Correct : {stats?.correct}
+                </div>
+
+                <div className="
+        bg-red-50
+        text-red-600
+        border
+        border-red-200
+        px-2.5
+        py-1
+        rounded-lg
+    ">
+                    ❌ Wrong : {stats?.wrong}
+                </div>
+
+                <div className="
+        bg-slate-100
+        text-slate-700
+        border
+        border-slate-200
+        px-2.5
+        py-1
+        rounded-lg
+    ">
+                    📌 Not Answered : {notVisited}
+                </div>
+
             </div>
             {/* LANGUAGE SELECTOR */}
 

@@ -1,6 +1,8 @@
 'use client'
 import { useRouter } from "next/navigation"
 import Image from "next/image"
+import { useState } from "react"
+import Spinner from "./Spinner"
 
 interface TestCardProps {
     accees?: any
@@ -42,7 +44,8 @@ export default function TestCard({
     const demoTests = access?.demoTest?.length
     const isPaid = access?.isPaid
     const isExpired = access?.isExpired
-
+    const [loading, setLoading] =
+        useState(false)
     const formatTimestamp = (
         timestamp: number
     ) => {
@@ -410,18 +413,35 @@ export default function TestCard({
                             ${btnBgColor}
                             ${btnTxtColor}
                         `}
-                        onClick={() =>
+                        onClick={() => {
+
+                            setLoading(true)
+
                             router.push(`/${slug}`)
-                        }
+                        }}
                     >
                         <i className="fas fa-bolt"></i>
 
-                        {btnName}
+                        {
+                            loading
+                                ? (
+                                    <Spinner
+                                        size={16}
+                                    />
+                                )
+                                : (
+                                    <>
+                                        <i className="fas fa-bolt"></i>
+
+                                        {btnName}
+                                    </>
+                                )
+                        }
                     </button>
 
                 </div>
 
-            </div>
+            </div >
 
         </>
     )

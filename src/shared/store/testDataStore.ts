@@ -57,9 +57,10 @@ type ResultPayload = {
 
 type TestDataStore = {
     activeQuestionIndex: number
+    isSubmitted: boolean
 
     selectedOptions: {
-        [qId: string]: number | number[]
+        [qId: string]: string | number
     }
     selectOption: (
         qId: string,
@@ -155,12 +156,46 @@ type TestDataStore = {
 // =====================================
 // STORE
 // =====================================
+const buildSelectedOptions = (
+    historyObj: any
+) => {
 
+    const selectedOptions: Record<
+        string,
+        string | number
+    > = {}
+
+    Object.values(historyObj || {}).forEach(
+        (subject: any) => {
+
+            // answered
+            Object.entries(
+                subject?.answered || {}
+            ).forEach(([qId, value]) => {
+
+                selectedOptions[qId] =
+                    value as string | number
+            })
+
+            // answered + review
+            Object.entries(
+                subject?.answeredAndMarkedForReview || {}
+            ).forEach(([qId, value]) => {
+
+                selectedOptions[qId] =
+                    value as string | number
+            })
+        }
+    )
+
+    return selectedOptions
+}
 export const useTestDataStore =
     create<TestDataStore>()(
 
         (set, get) => ({
             timeLeft: 0,
+            isSubmitted: false,
             isSavingProgress: false,
             setTimeLeft: (time) =>
                 set({
@@ -179,7 +214,9 @@ export const useTestDataStore =
             },
 
             selectOption: (qId, prompt) => {
-
+                if (get().isSubmitted) {
+                    return
+                }
                 set((state: any) => ({
 
                     selectedOptions: {
@@ -191,7 +228,9 @@ export const useTestDataStore =
                 }))
             },
             visitQuestion: (qId) => {
-
+                if (get().isSubmitted) {
+                    return
+                }
                 set((state: any) => {
 
                     const historyObj =
@@ -233,7 +272,12 @@ export const useTestDataStore =
                 })
             },
             saveAndNext: (qId) => {
+                if (get().isSubmitted) {
 
+                    get().nextQuestion()
+
+                    return
+                }
                 set((state: any) => {
 
                     const historyObj =
@@ -412,7 +456,9 @@ export const useTestDataStore =
             },
 
             clearResponse: (qId) => {
-
+                if (get().isSubmitted) {
+                    return
+                }
                 set((state: any) => {
 
                     const historyObj =
@@ -485,7 +531,9 @@ export const useTestDataStore =
                 })
             },
             markForReview: (qId) => {
-
+                if (get().isSubmitted) {
+                    return
+                }
                 set((state: any) => {
 
                     const historyObj =
@@ -807,21 +855,32 @@ export const useTestDataStore =
 
                     const result =
                         data?.result || {}
+                    const historyObj =
+                        result?.activeQuestionHistoryObj || {}
+
+                    const selectedOptions =
+                        buildSelectedOptions(historyObj)
 
                     // =====================================
                     // SUCCESS
                     // =====================================
 
                     set({
+                        isSubmitted: true,
+                        selectedOptions,
 
+                        activeQuestionIndex: 0,
+                        activeSubject:
+                            result?.allSubj?.[0] || '',
+
+                        activeLan: "en",
                         activeTest: {
 
                             questions:
                                 result?.questions || {},
 
                             activeQuestionHistoryObj:
-                                result?.activeQuestionHistoryObj || {},
-
+                                historyObj,
                             deviceInfo:
                                 result?.deviceInfo ||
                                 data?.deviceInfo ||
@@ -886,7 +945,7 @@ export const useTestDataStore =
                 try {
 
                     set({
-
+                        isSubmitted: false,
                         loadingStartTest: true,
 
                         startTestError: null
@@ -954,21 +1013,34 @@ export const useTestDataStore =
                                 data.history
                             )
                     }
+                    const historyObj =
+                        data?.test?.activeQuestionHistoryObj || {}
+
+                    const selectedOptions =
+                        buildSelectedOptions(historyObj)
+
                     set({
+                        timeLeft:
+                            data?.test?.duration || 0,
                         activeSubject:
                             data?.test?.allSubj?.[0] || '',
+
                         activeLan: "en",
+
+                        selectedOptions,
+
+                        activeQuestionIndex: 0,
+
                         activeTest: {
 
                             questions:
                                 data?.test?.questions || {},
 
                             activeQuestionHistoryObj:
-                                data?.test?.activeQuestionHistoryObj || {},
+                                historyObj,
 
                             deviceInfo:
                                 data?.deviceInfo || {},
-
 
                             allSubj:
                                 data?.test?.allSubj || [],
@@ -989,7 +1061,6 @@ export const useTestDataStore =
 
                         startTestError: null
                     })
-
                     return data
 
                 } catch (error: any) {
@@ -1024,6 +1095,7 @@ export const useTestDataStore =
                 try {
 
                     set({
+                        isSubmitted: false,
 
                         loadingResumeTest: true,
 
@@ -1081,17 +1153,38 @@ export const useTestDataStore =
                     // SUCCESS
                     // =====================================
 
+                    const historyObj =
+                        data?.test?.activeQuestionHistoryObj || {}
+
+
+                    const selectedOptions =
+                        buildSelectedOptions(historyObj)
+
+                    const firstSubject =
+                        data?.test?.allSubj?.[0] || ''
+
+                    const activeIndex =
+                        historyObj?.[firstSubject]?.activeIndex || 0
+
+                    const savedTimeLeft =
+                        historyObj?.[firstSubject]?.timeLeft || 0
+
                     set({
-                        activeSubject:
-                            data?.test?.allSubj?.[0] || '',
+                        activeSubject: firstSubject,
+                        timeLeft: savedTimeLeft,
                         activeLan: "en",
+
+                        activeQuestionIndex: activeIndex,
+
+                        selectedOptions,
+
                         activeTest: {
 
                             questions:
                                 data?.test?.questions || {},
 
                             activeQuestionHistoryObj:
-                                data?.test?.activeQuestionHistoryObj || {},
+                                historyObj,
 
                             deviceInfo:
                                 data?.deviceInfo || {},
@@ -1116,7 +1209,6 @@ export const useTestDataStore =
 
                         resumeTestError: null
                     })
-
                     return data
 
                 } catch (error: any) {
@@ -1205,23 +1297,38 @@ export const useTestDataStore =
 
                     const result =
                         data?.result || {}
+                    const historyObj =
+                        result?.activeQuestionHistoryObj || {}
+
+                    const selectedOptions =
+                        buildSelectedOptions(historyObj)
 
                     // =====================================
                     // SUCCESS
                     // =====================================
 
+                    const firstSubject =
+                        result?.allSubj?.[0] || ''
+                    const savedTimeLeft =
+                        historyObj?.[firstSubject]?.timeLeft || 0
                     set({
-                        activeSubject:
-                            data?.test?.allSubj?.[0] || '',
-                        activeLan: "en",
+                        isSubmitted: true,
+                        timeLeft: savedTimeLeft,
+                        selectedOptions,
+
+                        activeQuestionIndex: 0,
+
+                        activeSubject: firstSubject,
+
+                        activeLan:
+                            historyObj?.[firstSubject]?.language || "en",
                         activeTest: {
 
                             questions:
                                 result?.questions || {},
 
                             activeQuestionHistoryObj:
-                                result?.activeQuestionHistoryObj || {},
-
+                                historyObj,
                             deviceInfo:
                                 result?.deviceInfo ||
                                 data?.deviceInfo ||
@@ -1286,6 +1393,7 @@ export const useTestDataStore =
 
             clearActiveTest: () =>
                 set({
+                    isSubmitted: false,
                     activeQuestionIndex: 0,
                     selectedOptions: {},
                     activeSubject: '',

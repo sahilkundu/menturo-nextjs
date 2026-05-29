@@ -3,9 +3,8 @@ import { useVirtualizer } from '@tanstack/react-virtual'
 import {
     Lock,
     Unlock,
-    FileText,
-    BookA,
-    BookAIcon,
+    ChevronLeft,
+    ChevronRight,
     Book
 } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
@@ -17,6 +16,8 @@ import { useTestDataStore }
 import TestHeaderSkeleton from './Skeleton/TestSection/TestHeaderSkeleton'
 
 import TestInfoSkeleton from './Skeleton/TestSection/TestInfoSkeleton'
+import Spinner from './Spinner'
+import { useUserStore } from '../store/user'
 type Props = {
     series: any
 }
@@ -24,30 +25,32 @@ type Props = {
 export default function TestSection({ series }: Props) {
     const router = useRouter()
     const scrollRef = useRef<HTMLDivElement>(null)
-
+    const [loadingTestId, setLoadingTestId] =
+        useState<string | null>(null)
+    const {
+        authenticated
+    } = useUserStore()
     const isAutoLoadingRef = useRef(false) // Track auto-loading state
     const {
 
         fetchStartTest,
 
         fetchResumeTest,
+        fetchSolution,
 
-        loadingStartTest,
-
-        loadingResumeTest
 
     } = useTestDataStore()
 
     const {
         testsMap,
-        seriesMap,
         fetchTests,
         loadingTests,
         isFetchingMore,
         testsPaginationBySeries,
         testsBySubjectMap,
         fetchTestsBySubject,
-        testsPaginationBySubject
+        testsPaginationBySubject,
+        clearStore
     } = useTestSeriesStore()
     // const tests = testsMap[series?._id] || []
     const allTests =
@@ -83,12 +86,13 @@ export default function TestSection({ series }: Props) {
             ? allTests
             : subjectTests
     const rowVirtualizer = useVirtualizer({
+        getItemKey: (index) => tests[index]?.testId || index,
         count: tests.length,
 
         getScrollElement: () =>
             scrollRef.current,
 
-        estimateSize: () => 120,
+        estimateSize: () => 140,
 
         overscan: 5
     })
@@ -104,49 +108,64 @@ export default function TestSection({ series }: Props) {
     }, [series])
 
     // Auto-load logic: load more if no scrollbar appears
+    // AUTO LOAD ONLY IF CONTAINER HAS NO SCROLLBAR
     useEffect(() => {
+
         if (!series?._id) return
-        if (isAutoLoadingRef.current) return // Prevent multiple auto-loads
+
         if (loadingTests) return
+
         if (!pagination?.hasMore) return
 
-        // Small delay to ensure DOM is rendered
-        const timer = setTimeout(() => {
-            const element = scrollRef.current
-            if (!element) return
+        const element = scrollRef.current
 
-            const hasScrollbar = element.scrollHeight > element.clientHeight
-            const noScrollbar = !hasScrollbar
+        if (!element) return
 
-            console.log({
-                testsLength: tests.length,
-                scrollHeight: element.scrollHeight,
-                clientHeight: element.clientHeight,
-                hasScrollbar,
-                noScrollbar,
-                hasMore: pagination?.hasMore,
-                loadingTests
-            })
+        // Prevent multiple parallel auto-loads
+        if (isAutoLoadingRef.current) return
 
-            // Load more if no scrollbar AND has more tests
-            if (noScrollbar && pagination?.hasMore && !loadingTests) {
-                isAutoLoadingRef.current = true
+        const shouldLoadMore =
+            element.scrollHeight <= element.clientHeight + 20
 
-                fetchTests(series._id, {
-                    page: pagination.currentPage + 1,
-                    limit: 3
-                }).finally(() => {
-                    // Reset auto-load flag after fetch completes
-                    setTimeout(() => {
-                        isAutoLoadingRef.current = false
-                    }, 100)
-                })
+        if (!shouldLoadMore) return
+
+        isAutoLoadingRef.current = true
+
+        const loadMore = async () => {
+
+            try {
+
+                if (normalizedSelectedSubject === 'all') {
+
+                    await fetchTests(series._id, {
+                        page: pagination.currentPage + 1,
+                        limit: 3
+                    })
+
+                } else {
+
+                    await fetchTestsBySubject(
+                        series._id,
+                        normalizedSelectedSubject,
+                        {
+                            page: pagination.currentPage + 1,
+                            limit: 3
+                        }
+                    )
+                }
+
+            } finally {
+
+                isAutoLoadingRef.current = false
             }
-        }, 150) // Increased delay for better DOM measurement
+        }
 
-        return () => clearTimeout(timer)
-    }, [tests.length, pagination?.currentPage, pagination?.hasMore, loadingTests, series?._id])
+        loadMore()
 
+    }, [
+        tests.length,
+        pagination?.hasMore
+    ])
     // Scroll-based loading
     const handleScroll = async () => {
         const element = scrollRef.current
@@ -200,163 +219,221 @@ export default function TestSection({ series }: Props) {
 
     const includedFeatures = series?.info || []
 
-    const handleTestClick = (test: any) => {
 
-        if (!test.demo) {
-            alert('Proceeding to unlock...')
-            return
-        }
-        router.push(`/test/start/${test.testId}`)
-    }
-    // const handleTestAction = async (
-    //     test: any
-    // ) => {
 
-    //     // =====================================
-    //     // FIND RESUME HISTORY
-    //     // =====================================
-
-    //     const resumeHistory =
-    //         test.history?.find(
-    //             (h: any) =>
-    //                 h.status === 'resume'
-    //         )
-
-    //     // =====================================
-    //     // RESUME TEST
-    //     // =====================================
-
-    //     if (resumeHistory) {
-
-    //         const data =
-    //             await fetchResumeTest({
-
-    //                 historyId:
-    //                     resumeHistory._id
-    //             })
-
-    //         if (data?.success) {
-
-    //             // router.push(
-    //             //     `/test/${test.testId}`
-    //             // )
-    //         }
-
-    //         return
-    //     }
-
-    //     // =====================================
-    //     // START / TEST AGAIN
-    //     // =====================================
-
-    //     const data =
-    //         await fetchStartTest({
-
-    //             relationId:
-    //                 test.relationId,
-
-    //             testId:
-    //                 test.testId,
-
-    //             ts:
-    //                 test.ts
-    //         })
-
-    //     if (data?.success) {
-
-    //         // router.push(
-    //         //     `/test/${test.testId}`
-    //         // )
-    //     }
-    // }
     const handleTestAction = async (
         test: any,
         mode: 'resume' | 'solution' = 'resume',
         historyId?: string
     ) => {
+        if (!authenticated) {
 
-        // =====================================
-        // SOLUTION MODE
-        // =====================================
+            await fetch(
+                "/redirect",
+                {
+                    method: "POST",
 
-        if (mode === 'solution' && historyId) {
+                    credentials: "include",
 
-            const data =
-                await fetchResumeTest({
+                    headers: {
+                        "Content-Type":
+                            "application/json",
+                    },
 
-                    historyId,
-                    f: 1
-                })
-
-            if (data?.success) {
-
-                console.log('Solution Mode')
-
-                router.push("/test")
-            }
-
-            return
-        }
-
-        // =====================================
-        // FIND RESUME HISTORY
-        // =====================================
-
-        const resumeHistory =
-            test.history?.find(
-                (h: any) =>
-                    h.status === 'resume'
+                    body: JSON.stringify({
+                        path:
+                            window.location.pathname,
+                    }),
+                }
             )
+            clearStore()
 
-        // =====================================
-        // RESUME TEST
-        // =====================================
-
-        if (resumeHistory) {
-
-            const data =
-                await fetchResumeTest({
-
-                    historyId:
-                        resumeHistory._id,
-
-                    f: 0
-                })
-
-            if (data?.success) {
-
-                console.log('Resume Mode')
-
-                router.push("/test")
-            }
+            router.push("/login")
 
             return
         }
 
-        // =====================================
-        // START / TEST AGAIN
-        // =====================================
+        // BLOCK MULTIPLE REQUESTS
+        if (loadingTestId) return
+        const actionKey =
+            `${test.testId}-${mode}-${historyId || ''}`
 
-        const data =
-            await fetchStartTest({
+        try {
 
-                relationId:
-                    test.relationId,
+            setLoadingTestId(actionKey)
 
-                testId:
-                    test.testId,
+            // =====================================
+            // SOLUTION MODE
+            // =====================================
 
-                ts:
-                    test.ts
-            })
+            if (mode === 'solution' && historyId) {
 
-        if (data?.success) {
+                const data =
+                    await fetchSolution({
 
-            console.log('Start/Test Again')
+                        historyId
+                    })
 
-            router.push("/test")
+                if (data?.success) {
+
+                    router.push("/test")
+                }
+
+                return
+            }
+
+            // =====================================
+            // FIND RESUME HISTORY
+            // =====================================
+
+            const resumeHistory =
+                test.history?.find(
+                    (h: any) =>
+                        h.status === 'resume'
+                )
+
+            // =====================================
+            // RESUME TEST
+            // =====================================
+
+            if (resumeHistory) {
+
+                const data =
+                    await fetchResumeTest({
+
+                        historyId:
+                            resumeHistory._id,
+
+                        f: 0
+                    })
+
+                if (data?.success) {
+
+                    router.push("/test")
+                }
+
+                return
+            }
+
+            // =====================================
+            // START / TEST AGAIN
+            // =====================================
+
+            const data =
+                await fetchStartTest({
+
+                    relationId:
+                        test.relationId,
+
+                    testId:
+                        test.testId,
+
+                    ts:
+                        test.ts
+                })
+
+            if (data?.success) {
+
+                router.push("/test")
+            }
+
+        } finally {
+
+            setLoadingTestId(null)
         }
     }
+
+    const categoryScrollRef =
+        useRef<HTMLDivElement>(null)
+
+    const [showLeftArrow, setShowLeftArrow] =
+        useState(false)
+
+    const [showRightArrow, setShowRightArrow] =
+        useState(true)
+
+    const updateCategoryArrows = () => {
+
+        const el =
+            categoryScrollRef.current
+
+        if (!el) return
+
+        setShowLeftArrow(
+            el.scrollLeft > 10
+        )
+
+        setShowRightArrow(
+            el.scrollLeft <
+            el.scrollWidth - el.clientWidth - 10
+        )
+    }
+
+    const scrollCategories = (
+        direction: 'left' | 'right'
+    ) => {
+
+        const el =
+            categoryScrollRef.current
+
+        if (!el) return
+
+        el.scrollBy({
+            left:
+                direction === 'left'
+                    ? -250
+                    : 250,
+            behavior: 'smooth'
+        })
+    }
+
+    useEffect(() => {
+
+        updateCategoryArrows()
+
+        const el =
+            categoryScrollRef.current
+
+        if (!el) return
+
+        const handleWheel = (
+            e: WheelEvent
+        ) => {
+
+            if (Math.abs(e.deltaY) > 0) {
+
+                e.preventDefault()
+
+                el.scrollLeft += e.deltaY
+            }
+        }
+
+        el.addEventListener(
+            'wheel',
+            handleWheel,
+            { passive: false }
+        )
+
+        el.addEventListener(
+            'scroll',
+            updateCategoryArrows
+        )
+
+        return () => {
+
+            el.removeEventListener(
+                'wheel',
+                handleWheel
+            )
+
+            el.removeEventListener(
+                'scroll',
+                updateCategoryArrows
+            )
+        }
+
+    }, [])
+
     if (!series) {
         return (
             <div className="m-2 bg-white rounded-2xl border border-gray-100 overflow-hidden">
@@ -449,26 +526,13 @@ export default function TestSection({ series }: Props) {
                             </div>
 
                             {/* CATEGORY */}
-                            <div className="px-3 pb-3">
+                            {/* <div className="px-3 pb-3">
 
                                 <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
 
                                     <div className="p-3 bg-[#fafafa] border-b border-gray-100 flex gap-2 overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
 
-                                        {/* {categories.map((category, index) => (
 
-                                            <span
-                                                key={category.id}
-                                                className={`text-[11px] px-3 py-1.5 rounded font-medium whitespace-nowrap shrink-0 cursor-pointer ${index === 0
-                                                    ? 'bg-slate-500 text-white'
-                                                    : 'bg-white border text-gray-600'
-                                                    }`}
-                                            >
-
-                                                {category.name}
-
-                                            </span>
-                                        ))} */}
                                         {categories.map((category) => {
 
                                             const isActive =
@@ -542,9 +606,9 @@ export default function TestSection({ series }: Props) {
                 font-medium
                 whitespace-nowrap
                 shrink-0
-                cursor-pointer
+                cursor
                 transition
-
+cursor-pointer
                 ${isActive
                                                             ? 'bg-slate-500 text-white'
                                                             : 'bg-white border text-gray-600'}
@@ -561,8 +625,289 @@ export default function TestSection({ series }: Props) {
 
                                 </div>
 
-                            </div>
+                            </div> */}
+                            {/* CATEGORY */}
+                            {/* CATEGORY */}
+                            <div className="px-3 pb-3">
 
+                                <div className="
+        relative
+        bg-white
+        rounded-2xl
+        border
+        border-gray-200
+        overflow-hidden
+        shadow-sm
+    ">
+
+                                    {/* LEFT FADE */}
+                                    {showLeftArrow && (
+                                        <div className="
+                absolute
+                left-0
+                top-0
+                bottom-0
+                z-10
+                w-14
+                bg-gradient-to-r
+                from-white
+                to-transparent
+                pointer-events-none
+            " />
+                                    )}
+
+                                    {/* RIGHT FADE */}
+                                    {showRightArrow && (
+                                        <div className="
+                absolute
+                right-0
+                top-0
+                bottom-0
+                z-10
+                w-14
+                bg-gradient-to-l
+                from-white
+                to-transparent
+                pointer-events-none
+            " />
+                                    )}
+
+                                    {/* LEFT BUTTON */}
+                                    {showLeftArrow && (
+
+                                        <button
+                                            onClick={() =>
+                                                scrollCategories('left')
+                                            }
+                                            className="
+                    absolute
+                    left-2
+                    top-1/2
+                    -translate-y-1/2
+                    z-20
+
+                    h-8
+                    w-8
+
+                    rounded-full
+                    bg-white/95
+
+                    border
+                    border-gray-200
+
+                    shadow-md
+
+                    flex
+                    items-center
+                    justify-center
+
+                    hover:bg-[#F5F3FF]
+                    hover:text-[#4A3F77]
+
+                    transition-all
+                    duration-200
+
+                    cursor-pointer
+                "
+                                        >
+
+                                            <ChevronLeft size={16} />
+
+                                        </button>
+                                    )}
+
+                                    {/* RIGHT BUTTON */}
+                                    {showRightArrow && (
+
+                                        <button
+                                            onClick={() =>
+                                                scrollCategories('right')
+                                            }
+                                            className="
+                    absolute
+                    right-2
+                    top-1/2
+                    -translate-y-1/2
+                    z-20
+
+                    h-8
+                    w-8
+
+                    rounded-full
+                    bg-white/95
+
+                    border
+                    border-gray-200
+
+                    shadow-md
+
+                    flex
+                    items-center
+                    justify-center
+
+                    hover:bg-[#F5F3FF]
+                    hover:text-[#4A3F77]
+
+                    transition-all
+                    duration-200
+
+                    cursor-pointer
+                "
+                                        >
+
+                                            <ChevronRight size={16} />
+
+                                        </button>
+                                    )}
+
+                                    {/* SCROLL AREA */}
+                                    <div
+                                        ref={categoryScrollRef}
+                                        className="
+                flex
+                items-center
+                gap-2
+
+                overflow-x-auto
+                scroll-smooth
+
+                px-3
+                py-3
+
+                [scrollbar-width:none]
+                [-ms-overflow-style:none]
+                [&::-webkit-scrollbar]:hidden
+            "
+                                    >
+
+                                        {categories.map((category) => {
+
+                                            const isActive =
+
+                                                selectedSubject
+                                                    .toLowerCase() ===
+
+                                                category.name
+                                                    .toLowerCase()
+
+                                            return (
+
+                                                <button
+                                                    key={category.id}
+
+                                                    onClick={async () => {
+
+                                                        // =========================
+                                                        // ALL
+                                                        // =========================
+
+                                                        if (
+                                                            category.name === 'All'
+                                                        ) {
+
+                                                            setSelectedSubject(
+                                                                'all'
+                                                            )
+
+                                                            return
+                                                        }
+
+                                                        // =========================
+                                                        // SUBJECT
+                                                        // =========================
+
+                                                        const normalizedSubject =
+                                                            category.name
+                                                                .trim()
+                                                                .toLowerCase()
+
+                                                        setSelectedSubject(
+                                                            normalizedSubject
+                                                        )
+
+                                                        // already loaded
+                                                        const alreadyLoaded =
+                                                            testsBySubjectMap?.[
+                                                                series._id
+                                                            ]?.[
+                                                                normalizedSubject
+                                                            ]?.length > 0
+
+                                                        if (alreadyLoaded)
+                                                            return
+
+                                                        // backend call
+                                                        await fetchTestsBySubject(
+                                                            series._id,
+                                                            normalizedSubject,
+                                                            {
+                                                                page: 1,
+                                                                limit: 3
+                                                            }
+                                                        )
+                                                    }}
+
+                                                    className={`
+                            relative
+                            shrink-0
+
+                            px-4
+                            py-2
+
+                            rounded-xl
+
+                            text-[12px]
+                            font-semibold
+
+                            transition-all
+                            duration-200
+
+                            cursor-pointer
+                            border
+
+                            ${isActive
+
+                                                            ? `
+                                    bg-[#4A3F77]
+                                    text-white
+                                    border-[#4A3F77]
+
+                                    ring-2
+                                    ring-[#E9E4FF]
+
+                                    shadow-[0_4px_14px_rgba(74,63,119,0.35)]
+
+                                    hover:bg-[#5B4B94]
+
+                                    hover:shadow-[0_6px_18px_rgba(91,75,148,0.45)]
+
+                                    hover:-translate-y-[1px]
+                                `
+
+                                                            : `
+                                    bg-white
+                                    text-gray-600
+                                    border-gray-200
+
+                                    hover:bg-[#F5F3FF]
+                                    hover:text-[#4A3F77]
+                                    hover:border-[#CFC7F3]
+                                `
+                                                        }
+                        `}
+                                                >
+
+                                                    {category.name}
+
+                                                </button>
+                                            )
+                                        })}
+
+                                    </div>
+
+                                </div>
+
+                            </div>
                         </div>
 
                         {/* TESTS */}
@@ -604,23 +949,32 @@ export default function TestSection({ series }: Props) {
 
                                     if (!test) return null
                                     const hasHistory =
-                                        test.history?.length > 0
+                                        test?.history?.length > 0
 
                                     const hasResumeAttempt =
-                                        test.history?.some(
+                                        test?.history?.some(
                                             (h: any) => h.status === 'resume'
                                         )
                                     const hasRunningTest =
-                                        test.history?.some(
+                                        test?.history?.some(
                                             (h: any) => h.status === 'running'
                                         )
 
                                     const allSubmitted =
                                         hasHistory &&
-                                        test.history?.every(
+                                        test?.history?.every(
                                             (h: any) =>
                                                 h.status === 'submitted'
                                         )
+                                    const isResumeLoading =
+                                        loadingTestId ===
+                                        `${test.testId}-resume-`
+
+                                    const isSolutionLoading = (
+                                        historyId: string
+                                    ) =>
+                                        loadingTestId ===
+                                        `${test.testId}-solution-${historyId}`
                                     return (
 
                                         <div
@@ -723,12 +1077,25 @@ export default function TestSection({ series }: Props) {
 
                                                         <>
                                                             <button
-                                                                onClick={() =>
-                                                                    test.access &&
+                                                                onClick={() => {
+
+                                                                    if (
+                                                                        !test.access ||
+                                                                        loadingTestId ||
+                                                                        hasRunningTest
+                                                                    ) return
+
                                                                     handleTestAction(test)
+                                                                }}
+                                                                disabled={
+                                                                    loadingTestId !== null
                                                                 }
                                                                 className={`
-                    cursor-pointer
+                                                                    
+                    ${loadingTestId || hasRunningTest
+                                                                        ? 'cursor-not-allowed'
+                                                                        : 'cursor-pointer'
+                                                                    }
                     w-full
                     sm:w-auto
                     shrink-0
@@ -742,6 +1109,9 @@ export default function TestSection({ series }: Props) {
                     gap-2
                     transition-all
                     active:scale-95
+                    disabled:opacity-70
+        disabled:cursor-not-allowed
+        disabled:pointer-events-none
 
                     ${test.access
                                                                         ? `
@@ -760,19 +1130,39 @@ export default function TestSection({ series }: Props) {
                 `}
                                                             >
 
-                                                                <span className="bg-white/15 p-1 rounded-md text-[10px]">
+                                                                {
+                                                                    isResumeLoading
+                                                                        ? <Spinner size={15} />
+                                                                        : (
+                                                                            <>
+                                                                                <span className="bg-white/15 p-1 rounded-md text-[10px]">
 
-                                                                    {test.access
-                                                                        ? hasRunningTest ? <Lock size={15} /> : <Unlock size={15} />
-                                                                        : <Lock size={15} />
-                                                                    }
+                                                                                    {
+                                                                                        authenticated && test.access
+                                                                                            ? (
+                                                                                                hasRunningTest
+                                                                                                    ? <Lock size={15} />
+                                                                                                    : <Unlock size={15} />
+                                                                                            )
+                                                                                            : <Lock size={15} />
+                                                                                    }
 
-                                                                </span>
+                                                                                </span>
 
-                                                                <span>
-                                                                    {hasRunningTest ? "Test running..." : "Resume Test"}
-                                                                </span>
-
+                                                                                <span>
+                                                                                    {authenticated
+                                                                                        ? (
+                                                                                            hasRunningTest
+                                                                                                ? "Test running..."
+                                                                                                : "Resume Test"
+                                                                                        )
+                                                                                        :
+                                                                                        <Lock size={15} />
+                                                                                    }
+                                                                                </span>
+                                                                            </>
+                                                                        )
+                                                                }
                                                             </button>
 
                                                             {/* ========================================= */}
@@ -780,7 +1170,7 @@ export default function TestSection({ series }: Props) {
                                                             {/* if submitted + resume both exist */}
                                                             {/* ========================================= */}
 
-                                                            {test.history?.some(
+                                                            {authenticated && test.history?.some(
                                                                 (h: any) => h.status === 'submitted'
                                                             ) && (
 
@@ -788,8 +1178,11 @@ export default function TestSection({ series }: Props) {
 
                                                                         {/* SOLUTION BUTTON */}
                                                                         <button
-                                                                            className="
-    cursor-pointer
+                                                                            className={`
+   ${loadingTestId || hasRunningTest
+                                                                                    ? 'cursor-not-allowed'
+                                                                                    : 'cursor-pointer'
+                                                                                }
     w-full
     sm:w-auto
     min-w-[140px]
@@ -812,7 +1205,8 @@ export default function TestSection({ series }: Props) {
     hover:shadow-[0_6px_18px_rgba(74,63,119,0.4)]
     hover:-translate-y-0.5
     transition-all
-"
+    `}
+
                                                                         >
 
                                                                             <span className="bg-white/15 p-1 rounded-md text-[10px]">
@@ -877,7 +1271,7 @@ export default function TestSection({ series }: Props) {
                                                                                                 )
 
                                                                                             }}
-                                                                                            className="
+                                                                                            className={`
                                             w-full
                                             text-left
                                             px-4
@@ -891,9 +1285,12 @@ export default function TestSection({ series }: Props) {
                                             border-white/10
                                             last:border-b-0
                                             transition
-                                            cursor-pointer
+                                         ${loadingTestId || hasRunningTest
+                                                                                                    ? 'cursor-not-allowed'
+                                                                                                    : 'cursor-pointer'
+                                                                                                }
                                             shrink-0
-                                        "
+                                                                                        `}
                                                                                         >
 
                                                                                             Attempt {index + 1}
@@ -921,8 +1318,16 @@ export default function TestSection({ series }: Props) {
                                                                     test.access &&
                                                                     handleTestAction(test)
                                                                 }
-                                                                className="
-                    cursor-pointer
+                                                                disabled={
+                                                                    loadingTestId !== null
+                                                                }
+                                                                className={`
+
+        
+                   ${loadingTestId || hasRunningTest
+                                                                        ? 'cursor-not-allowed'
+                                                                        : 'cursor-pointer'
+                                                                    }
                     px-4
                     py-2
                     rounded-xl
@@ -936,35 +1341,49 @@ export default function TestSection({ series }: Props) {
                     hover:shadow-[0_6px_18px_rgba(74,63,119,0.4)]
                     hover:-translate-y-0.5
                     transition-all
-                "
+                    disabled:opacity-70
+        disabled:cursor-not-allowed
+        disabled:pointer-events-none
+                `}
                                                             >
 
-                                                                <span className="bg-white/15 p-1 rounded-md text-[10px]">
+                                                                {
+                                                                    isResumeLoading
+                                                                        ? <Spinner size={15} />
+                                                                        : (
+                                                                            <>
+                                                                                <span className="bg-white/15 p-1 rounded-md text-[10px]">
 
-                                                                    {test.access
-                                                                        ? <Unlock size={15} />
-                                                                        : <Lock size={15} />
-                                                                    }
+                                                                                    {test.access && authenticated
+                                                                                        ? <Unlock size={15} />
+                                                                                        : <Lock size={15} />
+                                                                                    }
 
-                                                                </span>
+                                                                                </span>
 
-                                                                <span>
+                                                                                <span>
+                                                                                    {authenticated ? "Test Again" : <Lock size={15} />}
 
-                                                                    Test Again
 
-                                                                </span>
+                                                                                </span>
+                                                                            </>
+                                                                        )
+                                                                }
 
                                                             </button>
 
                                                             {/* ========================================= */}
                                                             {/* SOLUTIONS */}
                                                             {/* ========================================= */}
+                                                            {authenticated &&
+                                                                <div className="relative group">
 
-                                                            <div className="relative group">
-
-                                                                <button
-                                                                    className="
-                        cursor-pointer
+                                                                    <button
+                                                                        className={`
+                       ${loadingTestId || hasRunningTest
+                                                                                ? 'cursor-not-allowed'
+                                                                                : 'cursor-pointer'
+                                                                            }
                         px-4
                         py-2
                         rounded-xl
@@ -978,25 +1397,25 @@ export default function TestSection({ series }: Props) {
                         hover:shadow-[0_6px_18px_rgba(74,63,119,0.4)]
                         hover:-translate-y-0.5
                         transition-all
-                    "
-                                                                >
+`}
+                                                                    >
 
-                                                                    <span className="bg-white/15 p-1 rounded-md text-[10px]">
+                                                                        <span className="bg-white/15 p-1 rounded-md text-[10px]">
 
-                                                                        <Book size={15} />
+                                                                            <Book size={15} />
 
-                                                                    </span>
+                                                                        </span>
 
-                                                                    <span>
+                                                                        <span>
 
-                                                                        Solutions
+                                                                            Solutions
 
-                                                                    </span>
+                                                                        </span>
 
-                                                                </button>
+                                                                    </button>
 
-                                                                <div
-                                                                    className="
+                                                                    <div
+                                                                        className="
                         absolute
                         left-0
                         bottom-0
@@ -1018,25 +1437,31 @@ export default function TestSection({ series }: Props) {
                         [&::-webkit-scrollbar]:w-0
                         [&::-webkit-scrollbar]:h-0
                     "
-                                                                >
+                                                                    >
 
-                                                                    {test.history.map(
-                                                                        (
-                                                                            item: any,
-                                                                            index: number
-                                                                        ) => (
+                                                                        {test.history.map(
+                                                                            (
+                                                                                item: any,
+                                                                                index: number
+                                                                            ) => (
 
-                                                                            <button
-                                                                                key={item._id}
-                                                                                onClick={() => {
+                                                                                <button
+                                                                                    key={item._id}
+                                                                                    onClick={() => {
 
-                                                                                    console.log(
-                                                                                        'solution id',
-                                                                                        item._id
-                                                                                    )
+                                                                                        handleTestAction(
+                                                                                            test,
+                                                                                            'solution',
+                                                                                            item._id
+                                                                                        )
 
-                                                                                }}
-                                                                                className="
+                                                                                    }}
+                                                                                    disabled={
+                                                                                        isSolutionLoading(item._id)
+                                                                                    }
+                                                                                    className={`
+                                                                               
+        
                                     w-full
                                     text-left
                                     px-4
@@ -1050,20 +1475,34 @@ export default function TestSection({ series }: Props) {
                                     border-white/10
                                     last:border-b-0
                                     transition
-                                    cursor-pointer
+                                   ${loadingTestId || hasRunningTest
+                                                                                            ? 'cursor-not-allowed'
+                                                                                            : 'cursor-pointer'
+                                                                                        }
                                     shrink-0
-                                "
-                                                                            >
+                                    disabled:cursor-not-allowed
+                                     disabled:opacity-70
+                                `}
+                                                                                >
 
-                                                                                Attempt {index + 1}
+                                                                                    {
+                                                                                        isSolutionLoading(item._id)
+                                                                                            ? (
+                                                                                                <div className="flex justify-center">
+                                                                                                    <Spinner size={14} />
+                                                                                                </div>
+                                                                                            )
+                                                                                            : (
+                                                                                                <>Attempt {index + 1}</>
+                                                                                            )
+                                                                                    }
+                                                                                </button>
+                                                                            )
+                                                                        )}
 
-                                                                            </button>
-                                                                        )
-                                                                    )}
+                                                                    </div>
 
-                                                                </div>
-
-                                                            </div>
+                                                                </div>}
                                                         </>
 
                                                     ) : (
@@ -1073,12 +1512,19 @@ export default function TestSection({ series }: Props) {
                                                         /* ========================================= */
 
                                                         <button
+                                                            disabled={
+                                                                loadingTestId !== null
+                                                            }
                                                             onClick={() =>
                                                                 test.access &&
                                                                 handleTestAction(test)
                                                             }
-                                                            className="
-                cursor-pointer
+                                                            className={`
+                                                            
+                ${loadingTestId || hasRunningTest
+                                                                    ? 'cursor-not-allowed'
+                                                                    : 'cursor-pointer'
+                                                                }
                 px-4
                 py-2
                 rounded-xl
@@ -1092,23 +1538,38 @@ export default function TestSection({ series }: Props) {
                 hover:shadow-[0_6px_18px_rgba(74,63,119,0.4)]
                 hover:-translate-y-0.5
                 transition-all
-            "
+                disabled:opacity-70
+        disabled:cursor-not-allowed
+        disabled:pointer-events-none
+            `}
                                                         >
 
-                                                            <span className="bg-white/15 p-1 rounded-md text-[10px]">
+                                                            {
+                                                                isResumeLoading
+                                                                    ? <Spinner size={15} />
+                                                                    : (
+                                                                        <>
+                                                                            {authenticated &&
+                                                                                <span className="bg-white/15 p-1 rounded-md text-[10px]">
 
-                                                                {test.access
-                                                                    ? <Unlock size={15} />
-                                                                    : <Lock size={15} />
-                                                                }
+                                                                                    {test.access
+                                                                                        ? <Unlock size={15} />
+                                                                                        : <Lock size={15} />
+                                                                                    }
 
-                                                            </span>
+                                                                                </span>}
 
-                                                            <span>
+                                                                            <span>
+                                                                                {authenticated ?
+                                                                                    "Start Test" :
+                                                                                    <Lock size={15} />
+                                                                                }
 
-                                                                Start Test
 
-                                                            </span>
+                                                                            </span>
+                                                                        </>
+                                                                    )
+                                                            }
 
                                                         </button>
                                                     )}

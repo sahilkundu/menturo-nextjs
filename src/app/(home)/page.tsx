@@ -7,9 +7,8 @@ import { useEffect } from "react"
 import { useLayoutStore } from "../../shared/store/uiResStore"
 import { useUserStore } from "../../shared/store/user"
 
-import { useWSStore } from "../../shared/utils/wsStore"
-
 import { useRouter } from "next/navigation"
+import { useTestSeriesStore } from '../../shared/store/testSeriesStore'
 
 // ========================================
 // LAZY LOAD COMPONENTS
@@ -50,9 +49,10 @@ export default function HomePage() {
         useRouter()
 
     // ================= USER =================
-
     const {
-        user,
+        clearStore
+    } = useTestSeriesStore()
+    const {
         authenticated
     } =
         useUserStore()
@@ -132,6 +132,7 @@ export default function HomePage() {
             "resize",
             handleResize
         )
+
 
         return () => {
 
@@ -236,6 +237,8 @@ export default function HomePage() {
             </div>
 
             {/* FOOTER */}
+
+
             <Footer />
 
             {/* FLOAT BUTTON */}

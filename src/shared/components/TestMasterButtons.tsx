@@ -6,17 +6,16 @@ import { useTestSeriesStore } from "../store/testSeriesStore"
 export default function TestMasterButtons({
 
     qId,
-    tempSelections,
-    setTempSelections
 
 }: any) {
 
     const {
 
-        selectOption,
+        selectedOptions,
         prevQuestion,
         clearResponse,
-        markForReview
+        markForReview,
+        saveAndNext
 
     } = useTestDataStore()
 
@@ -42,17 +41,6 @@ export default function TestMasterButtons({
                 <button
                     onClick={() => {
 
-                        const tempAnswer =
-                            tempSelections[qId]
-
-                        if (tempAnswer !== undefined) {
-
-                            selectOption(
-                                qId,
-                                tempAnswer
-                            )
-                        }
-
                         markForReview(qId)
 
                     }}
@@ -63,17 +51,6 @@ export default function TestMasterButtons({
 
                 <button
                     onClick={() => {
-
-                        setTempSelections((prev: any) => {
-
-                            const updated = {
-                                ...prev
-                            }
-
-                            delete updated[qId]
-
-                            return updated
-                        })
 
                         clearResponse(qId)
 
@@ -93,20 +70,7 @@ export default function TestMasterButtons({
                 <button
                     onClick={async () => {
 
-                        const tempAnswer =
-                            tempSelections[qId]
-
-                        if (tempAnswer !== undefined) {
-
-                            selectOption(
-                                qId,
-                                tempAnswer
-                            )
-                        }
-
-                        useTestDataStore
-                            .getState()
-                            .saveAndNext(qId)
+                        saveAndNext(qId)
 
                         // =================================
                         // FLOOD BLOCK

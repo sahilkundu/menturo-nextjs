@@ -9,7 +9,8 @@ export default function TestTimer() {
 
         activeTest,
         timeLeft,
-        setTimeLeft
+        setTimeLeft,
+        isSubmitted
 
     } = useTestDataStore()
 
@@ -18,7 +19,8 @@ export default function TestTimer() {
 
         if (
             activeTest?.duration &&
-            timeLeft === 0
+            timeLeft === 0 &&
+            !isSubmitted
         ) {
 
             setTimeLeft(
@@ -29,11 +31,15 @@ export default function TestTimer() {
     }, [
         activeTest,
         timeLeft,
-        setTimeLeft
+        setTimeLeft,
+        isSubmitted
     ])
 
     // START TIMER
     useEffect(() => {
+
+        // STOP TIMER AFTER SUBMIT
+        if (isSubmitted) return
 
         if (timeLeft <= 0) return
 
@@ -54,7 +60,10 @@ export default function TestTimer() {
         return () =>
             clearInterval(timer)
 
-    }, [timeLeft])
+    }, [
+        timeLeft,
+        isSubmitted
+    ])
 
     // FORMAT
     const formatTime = (
@@ -81,12 +90,8 @@ export default function TestTimer() {
     }
 
     return (
-
         <>
-
             {formatTime(timeLeft)}
-
         </>
-
     )
 }
