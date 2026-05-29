@@ -43,38 +43,48 @@ export default function LeftSidebar() {
             {/* SIDEBAR */}
             <div
                 className={`
-                    w-[250px]
-                    bg-white
-                    overflow-y-auto
-                    rounded-r-[24px]
+        w-[250px]
+        bg-white
+        rounded-r-[24px]
 
-                    transition-transform
-                    duration-300
-                    ease-in-out
-                    will-change-transform
+        shadow-[5px_0_30px_rgba(0,0,0,0.1)]
 
-                    ${head
+        ${head
                         ? `
-                            fixed
-                            top-0
-                            left-0
-                            bottom-0
-                            z-[1000]
-
-                            shadow-[5px_0_30px_rgba(0,0,0,0.1)]
-
-                            ${leftSidebarOpen
-                            ? "translate-x-0"
-                            : "-translate-x-full"
-                        }
-                          `
+                fixed
+                top-0
+                left-0
+                bottom-0
+                z-[1000]
+                overflow-y-auto
+              `
                         : `
-                            relative
-                            h-screen
-                            translate-x-0
-                          `
+    sticky
+    top-0
+    self-start
+    h-[100vh]
+    overflow-y-auto
+  `
                     }
-                `}
+    `}
+                style={{
+                    transform: head
+                        ? leftSidebarOpen
+                            ? "translateX(0)"
+                            : "translateX(-100%)"
+                        : "translateX(0)",
+
+                    opacity: head
+                        ? leftSidebarOpen
+                            ? 1
+                            : 0.92
+                        : 1,
+
+                    transition:
+                        "transform 0.7s cubic-bezier(0.22,1,0.36,1), opacity 0.45s ease",
+
+                    willChange: "transform, opacity"
+                }}
             >
 
                 <div className="p-2">
@@ -147,6 +157,7 @@ export default function LeftSidebar() {
                             <span>⚙️</span>
                             Settings
                         </button>
+
 
                     </div>
 

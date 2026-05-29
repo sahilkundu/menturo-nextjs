@@ -6,7 +6,7 @@ export default function LoginExtraFeatures() {
 
     return (
 
-        <div className="mt-4 pt-4 w-full">
+        <div className="md: mt-1 mt-4 pt-4 w-full">
 
             {/* OR Divider */}
             <div className="relative mb-5">

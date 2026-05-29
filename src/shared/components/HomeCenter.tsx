@@ -1,36 +1,268 @@
 'use client'
+
+import { useTestSeriesStore } from "../../shared/store/testSeriesStore"
+import { useWSStore } from "../utils/wsStore"
 import Header from "./Header"
 import TestCard from "./TestCard"
 import StateCard from "./StateCard"
-
-import { useRef } from "react"
+import { useRef, useEffect, useCallback, useState } from "react"
+import TestCardSkeleton from "./Skeleton/TestCardSkeleton"
 
 
 export default function HomeCenter() {
-    const sliderRef = useRef<HTMLDivElement | null>(null)
+    const {
 
+
+        authType,
+
+        guestId,
+
+
+    } = useWSStore()
+    const sliderRef = useRef<HTMLDivElement | null>(null)
+    const [showSkeleton, setShowSkeleton] =
+        useState(false)
+    const fetchedRef =
+        useRef(false)
+    // MOVE STORE HERE
+    const {
+
+        seriesMap,
+
+        fetchSeries,
+
+        seriesPaginationByTag,
+
+        loadingSeries
+
+    } = useTestSeriesStore()
+
+    const {
+
+        status,
+
+        userId
+
+    } = useWSStore()
     const scrollLeft = () => {
 
-        if (sliderRef.current) {
-
-            sliderRef.current.scrollBy({
-                left: -320,
-                behavior: "smooth"
-            })
-        }
+        sliderRef.current?.scrollBy({
+            left: -320,
+            behavior: "smooth"
+        })
     }
 
     const scrollRight = () => {
 
-        if (sliderRef.current) {
+        sliderRef.current?.scrollBy({
+            left: 320,
+            behavior: "smooth"
+        })
+    }
+    // =====================================================
+    // AUTO LOAD ON SCROLL END
+    // =====================================================
 
-            sliderRef.current.scrollBy({
-                left: 320,
-                behavior: "smooth"
-            })
+    const isFetchingRef = useRef(false)
+
+    const handleSliderScroll = () => {
+
+        if (!sliderRef.current) return
+
+        if (loadingSeries) return
+
+        if (isFetchingRef.current) return
+
+        const el = sliderRef.current
+
+        // USER HAS NOT SCROLLED YET
+        if (el.scrollLeft <= 0) return
+
+        const remainingScroll =
+            el.scrollWidth -
+            el.scrollLeft -
+            el.clientWidth
+
+        if (remainingScroll <= 20) {
+
+            if (!pagination?.hasMore) return
+
+            isFetchingRef.current = true
+
+            loadMore()
         }
     }
 
+    useEffect(() => {
+
+        if (!loadingSeries) {
+
+            isFetchingRef.current = false
+        }
+
+    }, [loadingSeries])
+    // =====================================================
+    // STORE
+    // =====================================================
+
+
+
+    // =====================================================
+    // SERIES ARRAY
+    // =====================================================
+
+    const series =
+        Object.values(
+            seriesMap
+        )
+
+    // =====================================================
+    // PAGINATION
+    // =====================================================
+
+    const pagination =
+        seriesPaginationByTag[
+        ''
+        ]
+
+    // =====================================================
+    // INITIAL LOAD
+    // =====================================================
+
+    useEffect(() => {
+        // =====================================
+        // LOAD ONLY ONCE
+        // =====================================
+
+        if (
+            fetchedRef.current
+        ) {
+            return
+        }
+
+        if (
+            series.length === 0
+        ) {
+
+            fetchedRef.current = true
+
+            fetchSeries({
+
+                page: 1,
+
+                limit: 5
+            })
+        }
+
+    }, [
+        status,
+
+        authType,
+
+        guestId,
+
+        userId
+    ])
+    // =====================================================
+    // LOAD MORE
+    // =====================================================
+
+    const loadMore =
+        useCallback(() => {
+
+            if (loadingSeries) return
+
+            if (!pagination) return
+
+            if (!pagination.hasMore) return
+
+            fetchSeries({
+                page: pagination.currentPage + 1,
+                limit: 5
+            })
+
+        }, [
+            pagination,
+            loadingSeries
+        ])
+
+    // =====================================================
+    // AUTO LOAD IF NO SCROLLBAR
+    // =====================================================
+
+
+    useEffect(() => {
+
+        const timer =
+            setTimeout(() => {
+
+                setShowSkeleton(
+                    loadingSeries
+                )
+
+            }, loadingSeries ? 0 : 300)
+
+        return () => {
+
+            clearTimeout(timer)
+
+        }
+
+    }, [loadingSeries])
+    // =====================================================
+    // AUTO LOAD UNTIL HORIZONTAL SCROLL APPEARS
+    // =====================================================
+    // =====================================================
+    // AUTO LOAD UNTIL CARDS FILL AVAILABLE WIDTH
+    // =====================================================
+
+    useEffect(() => {
+
+        const element = sliderRef.current
+
+        if (!element) return
+
+        if (loadingSeries) return
+
+        if (!pagination?.hasMore) return
+
+        // wait for DOM paint
+        const timer = setTimeout(() => {
+
+            const cards =
+                element.querySelectorAll('[data-test-card]')
+
+            if (cards.length === 0) return
+
+            const lastCard =
+                cards[cards.length - 1] as HTMLElement
+
+            if (!lastCard) return
+
+            // detect remaining empty space
+            const remainingSpace =
+                element.clientWidth -
+                (lastCard.offsetLeft + lastCard.offsetWidth)
+
+            // if empty space still exists => fetch more
+            if (remainingSpace > 20) {
+
+                fetchSeries({
+                    page: pagination.currentPage + 1,
+                    limit: 5
+                })
+            }
+
+        }, 300)
+
+        return () => clearTimeout(timer)
+
+    }, [
+        series.length,
+        loadingSeries,
+        pagination?.currentPage,
+        pagination?.hasMore
+    ])
     return (
         <>
             {/* <!-- MAIN --> */}
@@ -80,19 +312,7 @@ export default function HomeCenter() {
 
                                     </div>
 
-                                    <div className="flex gap-3 flex-wrap">
 
-                                        <button className="h-10 px-4 rounded-xl border text-sm border-gray-200">
-                                            Import
-                                        </button>
-
-
-
-                                        <button className="h-10 px-5 rounded-xl bg-violet-600 text-white text-sm border-gray-200">
-                                            Categories
-                                        </button>
-
-                                    </div>
 
                                 </div>
 
@@ -191,108 +411,97 @@ export default function HomeCenter() {
 
                                     </div>
 
-                                    {/* <!-- SLIDER --> */}
+
+
+
                                     <div
                                         ref={sliderRef}
-                                        id="slider"
+                                        onScroll={handleSliderScroll}
                                         className="
-        flex
-        gap-4
-        overflow-x-auto
-        pb-2
-        scroll-smooth
-        snap-x
-        snap-mandatory
-        scrollbar-hide
-    "
+    flex
+    items-stretch
+    gap-4
+    overflow-x-auto
+    overflow-y-hidden
+    pb-2
+    scrollbar-hide
+"
                                     >
-                                        <TestCard
-                                            board="SSC"
-                                            liveName="Live"
-                                            name="SSC CGL Titan Test Series"
-                                            totalTest="140+ Mocks"
-                                            totalPrice="₹899"
-                                            offerPrice="₹299"
-                                            demoInfo="1 Free Demo Mock"
-                                            demoHead="1 Demo Free"
-                                            btnName="Start Free Trial"
-                                            img="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?q=80&w=1200&auto=format&fit=crop"
-                                            btnBgColor="bg-violet-50 hover:bg-violet-100"
-                                            btnTxtColor="text-violet-700"
-                                        />
-                                        <TestCard
-                                            board="HSSC"
-                                            liveName="Trending"
-                                            name="Haryana CET Maha Pack"
-                                            totalTest="105 Practice Sets"
-                                            totalPrice="₹599"
-                                            offerPrice="₹199"
-                                            demoInfo="1 Free Demo Mock"
-                                            demoHead="1 Demo Free"
-                                            btnName="Enroll Now"
-                                            img="https://images.unsplash.com/photo-1521791136064-7986c2920216?q=80&w=1200&auto=format&fit=crop"
-                                            btnBgColor="bg-green-50 hover:bg-green-100"
-                                            btnTxtColor="text-green-700"
-                                        />
-                                        <TestCard
-                                            board="SSC"
-                                            liveName="Live"
-                                            name="SSC CGL Titan Test Series"
-                                            totalTest="140+ Mocks"
-                                            totalPrice="₹899"
-                                            offerPrice="₹299"
-                                            demoInfo="1 Free Demo Mock"
-                                            demoHead="1 Demo Free"
-                                            btnName="Start Free Trial"
-                                            img="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?q=80&w=1200&auto=format&fit=crop"
-                                            btnBgColor="bg-violet-50 hover:bg-violet-100"
-                                            btnTxtColor="text-violet-700"
-                                        />
-                                        <TestCard
-                                            board="HSSC"
-                                            liveName="Trending"
-                                            name="Haryana CET Maha Pack"
-                                            totalTest="105 Practice Sets"
-                                            totalPrice="₹599"
-                                            offerPrice="₹199"
-                                            demoInfo="1 Free Demo Mock"
-                                            demoHead="1 Demo Free"
-                                            btnName="Enroll Now"
-                                            img="https://images.unsplash.com/photo-1521791136064-7986c2920216?q=80&w=1200&auto=format&fit=crop"
-                                            btnBgColor="bg-green-50 hover:bg-green-100"
-                                            btnTxtColor="text-green-700"
-                                        /><TestCard
-                                            board="SSC"
-                                            liveName="Live"
-                                            name="SSC CGL Titan Test Series"
-                                            totalTest="140+ Mocks"
-                                            totalPrice="₹899"
-                                            offerPrice="₹299"
-                                            demoInfo="1 Free Demo Mock"
-                                            demoHead="1 Demo Free"
-                                            btnName="Start Free Trial"
-                                            img="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?q=80&w=1200&auto=format&fit=crop"
-                                            btnBgColor="bg-violet-50 hover:bg-violet-100"
-                                            btnTxtColor="text-violet-700"
-                                        />
-                                        <TestCard
-                                            board="HSSC"
-                                            liveName="Trending"
-                                            name="Haryana CET Maha Pack"
-                                            totalTest="105 Practice Sets"
-                                            totalPrice="₹599"
-                                            offerPrice="₹199"
-                                            demoInfo="1 Free Demo Mock"
-                                            demoHead="1 Demo Free"
-                                            btnName="Enroll Now"
-                                            img="https://images.unsplash.com/photo-1521791136064-7986c2920216?q=80&w=1200&auto=format&fit=crop"
-                                            btnBgColor="bg-green-50 hover:bg-green-100"
-                                            btnTxtColor="text-green-700"
-                                        />
+
+                                        {
+                                            series
+                                                ?.filter(
+                                                    (item: any) =>
+                                                        item &&
+                                                        item._id &&
+                                                        item.n
+                                                )
+                                                .map((item: any) => (
+                                                    <div
+                                                        key={item._id}
+                                                        data-test-card
+                                                    >
+                                                        <TestCard
+                                                            access={item?.access}
+                                                            key={item._id}
+                                                            slug={item._id}
+                                                            board={item.tags?.[0] || "TEST"}
+                                                            liveName={
+                                                                item.demo
+                                                                    ? "Demo"
+                                                                    : "Live"
+                                                            }
+                                                            name={item.n}
+                                                            totalTest={`${item?.plans?.[0]?.allowedAttempt || 0} Attempts`}
+                                                            totalPrice={
+                                                                item?.plans?.[0]?.price
+                                                                    ? `₹${item.plans[0].price}`
+                                                                    : "₹0"
+                                                            }
+                                                            offerPrice={
+                                                                item?.plans?.[0]?.offerPrice
+                                                                    ? `₹${item.plans[0].offerPrice}`
+                                                                    : "₹0"
+                                                            }
+                                                            demoInfo={
+                                                                item.demo
+                                                                    ? "Free Demo Available"
+                                                                    : "Premium Test Series"
+                                                            }
+                                                            demoHead={
+                                                                item.demo
+                                                                    ? "Demo Free"
+                                                                    : "Premium"
+                                                            }
+                                                            btnName={
+                                                                item.demo
+                                                                    ? "Start Demo"
+                                                                    : "Buy Now"
+                                                            }
+                                                            img={item.i}
+                                                            btnBgColor="
+                bg-violet-50
+                hover:bg-violet-100
+            "
+                                                            btnTxtColor="
+                text-violet-700
+            "
+                                                        />
+                                                    </div>
+                                                ))
+                                        }
 
 
+                                        {
+                                            showSkeleton && (
+                                                <>
+                                                    <TestCardSkeleton count={3} />
+                                                </>
+                                            )
+                                        }
 
                                     </div>
+
                                     <StateCard
                                         states={[
                                             {

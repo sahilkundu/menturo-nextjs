@@ -5,6 +5,8 @@ import { useEffect, useState } from "react"
 import { useLayoutStore } from "../store/uiResStore"
 import Live from "./Live"
 import { useUserStore } from "../store/user"
+import { LOGOUT } from "../../../api"
+import { useWSChatStore } from "../store/wsChat"
 export default function RightSidebar() {
 
     const {
@@ -19,7 +21,11 @@ export default function RightSidebar() {
     const rightSidebarOpen = useLayoutStore(
         (state) => state.rightSidebarOpen
     )
-
+    const site =
+        useWSChatStore(
+            s => s.site
+        )
+    console.log(site)
     const setRightSidebarOpen = useLayoutStore(
         (state) => state.setRightSidebarOpen
     )
@@ -42,7 +48,7 @@ export default function RightSidebar() {
             // =========================
 
             await fetch(
-                "https://betaws.menturo.in/logout",
+                LOGOUT,
                 {
                     method: "POST",
 
@@ -100,42 +106,54 @@ export default function RightSidebar() {
             <div
                 id="profileBottomSheet"
                 className={`
-                    bg-white
-                    overflow-y-auto
-                    transform-gpu
-                    will-change-transform
+        bg-white
+        overflow-y-auto
+        transform-gpu
 
-                    ${head
+        ${head
                         ? `
-                            fixed
-                            left-0
-                            right-0
-                            bottom-0
-                            max-h-[66vh]
-                            z-[1002]
+                fixed
+                left-0
+                right-0
+                bottom-0
+                max-h-[66vh]
+                z-[1002]
 
-                            rounded-t-[30px]
+                rounded-t-[30px]
 
-                            shadow-[0_-10px_40px_rgba(0,0,0,0.18)]
-
-                            transition-all
-                            duration-500
-                            ease-[cubic-bezier(0.22,1,0.36,1)]
-
-                            ${mounted && rightSidebarOpen
-                            ? "translate-y-0 opacity-100"
-                            : "translate-y-full opacity-0"
-                        }
-                          `
+                shadow-[0_-10px_40px_rgba(0,0,0,0.18)]
+              `
                         : `
-                            relative
-                            h-screen
-                            w-full
-                            translate-y-0
-                            opacity-100
-                          `
+                relative
+                h-screen
+                w-full
+              `
                     }
-                `}
+    `}
+                style={{
+                    transform: head
+                        ? mounted && rightSidebarOpen
+                            ? "translateY(0) scale(1)"
+                            : "translateY(100%) scale(0.96)"
+                        : "translateY(0) scale(1)",
+
+                    opacity: head
+                        ? mounted && rightSidebarOpen
+                            ? 1
+                            : 0.92
+                        : 1,
+
+                    transition:
+                        "transform 850ms cubic-bezier(0.16,1,0.3,1), opacity 500ms ease",
+
+                    willChange: "transform, opacity",
+
+                    transformOrigin: "bottom center",
+
+                    backfaceVisibility: "hidden",
+
+                    WebkitFontSmoothing: "antialiased"
+                }}
             >
 
                 {/* HEADER */}
@@ -175,9 +193,9 @@ export default function RightSidebar() {
                             </div>
                         )}
 
-                        <h3 className="text-lg text-center md:text-xl font-semibold mt-2">
+                        <span className="text-lg text-center md:text-xl font-semibold mt-2">
                             Your Profile
-                        </h3>
+                        </span>
 
                         {head && (
                             <button
@@ -205,7 +223,7 @@ export default function RightSidebar() {
 
                     </div>}
 
-                <div className="p-1">
+                <div className="p-1 lg:-mt-4">
 
                     {/* PROFILE INFO */}
                     {!liveBubbleOpen &&
@@ -219,8 +237,15 @@ export default function RightSidebar() {
                                 />
                             </div>
 
-                            <h4 className="text-xl md:text-2xl font-bold mt-2">
-                                Good Morning {user?.username}
+                            <h4 className="text-sm md:text-base font-semibold mt-2">
+                                {new Date().getHours() < 12
+                                    ? "Good Morning"
+                                    : new Date().getHours() < 17
+                                        ? "Good Afternoon"
+                                        : new Date().getHours() < 21
+                                            ? "Good Evening"
+                                            : "Good Night"}{" "}
+                                {user?.username}
                             </h4>
 
                             <p className="text-sm md:text-base text-gray-500 mt-2 leading-6">
@@ -284,7 +309,7 @@ export default function RightSidebar() {
                                 </p>
 
                                 <h2 className="text-2xl md:text-3xl font-black text-violet-700">
-                                    260
+                                    {site?.totalUsers}
                                 </h2>
 
                             </div>
@@ -300,7 +325,7 @@ export default function RightSidebar() {
                                     <span className="w-3 h-3 rounded-full bg-green-500 animate-pulse"></span>
 
                                     <h2 className="text-2xl md:text-3xl font-black text-green-600">
-                                        26
+                                        {site.totalOnline}
                                     </h2>
 
                                 </div>

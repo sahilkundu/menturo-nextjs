@@ -1,5 +1,5 @@
 'use client'
-
+import { useWSChatStore } from "../store/wsChat"
 interface LiveProps {
     activeDot?: boolean
 }
@@ -8,26 +8,14 @@ export default function Live({
     activeDot = false
 }: LiveProps) {
 
-    const users = [
-        {
-            name: "Ravi Kumar",
-            role: "UI Designer",
-            img: 31,
-            active: true
-        },
-        {
-            name: "Akash Singh",
-            role: "Frontend Developer",
-            img: 18,
-            active: false
-        },
-        {
-            name: "Aman Deep",
-            role: "Student",
-            img: 41,
-            active: true
-        },
-    ]
+    const wsUsers =
+        useWSChatStore(
+            (state) =>
+                state.users
+        )
+
+    const users =
+        Object.values(wsUsers)
 
     return (
         <>
@@ -49,7 +37,7 @@ export default function Live({
                         </div>
 
                         <div className="px-3 py-1 rounded-full bg-green-100 text-green-700 text-xs md:text-sm font-medium">
-                            {users.filter(user => user.active).length} Online
+                            {users.filter(user => user.online).length} Online
                         </div>
 
                     </div>
@@ -93,7 +81,7 @@ export default function Live({
                                 />
 
                                 {/* ACTIVE DOT */}
-                                {activeDot && user.active && (
+                                {activeDot && user.online && (
                                     <span className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-green-500 border-2 border-white"></span>
                                 )}
 
@@ -102,11 +90,13 @@ export default function Live({
                             <div>
 
                                 <h4 className="text-sm md:text-base font-medium">
-                                    {user.name}
+                                    {user.username}
                                 </h4>
 
                                 <p className="text-xs md:text-sm text-gray-400">
-                                    {user.role}
+                                    {user.online
+                                        ? 'Online'
+                                        : 'Offline'}
                                 </p>
 
                             </div>
@@ -115,14 +105,14 @@ export default function Live({
 
                         <button
                             className={`text-xs md:text-sm px-3 py-2 rounded-full ${activeDot
-                                ? user.active
+                                ? user.online
                                     ? "bg-green-100 text-green-700"
                                     : "bg-gray-100 text-gray-500"
                                 : "bg-violet-100 text-violet-700"
                                 }`}
                         >
                             {activeDot
-                                ? user.active
+                                ? user.online
                                     ? "Active"
                                     : "Offline"
                                 : "Active"
@@ -139,7 +129,11 @@ export default function Live({
             {activeDot && (
                 <div className="mt-5 pt-4 border-t border-gray-100 text-center">
                     <p className="text-xs md:text-sm text-gray-400">
-                        {users.filter(user => user.active).length} students online
+                        {
+                            users.filter(
+                                user => user.online
+                            ).length
+                        } Student(s) online
                     </p>
                 </div>
             )}

@@ -1,6 +1,7 @@
 // shared/store/user.ts
 
 import { create } from "zustand"
+import { AUTH } from "../../../api"
 
 interface UserData {
     id: string
@@ -75,7 +76,7 @@ export const useUserStore =
 
                 const response =
                     await fetch(
-                        "https://betaws.menturo.in/auth",
+                        AUTH,
                         {
                             method: "POST",
 

@@ -5,6 +5,7 @@ import { useLayoutStore } from "../store/uiResStore"
 import { useUserStore } from "../store/user"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import Image from "next/image"
 
 
 
@@ -206,14 +207,35 @@ export default function Header() {
                             </div>}
 
                         <div
-                            className="w-12 h-12 rounded-2xl bg-white/15  backdrop-blur-xl border border-white/15 flex items-center justify-center text-white text-xl">
-                            🎓
+                            className="
+        w-12
+        h-12
+        rounded-2xl
+        bg-white/15
+        backdrop-blur-xl
+        border
+        border-white/15
+        flex
+        items-center
+        justify-center
+        shrink-0
+        p-1
+    "
+                        >
+                            <Image
+                                src="https://cdn.menturo.in/img/M3.png"
+                                alt="logo"
+                                width={40}
+                                height={40}
+                                loading="lazy"
+                                className="object-contain mx-auto"
+                            />
                         </div>
 
                         <div>
 
                             <h2 className="text-white text-xl font-bold">
-                                Mentor
+                                Menturo
                             </h2>
 
                             <p className="text-white/70 text-sm">
@@ -227,17 +249,7 @@ export default function Header() {
                     {/* <!-- RIGHT (ADDED mobile profile trigger) --> */}
                     <div className="flex items-center gap-3 flex-wrap">
 
-                        {/* <!-- SEARCH --> */}
-                        <div className="relative">
 
-                            <input type="text" placeholder="Search courses..."
-                                className="w-[170px] lg:w-[320px] h-11 rounded-full bg-white/15  backdrop-blur-xl border border-white/15 pl-11 pr-4 text-white placeholder:text-white/60 outline-none" />
-
-                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white">
-                                🔍
-                            </span>
-
-                        </div>
 
                         {/* <!-- MODE --> */}
 
@@ -311,84 +323,84 @@ export default function Header() {
                         Good Morning 👋
                     </p>
 
-                    <h3 id="welcomeUser" className="text-white text-3xl lg:text-4xl font-black leading-tight">
+                    <h3 id="welcomeUser" className="text-white text-1xl lg:text-1xl font-black leading-tight">
                         Welcome Back,  {user?.username}
                     </h3>
 
-                    <p className="text-white/70 mt-2 leading-7 max-w-[650px]">
+                    {/* <p className="text-white/70 mt-2 leading-7 max-w-[650px]">
                         Manage students, online courses, mentors, analytics and performance from one modern
                         dashboard.
-                    </p>
+                    </p> */}
 
                 </div>
 
                 {/* <!-- STATS --> */}
-        <div className="grid grid-cols-2 xl:grid-cols-4 gap-2 mt-2 auto-rows-min w-full">
+                <div className="grid grid-cols-2 xl:grid-cols-4 gap-2 mt-2 auto-rows-min w-full">
 
-    {/* <!-- CARD --> */}
-    <div className="bg-white/15 backdrop-blur-xl border border-white/15 rounded-2xl p-2.5 text-white h-fit">
+                    {/* <!-- CARD --> */}
+                    <div className="bg-white/15 backdrop-blur-xl border border-white/15 rounded-2xl p-2.5 text-white h-fit">
 
-        <p className="text-[11px] text-white/70 mb-1 font-normal">
-            Students
-        </p>
+                        <p className="text-[11px] text-white/70 mb-1 font-normal">
+                            Students
+                        </p>
 
-        <div className="flex items-center justify-between">
+                        <div className="flex items-center justify-between">
 
-            <h2 className="text-lg font-normal">
-                2,635
-            </h2>
+                            <h2 className="text-lg font-normal">
+                                2,635
+                            </h2>
 
-            <button className="w-6 h-6 rounded-full bg-white text-black text-xs font-normal">
-                ↗
-            </button>
+                            <button className="w-6 h-6 rounded-full bg-white text-black text-xs font-normal">
+                                ↗
+                            </button>
 
-        </div>
+                        </div>
 
-    </div>
+                    </div>
 
-    {/* <!-- CARD --> */}
-    <div className="bg-white/15 backdrop-blur-xl border border-white/15 rounded-2xl p-2.5 text-white h-fit">
+                    {/* <!-- CARD --> */}
+                    <div className="bg-white/15 backdrop-blur-xl border border-white/15 rounded-2xl p-2.5 text-white h-fit">
 
-        <p className="text-[11px] text-white/70 mb-1 font-normal">
-            Teachers
-        </p>
+                        <p className="text-[11px] text-white/70 mb-1 font-normal">
+                            Teachers
+                        </p>
 
-        <div className="flex items-center justify-between">
+                        <div className="flex items-center justify-between">
 
-            <h2 className="text-lg font-normal">
-                29
-            </h2>
+                            <h2 className="text-lg font-normal">
+                                29
+                            </h2>
 
-            <button className="w-6 h-6 rounded-full bg-white text-black text-xs font-normal">
-                ↗
-            </button>
+                            <button className="w-6 h-6 rounded-full bg-white text-black text-xs font-normal">
+                                ↗
+                            </button>
 
-        </div>
+                        </div>
 
-    </div>
+                    </div>
 
-    {/* <!-- CARD --> */}
-    <div className="bg-[#ebf46d] rounded-2xl p-2.5 h-fit">
+                    {/* <!-- CARD --> */}
+                    <div className="bg-[#ebf46d] rounded-2xl p-2.5 h-fit">
 
-        <p className="text-[11px] font-normal mb-2">
-            Add Members
-        </p>
+                        <p className="text-[11px] font-normal mb-2">
+                            Add Members
+                        </p>
 
-        <div className="flex gap-1.5 flex-wrap">
+                        <div className="flex gap-1.5 flex-wrap">
 
-            <button className="bg-white px-2 py-1 rounded-lg text-[11px] font-normal">
-                + Student
-            </button>
+                            <button className="bg-white px-2 py-1 rounded-lg text-[11px] font-normal">
+                                + Student
+                            </button>
 
-            <button className="bg-white px-2 py-1 rounded-lg text-[11px] font-normal">
-                + Courses
-            </button>
+                            <button className="bg-white px-2 py-1 rounded-lg text-[11px] font-normal">
+                                + Courses
+                            </button>
 
-        </div>
+                        </div>
 
-    </div>
+                    </div>
 
-</div>
+                </div>
 
             </div>
 

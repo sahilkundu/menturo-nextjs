@@ -1,6 +1,12 @@
 'use client'
+import { useRouter } from "next/navigation"
+import Image from "next/image"
+import { useState } from "react"
+import Spinner from "./Spinner"
 
 interface TestCardProps {
+    accees?: any
+    slug?: string
     board?: string
     liveName?: string
     name?: string
@@ -16,22 +22,130 @@ interface TestCardProps {
 }
 
 export default function TestCard({
-
-    board = "SSC",
-    liveName = "Live",
-    name = "SSC CGL Titan Test Series",
-    totalTest = "140+ Mocks",
-    totalPrice = "₹899",
-    offerPrice = "₹299",
-    demoInfo = "1 Free Demo Mock",
-    demoHead = "1 Demo Free",
-    btnName = "Start Free Trial",
-    img = "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?q=80&w=1200&auto=format&fit=crop",
-
+    access,
+    slug,
+    board,
+    liveName,
+    name,
+    totalTest,
+    totalPrice,
+    offerPrice,
+    demoInfo,
+    demoHead,
+    btnName,
+    img,
     btnBgColor = "bg-violet-50",
     btnTxtColor = "text-violet-700"
 
 }: TestCardProps) {
+    const router = useRouter()
+    console.log(access)
+    const isFreeAccess = access?.isFree
+    const demoTests = access?.demoTest?.length
+    const isPaid = access?.isPaid
+    const isExpired = access?.isExpired
+    const [loading, setLoading] =
+        useState(false)
+    const formatTimestamp = (
+        timestamp: number
+    ) => {
+        if (!timestamp) return null
+        return new Intl.DateTimeFormat(
+            navigator.language,
+            {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+                hour: "numeric",
+                minute: "2-digit",
+                second: "2-digit",
+                hour12: true,
+            }
+        ).format(new Date(timestamp));
+    };
+    const date =
+        formatTimestamp(
+            access?.validity?.to
+        );
+    if (isPaid) {
+
+        // =========================================
+        // PAID + EXPIRED
+        // =========================================
+
+        if (isExpired) {
+
+            if (isFreeAccess) {
+                demoInfo =
+                    `Series expired on ${date} but special free access for you`;
+
+                btnName =
+                    `Attempt Tests`;
+            }
+            else {
+                demoInfo =
+                    `Series expired on ${date}`;
+            }
+        }
+
+        // =========================================
+        // PAID + NOT EXPIRED
+        // =========================================
+
+        else {
+
+            demoInfo =
+                `Series valid till ${date}`;
+
+            btnName =
+                `Attempt Tests`;
+        }
+    }
+
+    else {
+
+        // =========================================
+        // NOT PAID + EXPIRED
+        // =========================================
+
+        if (isExpired) {
+
+            if (isFreeAccess) {
+
+                demoInfo =
+                    `Series expired on ${date} but special free access for you`;
+
+                btnName =
+                    `Attempt Tests`;
+            }
+            else {
+
+                demoInfo =
+                    `Series expired on ${date}`;
+            }
+        }
+
+        // =========================================
+        // NOT PAID + NOT EXPIRED
+        // =========================================
+
+        else {
+
+            // ONLY CHECK FREE ACCESS HERE
+
+            if (isFreeAccess) {
+
+                demoInfo =
+                    `Special free access for you`;
+
+                btnName =
+                    `Attempt Tests`;
+            }
+
+            // ALL FALSE
+            // DO NOTHING
+        }
+    }
 
     return (
         <>
@@ -40,6 +154,7 @@ export default function TestCard({
                 className="
                     min-w-[240px]
                     max-w-[240px]
+                    flex-shrink-0
                     rounded-[28px]
                     overflow-hidden
                     border
@@ -57,34 +172,71 @@ export default function TestCard({
                 {/* IMAGE */}
                 <div className="relative">
 
-                    <img
+                    {/* <img
                         src={img}
                         className="w-full h-[130px] object-cover"
+                    /> */}
+                    <Image
+                        src={img}
+                        alt={name}
+                        width={240}
+                        height={130}
+                        loading="lazy"
+                        className="
+        w-full
+        h-[130px]
+        object-contain
+        bg-white
+    "
                     />
 
                     <div
-                        className="
-                            absolute
-                            top-2
-                            left-2
-                            bg-gradient-to-r
-                            from-amber-400
-                            to-orange-500
-                            text-white
-                            text-[10px]
-                            font-bold
-                            px-2
-                            py-1
-                            rounded-full
-                            shadow-md
-                            flex
-                            items-center
-                            gap-1
-                        "
+                        className={`
+        absolute
+        top-2
+        left-2
+        text-white
+        text-[10px]
+        font-bold
+        px-2
+        py-1
+        rounded-full
+        shadow-md
+        flex
+        items-center
+        gap-1
+
+        ${(
+                                (isPaid && !isExpired) ||
+                                (isPaid && isExpired && isFreeAccess) ||
+                                (!isPaid && isFreeAccess)
+                            )
+                                ? "bg-gradient-to-r from-green-500 to-emerald-600"
+
+                                : (
+                                    isExpired
+                                        ? "bg-gradient-to-r from-red-500 to-rose-600"
+                                        : "bg-gradient-to-r from-amber-400 to-orange-500"
+                                )
+                            }
+    `}
                     >
                         <i className="fas fa-gift text-[9px]"></i>
 
-                        {demoHead}
+                        {
+                            (
+                                (isPaid && !isExpired) ||
+                                (isPaid && isExpired && isFreeAccess) ||
+                                (!isPaid && isFreeAccess)
+                            )
+                                ? "Full Access"
+
+                                : (
+                                    isExpired
+                                        ? "Expired"
+                                        : demoHead
+                                )
+                        }
                     </div>
 
                 </div>
@@ -109,7 +261,7 @@ export default function TestCard({
                             {board}
                         </p>
 
-                        <span
+                        {/* <span
                             className={`
         text-[10px]
         px-2
@@ -118,12 +270,36 @@ export default function TestCard({
         font-semibold
         transition
 
-        ${btnBgColor.replace("hover:", "")}
-        ${btnTxtColor}
+        ${(
+                                    (isPaid && !isExpired) ||
+                                    (isPaid && isExpired && isFreeAccess) ||
+                                    (!isPaid && isFreeAccess)
+                                )
+                                    ? "bg-green-500 text-white"
+
+                                    : (
+                                        isExpired
+                                            ? "bg-red-500 text-white"
+                                            : `${btnBgColor.replace("hover:", "")} ${btnTxtColor}`
+                                    )
+                                }
     `}
                         >
-                            {liveName}
-                        </span>
+                            {
+                                (
+                                    (isPaid && !isExpired) ||
+                                    (isPaid && isExpired && isFreeAccess) ||
+                                    (!isPaid && isFreeAccess)
+                                )
+                                    ? "Full Access"
+
+                                    : (
+                                        isExpired
+                                            ? "Expired"
+                                            : liveName
+                                    )
+                            }
+                        </span> */}
 
                     </div>
 
@@ -141,7 +317,8 @@ export default function TestCard({
                     </h3>
 
                     {/* PRICE */}
-                    <div className="flex items-center justify-between mb-2">
+
+                    {/* <div className="flex items-center justify-between mb-2">
 
                         <p className="text-xs text-gray-400">
                             <i className="far fa-file-alt"></i> {totalTest}
@@ -166,7 +343,46 @@ export default function TestCard({
 
                         </div>
 
-                    </div>
+                    </div> */}
+                    {/* PRICE */}
+                    {
+                        (
+                            !isPaid && !isFreeAccess
+                        ) ||
+                            (
+                                isPaid &&
+                                isExpired &&
+                                !isFreeAccess
+                            )
+                            ? (
+                                <div className="flex items-center justify-between mb-2">
+
+                                    <p className="text-xs text-gray-400">
+                                        <i className="far fa-file-alt"></i> {totalTest}
+                                    </p>
+
+                                    <div className="flex items-center gap-1">
+
+                                        <span className="text-gray-400 line-through text-[11px]">
+                                            {totalPrice}
+                                        </span>
+
+                                        <h4
+                                            className={`
+                            font-black
+                            text-lg
+                            ${btnTxtColor}
+                        `}
+                                        >
+                                            {offerPrice}
+                                        </h4>
+
+                                    </div>
+
+                                </div>
+                            )
+                            : null
+                    }
 
                     {/* DEMO */}
                     <div className="flex items-center gap-1 mt-1 mb-3">
@@ -197,15 +413,35 @@ export default function TestCard({
                             ${btnBgColor}
                             ${btnTxtColor}
                         `}
+                        onClick={() => {
+
+                            setLoading(true)
+
+                            router.push(`/${slug}`)
+                        }}
                     >
                         <i className="fas fa-bolt"></i>
 
-                        {btnName}
+                        {
+                            loading
+                                ? (
+                                    <Spinner
+                                        size={16}
+                                    />
+                                )
+                                : (
+                                    <>
+                                        <i className="fas fa-bolt"></i>
+
+                                        {btnName}
+                                    </>
+                                )
+                        }
                     </button>
 
                 </div>
 
-            </div>
+            </div >
 
         </>
     )

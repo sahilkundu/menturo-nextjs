@@ -50,7 +50,7 @@ export default function StateCard({
             <div className="mt-10">
 
                 {/* TOP */}
-                <div className="flex flex-col lg:flex-row gap-4 justify-between lg:items-center mb-5">
+                <div className="flex flex-col lg:flex-row gap-4 justify-between lg:items-center mb-3">
 
                     <div>
 
@@ -129,7 +129,7 @@ export default function StateCard({
         px-4
         py-4
 
-        min-h-[170px]
+        md:min-h-[170px]
 
         transition-all
         duration-300
@@ -140,7 +140,7 @@ export default function StateCard({
                             >
 
                                 {/* TOP */}
-                                <div className="flex items-center justify-between mb-5">
+                                <div className="flex items-center justify-between mb-3">
 
                                     <span
                                         className={`
@@ -170,7 +170,7 @@ export default function StateCard({
                                 </div>
 
                                 {/* TITLE */}
-                                <h3 className="text-[15px] font-black text-gray-900 leading-9 mb-2">
+                                <h3 className="text-[14px] font-black text-gray-900 leading-9 mb-1">
 
                                     {exam.title}
 
@@ -186,17 +186,17 @@ export default function StateCard({
                                 {/* BUTTON */}
                                 <button
                                     className={`
-                                        w-full
-                                        h-12
-                                        rounded-2xl
-                                        text-white
-                                        font-bold
-                                        transition
-                                        cursor-pointer
+        w-full
+        h-8
+        rounded-2xl
+        text-white
+        text-sm
+        transition
+        cursor-pointer
 
-                                        ${exam.btnBg}
-                                        ${exam.btnHover}
-                                    `}
+        ${exam.btnBg}
+        ${exam.btnHover}
+    `}
                                 >
                                     {exam.btnText || "Apply Now"}
                                 </button>

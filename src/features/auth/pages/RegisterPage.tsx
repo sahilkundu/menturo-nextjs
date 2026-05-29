@@ -15,6 +15,7 @@ import {
 import { useRegistrationStore } from '../../../shared/store/createAccountStore'
 import LoginExtraFeatures from '../../../shared/components/LoginExtraFeatures'
 import { useUserStore } from '../../../shared/store/user'
+import { REGISTER } from '../../../../api'
 
 // =========================
 // VALIDATIONS
@@ -229,7 +230,7 @@ export default function Register() {
     ) {
 
         const response = await fetch(
-            'https://betaws.menturo.in/signup',
+            REGISTER,
             {
                 method: 'POST',
 
@@ -279,17 +280,20 @@ export default function Register() {
             .getState()
             .setUser(data.user)
         // wait 2 sec
+
         setTimeout(() => {
 
-            router.replace("/")
+            router.replace(
+                decodeURIComponent(
+                    data.redirect || "/"
+                )
+            )
 
         }, 2000)
-
         // =========================
         // Redirect Home
         // =========================
 
-        router.replace("/")
 
         return {
             success: true,
@@ -551,10 +555,9 @@ export default function Register() {
         { value: "bihar", label: "Bihar" },
         { value: "rajasthan", label: "Rajasthan" }
     ]
-
     return (
 
-        <div className="min-h-screen flex items-center justify-center p-5 relative overflow-hidden bg-gradient-to-br from-[#0f0c29] via-[#302b63] to-[#24243e]">
+        <div className="min-h-screen w-full bg-gradient-to-br from-[#0f0c29] via-[#302b63] to-[#24243e] relative">
 
             {/* PARTICLES */}
 
@@ -563,234 +566,120 @@ export default function Register() {
                 className="fixed inset-0 z-0"
             />
 
-            {/* MAIN CARD */}
+            {/* WRAPPER */}
 
-<div className="relative z-10 w-[850px] max-w-[95%] h-[90vh] rounded-[28px] overflow-y-auto shadow-[0_25px_70px_rgba(0,0,0,0.40)] bg-white flex flex-col lg:flex-row">                {/* LEFT PANEL */}
+            <div
+                className="
+                relative
+                z-10
+                w-full
+                min-h-screen
 
-                <div className="hidden lg:flex w-1/2 bg-gradient-to-br from-[#6a11cb] via-[#5b2be0] to-[#3f51f5] relative items-center justify-center px-10">
+                flex
+                justify-center
+                items-center
 
-                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.12),transparent_40%)]" />
+                px-4
+                sm:px-6
+                lg:px-8
+                py-8
+                sm:py-10
+            "
+            >
 
-                    <div className="relative z-10 text-center">
+                {/* CARD */}
 
-                        <h2 className="text-white text-[24px] leading-tight font-bold mb-3">
-                            Ready to Achieve?
-                        </h2>
+                <div
+                    className="
+        w-full
+        max-w-[1000px]
 
-                        <p className="text-white/90 text-[13px] leading-6 max-w-[280px] mx-auto mb-7">
-                            Login to continue your success journey
-                            with HSSC, HPSC, SSC & top exams.
-                        </p>
+        mx-2
+        sm:mx-0
+        
+        bg-white
 
-                        <Link href="/login">
+        shadow-[0_25px_70px_rgba(0,0,0,0.40)]
 
-                            <button className="border border-white text-white rounded-full px-8 py-2 text-sm font-semibold transition-all duration-300 hover:bg-white hover:text-[#5b2be0]">
-                                Sign In
-                            </button>
+        flex
+        flex-col
+        md:flex-row
 
-                        </Link>
+        rounded-2xl
+        lg:rounded-[28px]
 
-                    </div>
+        overflow-hidden
+        
+        max-h-[90vh]
+        md:max-h-[85vh]
+        overflow-y-auto
+    "
+                >
 
-                </div>
+                    {/* LEFT SIDE */}
 
-                {/* RIGHT PANEL */}
+                    <div
+                        className="
+                        hidden
+                        md:flex
 
-                <div className="w-full lg:w-1/2 bg-[#f7f7f7] flex items-center justify-center px-6 sm:px-8 py-8">
+                        md:w-1/2
 
-                    <form
-                        onSubmit={handleRegister}
-                        className="w-full max-w-[390px]"
+                        md:min-h-full
+                        md:sticky
+                        md:top-0
+
+                        bg-gradient-to-br
+                        from-[#6a11cb]
+                        via-[#5b2be0]
+                        to-[#3f51f5]
+
+                        relative
+
+                        items-center
+                        justify-center
+
+                        px-10
+                        py-12
+                    "
                     >
 
-                        {/* TITLE */}
+                        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.12),transparent_40%)]" />
 
-                        <h1 className="text-[28px] font-bold text-center text-[#424750] leading-none mb-6">
-                            Create Account
-                        </h1>
+                        <div className="relative z-10 text-center">
 
-                        {/* GOOGLE */}
+                            <h2 className="text-white text-[32px] font-bold mb-4">
+                                Ready to Achieve?
+                            </h2>
 
-
-
-                        {/* DIVIDER */}
-
-
-
-
-                        {/* FORM */}
-
-                        <div className="space-y-1">
-
-                            {/* ROW 1 */}
-
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-
-                                <Input
-                                    type="text"
-                                    name="username"
-                                    placeholder="Username"
-                                    value={regForm.username}
-                                    onChange={(e) =>
-                                        setRegField(
-                                            'username',
-                                            e.target.value
-                                        )
-                                    }
-                                />
-
-                                <Input
-                                    type="email"
-                                    name="email"
-                                    placeholder="Email Address"
-                                    value={regForm.email}
-                                    onChange={(e) =>
-                                        setRegField(
-                                            'email',
-                                            e.target.value
-                                        )
-                                    }
-                                />
-
-                            </div>
-
-                            {/* ROW 2 */}
-                            {/* ROW 2 */}
-
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-
-                                {/* MOBILE */}
-
-                                <Input
-                                    type="tel"
-                                    name="mobile"
-                                    placeholder="Mobile Number"
-                                    value={regForm.mobile}
-                                    onChange={(e) =>
-                                        setRegField(
-                                            'mobile',
-                                            e.target.value
-                                        )
-                                    }
-                                />
-
-                                {/* STATE */}
-
-                                <div className="relative ml-2">
-
-                                    <select
-                                        value={regForm.state}
-                                        onChange={(e) =>
-                                            setRegField(
-                                                'state',
-                                                e.target.value
-                                            )
-                                        }
-                                        className={`
-                w-full
-                h-[38px]
-
-                bg-[#f8fafc]
-                border
-                border-[#e2e8f0]
-
-                rounded-2xl
-                outline-none
-
-                text-sm
-                text-[#444]
-
-                transition-all
-                duration-300
-                ease-out
-
-                focus:border-[#6a11cb]
-                focus:bg-white
-                focus:shadow-[0_0_0_3px_rgba(106,17,203,0.08)]
-
-                pl-4
-                pr-4
-
-                appearance-none
-               
-                
-
-                my-2
-            `}
-                                    >
-
-                                        {states.map((state) => (
-
-                                            <option
-                                                key={state.value}
-                                                value={state.value}
-                                            >
-                                                {state.label}
-                                            </option>
-
-                                        ))}
-
-                                    </select>
-
-                                </div>
-
-                            </div>
-                            {/* PASSWORD */}
-
-                            <Input
-                                type="password"
-                                name="password"
-                                placeholder="Password"
-                                value={regForm.password}
-                                onChange={(e) =>
-                                    setRegField(
-                                        'password',
-                                        e.target.value
-                                    )
-                                }
-                            />
-
-                            {/* CONFIRM PASSWORD */}
-
-                            <Input
-                                type="password"
-                                name="confirmPassword"
-                                placeholder="Confirm Password"
-                                value={regForm.confirmPassword}
-                                onChange={(e) =>
-                                    setRegField(
-                                        'confirmPassword',
-                                        e.target.value
-                                    )
-                                }
-                            />
-
-                        </div>
-
-                        {/* BUTTON */}
-
-                        <button
-                            type="submit"
-                            disabled={isLoading}
-                            className="mt-6 w-full h-[38px] rounded-full bg-gradient-to-r from-[#6a11cb] to-[#2575fc] text-white text-[13px] font-semibold tracking-wide shadow-lg hover:scale-[1.01] transition-all duration-300"
-                        >
-
-                            {isLoading
-                                ? "Creating Account..."
-                                : "SIGN UP 🚀"}
-
-                        </button>
-                        <div className="flex items-center justify-center gap-2 mt-2">
-
-                            <p className="text-[13px] text-[#666]">
-                                Already have an account?
+                            <p className="text-white/90 text-[15px] leading-7 max-w-[320px] mx-auto mb-8">
+                                Login to continue your success journey
+                                with HSSC, HPSC, SSC & top exams.
                             </p>
 
                             <Link href="/login">
 
                                 <button
-                                    type="button"
-                                    className="text-[13px] font-semibold text-[#6a11cb] cursor-pointer"
+                                    className="
+                                    border
+                                    border-white
+
+                                    text-white
+
+                                    rounded-full
+
+                                    px-8
+                                    py-2.5
+
+                                    text-sm
+                                    font-semibold
+
+                                    transition-all
+                                    duration-300
+
+                                    hover:bg-white
+                                    hover:text-[#5b2be0]
+                                "
                                 >
                                     Sign In
                                 </button>
@@ -798,14 +687,251 @@ export default function Register() {
                             </Link>
 
                         </div>
-                        <div className="flex items-center gap-1">
 
-                            <LoginExtraFeatures />
+                    </div>
+
+                    {/* RIGHT SIDE */}
+
+                    <div
+                        className="
+                        w-full
+                        md:w-1/2
+
+                        bg-[#f7f7f7]
+                    "
+                    >
+
+                        <div
+                            className="
+                            w-full
+
+                            flex
+                            items-center
+                            justify-center
+
+                            px-5
+                            sm:px-8
+
+                            py-8
+                            sm:py-10
+                        "
+                        >
+
+                            <form
+                                onSubmit={handleRegister}
+                                className="w-full max-w-[390px]"
+                            >
+
+                                {/* TITLE */}
+
+                                <h1 className="text-[34px] font-bold text-center text-[#424750] mb-8">
+                                    Create Account
+                                </h1>
+
+                                {/* FORM */}
+
+                                <div className="space-y-3">
+
+                                    {/* ROW 1 */}
+
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+
+                                        <Input
+                                            type="text"
+                                            name="username"
+                                            placeholder="Username"
+                                            value={regForm.username}
+                                            onChange={(e) =>
+                                                setRegField(
+                                                    'username',
+                                                    e.target.value
+                                                )
+                                            }
+                                        />
+
+                                        <Input
+                                            type="email"
+                                            name="email"
+                                            placeholder="Email Address"
+                                            value={regForm.email}
+                                            onChange={(e) =>
+                                                setRegField(
+                                                    'email',
+                                                    e.target.value
+                                                )
+                                            }
+                                        />
+
+                                    </div>
+
+                                    {/* ROW 2 */}
+
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+
+                                        <Input
+                                            type="tel"
+                                            name="mobile"
+                                            placeholder="Mobile Number"
+                                            value={regForm.mobile}
+                                            onChange={(e) =>
+                                                setRegField(
+                                                    'mobile',
+                                                    e.target.value
+                                                )
+                                            }
+                                        />
+
+                                        <select
+                                            value={regForm.state}
+                                            onChange={(e) =>
+                                                setRegField(
+                                                    'state',
+                                                    e.target.value
+                                                )
+                                            }
+                                            className="
+                                            w-full
+                                            h-[44px]
+
+                                            bg-[#f8fafc]
+
+                                            border
+                                            border-[#dbe2ea]
+
+                                            rounded-2xl
+
+                                            px-4
+
+                                            text-sm
+                                            text-[#444]
+
+                                            outline-none
+
+                                            transition-all
+                                            duration-300
+
+                                            focus:border-[#6a11cb]
+                                            focus:bg-white
+                                            focus:shadow-[0_0_0_3px_rgba(106,17,203,0.08)]
+                                        "
+                                        >
+
+                                            {states.map((state) => (
+
+                                                <option
+                                                    key={state.value}
+                                                    value={state.value}
+                                                >
+                                                    {state.label}
+                                                </option>
+
+                                            ))}
+
+                                        </select>
+
+                                    </div>
+
+                                    {/* PASSWORD */}
+
+                                    <Input
+                                        type="password"
+                                        name="password"
+                                        placeholder="Password"
+                                        value={regForm.password}
+                                        onChange={(e) =>
+                                            setRegField(
+                                                'password',
+                                                e.target.value
+                                            )
+                                        }
+                                    />
+
+                                    {/* CONFIRM PASSWORD */}
+
+                                    <Input
+                                        type="password"
+                                        name="confirmPassword"
+                                        placeholder="Confirm Password"
+                                        value={regForm.confirmPassword}
+                                        onChange={(e) =>
+                                            setRegField(
+                                                'confirmPassword',
+                                                e.target.value
+                                            )
+                                        }
+                                    />
+
+                                </div>
+
+                                {/* BUTTON */}
+
+                                <button
+                                    type="submit"
+                                    disabled={isLoading}
+                                    className="
+                                    mt-7
+                                    w-full
+                                    h-[46px]
+
+                                    rounded-full
+
+                                    bg-gradient-to-r
+                                    from-[#6a11cb]
+                                    to-[#2575fc]
+
+                                    text-white
+                                    text-[14px]
+                                    font-semibold
+
+                                    shadow-lg
+
+                                    hover:scale-[1.01]
+
+                                    transition-all
+                                    duration-300
+                                "
+                                >
+
+                                    {isLoading
+                                        ? "Creating Account..."
+                                        : "SIGN UP 🚀"}
+
+                                </button>
+
+                                {/* LOGIN */}
+
+                                <div className="flex items-center justify-center gap-2 mt-4">
+
+                                    <p className="text-[13px] text-[#666]">
+                                        Already have an account?
+                                    </p>
+
+                                    <Link href="/login">
+
+                                        <button
+                                            type="button"
+                                            className="text-[13px] font-semibold text-[#6a11cb]"
+                                        >
+                                            Sign In
+                                        </button>
+
+                                    </Link>
+
+                                </div>
+
+                                {/* EXTRA FEATURES */}
+
+                                <div className="mt-5">
+
+                                    <LoginExtraFeatures />
+
+                                </div>
+
+                            </form>
+
                         </div>
-                        {/* MOBILE LOGIN */}
 
-
-                    </form>
+                    </div>
 
                 </div>
 
