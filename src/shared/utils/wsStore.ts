@@ -324,6 +324,15 @@ export const useWSStore =
 
                                     return
                                 }
+                                //if site status event
+                                if (data.event === "site-stats") {
+
+                                    useWSChatStore
+                                        .getState()
+                                        .setSiteStats(
+                                            data.stats
+                                        )
+                                }
 
                                 // =========================
                                 // USER ONLINE STATUS

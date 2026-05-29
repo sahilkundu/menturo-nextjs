@@ -6,6 +6,7 @@ import { useLayoutStore } from "../store/uiResStore"
 import Live from "./Live"
 import { useUserStore } from "../store/user"
 import { LOGOUT } from "../../../api"
+import { useWSChatStore } from "../store/wsChat"
 export default function RightSidebar() {
 
     const {
@@ -20,7 +21,10 @@ export default function RightSidebar() {
     const rightSidebarOpen = useLayoutStore(
         (state) => state.rightSidebarOpen
     )
-
+    const site =
+        useWSChatStore(
+            s => s.site
+        )
     const setRightSidebarOpen = useLayoutStore(
         (state) => state.setRightSidebarOpen
     )
@@ -300,11 +304,11 @@ export default function RightSidebar() {
                             <div className="rounded-2xl bg-violet-50 p-4">
 
                                 <p className="text-xs md:text-sm text-gray-500 mb-2">
-                                    Total Users
+                                    {site?.totalUsers}
                                 </p>
 
                                 <h2 className="text-2xl md:text-3xl font-black text-violet-700">
-                                    260
+                                    {site?.totalOnline}
                                 </h2>
 
                             </div>

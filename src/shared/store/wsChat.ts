@@ -14,6 +14,12 @@ export type OnlineUser = {
 
     connections: number
 }
+export type SiteUser = {
+
+    totalUsers: string | number
+
+    totalOnline: string | number
+}
 
 interface WSChatStore {
 
@@ -25,11 +31,14 @@ interface WSChatStore {
         string,
         OnlineUser
     >
+    site: SiteUser
 
     // ====================================
     // SET USER STATUS
     // ====================================
-
+    setSiteStats: (
+        data: SiteUser
+    ) => void
     setUserStatus: (
         data: OnlineUser
     ) => void
@@ -64,6 +73,21 @@ export const useWSChatStore =
             // ====================================
 
             users: {},
+            site: {
+
+                totalUsers: 0,
+
+                totalOnline: 0
+            },
+            setSiteStats:
+                (
+                    data
+                ) =>
+
+                    set({
+
+                        site: data
+                    }),
 
             // ====================================
             // SET USER STATUS
@@ -127,7 +151,14 @@ export const useWSChatStore =
 
                     set({
 
-                        users: {}
+                        users: {},
+                        site: {
+
+                            totalUsers: 0,
+
+                            totalOnline: 0
+                        }
                     })
+
         })
     )
