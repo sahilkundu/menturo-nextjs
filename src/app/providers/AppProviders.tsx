@@ -7,6 +7,8 @@ import { ThemeProvider } from "./ThemeProvider"
 import { useWSStore } from "../../shared/utils/wsStore"
 
 import { useUserStore } from "../../shared/store/user"
+import { useWSChatStore } from "../../shared/store/wsChat"
+import { SITE_STATUS } from "../../../api"
 
 interface Props {
     children: ReactNode
@@ -24,6 +26,40 @@ export default function AppProviders({
         user,
         authenticated
     } = useUserStore()
+
+
+
+    setInterval(async () => {
+
+        try {
+            const res =
+                await fetch(
+                    SITE_STATUS
+                )
+
+            const data =
+                await res.json()
+
+            if (
+                data.success
+            ) {
+                useWSChatStore
+                    .getState()
+                    .setSiteStats({
+
+                        totalUsers:
+                            data.totalUsers,
+
+                        totalOnline:
+                            data.totalOnline
+                    })
+            }
+        }
+        catch (err) {
+            console.log(err)
+        }
+
+    }, 10000)
 
     // =====================================
     // CONNECT WS
