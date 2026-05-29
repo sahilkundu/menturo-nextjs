@@ -9,6 +9,7 @@ import { useWSStore } from "../../shared/utils/wsStore"
 import { useUserStore } from "../../shared/store/user"
 import { useWSChatStore } from "../../shared/store/wsChat"
 import { SITE_STATUS } from "../../../api"
+import { useRouter } from "next/navigation"
 
 interface Props {
     children: ReactNode
@@ -17,7 +18,7 @@ interface Props {
 export default function AppProviders({
     children
 }: Props) {
-
+    const router = useRouter()
     // =====================================
     // USER
     // =====================================
@@ -85,6 +86,61 @@ export default function AppProviders({
             clearInterval(interval)
 
     }, [])
+    useEffect(() => {
+
+        const originalFetch =
+            window.fetch
+
+        window.fetch = async (
+            input: RequestInfo | URL,
+            init?: RequestInit
+        ) => {
+
+            const response =
+                await originalFetch(
+                    input,
+                    {
+                        credentials: "include",
+                        ...init
+                    }
+                )
+
+            try {
+
+                const cloned =
+                    response.clone()
+
+                const data =
+                    await cloned.json()
+
+                // =====================================
+                // GLOBAL REDIRECT
+                // =====================================
+
+                if (
+                    data &&
+                    typeof data === "object" &&
+                    "redirect" in data &&
+                    typeof data.redirect === "string"
+                ) {
+
+                    router.push(
+                        data.redirect
+                    )
+                }
+
+            } catch (_) { }
+
+            return response
+        }
+
+        return () => {
+
+            window.fetch =
+                originalFetch
+        }
+
+    }, [router])
     // =====================================
     // CONNECT WS
     // =====================================
