@@ -328,7 +328,30 @@ export const useWSStore =
                                 // =========================
                                 // USER ONLINE STATUS
                                 // =========================
+                                if (
+                                    data.event ===
+                                    'online-users'
+                                ) {
 
+                                    const wsChat =
+                                        useWSChatStore.getState()
+
+                                    for (const user of data.users) {
+
+                                        wsChat.setUserStatus({
+
+                                            username:
+                                                user.username,
+
+                                            online: true,
+
+                                            connections:
+                                                user.connections || 1
+                                        })
+                                    }
+
+                                    return
+                                }
                                 if (
                                     data.event ===
                                     'user-online-status'
