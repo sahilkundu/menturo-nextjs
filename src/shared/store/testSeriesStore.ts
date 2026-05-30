@@ -116,8 +116,7 @@ interface Store {
     ) => Promise<void>
 
     fetchSingleSeries: (
-        seriesId: string,
-        userId?: string | null
+        seriesId: string
     ) => Promise<any | null>
 
     // TESTS
@@ -487,66 +486,86 @@ export const useTestSeriesStore =
                 })
             }
         },
-        fetchSingleSeries: async (seriesId, userId) => {
-            // Early return if no seriesId
+        fetchSingleSeries: async (seriesId) => {
+
             if (!seriesId) {
-                console.error('No seriesId provided')
-                set({ loadingSeries: false })
+
+                set({
+                    loadingSeries: false
+                })
+
                 return null
             }
 
-            // Check if already in store to avoid unnecessary fetch
             const state = get()
+
+            // Already cached
             if (state.seriesMap[seriesId]) {
-                console.log('Series already in cache:', seriesId)
+
                 return state.seriesMap[seriesId]
             }
 
-            set({ loadingSeries: true })
+            set({
+                loadingSeries: true
+            })
 
             try {
-                const response = await fetch(LOAD_ONE_SERIES, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    credentials: "include",
-                    body: JSON.stringify({
-                        seriesId,
-                        userId
 
-                    })
-                })
+                const response =
+                    await fetch(
+                        LOAD_ONE_SERIES,
+                        {
+                            method: 'POST',
 
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}: ${response.statusText}`)
-                }
+                            headers: {
+                                'Content-Type':
+                                    'application/json'
+                            },
 
-                const data = await response.json()
+                            credentials: 'include',
+
+                            body: JSON.stringify({
+                                seriesId
+                            })
+                        }
+                    )
+
+                const data =
+                    await response.json()
 
                 if (!data?.series) {
-                    console.error('No series in response:', data)
-                    set({ loadingSeries: false })
+
+                    set({
+                        loadingSeries: false
+                    })
+
                     return null
                 }
 
-                // Ensure the ID matches what we requested
-                if (data.series._id !== seriesId) {
-                    console.warn(`Returned series ID ${data.series._id} doesn't match requested ${seriesId}`)
-                }
-
                 set((state) => ({
+
                     seriesMap: {
+
                         ...state.seriesMap,
-                        [data.series._id]: data.series
+
+                        [data.series._id]:
+                            data.series
                     },
+
                     loadingSeries: false
                 }))
 
                 return data.series
-            } catch (error) {
-                console.error('Error fetching series:', error)
-                set({ loadingSeries: false })
+            }
+
+            catch (error) {
+
+                console.error(error)
+
+                set({
+                    loadingSeries: false
+                })
+
                 return null
             }
         },
