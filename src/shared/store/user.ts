@@ -67,14 +67,14 @@ export const useUserStore =
         // =========================
 
         fetchUser: async () => {
-            const state = useUserStore.getState()
+            // const state = useUserStore.getState()
 
-            if (
-                state.authenticated &&
-                state.user
-            ) {
-                return
-            }
+            // if (
+            //     state.authenticated &&
+            //     state.user
+            // ) {
+            //     return
+            // }
             try {
 
                 set({
