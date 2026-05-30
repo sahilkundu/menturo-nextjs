@@ -1,6 +1,12 @@
 @import "tailwindcss";
 
 /* ================= CSS VARIABLES (Base fallback) ================= */
+html,
+body {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+}
 :root {
   --brand: #1ABC7F;
 }
