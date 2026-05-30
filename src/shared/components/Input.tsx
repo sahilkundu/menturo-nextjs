@@ -131,7 +131,7 @@ export default function Input({
                         rounded-2xl
                         outline-none
 
-                        text-sm
+                        text-base
 
                         transition-all
                         duration-300

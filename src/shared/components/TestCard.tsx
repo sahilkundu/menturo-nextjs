@@ -417,7 +417,7 @@ export default function TestCard({
 
                             setLoading(true)
 
-                            router.push(`/${slug}`)
+                            router.push(`/series/${slug}`)
                         }}
                     >
                         <i className="fas fa-bolt"></i>

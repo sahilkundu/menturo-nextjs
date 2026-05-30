@@ -9,7 +9,7 @@ import { useWSStore } from "../../shared/utils/wsStore"
 import { useUserStore } from "../../shared/store/user"
 import { useWSChatStore } from "../../shared/store/wsChat"
 import { SITE_STATUS } from "../../../api"
-import { useRouter } from "next/navigation"
+import { useRouter, usePathname } from "next/navigation"
 
 interface Props {
     children: ReactNode
@@ -19,6 +19,7 @@ export default function AppProviders({
     children
 }: Props) {
     const router = useRouter()
+    const pathname = usePathname()
     // =====================================
     // USER
     // =====================================
@@ -123,6 +124,12 @@ export default function AppProviders({
                     "redirect" in data &&
                     typeof data.redirect === "string"
                 ) {
+                    // Ignore redirects on test detail pages
+                    if (
+                        pathname.startsWith("/series/")
+                    ) {
+                        return response
+                    }
 
                     router.push(
                         data.redirect
@@ -140,7 +147,7 @@ export default function AppProviders({
                 originalFetch
         }
 
-    }, [router])
+    }, [router, pathname])
     // =====================================
     // CONNECT WS
     // =====================================

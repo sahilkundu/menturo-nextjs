@@ -2,18 +2,19 @@
 import dynamic from 'next/dynamic'
 import { useEffect, useRef } from 'react'
 import { useParams, usePathname } from 'next/navigation'
-import { useWSStore } from "../../../shared/utils/wsStore"
-import { useTestSeriesStore } from "../../../shared/store/testSeriesStore"
-import { useTestDataStore } from '../../../shared/store/testDataStore'
+import { useWSStore } from "../../../../shared/utils/wsStore"
+import { useTestSeriesStore } from "../../../../shared/store/testSeriesStore"
+import { useTestDataStore } from '../../../../shared/store/testDataStore'
+import { useUserStore } from '../../../../shared/store/user'
 const PaymentSummary = dynamic(
     () => import(
-        "../../../shared/components/PaymentSummary"
+        "../../../../shared/components/PaymentSummary"
     )
 )
 
 const SuggestedPaymentCard = dynamic(
     () => import(
-        "../../../shared/components/SuggestedPaymentCard"
+        "../../../../shared/components/SuggestedPaymentCard"
     ),
     {
         ssr: false
@@ -22,19 +23,19 @@ const SuggestedPaymentCard = dynamic(
 
 const TestSection = dynamic(
     () => import(
-        "../../../shared/components/TestSection"
+        "../../../../shared/components/TestSection"
     )
 )
 
 const TestSectionHead = dynamic(
     () => import(
-        "../../../shared/components/TestSectionHead"
+        "../../../../shared/components/TestSectionHead"
     )
 )
 
 const PaymentSummarySkeleton = dynamic(
     () => import(
-        '../../../shared/components/Skeleton/PaymentSummarySkeleton'
+        '../../../../shared/components/Skeleton/PaymentSummarySkeleton'
     )
 )
 
@@ -44,6 +45,16 @@ export default function TestPage() {
 
         clearActiveTest
     } = useTestDataStore()
+    const {
+        authenticated,
+        fetchUser
+    } = useUserStore()
+    useEffect(() => {
+        if (!authenticated) {
+            fetchUser()
+        }
+    }, [])
+
 
     const pathname = usePathname()
 
