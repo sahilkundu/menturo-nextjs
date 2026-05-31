@@ -113,12 +113,12 @@ export default function TestMasterBody() {
     ])
     return (
 
-        <div className="relative flex flex-col h-full min-h-0 bg-white">
+        <div className="relative mt-0 flex flex-col h-full min-h-0 bg-white">
 
             {/* SCROLLABLE BODY */}
             <div className="flex-1 overflow-y-auto ">
 
-                <div className="mt-2">
+                <div className="mt-0">
 
                     <div className="flex flex-wrap justify-between items-center gap-2">
 
@@ -157,9 +157,9 @@ export default function TestMasterBody() {
                             }
 
                         </div>
-                        <div className="flex flex-wrap gap-3 text-xs">
+                        <div className="flex flex-wrap gap-3 text-xs mt-2">
 
-                            <div className="bg-green-100 text-green-600 px-3 py-2 rounded-xl font-medium">
+                            <div className="bg-green-100 text-green-600 px-3 py-1 rounded-xl font-medium">
                                 +{question?.qPosMarks} Marks
                             </div>
 
@@ -190,7 +190,7 @@ export default function TestMasterBody() {
                     </div>
 
                     {/* QUESTION */}
-                    <div className="mt-1 rounded-xl p-3 shadow-inner border border-slate-100">
+                    <div className="mt-1 rounded-xl p-1 shadow-inner border border-slate-100">
 
                         <div className="text-xs md:text-sm font-semibold leading-relaxed whitespace-pre-wrap">
 
@@ -204,7 +204,7 @@ export default function TestMasterBody() {
 
                 {/* OPTIONS */}
 
-                <div className="mt-5 space-y-2.5">
+                <div className="mt-2 space-y-2.5">
 
                     {
                         currentQuestion?.options?.map(
@@ -238,7 +238,7 @@ export default function TestMasterBody() {
     cursor-pointer
     rounded-xl
     px-4
-    py-3
+    py-2
     text-xs
     md:text-sm
     transition-colors
@@ -355,7 +355,7 @@ export default function TestMasterBody() {
 
                 {
                     isSubmitted && (
-                        <div className="mt-5 border-t border-slate-200 pt-4">
+                        <div className="mt-2 border-t border-slate-200 pt-1">
 
                             <button
                                 onClick={() =>
@@ -372,7 +372,7 @@ export default function TestMasterBody() {
 
                             {
                                 showSolution && (
-                                    <div className="mt-3 bg-white rounded-xl border border-slate-200 p-4 text-xs">
+                                    <div className="mt-3 bg-white rounded-xl border border-slate-200 p-2 text-xs">
 
                                         <p className="text-slate-600">
 
