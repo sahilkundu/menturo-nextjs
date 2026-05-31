@@ -425,14 +425,21 @@ overflow-hidden
                             </div>
                         </div>
 
-                        <div className="hidden xl:flex w-[350px] bg-white border-l border-slate-200 p-4 flex-col">
+                      <div className="flex ">
 
-                            <TestMasterUserInfo />
+    
 
-                            <TestMasterReviewInfo />
+    <div className="hidden xl:flex w-[350px] shrink-0 bg-white border-l border-slate-200 p-2 flex-col overflow-y-auto">
 
-                            <TestMasterQuestionChooser />
-                        </div>
+        <TestMasterUserInfo />
+
+        <TestMasterReviewInfo />
+
+        <TestMasterQuestionChooser />
+
+    </div>
+
+</div>
 
                     </div>
                 </div>
@@ -511,7 +518,7 @@ flex-col
 justify-between
 overflow-hidden"
             >
-                <div className="p-4 overflow-y-auto grow palette-scroll space-y-4">
+                <div className="p-2 overflow-y-auto grow palette-scroll space-y-4">
 
                     <div className="flex items-center justify-between pb-3 border-b border-slate-200">
                         <div>

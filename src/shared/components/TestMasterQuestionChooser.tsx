@@ -150,7 +150,7 @@ export default function TestMasterQuestionChooser() {
     }
 
     return (
-        <div className="relative pb-28 md:pb-24 w-full max-w-md mx-auto">
+        <div className="relative pb-19 md:pb-19 w-full max-w-md mx-auto">
             {/* HEADER */}
             <div className="mt-4 bg-[#4A3F77]/95 backdrop-blur-md text-white font-bold text-[11px] px-4 py-3 rounded-t-2xl tracking-wider uppercase shadow-md border-b border-white/10">
                 <h4 className="text-[11px] font-bold text-white flex items-center gap-2">
@@ -160,9 +160,9 @@ export default function TestMasterQuestionChooser() {
             </div>
 
             {/* BODY */}
-            <div className="border border-t-0 border-slate-200/60 rounded-b-2xl p-4 bg-gradient-to-b from-slate-50/80 to-white/90 shadow-xl backdrop-blur-md">
+            <div className="border border-t-0 border-slate-200/60 rounded-b-2xl p-2 bg-gradient-to-b from-slate-50/80 to-white/90 shadow-xl backdrop-blur-md">
                 <div className="overflow-y-auto max-h-[290px] pr-1.5 scrollbar-thin scrollbar-thumb-slate-200">
-                    <div className="grid grid-cols-5 xs:grid-cols-6 gap-3 text-center py-1">
+                    <div className="grid grid-cols-5 xs:grid-cols-6 gap-1.5 text-center py-1">
                         {qIDs?.map((qId: any, index: number) => {
 
                             const question =
@@ -272,8 +272,8 @@ export default function TestMasterQuestionChooser() {
                                         }
                                         className={`
                                             relative
-                                            w-10
-                                            h-10
+                                            w-8 
+                                            h-8
                                             rounded-xl
                                             text-sm
                                             font-extrabold

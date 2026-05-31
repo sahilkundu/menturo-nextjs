@@ -141,13 +141,13 @@ export default function TestMasterReviewInfo({
             grid
             grid-cols-2
             gap-x-3
-            mt-2
+            mt-1
             gap-y-3
-            text-[11px]
+            text-[10px]
             font-semibold
             text-slate-700
             bg-slate-50
-            p-4
+            p-1.5
             rounded-2xl
             border
             border-slate-200
@@ -162,8 +162,8 @@ export default function TestMasterReviewInfo({
 
                         <div className="
                             relative
-                            w-8
-                            h-8
+                            w-4
+                            h-4
                             rounded-lg
                             bg-[#F24C07]
                             flex
@@ -208,8 +208,8 @@ export default function TestMasterReviewInfo({
                     <div className="flex items-center gap-3">
 
                         <div className="
-                            w-8
-                            h-8
+                            w-6
+                            h-6
                             rounded-lg
                             bg-[#F24C07]
                             flex
@@ -237,8 +237,8 @@ export default function TestMasterReviewInfo({
             <div className="flex items-center gap-3">
 
                 <div className="
-                    w-8
-                    h-8
+                    w-6
+                    h-6
                     rounded-lg
                     bg-[#F1F1F0]
                     border
@@ -265,8 +265,8 @@ export default function TestMasterReviewInfo({
             <div className="flex items-center gap-3">
 
                 <div className="
-        w-8
-        h-8
+        w-6
+        h-6
         rounded-lg
         bg-[#7D589E]
         flex
@@ -291,8 +291,8 @@ export default function TestMasterReviewInfo({
 
                 <div className="
                     relative
-                    w-8
-                    h-8
+                    w-6
+                    h-6
                     rounded-lg
                     bg-[#6AB81F]
                     flex
@@ -359,8 +359,8 @@ export default function TestMasterReviewInfo({
 
                 <div className="
                     relative
-                    w-8
-                    h-8
+                    w-6
+                    h-6
                     rounded-lg
                     bg-[#7D589E]
                     flex

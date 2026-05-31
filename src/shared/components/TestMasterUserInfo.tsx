@@ -131,8 +131,8 @@ export default function TestMasterUserInfo() {
             border
             border-slate-200
             rounded-2xl
-            p-4
-            mb-4
+            p-2
+            mb-2
             shadow-sm
         ">
 
@@ -251,7 +251,7 @@ export default function TestMasterUserInfo() {
             ===================================== */}
 
             <div className="
-                mt-3
+                mt-1
                 grid
                 grid-cols-1
                 gap-2
