@@ -152,8 +152,8 @@ export default function TestCard({
 
             <div
                 className="
-                    min-w-[240px]
-                    max-w-[240px]
+                   
+                    
                     flex-shrink-0
                     rounded-[28px]
                     overflow-hidden

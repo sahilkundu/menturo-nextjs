@@ -1,7 +1,7 @@
 // api.ts
 
-const BASE_URL = "http://localhost:8080"
-// const BASE_URL = "https://betaws.menturo.in"
+// const BASE_URL = "http://localhost:8080"
+const BASE_URL = "https://betaws.menturo.in"
 export const LOGIN = `${BASE_URL}/login`
 
 export const REGISTER = `${BASE_URL}/signup`
@@ -19,7 +19,7 @@ export const SAVE_TEST = `${BASE_URL}/api/test/save`
 export const FETCH_SOLUTION = `${BASE_URL}/api/test/solution`
 export const SUBMIT_TEST = `${BASE_URL}/api/test/result`
 export const SITE_STATUS = `${BASE_URL}/api/site`
-export const WEBSOCKET = `ws://localhost:8080/ws`
+// export const WEBSOCKET = `ws://localhost:8080/ws`
 
-// export const WEBSOCKET =
-//     `wss://betaws.menturo.in/ws`
+export const WEBSOCKET =
+    `wss://betaws.menturo.in/ws`

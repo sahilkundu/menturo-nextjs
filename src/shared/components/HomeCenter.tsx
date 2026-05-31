@@ -222,30 +222,23 @@ export default function HomeCenter() {
 
         if (!element) return
 
-        if (loadingSeries) return
+        const observer = new MutationObserver(() => {
 
-        if (!pagination?.hasMore) return
+            const cardCount =
+                element.querySelectorAll(
+                    '[data-test-card]'
+                ).length
 
-        // wait for DOM paint
-        const timer = setTimeout(() => {
+            if (cardCount === 0) return
 
-            const cards =
-                element.querySelectorAll('[data-test-card]')
+            if (loadingSeries) return
 
-            if (cards.length === 0) return
+            if (!pagination?.hasMore) return
 
-            const lastCard =
-                cards[cards.length - 1] as HTMLElement
-
-            if (!lastCard) return
-
-            // detect remaining empty space
-            const remainingSpace =
-                element.clientWidth -
-                (lastCard.offsetLeft + lastCard.offsetWidth)
-
-            // if empty space still exists => fetch more
-            if (remainingSpace > 20) {
+            if (
+                element.scrollWidth <=
+                element.clientWidth
+            ) {
 
                 fetchSeries({
                     page: pagination.currentPage + 1,
@@ -253,15 +246,41 @@ export default function HomeCenter() {
                 })
             }
 
-        }, 300)
+        })
 
-        return () => clearTimeout(timer)
+        observer.observe(
+            element,
+            {
+                childList: true,
+                subtree: true
+            }
+        )
+
+        return () => observer.disconnect()
 
     }, [
-        series.length,
         loadingSeries,
         pagination?.currentPage,
         pagination?.hasMore
+    ])
+    useEffect(() => {
+
+        const element = sliderRef.current
+
+        if (!element) return
+
+        console.log({
+            clientWidth: element.clientWidth,
+            scrollWidth: element.scrollWidth,
+            children: element.children.length,
+            loadingSeries,
+            page: pagination?.currentPage,
+            hasMore: pagination?.hasMore
+        })
+
+    }, [
+        series.length,
+        loadingSeries
     ])
     return (
         <>
@@ -440,6 +459,7 @@ export default function HomeCenter() {
                                                     <div
                                                         key={item._id}
                                                         data-test-card
+                                                        className="w-[240px] flex-shrink-0"
                                                     >
                                                         <TestCard
                                                             access={item?.access}
