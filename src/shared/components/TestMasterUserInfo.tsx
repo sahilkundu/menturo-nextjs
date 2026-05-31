@@ -288,31 +288,6 @@ export default function TestMasterUserInfo() {
 
             </div>
 
-            {/* =====================================
-                BUTTON
-            ===================================== */}
-
-            <div className="mt-4">
-
-                <button className="
-                    w-full
-                    bg-[#4A3F77]
-                    text-white
-                    py-2.5
-                    rounded-xl
-                    text-xs
-                    font-bold
-                    shadow-md
-                    hover:opacity-95
-                    transition-all
-                ">
-
-                    Resume Test
-
-                </button>
-
-            </div>
-
         </div>
     )
 }
