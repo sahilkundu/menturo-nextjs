@@ -108,6 +108,7 @@ export default function MockTestPage() {
 
             e: 1
         })
+        useTestDataStore.getState().clearActiveTest()
     }
     const getLeavePayload = () => {
 

@@ -50,8 +50,9 @@ export default function TestSection({ series }: Props) {
         testsBySubjectMap,
         fetchTestsBySubject,
         testsPaginationBySubject,
-        clearStore
+        clearStore,
     } = useTestSeriesStore()
+
     // const tests = testsMap[series?._id] || []
     const allTests =
         testsMap[series?._id] || []
@@ -97,6 +98,7 @@ export default function TestSection({ series }: Props) {
         overscan: 5
     })
     // Initial load
+
     useEffect(() => {
         if (!series?._id) return
         if (tests.length > 0) return

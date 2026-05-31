@@ -1405,7 +1405,7 @@ export const useTestDataStore =
                     loadingSolution: false,
                     loadingStartTest: false,
                     loadingResumeTest: false,
-
+                    timeLeft: 0,
                     solutionError: null,
                     saveError: null,
                     resultError: null,

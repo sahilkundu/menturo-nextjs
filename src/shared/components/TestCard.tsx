@@ -3,6 +3,7 @@ import { useRouter } from "next/navigation"
 import Image from "next/image"
 import { useState } from "react"
 import Spinner from "./Spinner"
+import { useTestSeriesStore } from "../store/testSeriesStore"
 
 interface TestCardProps {
     accees?: any
@@ -41,7 +42,9 @@ export default function TestCard({
     const router = useRouter()
     console.log(access)
     const isFreeAccess = access?.isFree
-    const demoTests = access?.demoTest?.length
+    const {
+        clearTests
+    } = useTestSeriesStore()
     const isPaid = access?.isPaid
     const isExpired = access?.isExpired
     const [loading, setLoading] =
@@ -414,7 +417,7 @@ export default function TestCard({
                             ${btnTxtColor}
                         `}
                         onClick={() => {
-
+                            clearTests()
                             setLoading(true)
 
                             router.push(`/series/${slug}`)

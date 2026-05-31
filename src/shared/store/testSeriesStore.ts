@@ -919,5 +919,21 @@ export const useTestSeriesStore =
                 selectedSeriesId:
                     null
             })
+        },
+        clearTests: () => {
+
+            set({
+
+
+
+                testsMap: {},
+
+
+                testsPaginationBySubject: {},
+                testsPaginationBySeries:
+                    {},
+                testsBySubjectMap:
+                    {}
+            })
         }
     }))
