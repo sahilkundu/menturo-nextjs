@@ -20,6 +20,6 @@ export const FETCH_SOLUTION = `${BASE_URL}/api/test/solution`
 export const SUBMIT_TEST = `${BASE_URL}/api/test/result`
 export const SITE_STATUS = `${BASE_URL}/api/site`
 // export const WEBSOCKET = `ws://localhost:8080/ws`
-// changes
+// changes by sahil
 export const WEBSOCKET =
     `wss://betaws.menturo.in/ws`
