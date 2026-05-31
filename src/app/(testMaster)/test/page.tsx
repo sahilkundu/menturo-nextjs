@@ -9,6 +9,8 @@ import TestMasterQuestionChooser from '../../../shared/components/TestMasterQues
 import { useTestDataStore } from '../../../shared/store/testDataStore';
 // Mock Test Data for dynamic rendering
 import { usePathname } from "next/navigation"
+import { useTestSeriesStore } from '../../../shared/store/testSeriesStore';
+import { SAVE_TEST } from '../../../../api';
 
 export default function MockTestPage() {
     const {
@@ -16,7 +18,12 @@ export default function MockTestPage() {
         activeSubject,
         setActiveSubject,
         clearActiveTest,
+        fetchSave,
+        timeLeft,
+        activeLan,
+        activeQuestionIndex,
     } = useTestDataStore()
+
     const [isSideBarOpen, setIsSideBarOpen] = useState(false)
     const handleSidebarOpen = () => {
         setIsSideBarOpen(true)
@@ -34,6 +41,229 @@ export default function MockTestPage() {
         }
 
     }, [pathname, clearActiveTest])
+
+    // save test before leave with browser 
+    const saveTestBeforeLeave = async () => {
+
+        const store =
+            useTestDataStore.getState()
+
+        const history =
+            store.activeTest
+                ?.activeQuestionHistoryObj
+
+        const testsMap =
+            useTestSeriesStore
+                .getState()
+                .testsMap
+
+        let historyId = ""
+
+        Object.values(testsMap).forEach(
+            (tests: any) => {
+
+                tests.forEach((test: any) => {
+
+                    const runningHistory =
+                        test?.history?.find(
+                            (h: any) =>
+                                h.status === "running"
+                        )
+
+                    if (runningHistory) {
+
+                        historyId =
+                            runningHistory._id
+                    }
+                })
+            }
+        )
+
+        if (!historyId || !history) {
+            return
+        }
+
+        await store.fetchSave({
+
+            historyId,
+
+            data: {
+
+                [store.activeSubject]: {
+
+                    ...history[
+                    store.activeSubject
+                    ],
+
+                    activeIndex:
+                        store.activeQuestionIndex,
+
+                    language:
+                        store.activeLan,
+
+                    timeLeft:
+                        store.timeLeft
+                }
+            },
+
+            e: 1
+        })
+    }
+    const getLeavePayload = () => {
+
+        const store =
+            useTestDataStore.getState()
+
+        const history =
+            store.activeTest
+                ?.activeQuestionHistoryObj
+
+        const testsMap =
+            useTestSeriesStore
+                .getState()
+                .testsMap
+
+        let historyId = ""
+
+        Object.values(testsMap).forEach(
+            (tests: any) => {
+
+                tests.forEach((test: any) => {
+
+                    const runningHistory =
+                        test?.history?.find(
+                            (h: any) =>
+                                h.status === "running"
+                        )
+
+                    if (runningHistory) {
+
+                        historyId =
+                            runningHistory._id
+                    }
+                })
+            }
+        )
+
+        if (!historyId || !history) {
+            return null
+        }
+
+        return {
+
+            historyId,
+
+            data: {
+
+                [store.activeSubject]: {
+
+                    ...history[
+                    store.activeSubject
+                    ],
+
+                    activeIndex:
+                        store.activeQuestionIndex,
+
+                    language:
+                        store.activeLan,
+
+                    timeLeft:
+                        store.timeLeft
+                }
+            },
+
+            e: 1
+        }
+    }
+    useEffect(() => {
+
+        const handleBeforeUnload = () => {
+
+            const payload =
+                getLeavePayload()
+
+            if (!payload) {
+                return
+            }
+
+            navigator.sendBeacon(
+                SAVE_TEST,
+                JSON.stringify(payload)
+            )
+        }
+
+        window.addEventListener(
+            "beforeunload",
+            handleBeforeUnload
+        )
+
+        return () => {
+
+            window.removeEventListener(
+                "beforeunload",
+                handleBeforeUnload
+            )
+        }
+
+    }, [])
+    useEffect(() => {
+
+        const handleVisibilityChange = () => {
+
+            if (
+                document.visibilityState ===
+                "hidden"
+            ) {
+
+                const payload =
+                    getLeavePayload()
+
+                if (!payload) {
+                    return
+                }
+
+                navigator.sendBeacon(
+                    SAVE_TEST,
+                    JSON.stringify(payload)
+                )
+            }
+        }
+
+        document.addEventListener(
+            "visibilitychange",
+            handleVisibilityChange
+        )
+
+        return () => {
+
+            document.removeEventListener(
+                "visibilitychange",
+                handleVisibilityChange
+            )
+        }
+
+    }, [])
+    useEffect(() => {
+
+        const handlePopState = () => {
+
+            saveTestBeforeLeave()
+        }
+
+        window.addEventListener(
+            "popstate",
+            handlePopState
+        )
+
+        return () => {
+
+            window.removeEventListener(
+                "popstate",
+                handlePopState
+            )
+        }
+
+    }, [])
     return (
         <>
             <div className="w-full h-[100dvh]  p-2 md:p-3 overflow-hidden flex flex-col">
