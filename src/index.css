@@ -224,7 +224,7 @@ cursor: pointer;
 /* ================= FORM CARD ================= */
 .form-card {
   background: var(--formBackground);
-  @apply flex flex-col  justify-center gap-3 p-4 rounded-lg w-full;
+  @apply flex flex-col  justify-center gap-3 p-2 rounded-lg w-full;
 }
 
 /* ================= FORM BUTTON ================= */

@@ -281,7 +281,7 @@ min-h-0
 flex
 flex-col
 ">
-                    <div className=" px-4 py-3.5 border-b border-slate-200 bg-gradient-to-r from-white to-slate-50/50">
+                    <div className="  px-4 py-3.5 border-b border-slate-200 bg-gradient-to-r from-white to-slate-50/50">
                         <TestMasterHeader />
                     </div>
 
@@ -299,9 +299,9 @@ flex-col
                         </div>
                     </div> */}
 
-                    <div className="flex flex-col xl:flex-row flex-1 min-h-0">
-                        <div className="flex-1 p-4 border-r border-slate-200 overflow-hidden flex flex-col min-h-0">
-                            <div className="flex flex-nowrap overflow-x-auto whitespace-nowrap scroll-hide gap-1.5 pb-2 -mx-1 px-1">
+                    <div className="flex flex-col xl:flex-row flex-1 mt-2 min-h-0">
+                        <div className="flex-1 p-1  border-r border-slate-200 overflow-hidden flex flex-col min-h-0">
+                            <div className="flex mt-1 flex-nowrap overflow-x-auto whitespace-nowrap scroll-hide gap-1.5 pb-2 -mx-1 px-1">
 
                                 {activeTest?.allSubj?.map(
                                     (subject: string) => {
@@ -360,14 +360,14 @@ flex-col
                             </div>
 
                             <div className="
-mt-4
+mt-1
 bg-gradient-to-b
 from-white
 to-slate-50/40
 border
 border-slate-200
 rounded-[20px]
-p-4
+p-2
 flex-1
 min-h-0
 overflow-hidden

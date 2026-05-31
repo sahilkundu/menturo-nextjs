@@ -141,6 +141,7 @@ export default function TestMasterReviewInfo({
             grid
             grid-cols-2
             gap-x-3
+            mt-2
             gap-y-3
             text-[11px]
             font-semibold

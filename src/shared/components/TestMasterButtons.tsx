@@ -30,7 +30,7 @@ export default function TestMasterButtons({
                 border-t
                 border-slate-200
                 bg-white
-                p-3
+                p-2
                 z-20
                 shadow-[0_-2px_10px_rgba(0,0,0,0.05)]
             "
@@ -46,7 +46,7 @@ export default function TestMasterButtons({
                     }}
                     className="bg-white border border-slate-300 text-slate-600 px-3 py-2 rounded-xl hover:bg-slate-50"
                 >
-                    Mark for Review & Next
+                    Mark for Review
                 </button>
 
                 <button
