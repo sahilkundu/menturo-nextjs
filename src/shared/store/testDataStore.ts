@@ -9,6 +9,7 @@ import {
     FETCH_SOLUTION
 } from '../../../api'
 import { useTestSeriesStore } from './testSeriesStore'
+import { showPopupMessage } from '../utils/popup'
 
 // =====================================
 // PAYLOADS
@@ -22,6 +23,8 @@ type SaveTestPayload = {
     historyId: string
 
     data: any
+
+    time?: number
 
     e?: number
 }
@@ -704,12 +707,14 @@ export const useTestDataStore =
                     const body = {
 
                         historyId:
-                            payload.historyId,
+                            payload?.historyId,
+                        time:
+                            payload?.time,
 
                         data:
-                            payload.data,
+                            payload?.data,
 
-                        ...(payload.e && {
+                        ...(payload?.e && {
                             e: 1
                         })
                     }
@@ -845,7 +850,10 @@ export const useTestDataStore =
                                 data.message ||
                                 'Failed to get result'
                         })
-
+                        showPopupMessage(
+                            data.message,
+                            false
+                        )
                         return data
                     }
 
@@ -994,7 +1002,10 @@ export const useTestDataStore =
                                 data.message ||
                                 'Failed to start test'
                         })
-
+                        showPopupMessage(
+                            data.message,
+                            false
+                        )
                         return data
                     }
 
@@ -1145,7 +1156,10 @@ export const useTestDataStore =
                                 data.message ||
                                 'Failed to resume test'
                         })
-
+                        showPopupMessage(
+                            data.message,
+                            false
+                        )
                         return data
                     }
 
@@ -1287,6 +1301,10 @@ export const useTestDataStore =
                                 data.message ||
                                 'Failed to fetch solution'
                         })
+                        showPopupMessage(
+                            data.message,
+                            false
+                        )
 
                         return data
                     }
@@ -1385,6 +1403,70 @@ export const useTestDataStore =
                             error?.message
                     }
                 }
+            },
+            applySubmittedResult: (resultData) => {
+
+                const result =
+                    resultData?.result || {}
+
+                const historyObj =
+                    result?.activeQuestionHistoryObj || {}
+
+                const selectedOptions =
+                    buildSelectedOptions(historyObj)
+
+                set({
+                    isSubmitted: true,
+
+                    selectedOptions,
+
+                    activeQuestionIndex: 0,
+
+                    activeSubject:
+                        result?.allSubj?.[0] || '',
+
+                    activeLan: "en",
+
+                    activeTest: {
+
+                        questions:
+                            result?.questions || {},
+
+                        activeQuestionHistoryObj:
+                            historyObj,
+
+                        deviceInfo:
+                            result?.deviceInfo || {},
+
+                        allSubj:
+                            result?.allSubj || [],
+
+                        count:
+                            result?.count || 0,
+
+                        duration:
+                            result?.duration || 0,
+
+                        maxMarks:
+                            result?.maxMarks || 0,
+
+                        obtainedMarks:
+                            result?.obtainedMarks || 0,
+
+                        totalMarks:
+                            result?.totalMarks || 0,
+
+                        time:
+                            result?.time || 0,
+
+                        solution:
+                            result?.solution || {}
+                    },
+
+                    loadingResult: false,
+
+                    resultError: null
+                })
             },
 
             // =====================================

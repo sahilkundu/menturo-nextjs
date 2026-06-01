@@ -2,38 +2,131 @@
 
 import { useEffect } from "react"
 import { useTestDataStore } from "../store/testDataStore"
+import { useTestSeriesStore } from "../store/testSeriesStore"
 
 export default function TestTimer() {
 
     const {
-
         activeTest,
         timeLeft,
         setTimeLeft,
-        isSubmitted
+        isSubmitted,
+        fetchResult,
+        activeSubject
 
     } = useTestDataStore()
+    useEffect(() => {
+
+        if (
+            timeLeft !== 0 ||
+            isSubmitted
+        ) {
+            return
+        }
+
+        const submitTest = async () => {
+
+            const store =
+                useTestDataStore.getState()
+
+            if (
+                store.loadingResult ||
+                store.loadingSave
+            ) {
+                return
+            }
+
+            const history =
+                store.activeTest
+                    ?.activeQuestionHistoryObj
+
+            const testsMap =
+                useTestSeriesStore
+                    .getState()
+                    .testsMap
+
+            let payload: any = null
+
+            Object.values(testsMap).forEach(
+                (tests: any) => {
+
+                    tests.forEach((test: any) => {
+
+                        const runningHistory =
+                            test?.history?.find(
+                                (h: any) =>
+                                    h.status === "running"
+                            )
+
+                        if (runningHistory) {
+
+                            payload = {
+
+                                historyId:
+                                    runningHistory._id,
+
+                                relationId:
+                                    test.relationId,
+
+                                testId:
+                                    test.testId,
+
+                                ts:
+                                    test.ts,
+
+                                data: {
+
+                                    [activeSubject]: {
+
+                                        ...history[
+                                        activeSubject
+                                        ],
+
+                                        activeIndex:
+                                            store.activeQuestionIndex,
+
+                                        language:
+                                            store.activeLan,
+
+                                        timeLeft:
+                                            timeLeft
+                                    }
+                                }
+                            }
+                        }
+                    })
+                }
+            )
+
+            if (!payload) {
+                return
+            }
+
+            await fetchResult(payload)
+        }
+
+        submitTest()
+
+    }, [
+        timeLeft,
+        isSubmitted,
+        activeSubject,
+        fetchResult
+    ])
 
     // INITIALIZE TIMER
     useEffect(() => {
 
         if (
             activeTest?.duration &&
-            timeLeft === 0 &&
+            timeLeft <= 0 &&
             !isSubmitted
         ) {
 
-            setTimeLeft(
-                activeTest.duration
-            )
+            setTimeLeft(activeTest.duration)
         }
 
-    }, [
-        activeTest,
-        timeLeft,
-        setTimeLeft,
-        isSubmitted
-    ])
+    }, [activeTest])
 
     // START TIMER
     useEffect(() => {

@@ -8,8 +8,6 @@ import { useLayoutStore } from "../../shared/store/uiResStore"
 import { useUserStore } from "../../shared/store/user"
 
 import { useRouter } from "next/navigation"
-import { useTestSeriesStore } from '../../shared/store/testSeriesStore'
-import { clear } from 'console'
 
 // ========================================
 // LAZY LOAD COMPONENTS
@@ -86,30 +84,7 @@ export default function HomePage() {
             (state) => state.setRightSidebarOpen
         )
 
-    // =========================================
-    // CONNECT WS
-    // =========================================
 
-    // useEffect(() => {
-
-    //     connect()
-
-    //     return () => {
-
-    //         disconnect()
-    //     }
-
-    // }, [])
-
-    // =========================================
-    // LOGIN UPGRADE
-    // =========================================
-
-
-
-    // =========================================
-    // MOBILE CHECK
-    // =========================================
 
     useEffect(() => {
 

@@ -15,7 +15,9 @@ export default function TestMasterButtons({
         prevQuestion,
         clearResponse,
         markForReview,
-        saveAndNext
+        saveAndNext,
+        isSubmitted,
+        timeLeft
 
     } = useTestDataStore()
 
@@ -37,29 +39,31 @@ export default function TestMasterButtons({
         >
 
             <div className="flex flex-wrap gap-2 w-full text-[11px] font-bold">
+                {!isSubmitted &&
+                    <>
+                        <button
+                            onClick={() => {
 
-                <button
-                    onClick={() => {
+                                markForReview(qId)
 
-                        markForReview(qId)
+                            }}
+                            className="bg-white border border-slate-300 text-slate-600 px-3 py-2 rounded-xl hover:bg-slate-50"
+                        >
+                            Mark for Review
+                        </button>
 
-                    }}
-                    className="bg-white border border-slate-300 text-slate-600 px-3 py-2 rounded-xl hover:bg-slate-50"
-                >
-                    Mark for Review
-                </button>
+                        <button
+                            onClick={() => {
 
-                <button
-                    onClick={() => {
+                                clearResponse(qId)
 
-                        clearResponse(qId)
+                            }}
+                            className="bg-white border border-red-200 text-red-500 px-3 py-2 rounded-xl hover:bg-red-50"
+                        >
+                            Clear Response
+                        </button></>
 
-                    }}
-                    className="bg-white border border-red-200 text-red-500 px-3 py-2 rounded-xl hover:bg-red-50"
-                >
-                    Clear Response
-                </button>
-
+                }
                 <button
                     onClick={prevQuestion}
                     className="ml-auto bg-slate-700 text-white px-4 py-2 rounded-xl hover:bg-slate-800"
@@ -145,6 +149,7 @@ export default function TestMasterButtons({
                         await store.fetchSave({
 
                             historyId,
+                            time: timeLeft,
 
                             data: {
 
@@ -158,7 +163,8 @@ export default function TestMasterButtons({
                                         store.activeQuestionIndex,
 
                                     language:
-                                        store.activeLan
+                                        store.activeLan,
+                                    timeLeft: timeLeft
                                 }
                             }
                         })

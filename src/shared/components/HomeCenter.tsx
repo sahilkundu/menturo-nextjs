@@ -314,59 +314,20 @@ export default function HomeCenter() {
                             </div>
 
                             {/* <!-- COURSE SECTION --> */}
-                            <div className="mt-5 bg-white dark-card rounded-[30px] p-5 shadow-[0_8px_30px_rgba(0,0,0,.05)] overflow-hidden">
-
-                                {/* <!-- TOP --> */}
-                                <div className="flex flex-col lg:flex-row gap-4 justify-between lg:items-center mb-5">
-
-                                    <div>
-
-                                        <h2 className="text-2xl font-bold text-dark">
-                                            Course Manager
-                                        </h2>
-
-                                        <p className="text-sm text-gray-500 mt-1 text-slate-500">
-                                            Manage all educational courses.
-                                        </p>
-
-                                    </div>
+                            <div className="mt-5 bg-white dark-card rounded-[30px] p-1 shadow-[0_8px_30px_rgba(0,0,0,.05)] overflow-hidden">
 
 
 
-                                </div>
 
-                                {/* <!-- FILTER --> */}
-                                <div className="flex flex-col lg:flex-row gap-3 mb-5">
-
-                                    <div className="relative flex-1">
-
-                                        <input type="text" placeholder="Search course..."
-                                            className="w-full h-11 rounded-xl border bg-gray-50 pl-11 pr-4 text-sm outline-none border-gray-200" />
-
-                                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
-                                            🔍
-                                        </span>
-
-                                    </div>
-
-                                    <select className="h-11 px-4 rounded-xl border text-sm ![background:#e5e5e5] ![border-color:#d4d4d4] !text-black">
-                                        <option>All Courses</option>
-                                    </select>
-
-                                    <select className="h-11 px-4 rounded-xl border text-sm ![background:#e5e5e5] ![border-color:#d4d4d4] !text-black">
-                                        <option>All Categories</option>
-                                    </select>
-
-                                </div>
 
                                 {/* <!-- SLIDER TOP --> */}
                                 <div className="flex items-center justify-between mb-5">
 
-                                    <h3 className="font-semibold dark-text">
+                                    <h3 className="p-4 font-semibold dark-text">
                                         Popular Courses
                                     </h3>
 
-                                    <div className="flex gap-2">
+                                    <div className="p-4 flex gap-2">
 
                                         <button
                                             onClick={scrollLeft}
@@ -404,7 +365,7 @@ export default function HomeCenter() {
 
                                 {/* <!-- SLIDER --> */}
                                 {/* <!-- SECTION --> */}
-                                <div className="mt-5 bg-white dark-card rounded-[32px] p-5 shadow-[0_8px_30px_rgba(0,0,0,.05)] overflow-hidden">
+                                <div className="  bg-white dark-card rounded-[32px] p-3 shadow-[0_8px_30px_rgba(0,0,0,.05)] overflow-hidden ">
 
                                     {/* <!-- TOP --> */}
                                     <div className="flex flex-col lg:flex-row gap-4 justify-between lg:items-center mb-6">
@@ -522,7 +483,7 @@ export default function HomeCenter() {
 
                                     </div>
 
-                                    <StateCard
+                                    {/* <StateCard
                                         states={[
                                             {
                                                 stateName: "🇮🇳 Haryana (HSSC / CET)",
@@ -766,7 +727,7 @@ export default function HomeCenter() {
                                                 ]
                                             }
                                         ]}
-                                    />
+                                    /> */}
 
 
                                 </div>

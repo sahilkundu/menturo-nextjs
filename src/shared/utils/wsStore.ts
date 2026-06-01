@@ -11,6 +11,7 @@ import { useTestSeriesStore } from '../store/testSeriesStore'
 
 import { showPopupMessage } from './popup'
 import { useWSChatStore } from '../store/wsChat'
+import { useTestDataStore } from '../store/testDataStore'
 // =====================================================
 // GLOBAL SESSION
 // =====================================================
@@ -319,6 +320,31 @@ export const useWSStore =
                                     showPopupMessage(
                                         data.message ||
                                         'Test started on another device',
+                                        true
+                                    )
+
+                                    return
+                                }
+                                if (
+                                    data.event ===
+                                    'test-submitted'
+                                ) {
+
+                                    useTestSeriesStore
+                                        .getState()
+                                        .updateTestHistory(
+                                            data.history
+                                        )
+
+                                    useTestDataStore
+                                        .getState()
+                                        .applySubmittedResult({
+                                            result: data.result
+                                        })
+
+                                    showPopupMessage(
+                                        data.message ||
+                                        'Test was submitted',
                                         true
                                     )
 

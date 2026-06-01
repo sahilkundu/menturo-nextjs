@@ -175,21 +175,17 @@ export default function TestCard({
                 {/* IMAGE */}
                 <div className="relative">
 
-                    {/* <img
-                        src={img}
-                        className="w-full h-[130px] object-cover"
-                    /> */}
+
                     <Image
                         src={img}
                         alt={name}
                         width={240}
-                        height={130}
+                        height={180}
                         loading="lazy"
                         className="
         w-full
-        h-[130px]
-        object-contain
-        bg-white
+        h-[180px]
+        object-cover
     "
                     />
 
@@ -263,47 +259,6 @@ export default function TestCard({
                         >
                             {board}
                         </p>
-
-                        {/* <span
-                            className={`
-        text-[10px]
-        px-2
-        py-1
-        rounded-full
-        font-semibold
-        transition
-
-        ${(
-                                    (isPaid && !isExpired) ||
-                                    (isPaid && isExpired && isFreeAccess) ||
-                                    (!isPaid && isFreeAccess)
-                                )
-                                    ? "bg-green-500 text-white"
-
-                                    : (
-                                        isExpired
-                                            ? "bg-red-500 text-white"
-                                            : `${btnBgColor.replace("hover:", "")} ${btnTxtColor}`
-                                    )
-                                }
-    `}
-                        >
-                            {
-                                (
-                                    (isPaid && !isExpired) ||
-                                    (isPaid && isExpired && isFreeAccess) ||
-                                    (!isPaid && isFreeAccess)
-                                )
-                                    ? "Full Access"
-
-                                    : (
-                                        isExpired
-                                            ? "Expired"
-                                            : liveName
-                                    )
-                            }
-                        </span> */}
-
                     </div>
 
                     {/* TITLE */}
