@@ -27,7 +27,8 @@ export default function TestMasterQuestionChooser() {
         fetchSave,
         loadingResult,
         loadingSave,
-        isSubmitted
+        isSubmitted,
+        timeLeft
     } = useTestDataStore()
 
     const historyObj =
@@ -377,7 +378,7 @@ export default function TestMasterQuestionChooser() {
                     </div>
                 </div>
             </div>
-            
+
             {/* BOTTOM ACTION BAR */}
             <div
                 className="
@@ -456,6 +457,7 @@ export default function TestMasterQuestionChooser() {
                         await fetchSave({
 
                             historyId,
+                            time: timeLeft,
 
                             data: {
 
@@ -471,7 +473,7 @@ export default function TestMasterQuestionChooser() {
                                     language:
                                         store.activeLan,
                                     timeLeft:
-                                        store.timeLeft
+                                        timeLeft
                                 }
                             },
 
@@ -549,6 +551,7 @@ export default function TestMasterQuestionChooser() {
                                         if (runningHistory) {
 
                                             payload = {
+                                                time: timeLeft,
 
                                                 historyId:
                                                     runningHistory._id,
@@ -576,7 +579,7 @@ export default function TestMasterQuestionChooser() {
                                                         language:
                                                             store.activeLan,
                                                         timeLeft:
-                                                            store.timeLeft
+                                                            timeLeft
                                                     }
                                                 }
                                             }

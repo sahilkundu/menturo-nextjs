@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react"
 
 import { useLayoutStore } from "../store/uiResStore"
+import { useWSChatStore } from "../store/wsChat"
 
 interface LiveBubbleProps {
     count?: number
@@ -11,6 +12,14 @@ interface LiveBubbleProps {
 export default function LiveBubbleBtn({
     count = 3
 }: LiveBubbleProps) {
+    const wsUsers =
+        useWSChatStore(
+            (state) =>
+                state.users
+        )
+
+    const users =
+        Object.values(wsUsers)
 
     const bubbleRef = useRef<HTMLButtonElement | null>(null)
 
@@ -101,7 +110,9 @@ export default function LiveBubbleBtn({
                     shadow-md
                 "
             >
-                {count}
+                {users?.filter(
+                    user => user?.online
+                ).length}
             </div>
 
             {/* LIVE BADGE */}

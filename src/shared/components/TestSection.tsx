@@ -25,6 +25,8 @@ type Props = {
 export default function TestSection({ series }: Props) {
     const router = useRouter()
     const scrollRef = useRef<HTMLDivElement>(null)
+    const [openSolutionId, setOpenSolutionId] =
+        useState<string | null>(null)
     const [loadingTestId, setLoadingTestId] =
         useState<string | null>(null)
     const {
@@ -305,6 +307,12 @@ export default function TestSection({ series }: Props) {
 
                         historyId:
                             resumeHistory._id,
+                        relationId:
+                            test.relationId,
+                        testId:
+                            test.testId,
+                        ts:
+                            test.ts,
 
                         f: 0
                     })
@@ -435,6 +443,11 @@ export default function TestSection({ series }: Props) {
         }
 
     }, [])
+    useEffect(() => {
+
+        rowVirtualizer.measure()
+
+    }, [selectedSubject, tests.length])
 
     if (!series) {
         return (
@@ -526,109 +539,6 @@ export default function TestSection({ series }: Props) {
                                 </button>
 
                             </div>
-
-                            {/* CATEGORY */}
-                            {/* <div className="px-3 pb-3">
-
-                                <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
-
-                                    <div className="p-3 bg-[#fafafa] border-b border-gray-100 flex gap-2 overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
-
-
-                                        {categories.map((category) => {
-
-                                            const isActive =
-
-                                                selectedSubject
-                                                    .toLowerCase() ===
-
-                                                category.name
-                                                    .toLowerCase()
-
-                                            return (
-
-                                                <button
-                                                    key={category.id}
-
-                                                    onClick={async () => {
-
-                                                        // =========================
-                                                        // ALL
-                                                        // =========================
-
-                                                        if (
-                                                            category.name === 'All'
-                                                        ) {
-
-                                                            setSelectedSubject('all')
-
-                                                            return
-                                                        }
-
-                                                        // =========================
-                                                        // SUBJECT
-                                                        // =========================
-
-                                                        const normalizedSubject =
-                                                            category.name
-                                                                .trim()
-                                                                .toLowerCase()
-
-                                                        setSelectedSubject(
-                                                            normalizedSubject
-                                                        )
-
-                                                        // already loaded
-                                                        const alreadyLoaded =
-                                                            testsBySubjectMap?.[
-                                                                series._id
-                                                            ]?.[
-                                                                normalizedSubject
-                                                            ]?.length > 0
-
-                                                        if (alreadyLoaded)
-                                                            return
-
-                                                        // backend call
-                                                        await fetchTestsBySubject(
-                                                            series._id,
-                                                            normalizedSubject,
-                                                            {
-                                                                page: 1,
-                                                                limit: 3
-                                                            }
-                                                        )
-                                                    }}
-
-                                                    className={`
-                text-[11px]
-                px-3
-                py-1.5
-                rounded
-                font-medium
-                whitespace-nowrap
-                shrink-0
-                cursor
-                transition
-cursor-pointer
-                ${isActive
-                                                            ? 'bg-slate-500 text-white'
-                                                            : 'bg-white border text-gray-600'}
-            `}
-                                                >
-
-                                                    {category.name}
-
-                                                </button>
-                                            )
-                                        })}
-
-                                    </div>
-
-                                </div>
-
-                            </div> */}
-                            {/* CATEGORY */}
                             {/* CATEGORY */}
                             <div className="px-3 pb-3">
 
@@ -916,6 +826,7 @@ cursor-pointer
                         {/* TESTS */}
                         <div
                             ref={scrollRef}
+                            key={selectedSubject}
                             onScroll={handleScroll}
                             className="
         max-h-[650px]
@@ -1180,6 +1091,15 @@ cursor-pointer
 
                                                                         {/* SOLUTION BUTTON */}
                                                                         <button
+                                                                            onClick={() => {
+
+                                                                                setOpenSolutionId(
+                                                                                    openSolutionId === test.testId
+                                                                                        ? null
+                                                                                        : test.testId
+                                                                                )
+
+                                                                            }}
                                                                             className={`
    ${loadingTestId || hasRunningTest
                                                                                     ? 'cursor-not-allowed'
@@ -1227,12 +1147,14 @@ cursor-pointer
 
                                                                         {/* DROPDOWN */}
                                                                         <div
-                                                                            className="
+                                                                            className={`
                             absolute
                             left-0
                             bottom-0
-                            hidden
-                            group-hover:flex
+                           ${openSolutionId === test.testId
+                                                                                    ? 'flex'
+                                                                                    : 'hidden group-hover:flex'
+                                                                                }
                             flex-col-reverse
                             z-50
                             w-full
@@ -1248,7 +1170,7 @@ cursor-pointer
                             [-ms-overflow-style:none]
                             [&::-webkit-scrollbar]:w-0
                             [&::-webkit-scrollbar]:h-0
-                        "
+                        `}
                                                                         >
 
                                                                             {test.history
@@ -1265,7 +1187,7 @@ cursor-pointer
                                                                                         <button
                                                                                             key={item._id}
                                                                                             onClick={() => {
-
+                                                                                                setOpenSolutionId(null)
                                                                                                 handleTestAction(
                                                                                                     test,
                                                                                                     'solution',
@@ -1596,75 +1518,7 @@ cursor-pointer
 
                 </div>
 
-                {/* RIGHT */}
-                {/* <div className="lg:col-span-2 p-3 sm:p-5 md:p-7 mt-10">
 
-                    <div className="bg-white rounded-2xl shadow-md border border-indigo-50 sticky top-6 overflow-hidden">
-
-                        <div className="bg-indigo-50 px-5 py-4 border-b border-indigo-100">
-
-                            <h3 className="font-black text-gray-800 flex items-center gap-2">
-
-                                <span className="text-indigo-600 text-xl">
-                                    📋
-                                </span>
-
-                                What's Included in this Pack
-
-                            </h3>
-
-                        </div>
-
-                        <div className="p-5 max-h-[550px] overflow-y-auto">
-
-                            <div className="mb-4">
-
-                                <div className="flex items-center gap-2">
-
-                                    <span className="text-sm font-black">
-                                        📌 All Practice Tests
-                                    </span>
-
-                                    <span className="bg-gray-200 text-[10px] px-2 rounded-full">
-
-                                        {tests?.length || 0}
-
-                                    </span>
-
-                                </div>
-
-                                <ul className="mt-3 space-y-2 text-sm text-gray-700">
-
-                                    {includedFeatures.map(
-                                        (
-                                            feature: string,
-                                            index: number
-                                        ) => (
-
-                                            <li
-                                                key={index}
-                                                className="flex gap-2 text-xs md:text-sm"
-                                            >
-
-                                                <span className="text-indigo-500">
-                                                    ✓
-                                                </span>
-
-                                                {feature}
-
-                                            </li>
-                                        )
-                                    )}
-
-                                </ul>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                </div> */}
                 {/* RIGHT SECTION */}
                 <div className="lg:col-span-2 p-3 sm:p-5 md:p-7 mt-10">
 

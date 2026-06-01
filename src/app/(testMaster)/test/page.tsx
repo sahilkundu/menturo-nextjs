@@ -285,19 +285,7 @@ flex-col
                         <TestMasterHeader />
                     </div>
 
-                    {/* <div className="md:hidden overflow-x-auto whitespace-nowrap scroll-hide px-3 py-2 border-b border-slate-200 bg-white">
-                        <div className="flex gap-2 w-max text-[10px] font-bold">
-                            <div className="flex items-center gap-1.5 bg-green-50 text-green-700 px-2.5 py-1 rounded-lg border border-green-100">
-                                <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>Correct : 10
-                            </div>
-                            <div className="flex items-center gap-1.5 bg-red-50 text-red-600 px-2.5 py-1 rounded-lg border border-red-100">
-                                <span className="w-1.5 h-1.5 rounded-full bg-red-500"></span>Wrong : 03
-                            </div>
-                            <div className="flex items-center gap-1.5 bg-yellow-50 text-yellow-700 px-2.5 py-1 rounded-lg border border-yellow-100">
-                                <span className="w-1.5 h-1.5 rounded-full bg-yellow-400"></span>Review : 02
-                            </div>
-                        </div>
-                    </div> */}
+
 
                     <div className="flex flex-col xl:flex-row flex-1 mt-2 min-h-0">
                         <div className="flex-1 p-1  border-r border-slate-200 overflow-hidden flex flex-col min-h-0">

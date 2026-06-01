@@ -1,20 +1,22 @@
 'use client'
 import { useTestDataStore } from "../store/testDataStore";
+import { useTestSeriesStore } from "../store/testSeriesStore";
+import { useRouter } from "next/navigation"
 import QuestionHistory from "./QuestionHistory";
 import TestTimer from "./TestTimer";
 
 export default function TestMasterHeader() {
+    const router = useRouter()
     const {
         activeLan,
         setActiveLan,
+        fetchSave,
+        fetchResult,
+        timeLeft,
+        isSubmitted,
+        activeSubject,
         activeTest
     } = useTestDataStore()
-
-    // current subject
-    const activeSubject =
-        useTestDataStore(
-            (state) => state.activeSubject
-        )
 
     // history object
     const historyObj =
@@ -79,9 +81,10 @@ export default function TestMasterHeader() {
 
             </div> */}
             <QuestionHistory />
-            <div className="hidden md:flex flex-wrap gap-2 text-[11px] font-bold">
+            {isSubmitted &&
+                <div className="hidden md:flex flex-wrap gap-2 text-[11px] font-bold">
 
-                <div className="
+                    <div className="
         bg-green-50
         text-green-700
         border
@@ -90,10 +93,10 @@ export default function TestMasterHeader() {
         py-1
         rounded-lg
     ">
-                    ✅ Correct : {stats?.correct}
-                </div>
+                        ✅ Correct : {stats?.correct}
+                    </div>
 
-                <div className="
+                    <div className="
         bg-red-50
         text-red-600
         border
@@ -102,10 +105,10 @@ export default function TestMasterHeader() {
         py-1
         rounded-lg
     ">
-                    ❌ Wrong : {stats?.wrong}
-                </div>
+                        ❌ Wrong : {stats?.wrong}
+                    </div>
 
-                <div className="
+                    <div className="
         bg-slate-100
         text-slate-700
         border
@@ -114,65 +117,248 @@ export default function TestMasterHeader() {
         py-1
         rounded-lg
     ">
-                    📌 Not Answered : {notVisited}
+                        📌 Not Answered : {notVisited}
+                    </div>
+
+                </div>}
+            {/* LANGUAGE SELECTOR */}
+
+            <div className="flex items-center justify-between min-h-[40px] gap-3">
+
+                {/* LEFT SIDE */}
+                <div className="flex items-center gap-2">
+                    <span className="text-[11px] font-semibold text-slate-500">
+                        View in:
+                    </span>
+
+                    <select
+                        value={activeLan}
+                        onChange={(e) => setActiveLan(e.target.value)}
+                        className="border border-slate-300 rounded px-1.5 py-0.5 text-[11px] font-medium text-slate-700 bg-white focus:outline-none"
+                    >
+                        {Object.entries(languageObj).map(([key, value]) => (
+                            <option key={key} value={key}>
+                                {String(value)}
+                            </option>
+                        ))}
+                    </select>
+
+                    <div className="shrink-0 bg-rose-50 border border-rose-100 rounded-xl px-2.5 py-1.5 text-center">
+                        <div className="text-[12px] font-black text-rose-600 tracking-wide">
+                            <TestTimer />
+                        </div>
+                    </div>
+                </div>
+
+                {/* RIGHT SIDE */}
+                <div className="flex items-center gap-1.5 xl:hidden">
+                    <button
+                        onClick={async () => {
+                            if (isSubmitted) {
+
+                                router.back()
+
+                                return
+                            }
+                            const store =
+                                useTestDataStore.getState()
+
+                            if (
+                                store.loadingSave ||
+                                store.loadingResult
+                            ) {
+                                return
+                            }
+
+                            const history =
+                                store.activeTest
+                                    ?.activeQuestionHistoryObj
+
+                            const testsMap =
+                                useTestSeriesStore
+                                    .getState()
+                                    .testsMap
+
+                            let historyId = ''
+
+                            Object.values(testsMap).forEach(
+                                (tests: any) => {
+
+                                    tests.forEach((test: any) => {
+
+                                        const runningHistory =
+                                            test?.history?.find(
+                                                (h: any) =>
+                                                    h.status === 'running'
+                                            )
+
+                                        if (runningHistory) {
+
+                                            historyId =
+                                                runningHistory._id
+                                        }
+                                    })
+                                }
+                            )
+
+                            if (!historyId) {
+                                return
+                            }
+
+                            await fetchSave({
+
+                                historyId,
+                                time: timeLeft,
+
+                                data: {
+
+                                    [activeSubject]: {
+
+                                        ...history[
+                                        activeSubject
+                                        ],
+
+                                        activeIndex:
+                                            store.activeQuestionIndex,
+
+                                        language:
+                                            store.activeLan,
+                                        timeLeft:
+                                            timeLeft
+                                    }
+                                },
+
+                                e: 1
+                            })
+
+                            router.back()
+                        }}
+                        className="cursor-pointer flex items-center gap-1 bg-white border border-slate-300 text-slate-500 px-2 py-1 rounded-lg hover:bg-slate-50 text-[10px] font-bold transition-colors"
+                    >
+                        <svg
+                            className="w-3 h-3 text-slate-400"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            strokeWidth="2.5"
+                            stroke="currentColor"
+                        >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l-3 3m0 0 3 3m-3-3h12.75"
+                            />
+                        </svg>
+                        {isSubmitted ? "Exit" : "Exit & Resume"}
+                    </button>
+                    {!isSubmitted &&
+                        <button
+                            onClick={async () => {
+
+                                const store =
+                                    useTestDataStore.getState()
+
+                                if (
+                                    store.loadingResult ||
+                                    store.loadingSave
+                                ) {
+                                    return
+                                }
+
+                                const history =
+                                    store.activeTest
+                                        ?.activeQuestionHistoryObj
+
+                                const testsMap =
+                                    useTestSeriesStore
+                                        .getState()
+                                        .testsMap
+
+                                let payload: any = null
+
+                                Object.values(testsMap).forEach(
+                                    (tests: any) => {
+
+                                        tests.forEach((test: any) => {
+
+                                            const runningHistory =
+                                                test?.history?.find(
+                                                    (h: any) =>
+                                                        h.status === 'running'
+                                                )
+
+                                            if (runningHistory) {
+
+                                                payload = {
+
+                                                    historyId:
+                                                        runningHistory._id,
+
+                                                    relationId:
+                                                        test.relationId,
+
+                                                    testId:
+                                                        test.testId,
+
+                                                    ts:
+                                                        test.ts,
+                                                    time: timeLeft,
+
+                                                    data: {
+
+                                                        [activeSubject]: {
+
+                                                            ...history[
+                                                            activeSubject
+                                                            ],
+
+                                                            activeIndex:
+                                                                store.activeQuestionIndex,
+
+                                                            language:
+                                                                store.activeLan,
+                                                            timeLeft:
+                                                                timeLeft
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        })
+                                    }
+                                )
+
+                                if (!payload) {
+                                    return
+                                }
+
+                                const data =
+                                    await fetchResult(payload)
+
+                                // if (data?.success) {
+
+                                //     router.refresh()
+                                // }
+                            }}
+                            className="cursor-pointer flex items-center gap-1 bg-white border border-blue-200 text-blue-600 px-2.5 py-1 rounded-lg hover:bg-blue-50 text-[10px] font-bold shadow-sm transition-colors"
+                        >
+                            <svg
+                                className="w-3 h-3 text-blue-500"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                strokeWidth="2.5"
+                                stroke="currentColor"
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                                />
+                            </svg>
+                            Submit
+                        </button>
+                    }
                 </div>
 
             </div>
-            {/* LANGUAGE SELECTOR */}
-
-           <div className="relative flex items-center gap-1.5 min-h-[40px]">
-    <span className="text-[11px] font-semibold text-slate-500">
-        View in:
-    </span>
-
-    <select
-        value={activeLan}
-        onChange={(e) => setActiveLan(e.target.value)}
-        className="border border-slate-300 rounded px-1.5 py-0.5 text-[11px] font-medium text-slate-700 bg-white focus:outline-none"
-    >
-        {Object.entries(languageObj).map(([key, value]) => (
-            <option key={key} value={key}>
-                {String(value)}
-            </option>
-        ))}
-    </select>
-
-    <div className="xl:hidden shrink-0 bg-rose-50 border border-rose-100 rounded-xl px-2.5 py-1.5 text-center">
-        <div className="text-[12px] font-black text-rose-600 tracking-wide">
-            <TestTimer />
-        </div>
-    </div>
-
-    <div className="absolute right-0 flex items-center gap-1.5">
-        <button
-            onClick={() => {
-                if (window.confirm("Do you want to exit the test?")) {
-                    console.log("Exit Test")
-                }
-            }}
-            className="flex items-center gap-1 bg-white border border-slate-300 text-slate-500 px-2 py-1 rounded-lg hover:bg-slate-50 text-[10px] font-bold transition-colors"
-        >
-            <svg className="w-3 h-3 text-slate-400" fill="none" viewBox="0 0 24 24" strokeWidth="2.5" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l-3 3m0 0 3 3m-3-3h12.75" />
-            </svg>
-            Exit
-        </button>
-
-        <button
-            onClick={() => {
-                if (window.confirm("Do you want to submit the test?")) {
-                    console.log("Test Submitted")
-                }
-            }}
-            className="flex items-center gap-1 bg-white border border-blue-200 text-blue-600 px-2.5 py-1 rounded-lg hover:bg-blue-50 text-[10px] font-bold shadow-sm transition-colors"
-        >
-            <svg className="w-3 h-3 text-blue-500" fill="none" viewBox="0 0 24 24" strokeWidth="2.5" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-            </svg>
-            Submit
-        </button>
-    </div>
-</div>
             {/* <div className="md:hidden overflow-x-auto whitespace-nowrap scroll-hide px-3 py-2 border-b border-slate-200 bg-white">
                 <div className="flex gap-2 w-max text-[10px] font-bold">
                     <div className="flex items-center gap-1.5 bg-green-50 text-green-700 px-2.5 py-1 rounded-lg border border-green-100">
