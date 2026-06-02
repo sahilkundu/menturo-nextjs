@@ -896,7 +896,7 @@ export const useTestSeriesStore =
         // ======================================================
 
         clearStore: () => {
-
+            console.trace("CLEAR TEST STORE")
             set({
 
                 seriesMap: {},
@@ -921,7 +921,7 @@ export const useTestSeriesStore =
             })
         },
         clearTests: () => {
-
+            console.trace("CLEAR TESTS")
             set({
 
 

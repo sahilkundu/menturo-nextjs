@@ -18,10 +18,7 @@ export default function MockTestPage() {
         activeSubject,
         setActiveSubject,
         clearActiveTest,
-        fetchSave,
         timeLeft,
-        activeLan,
-        activeQuestionIndex,
     } = useTestDataStore()
 
     const [isSideBarOpen, setIsSideBarOpen] = useState(false)
@@ -86,6 +83,7 @@ export default function MockTestPage() {
         await store.fetchSave({
 
             historyId,
+            time: timeLeft,
 
             data: {
 

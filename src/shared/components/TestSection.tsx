@@ -59,35 +59,41 @@ export default function TestSection({ series }: Props) {
     const allTests =
         testsMap[series?._id] || []
 
-    const [selectedSubject, setSelectedSubject] =
-        useState('all')
+    // const [selectedSubject, setSelectedSubject] =
+    //     useState('all')
+    // Load saved subject from localStorage on initial render
+    const [selectedSubject, setSelectedSubject] = useState(() => {
+        if (typeof window !== 'undefined') {
+            const saved = localStorage.getItem(`selected_subject_${series?._id}`)
+            return saved || 'all'
+        }
+        return 'all'
+    })
+
+    // Save to localStorage whenever subject changes
+    useEffect(() => {
+        if (series?._id && selectedSubject) {
+            localStorage.setItem(`selected_subject_${series._id}`, selectedSubject)
+        }
+    }, [selectedSubject, series?._id])
     const normalizedSelectedSubject =
-        selectedSubject
-            .trim()
-            .toLowerCase()
+        selectedSubject.trim().toLowerCase()
 
     const pagination =
-        normalizedSelectedSubject === 'all'
+        testsPaginationBySubject?.[
+        series?._id
+        ]?.[
+        normalizedSelectedSubject
+        ]
 
-            ? testsPaginationBySeries[series?._id]
-
-            : testsPaginationBySubject?.[
-            series?._id
-            ]?.[
-            normalizedSelectedSubject
-            ]
-
-    const subjectTests =
+    const tests =
         testsBySubjectMap?.[
         series?._id
         ]?.[
         normalizedSelectedSubject
         ] || []
 
-    const tests =
-        normalizedSelectedSubject === 'all'
-            ? allTests
-            : subjectTests
+
     const rowVirtualizer = useVirtualizer({
         getItemKey: (index) => tests[index]?.testId || index,
         count: tests.length,
@@ -101,15 +107,53 @@ export default function TestSection({ series }: Props) {
     })
     // Initial load
 
+    // useEffect(() => {
+    //     if (!series?._id) return
+    //     if (tests.length > 0) return
+
+    //     // fetchTests(series._id, {
+    //     //     page: 1,
+    //     //     limit: 3
+    //     // })
+    //     const firstSubject =
+    //         (series?.sub?.[0] || '').toLowerCase()
+
+    //     setSelectedSubject(firstSubject)
+
+    //     fetchTestsBySubject(
+    //         series._id,
+    //         firstSubject,
+    //         {
+    //             page: 1,
+    //             limit: 3
+    //         }
+    //     )
+    // }, [series])
     useEffect(() => {
         if (!series?._id) return
+
+        // Check if we already have tests for current subject
         if (tests.length > 0) return
 
-        fetchTests(series._id, {
-            page: 1,
-            limit: 3
-        })
-    }, [series])
+        // Get saved subject or use first subject
+        const savedSubject = localStorage.getItem(`selected_subject_${series._id}`)
+        const subjectToLoad = savedSubject || (series?.sub?.[0] || '').toLowerCase()
+
+        setSelectedSubject(subjectToLoad)
+
+        // Only fetch if tests for this subject don't exist
+        const existingTests = testsBySubjectMap?.[series._id]?.[subjectToLoad]
+        if (!existingTests || existingTests.length === 0) {
+            fetchTestsBySubject(
+                series._id,
+                subjectToLoad,
+                {
+                    page: 1,
+                    limit: 3
+                }
+            )
+        }
+    }, [series?._id]) // Remove tests.length dependency
 
     // Auto-load logic: load more if no scrollbar appears
     // AUTO LOAD ONLY IF CONTAINER HAS NO SCROLLBAR
@@ -139,24 +183,32 @@ export default function TestSection({ series }: Props) {
 
             try {
 
-                if (normalizedSelectedSubject === 'all') {
+                // if (normalizedSelectedSubject === 'all') {
 
-                    await fetchTests(series._id, {
+                //     await fetchTests(series._id, {
+                //         page: pagination.currentPage + 1,
+                //         limit: 3
+                //     })
+
+                // } else {
+
+                //     await fetchTestsBySubject(
+                //         series._id,
+                //         normalizedSelectedSubject,
+                //         {
+                //             page: pagination.currentPage + 1,
+                //             limit: 3
+                //         }
+                //     )
+                // }
+                await fetchTestsBySubject(
+                    series._id,
+                    normalizedSelectedSubject,
+                    {
                         page: pagination.currentPage + 1,
                         limit: 3
-                    })
-
-                } else {
-
-                    await fetchTestsBySubject(
-                        series._id,
-                        normalizedSelectedSubject,
-                        {
-                            page: pagination.currentPage + 1,
-                            limit: 3
-                        }
-                    )
-                }
+                    }
+                )
 
             } finally {
 
@@ -180,46 +232,55 @@ export default function TestSection({ series }: Props) {
         if (loadingTests) return
         if (!pagination?.hasMore) return
 
-        if (normalizedSelectedSubject === 'all') {
+        // if (normalizedSelectedSubject === 'all') {
 
-            await fetchTests(series._id, {
+        //     await fetchTests(series._id, {
+        //         page: pagination.currentPage + 1,
+        //         limit: 3
+        //     })
+
+        // } else {
+
+        //     await fetchTestsBySubject(
+        //         series._id,
+        //         selectedSubject,
+        //         {
+        //             page: pagination.currentPage + 1,
+        //             limit: 3
+        //         }
+        //     )
+        // }
+        await fetchTestsBySubject(
+            series._id,
+            normalizedSelectedSubject,
+            {
                 page: pagination.currentPage + 1,
                 limit: 3
-            })
-
-        } else {
-
-            await fetchTestsBySubject(
-                series._id,
-                selectedSubject,
-                {
-                    page: pagination.currentPage + 1,
-                    limit: 3
-                }
-            )
-        }
+            }
+        )
     }
 
     // Categories logic
-    const categories = [
+    //this is for all test loading can use later
+    // const categories = [
 
-        {
-            id: 1,
-            name: 'All'
-        },
+    //     {
+    //         id: 1,
+    //         name: 'All'
+    //     },
 
-        ...((series?.sub || []).map(
-            (
-                sub: string,
-                index: number
-            ) => ({
+    //     ...((series?.sub || []).map(
+    //         (
+    //             sub: string,
+    //             index: number
+    //         ) => ({
 
-                id: index + 2,
+    //             id: index + 2,
 
-                name: sub
-            })
-        ))
-    ]
+    //             name: sub
+    //         })
+    //     ))
+    // ]
 
     const includedFeatures = series?.info || []
 
@@ -443,11 +504,6 @@ export default function TestSection({ series }: Props) {
         }
 
     }, [])
-    useEffect(() => {
-
-        rowVirtualizer.measure()
-
-    }, [selectedSubject, tests.length])
 
     if (!series) {
         return (
@@ -692,7 +748,7 @@ export default function TestSection({ series }: Props) {
             "
                                     >
 
-                                        {categories.map((category) => {
+                                        {/* {categories.map((category) => {
 
                                             const isActive =
 
@@ -713,45 +769,55 @@ export default function TestSection({ series }: Props) {
                                                         // ALL
                                                         // =========================
 
-                                                        if (
-                                                            category.name === 'All'
-                                                        ) {
+                                                        // if (
+                                                        //     category.name === 'All'
+                                                        // ) {
 
-                                                            setSelectedSubject(
-                                                                'all'
-                                                            )
+                                                        //     setSelectedSubject(
+                                                        //         'all'
+                                                        //     )
 
-                                                            return
-                                                        }
+                                                        //     return
+                                                        // }
 
                                                         // =========================
                                                         // SUBJECT
                                                         // =========================
 
-                                                        const normalizedSubject =
-                                                            category.name
-                                                                .trim()
-                                                                .toLowerCase()
+                                                        // const normalizedSubject =
+                                                        //     category.name
+                                                        //         .trim()
+                                                        //         .toLowerCase()
 
-                                                        setSelectedSubject(
-                                                            normalizedSubject
-                                                        )
+                                                        // setSelectedSubject(
+                                                        //     normalizedSubject
+                                                        // )
 
-                                                        // already loaded
-                                                        const alreadyLoaded =
-                                                            testsBySubjectMap?.[
-                                                                series._id
-                                                            ]?.[
-                                                                normalizedSubject
-                                                            ]?.length > 0
+                                                        // // already loaded
+                                                        // const alreadyLoaded =
+                                                        //     testsBySubjectMap?.[
+                                                        //         series._id
+                                                        //     ]?.[
+                                                        //         normalizedSubject
+                                                        //     ]?.length > 0
 
-                                                        if (alreadyLoaded)
-                                                            return
+                                                        // if (alreadyLoaded)
+                                                        //     return
 
-                                                        // backend call
+                                                        // // backend call
+                                                        // await fetchTestsBySubject(
+                                                        //     series._id,
+                                                        //     normalizedSubject,
+                                                        //     {
+                                                        //         page: 1,
+                                                        //         limit: 3
+                                                        //     }
+                                                        // )
+                                                        setSelectedSubject(category.name)
+
                                                         await fetchTestsBySubject(
                                                             series._id,
-                                                            normalizedSubject,
+                                                            category.name.toLowerCase(),
                                                             {
                                                                 page: 1,
                                                                 limit: 3
@@ -813,8 +879,94 @@ export default function TestSection({ series }: Props) {
 
                                                 </button>
                                             )
-                                        })}
+                                        })} */}
+                                        {(series?.sub || []).map((subject, index) => {
 
+                                            const isActive =
+                                                selectedSubject.toLowerCase() ===
+                                                subject.toLowerCase()
+
+
+                                            return (
+                                                <button
+                                                    key={index}
+                                                    // onClick={async () => {
+
+                                                    //     const normalizedSubject =
+                                                    //         subject.trim().toLowerCase()
+
+                                                    //     setSelectedSubject(normalizedSubject)
+
+                                                    //     await fetchTestsBySubject(
+                                                    //         series._id,
+                                                    //         normalizedSubject,
+                                                    //         {
+                                                    //             page: 1,
+                                                    //             limit: 3
+                                                    //         }
+                                                    //     )
+                                                    // }}
+                                                    onClick={async () => {
+                                                        const normalizedSubject =
+                                                            subject.trim().toLowerCase()
+
+                                                        setSelectedSubject(normalizedSubject)
+
+                                                        // Save to localStorage
+                                                        localStorage.setItem(`selected_subject_${series._id}`, normalizedSubject)
+
+                                                        // Check if already loaded
+                                                        const alreadyLoaded = testsBySubjectMap?.[series._id]?.[normalizedSubject]?.length > 0
+
+                                                        if (!alreadyLoaded) {
+                                                            await fetchTestsBySubject(
+                                                                series._id,
+                                                                normalizedSubject,
+                                                                {
+                                                                    page: 1,
+                                                                    limit: 3
+                                                                }
+                                                            )
+                                                        }
+                                                    }}
+
+                                                    className={`
+                relative
+                shrink-0
+                px-4
+                py-2
+                rounded-xl
+                text-[12px]
+                font-semibold
+                transition-all
+                duration-200
+                cursor-pointer
+                border
+
+                ${isActive
+                                                            ? `
+                        bg-[#4A3F77]
+                        text-white
+                        border-[#4A3F77]
+                        ring-2
+                        ring-[#E9E4FF]
+                        shadow-[0_4px_14px_rgba(74,63,119,0.35)]
+                    `
+                                                            : `
+                        bg-white
+                        text-gray-600
+                        border-gray-200
+                        hover:bg-[#F5F3FF]
+                        hover:text-[#4A3F77]
+                        hover:border-[#CFC7F3]
+                    `
+                                                        }
+            `}
+                                                >
+                                                    {subject}
+                                                </button>
+                                            )
+                                        })}
                                     </div>
 
                                 </div>
@@ -859,7 +1011,7 @@ export default function TestSection({ series }: Props) {
 
                                     const test =
                                         tests[virtualRow.index]
-
+                                    const isAvailable = test?.av
                                     if (!test) return null
                                     const hasHistory =
                                         test?.history?.length > 0
@@ -968,8 +1120,9 @@ export default function TestSection({ series }: Props) {
                                                 </div>
 
                                                 {/* BUTTON AREA */}
-                                                <div
-                                                    className="
+                                                {isAvailable ?
+                                                    <div
+                                                        className="
         flex
         flex-col
         sm:flex-row
@@ -979,36 +1132,36 @@ export default function TestSection({ series }: Props) {
         w-full
         sm:w-auto
     "
-                                                >
+                                                    >
 
-                                                    {/* ========================================= */}
-                                                    {/* ONLY RESUME */}
-                                                    {/* if any resume exists */}
-                                                    {/* ========================================= */}
+                                                        {/* ========================================= */}
+                                                        {/* ONLY RESUME */}
+                                                        {/* if any resume exists */}
+                                                        {/* ========================================= */}
 
-                                                    {hasResumeAttempt || hasRunningTest ? (
+                                                        {hasResumeAttempt || hasRunningTest ? (
 
-                                                        <>
-                                                            <button
-                                                                onClick={() => {
+                                                            <>
+                                                                <button
+                                                                    onClick={() => {
 
-                                                                    if (
-                                                                        !test.access ||
-                                                                        loadingTestId ||
-                                                                        hasRunningTest
-                                                                    ) return
+                                                                        if (
+                                                                            !test.access ||
+                                                                            loadingTestId ||
+                                                                            hasRunningTest
+                                                                        ) return
 
-                                                                    handleTestAction(test)
-                                                                }}
-                                                                disabled={
-                                                                    loadingTestId !== null
-                                                                }
-                                                                className={`
+                                                                        handleTestAction(test)
+                                                                    }}
+                                                                    disabled={
+                                                                        loadingTestId !== null
+                                                                    }
+                                                                    className={`
                                                                     
                     ${loadingTestId || hasRunningTest
-                                                                        ? 'cursor-not-allowed'
-                                                                        : 'cursor-pointer'
-                                                                    }
+                                                                            ? 'cursor-not-allowed'
+                                                                            : 'cursor-pointer'
+                                                                        }
                     w-full
                     sm:w-auto
                     shrink-0
@@ -1027,84 +1180,84 @@ export default function TestSection({ series }: Props) {
         disabled:pointer-events-none
 
                     ${test.access
-                                                                        ? `
+                                                                            ? `
                             bg-[#4A3F77]
                             text-white
                             shadow-[0_4px_12px_rgba(74,63,119,0.3)]
                             hover:shadow-[0_6px_18px_rgba(74,63,119,0.4)]
                             hover:-translate-y-0.5
                         `
-                                                                        : `
+                                                                            : `
                             bg-gray-300
                             text-gray-600
                             cursor-not-allowed
                         `
-                                                                    }
+                                                                        }
                 `}
-                                                            >
+                                                                >
 
-                                                                {
-                                                                    isResumeLoading
-                                                                        ? <Spinner size={15} />
-                                                                        : (
-                                                                            <>
-                                                                                <span className="bg-white/15 p-1 rounded-md text-[10px]">
+                                                                    {
+                                                                        isResumeLoading
+                                                                            ? <Spinner size={15} />
+                                                                            : (
+                                                                                <>
+                                                                                    <span className="bg-white/15 p-1 rounded-md text-[10px]">
 
-                                                                                    {
-                                                                                        authenticated && test.access
+                                                                                        {
+                                                                                            authenticated && test.access
+                                                                                                ? (
+                                                                                                    hasRunningTest
+                                                                                                        ? <Lock size={15} />
+                                                                                                        : <Unlock size={15} />
+                                                                                                )
+                                                                                                : <Lock size={15} />
+                                                                                        }
+
+                                                                                    </span>
+
+                                                                                    <span>
+                                                                                        {authenticated
                                                                                             ? (
                                                                                                 hasRunningTest
-                                                                                                    ? <Lock size={15} />
-                                                                                                    : <Unlock size={15} />
+                                                                                                    ? "Test running..."
+                                                                                                    : "Resume Test"
                                                                                             )
-                                                                                            : <Lock size={15} />
-                                                                                    }
+                                                                                            :
+                                                                                            <Lock size={15} />
+                                                                                        }
+                                                                                    </span>
+                                                                                </>
+                                                                            )
+                                                                    }
+                                                                </button>
 
-                                                                                </span>
+                                                                {/* ========================================= */}
+                                                                {/* SHOW SOLUTION ALSO */}
+                                                                {/* if submitted + resume both exist */}
+                                                                {/* ========================================= */}
 
-                                                                                <span>
-                                                                                    {authenticated
-                                                                                        ? (
-                                                                                            hasRunningTest
-                                                                                                ? "Test running..."
-                                                                                                : "Resume Test"
-                                                                                        )
-                                                                                        :
-                                                                                        <Lock size={15} />
-                                                                                    }
-                                                                                </span>
-                                                                            </>
-                                                                        )
-                                                                }
-                                                            </button>
+                                                                {authenticated && test.history?.some(
+                                                                    (h: any) => h.status === 'submitted'
+                                                                ) && (
 
-                                                            {/* ========================================= */}
-                                                            {/* SHOW SOLUTION ALSO */}
-                                                            {/* if submitted + resume both exist */}
-                                                            {/* ========================================= */}
+                                                                        <div className="relative group w-full sm:w-auto">
 
-                                                            {authenticated && test.history?.some(
-                                                                (h: any) => h.status === 'submitted'
-                                                            ) && (
+                                                                            {/* SOLUTION BUTTON */}
+                                                                            <button
+                                                                                onClick={() => {
 
-                                                                    <div className="relative group w-full sm:w-auto">
+                                                                                    setOpenSolutionId(
+                                                                                        openSolutionId === test.testId
+                                                                                            ? null
+                                                                                            : test.testId
+                                                                                    )
 
-                                                                        {/* SOLUTION BUTTON */}
-                                                                        <button
-                                                                            onClick={() => {
-
-                                                                                setOpenSolutionId(
-                                                                                    openSolutionId === test.testId
-                                                                                        ? null
-                                                                                        : test.testId
-                                                                                )
-
-                                                                            }}
-                                                                            className={`
+                                                                                }}
+                                                                                className={`
    ${loadingTestId || hasRunningTest
-                                                                                    ? 'cursor-not-allowed'
-                                                                                    : 'cursor-pointer'
-                                                                                }
+                                                                                        ? 'cursor-not-allowed'
+                                                                                        : 'cursor-pointer'
+                                                                                    }
     w-full
     sm:w-auto
     min-w-[140px]
@@ -1129,32 +1282,32 @@ export default function TestSection({ series }: Props) {
     transition-all
     `}
 
-                                                                        >
+                                                                            >
 
-                                                                            <span className="bg-white/15 p-1 rounded-md text-[10px]">
+                                                                                <span className="bg-white/15 p-1 rounded-md text-[10px]">
 
-                                                                                <Book size={15} />
+                                                                                    <Book size={15} />
 
-                                                                            </span>
+                                                                                </span>
 
-                                                                            <span>
+                                                                                <span>
 
-                                                                                Solutions
+                                                                                    Solutions
 
-                                                                            </span>
+                                                                                </span>
 
-                                                                        </button>
+                                                                            </button>
 
-                                                                        {/* DROPDOWN */}
-                                                                        <div
-                                                                            className={`
+                                                                            {/* DROPDOWN */}
+                                                                            <div
+                                                                                className={`
                             absolute
                             left-0
                             bottom-0
                            ${openSolutionId === test.testId
-                                                                                    ? 'flex'
-                                                                                    : 'hidden group-hover:flex'
-                                                                                }
+                                                                                        ? 'flex'
+                                                                                        : 'hidden group-hover:flex'
+                                                                                    }
                             flex-col-reverse
                             z-50
                             w-full
@@ -1171,31 +1324,31 @@ export default function TestSection({ series }: Props) {
                             [&::-webkit-scrollbar]:w-0
                             [&::-webkit-scrollbar]:h-0
                         `}
-                                                                        >
+                                                                            >
 
-                                                                            {test.history
-                                                                                ?.filter(
-                                                                                    (item: any) =>
-                                                                                        item.status === 'submitted'
-                                                                                )
-                                                                                .map(
-                                                                                    (
-                                                                                        item: any,
-                                                                                        index: number
-                                                                                    ) => (
+                                                                                {test.history
+                                                                                    ?.filter(
+                                                                                        (item: any) =>
+                                                                                            item.status === 'submitted'
+                                                                                    )
+                                                                                    .map(
+                                                                                        (
+                                                                                            item: any,
+                                                                                            index: number
+                                                                                        ) => (
 
-                                                                                        <button
-                                                                                            key={item._id}
-                                                                                            onClick={() => {
-                                                                                                setOpenSolutionId(null)
-                                                                                                handleTestAction(
-                                                                                                    test,
-                                                                                                    'solution',
-                                                                                                    item._id
-                                                                                                )
+                                                                                            <button
+                                                                                                key={item._id}
+                                                                                                onClick={() => {
+                                                                                                    setOpenSolutionId(null)
+                                                                                                    handleTestAction(
+                                                                                                        test,
+                                                                                                        'solution',
+                                                                                                        item._id
+                                                                                                    )
 
-                                                                                            }}
-                                                                                            className={`
+                                                                                                }}
+                                                                                                className={`
                                             w-full
                                             text-left
                                             px-4
@@ -1210,48 +1363,48 @@ export default function TestSection({ series }: Props) {
                                             last:border-b-0
                                             transition
                                          ${loadingTestId || hasRunningTest
-                                                                                                    ? 'cursor-not-allowed'
-                                                                                                    : 'cursor-pointer'
-                                                                                                }
+                                                                                                        ? 'cursor-not-allowed'
+                                                                                                        : 'cursor-pointer'
+                                                                                                    }
                                             shrink-0
                                                                                         `}
-                                                                                        >
+                                                                                            >
 
-                                                                                            Attempt {index + 1}
+                                                                                                Attempt {index + 1}
 
-                                                                                        </button>
-                                                                                    )
-                                                                                )}
+                                                                                            </button>
+                                                                                        )
+                                                                                    )}
+
+                                                                            </div>
 
                                                                         </div>
+                                                                    )}
 
-                                                                    </div>
-                                                                )}
+                                                            </>
 
-                                                        </>
+                                                        ) : allSubmitted ? (
 
-                                                    ) : allSubmitted ? (
+                                                            <>
+                                                                {/* ========================================= */}
+                                                                {/* TEST AGAIN */}
+                                                                {/* ========================================= */}
 
-                                                        <>
-                                                            {/* ========================================= */}
-                                                            {/* TEST AGAIN */}
-                                                            {/* ========================================= */}
-
-                                                            <button
-                                                                onClick={() =>
-                                                                    test.access &&
-                                                                    handleTestAction(test)
-                                                                }
-                                                                disabled={
-                                                                    loadingTestId !== null
-                                                                }
-                                                                className={`
+                                                                <button
+                                                                    onClick={() =>
+                                                                        test.access &&
+                                                                        handleTestAction(test)
+                                                                    }
+                                                                    disabled={
+                                                                        loadingTestId !== null
+                                                                    }
+                                                                    className={`
 
         
                    ${loadingTestId || hasRunningTest
-                                                                        ? 'cursor-not-allowed'
-                                                                        : 'cursor-pointer'
-                                                                    }
+                                                                            ? 'cursor-not-allowed'
+                                                                            : 'cursor-pointer'
+                                                                        }
                     px-4
                     py-2
                     rounded-xl
@@ -1269,45 +1422,45 @@ export default function TestSection({ series }: Props) {
         disabled:cursor-not-allowed
         disabled:pointer-events-none
                 `}
-                                                            >
+                                                                >
 
-                                                                {
-                                                                    isResumeLoading
-                                                                        ? <Spinner size={15} />
-                                                                        : (
-                                                                            <>
-                                                                                <span className="bg-white/15 p-1 rounded-md text-[10px]">
+                                                                    {
+                                                                        isResumeLoading
+                                                                            ? <Spinner size={15} />
+                                                                            : (
+                                                                                <>
+                                                                                    <span className="bg-white/15 p-1 rounded-md text-[10px]">
 
-                                                                                    {test.access && authenticated
-                                                                                        ? <Unlock size={15} />
-                                                                                        : <Lock size={15} />
-                                                                                    }
+                                                                                        {test.access && authenticated
+                                                                                            ? <Unlock size={15} />
+                                                                                            : <Lock size={15} />
+                                                                                        }
 
-                                                                                </span>
+                                                                                    </span>
 
-                                                                                <span>
-                                                                                    {authenticated ? "Test Again" : <Lock size={15} />}
+                                                                                    <span>
+                                                                                        {authenticated ? "Test Again" : <Lock size={15} />}
 
 
-                                                                                </span>
-                                                                            </>
-                                                                        )
-                                                                }
+                                                                                    </span>
+                                                                                </>
+                                                                            )
+                                                                    }
 
-                                                            </button>
+                                                                </button>
 
-                                                            {/* ========================================= */}
-                                                            {/* SOLUTIONS */}
-                                                            {/* ========================================= */}
-                                                            {authenticated &&
-                                                                <div className="relative group">
+                                                                {/* ========================================= */}
+                                                                {/* SOLUTIONS */}
+                                                                {/* ========================================= */}
+                                                                {authenticated &&
+                                                                    <div className="relative group">
 
-                                                                    <button
-                                                                        className={`
+                                                                        <button
+                                                                            className={`
                        ${loadingTestId || hasRunningTest
-                                                                                ? 'cursor-not-allowed'
-                                                                                : 'cursor-pointer'
-                                                                            }
+                                                                                    ? 'cursor-not-allowed'
+                                                                                    : 'cursor-pointer'
+                                                                                }
                         px-4
                         py-2
                         rounded-xl
@@ -1322,24 +1475,24 @@ export default function TestSection({ series }: Props) {
                         hover:-translate-y-0.5
                         transition-all
 `}
-                                                                    >
+                                                                        >
 
-                                                                        <span className="bg-white/15 p-1 rounded-md text-[10px]">
+                                                                            <span className="bg-white/15 p-1 rounded-md text-[10px]">
 
-                                                                            <Book size={15} />
+                                                                                <Book size={15} />
 
-                                                                        </span>
+                                                                            </span>
 
-                                                                        <span>
+                                                                            <span>
 
-                                                                            Solutions
+                                                                                Solutions
 
-                                                                        </span>
+                                                                            </span>
 
-                                                                    </button>
+                                                                        </button>
 
-                                                                    <div
-                                                                        className="
+                                                                        <div
+                                                                            className="
                         absolute
                         left-0
                         bottom-0
@@ -1361,29 +1514,29 @@ export default function TestSection({ series }: Props) {
                         [&::-webkit-scrollbar]:w-0
                         [&::-webkit-scrollbar]:h-0
                     "
-                                                                    >
+                                                                        >
 
-                                                                        {test.history.map(
-                                                                            (
-                                                                                item: any,
-                                                                                index: number
-                                                                            ) => (
+                                                                            {test.history.map(
+                                                                                (
+                                                                                    item: any,
+                                                                                    index: number
+                                                                                ) => (
 
-                                                                                <button
-                                                                                    key={item._id}
-                                                                                    onClick={() => {
+                                                                                    <button
+                                                                                        key={item._id}
+                                                                                        onClick={() => {
 
-                                                                                        handleTestAction(
-                                                                                            test,
-                                                                                            'solution',
-                                                                                            item._id
-                                                                                        )
+                                                                                            handleTestAction(
+                                                                                                test,
+                                                                                                'solution',
+                                                                                                item._id
+                                                                                            )
 
-                                                                                    }}
-                                                                                    disabled={
-                                                                                        isSolutionLoading(item._id)
-                                                                                    }
-                                                                                    className={`
+                                                                                        }}
+                                                                                        disabled={
+                                                                                            isSolutionLoading(item._id)
+                                                                                        }
+                                                                                        className={`
                                                                                
         
                                     w-full
@@ -1400,55 +1553,55 @@ export default function TestSection({ series }: Props) {
                                     last:border-b-0
                                     transition
                                    ${loadingTestId || hasRunningTest
-                                                                                            ? 'cursor-not-allowed'
-                                                                                            : 'cursor-pointer'
-                                                                                        }
+                                                                                                ? 'cursor-not-allowed'
+                                                                                                : 'cursor-pointer'
+                                                                                            }
                                     shrink-0
                                     disabled:cursor-not-allowed
                                      disabled:opacity-70
                                 `}
-                                                                                >
+                                                                                    >
 
-                                                                                    {
-                                                                                        isSolutionLoading(item._id)
-                                                                                            ? (
-                                                                                                <div className="flex justify-center">
-                                                                                                    <Spinner size={14} />
-                                                                                                </div>
-                                                                                            )
-                                                                                            : (
-                                                                                                <>Attempt {index + 1}</>
-                                                                                            )
-                                                                                    }
-                                                                                </button>
-                                                                            )
-                                                                        )}
+                                                                                        {
+                                                                                            isSolutionLoading(item._id)
+                                                                                                ? (
+                                                                                                    <div className="flex justify-center">
+                                                                                                        <Spinner size={14} />
+                                                                                                    </div>
+                                                                                                )
+                                                                                                : (
+                                                                                                    <>Attempt {index + 1}</>
+                                                                                                )
+                                                                                        }
+                                                                                    </button>
+                                                                                )
+                                                                            )}
 
-                                                                    </div>
+                                                                        </div>
 
-                                                                </div>}
-                                                        </>
+                                                                    </div>}
+                                                            </>
 
-                                                    ) : (
+                                                        ) : (
 
-                                                        /* ========================================= */
-                                                        /* NO HISTORY => START TEST */
-                                                        /* ========================================= */
+                                                            /* ========================================= */
+                                                            /* NO HISTORY => START TEST */
+                                                            /* ========================================= */
 
-                                                        <button
-                                                            disabled={
-                                                                loadingTestId !== null
-                                                            }
-                                                            onClick={() =>
-                                                                test.access &&
-                                                                handleTestAction(test)
-                                                            }
-                                                            className={`
+                                                            <button
+                                                                disabled={
+                                                                    loadingTestId !== null
+                                                                }
+                                                                onClick={() =>
+                                                                    test.access &&
+                                                                    handleTestAction(test)
+                                                                }
+                                                                className={`
                                                             
                 ${loadingTestId || hasRunningTest
-                                                                    ? 'cursor-not-allowed'
-                                                                    : 'cursor-pointer'
-                                                                }
+                                                                        ? 'cursor-not-allowed'
+                                                                        : 'cursor-pointer'
+                                                                    }
                 px-4
                 py-2
                 rounded-xl
@@ -1466,39 +1619,77 @@ export default function TestSection({ series }: Props) {
         disabled:cursor-not-allowed
         disabled:pointer-events-none
             `}
-                                                        >
+                                                            >
 
-                                                            {
-                                                                isResumeLoading
-                                                                    ? <Spinner size={15} />
-                                                                    : (
-                                                                        <>
-                                                                            {authenticated &&
-                                                                                <span className="bg-white/15 p-1 rounded-md text-[10px]">
+                                                                {
+                                                                    isResumeLoading
+                                                                        ? <Spinner size={15} />
+                                                                        : (
+                                                                            <>
+                                                                                {authenticated &&
+                                                                                    <span className="bg-white/15 p-1 rounded-md text-[10px]">
 
-                                                                                    {test.access
-                                                                                        ? <Unlock size={15} />
-                                                                                        : <Lock size={15} />
+                                                                                        {test.access
+                                                                                            ? <Unlock size={15} />
+                                                                                            : <Lock size={15} />
+                                                                                        }
+
+                                                                                    </span>}
+
+                                                                                <span>
+                                                                                    {authenticated ?
+                                                                                        "Start Test" :
+                                                                                        <Lock size={15} />
                                                                                     }
 
-                                                                                </span>}
 
-                                                                            <span>
-                                                                                {authenticated ?
-                                                                                    "Start Test" :
-                                                                                    <Lock size={15} />
-                                                                                }
+                                                                                </span>
+                                                                            </>
+                                                                        )
+                                                                }
 
+                                                            </button>
+                                                        )}
 
-                                                                            </span>
-                                                                        </>
-                                                                    )
-                                                            }
+                                                    </div> :
+                                                    <div
+                                                        className="
+                                                                    flex
+                                                                    sm:flex-row
+                                                                    items-stretch
+                                                                    sm:items-center
+                                                                    w-full
+                                                                    sm:w-auto
+                                                                    "
+                                                    >
+                                                        <button
+                                                            disabled
+                                                            className="
+        w-full
+        sm:w-auto
+        px-4
+        py-2
+        rounded-xl
 
+        flex
+        items-center
+        justify-center
+        gap-2
+
+        bg-gray-300
+        text-[#4A3F77]
+
+        opacity-70
+        cursor-not-allowed
+        pointer-events-none
+        whitespace-nowrap
+    "
+                                                        >
+                                                            {test?.btn}
+                                                            <Lock size={14} />
                                                         </button>
-                                                    )}
-
-                                                </div>
+                                                    </div>
+                                                }
                                             </div>
 
                                         </div>

@@ -154,12 +154,14 @@ export default function TestMasterHeader() {
                 <div className="flex items-center gap-1.5 xl:hidden">
                     <button
                         onClick={async () => {
+
                             if (isSubmitted) {
 
                                 router.back()
 
                                 return
                             }
+
                             const store =
                                 useTestDataStore.getState()
 
@@ -171,58 +173,34 @@ export default function TestMasterHeader() {
                             }
 
                             const history =
-                                store.activeTest
-                                    ?.activeQuestionHistoryObj
+                                store.activeTest?.activeQuestionHistoryObj
 
-                            const testsMap =
-                                useTestSeriesStore
-                                    .getState()
-                                    .testsMap
+                            const runningHistory =
+                                store.activeTest?.history
 
-                            let historyId = ''
-
-                            Object.values(testsMap).forEach(
-                                (tests: any) => {
-
-                                    tests.forEach((test: any) => {
-
-                                        const runningHistory =
-                                            test?.history?.find(
-                                                (h: any) =>
-                                                    h.status === 'running'
-                                            )
-
-                                        if (runningHistory) {
-
-                                            historyId =
-                                                runningHistory._id
-                                        }
-                                    })
-                                }
-                            )
-
-                            if (!historyId) {
+                            if (!runningHistory?._id) {
                                 return
                             }
 
                             await fetchSave({
 
-                                historyId,
+                                historyId:
+                                    runningHistory._id,
+
                                 time: timeLeft,
 
                                 data: {
 
                                     [activeSubject]: {
 
-                                        ...history[
-                                        activeSubject
-                                        ],
+                                        ...history?.[activeSubject],
 
                                         activeIndex:
                                             store.activeQuestionIndex,
 
                                         language:
                                             store.activeLan,
+
                                         timeLeft:
                                             timeLeft
                                     }
@@ -250,6 +228,7 @@ export default function TestMasterHeader() {
                         </svg>
                         {isSubmitted ? "Exit" : "Exit & Resume"}
                     </button>
+
                     {!isSubmitted &&
                         <button
                             onClick={async () => {
@@ -267,64 +246,43 @@ export default function TestMasterHeader() {
                                 const history =
                                     store.activeTest
                                         ?.activeQuestionHistoryObj
+                                const activeHistory =
+                                    store.activeTest?.history
 
-                                const testsMap =
-                                    useTestSeriesStore
-                                        .getState()
-                                        .testsMap
+                                if (!activeHistory) {
+                                    return
+                                }
 
-                                let payload: any = null
+                                const payload = {
+                                    time: timeLeft,
 
-                                Object.values(testsMap).forEach(
-                                    (tests: any) => {
+                                    historyId:
+                                        activeHistory._id,
 
-                                        tests.forEach((test: any) => {
+                                    relationId:
+                                        activeHistory.relationId,
 
-                                            const runningHistory =
-                                                test?.history?.find(
-                                                    (h: any) =>
-                                                        h.status === 'running'
-                                                )
+                                    testId:
+                                        activeHistory.testId,
 
-                                            if (runningHistory) {
+                                    ts:
+                                        activeHistory.ts,
 
-                                                payload = {
+                                    data: {
+                                        [activeSubject]: {
 
-                                                    historyId:
-                                                        runningHistory._id,
+                                            ...history[activeSubject],
 
-                                                    relationId:
-                                                        test.relationId,
+                                            activeIndex:
+                                                store.activeQuestionIndex,
 
-                                                    testId:
-                                                        test.testId,
+                                            language:
+                                                store.activeLan,
 
-                                                    ts:
-                                                        test.ts,
-                                                    time: timeLeft,
-
-                                                    data: {
-
-                                                        [activeSubject]: {
-
-                                                            ...history[
-                                                            activeSubject
-                                                            ],
-
-                                                            activeIndex:
-                                                                store.activeQuestionIndex,
-
-                                                            language:
-                                                                store.activeLan,
-                                                            timeLeft:
-                                                                timeLeft
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        })
+                                            timeLeft
+                                        }
                                     }
-                                )
+                                }
 
                                 if (!payload) {
                                     return

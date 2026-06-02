@@ -959,6 +959,7 @@ export const useTestDataStore =
                         startTestError: null
                     })
 
+
                     // =====================================
                     // API CALL
                     // =====================================
@@ -1016,14 +1017,20 @@ export const useTestDataStore =
                     // UPDATE TEST HISTORY GLOBALLY
                     // =====================================
 
-                    if (data.history) {
 
-                        useTestSeriesStore
-                            .getState()
-                            .updateTestHistory(
-                                data.history
-                            )
-                    }
+                    // useTestSeriesStore
+                    //     .getState()
+                    //     .updateTestHistory(data.history)
+
+
+                    // if (data.history) {
+
+                    //     useTestSeriesStore
+                    //         .getState()
+                    //         .updateTestHistory(
+                    //             data.history
+                    //         )
+                    // }
                     const historyObj =
                         data?.test?.activeQuestionHistoryObj || {}
 
@@ -1031,6 +1038,7 @@ export const useTestDataStore =
                         buildSelectedOptions(historyObj)
 
                     set({
+
                         timeLeft:
                             data?.test?.duration || 0,
                         activeSubject:
@@ -1043,7 +1051,7 @@ export const useTestDataStore =
                         activeQuestionIndex: 0,
 
                         activeTest: {
-
+                            history: data?.history || null,
                             questions:
                                 data?.test?.questions || {},
 
@@ -1072,6 +1080,10 @@ export const useTestDataStore =
 
                         startTestError: null
                     })
+                    console.log(
+                        "AFTER UPDATE",
+                        useTestSeriesStore.getState().testsMap
+                    )
                     return data
 
                 } catch (error: any) {
@@ -1193,6 +1205,7 @@ export const useTestDataStore =
                         selectedOptions,
 
                         activeTest: {
+                            history: data?.history || null,
 
                             questions:
                                 data?.test?.questions || {},
@@ -1473,7 +1486,9 @@ export const useTestDataStore =
             // CLEAR ACTIVE TEST
             // =====================================
 
-            clearActiveTest: () =>
+            clearActiveTest: () => {
+                console.trace("CLEAR TEST DATA STORE")
+
                 set({
                     isSubmitted: false,
                     activeQuestionIndex: 0,
@@ -1494,6 +1509,7 @@ export const useTestDataStore =
                     startTestError: null,
                     resumeTestError: null,
                 })
+            }
 
 
         }))
