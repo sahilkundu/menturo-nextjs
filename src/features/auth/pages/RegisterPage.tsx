@@ -432,6 +432,10 @@ export default function Register() {
     ) => {
 
         e.preventDefault()
+        showPopupMessage(
+            "New Registration Closed! Contact Admin"
+        )
+        return
 
         const usernameValidation =
             validateUsername(regForm.username)

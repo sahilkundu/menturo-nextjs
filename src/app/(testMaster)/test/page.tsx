@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import TestMasterHeader from '../../../shared/components/TestMasterHeader';
 import TestMasterBody from '../../../shared/components/TestMasterBody';
 import TestMasterUserInfo from '../../../shared/components/TestMasterUserInfo';
@@ -25,7 +25,11 @@ export default function MockTestPage() {
     const handleSidebarOpen = () => {
         setIsSideBarOpen(true)
     }
+    // In any component using useTestDataStore
 
+    // console.log('Active question type:', activeQType2)
+    // console.log(activeTest?.questions)
+    // console.log(activeTest?.activeQuestionHistoryObj?.[activeSubject])
     const pathname = usePathname()
 
     useEffect(() => {

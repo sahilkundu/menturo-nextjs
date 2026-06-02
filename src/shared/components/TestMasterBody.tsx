@@ -9,9 +9,9 @@ export default function TestMasterBody() {
     const {
 
         activeTest,
+        activeQuestionIndex,
         activeSubject,
         activeLan,
-        activeQuestionIndex,
         selectedOptions,
         visitQuestion
 
@@ -97,6 +97,9 @@ export default function TestMasterBody() {
     const [showSolution, setShowSolution] =
         useState(false)
     useEffect(() => {
+        setShowSolution(isSubmitted)
+    }, [isSubmitted])
+    useEffect(() => {
 
         if (
             qId &&
@@ -111,6 +114,25 @@ export default function TestMasterBody() {
         isSubmitted,
         visitQuestion
     ])
+
+    // Get the active question's qType2
+    const getActiveQuestionType = () => {
+        if (!activeTest || !activeTest.activeQuestionHistoryObj) return null
+
+        // Get history object for current subject
+        const historyObj = activeTest.activeQuestionHistoryObj[activeSubject]
+        if (!historyObj || !historyObj.qIDs) return null
+
+        // Get current question ID using activeQuestionIndex
+        const currentQuestionId = historyObj.qIDs[activeQuestionIndex]
+
+        // Get qType2 from questions object
+        const qType2 = activeTest.questions?.[currentQuestionId]?.qType2
+
+        return qType2
+    }
+
+    const activeQType2 = getActiveQuestionType()
     return (
 
         <div className="relative mt-0 flex flex-col h-full min-h-0 bg-white">
@@ -160,12 +182,12 @@ export default function TestMasterBody() {
                         <div className="flex flex-wrap gap-3 text-xs mt-2">
 
                             <div className="bg-green-100 text-green-600 px-3 py-1 rounded-xl font-medium">
-                                +{question?.qPosMarks} Marks
+                                {/* +{question?.qPosMarks} Marks */}{activeQType2}
                             </div>
 
-                            <div className="bg-red-100 text-red-500 px-3 py-2 rounded-xl font-medium">
+                            {/* <div className="bg-red-100 text-red-500 px-3 py-2 rounded-xl font-medium">
                                 -{question?.qNegMarks} Negative
-                            </div>
+                            </div> */}
 
                             {/* {
                                 isSubmitted && (
