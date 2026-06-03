@@ -208,12 +208,6 @@ export default function HomeCenter() {
         }
 
     }, [loadingSeries])
-    // =====================================================
-    // AUTO LOAD UNTIL HORIZONTAL SCROLL APPEARS
-    // =====================================================
-    // =====================================================
-    // AUTO LOAD UNTIL CARDS FILL AVAILABLE WIDTH
-    // =====================================================
 
     useEffect(() => {
 
