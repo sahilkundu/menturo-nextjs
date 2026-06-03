@@ -1403,7 +1403,9 @@ export default function TestSection({ series }: Props) {
                                                                 {/* ========================================= */}
                                                                 {/* SOLUTIONS */}
                                                                 {/* ========================================= */}
-                                                                {authenticated &&
+                                                                {authenticated && test.history?.some(
+                                                                    (h: any) => h.status === 'submitted'
+                                                                ) &&
                                                                     <div className="relative group">
 
                                                                         <button
