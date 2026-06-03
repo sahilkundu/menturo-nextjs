@@ -26,7 +26,7 @@ export const showPopupMessage = (
 
         toast: true,
 
-        position: "center",
+        position: "top-end",
 
         timer: 1500,
 
