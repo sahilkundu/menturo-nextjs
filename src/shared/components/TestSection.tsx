@@ -5,7 +5,8 @@ import {
     Unlock,
     ChevronLeft,
     ChevronRight,
-    Book
+    Book,
+    X
 } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -447,6 +448,28 @@ export default function TestSection({ series }: Props) {
 
     }, [])
 
+
+    const solutionDropdownRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const handleClickOutside = (e: MouseEvent) => {
+            if (
+                solutionDropdownRef.current &&
+                !solutionDropdownRef.current.contains(e.target as Node)
+            ) {
+                setOpenSolutionId(null);
+            }
+        };
+
+        document.addEventListener("mousedown", handleClickOutside);
+
+        return () => {
+            document.removeEventListener(
+                "mousedown",
+                handleClickOutside
+            );
+        };
+    }, []);
     if (!series) {
         return (
             <div className="m-2 bg-white rounded-2xl border border-gray-100 overflow-hidden">
@@ -691,139 +714,6 @@ export default function TestSection({ series }: Props) {
                                                 [&::-webkit-scrollbar]:hidden
                                             "
                                     >
-
-                                        {/* {categories.map((category) => {
-
-                                            const isActive =
-
-                                                selectedSubject
-                                                    .toLowerCase() ===
-
-                                                category.name
-                                                    .toLowerCase()
-
-                                            return (
-
-                                                <button
-                                                    key={category.id}
-
-                                                    onClick={async () => {
-
-                                                        // =========================
-                                                        // ALL
-                                                        // =========================
-
-                                                        // if (
-                                                        //     category.name === 'All'
-                                                        // ) {
-
-                                                        //     setSelectedSubject(
-                                                        //         'all'
-                                                        //     )
-
-                                                        //     return
-                                                        // }
-
-                                                        // =========================
-                                                        // SUBJECT
-                                                        // =========================
-
-                                                        // const normalizedSubject =
-                                                        //     category.name
-                                                        //         .trim()
-                                                        //         .toLowerCase()
-
-                                                        // setSelectedSubject(
-                                                        //     normalizedSubject
-                                                        // )
-
-                                                        // // already loaded
-                                                        // const alreadyLoaded =
-                                                        //     testsBySubjectMap?.[
-                                                        //         series._id
-                                                        //     ]?.[
-                                                        //         normalizedSubject
-                                                        //     ]?.length > 0
-
-                                                        // if (alreadyLoaded)
-                                                        //     return
-
-                                                        // // backend call
-                                                        // await fetchTestsBySubject(
-                                                        //     series._id,
-                                                        //     normalizedSubject,
-                                                        //     {
-                                                        //         page: 1,
-                                                        //         limit: 3
-                                                        //     }
-                                                        // )
-                                                        setSelectedSubject(category.name)
-
-                                                        await fetchTestsBySubject(
-                                                            series._id,
-                                                            category.name.toLowerCase(),
-                                                            {
-                                                                page: 1,
-                                                                limit: 3
-                                                            }
-                                                        )
-                                                    }}
-
-                                                    className={`
-                            relative
-                            shrink-0
-
-                            px-4
-                            py-2
-
-                            rounded-xl
-
-                            text-[12px]
-                            font-semibold
-
-                            transition-all
-                            duration-200
-
-                            cursor-pointer
-                            border
-
-                            ${isActive
-
-                                                            ? `
-                                    bg-[#4A3F77]
-                                    text-white
-                                    border-[#4A3F77]
-
-                                    ring-2
-                                    ring-[#E9E4FF]
-
-                                    shadow-[0_4px_14px_rgba(74,63,119,0.35)]
-
-                                    hover:bg-[#5B4B94]
-
-                                    hover:shadow-[0_6px_18px_rgba(91,75,148,0.45)]
-
-                                    hover:-translate-y-[1px]
-                                `
-
-                                                            : `
-                                    bg-white
-                                    text-gray-600
-                                    border-gray-200
-
-                                    hover:bg-[#F5F3FF]
-                                    hover:text-[#4A3F77]
-                                    hover:border-[#CFC7F3]
-                                `
-                                                        }
-                        `}
-                                                >
-
-                                                    {category.name}
-
-                                                </button>
-                                            )
-                                        })} */}
                                         {(series?.sub || []).map((subject, index) => {
 
                                             const isActive =
@@ -1248,53 +1138,79 @@ export default function TestSection({ series }: Props) {
                                                                             {/* DROPDOWN */}
                                                                             <div
                                                                                 className={`
-                            absolute
-                            left-0
-                            bottom-0
-                           ${openSolutionId === test.testId
-                                                                                        ? 'flex'
-                                                                                        : 'hidden group-hover:flex'
-                                                                                    }
-                            flex-col-reverse
-                            z-50
-                            w-full
-                            max-h-[90px]
-                            overflow-y-auto
-                            bg-[#4A3F77]
-                            border
-                            border-[#5b4b94]
-                            rounded-xl
-                            shadow-[0_6px_18px_rgba(74,63,119,0.35)]
-                            [scrollbar-width:none]
-                            [-ms-overflow-style:none]
-                            [&::-webkit-scrollbar]:w-0
-                            [&::-webkit-scrollbar]:h-0
-                        `}
+                                                                                        absolute
+                                                                                        left-0
+                                                                                        bottom-0
+                                                                                        ${openSolutionId === test.testId ? 'block' : 'hidden'}
+                                                                                        z-50
+                                                                                        w-full
+                                                                                        bg-[#4A3F77]
+                                                                                        border
+                                                                                        border-[#5b4b94]
+                                                                                        rounded-xl
+                                                                                        shadow-[0_6px_18px_rgba(74,63,119,0.35)]
+                                                                                    `}
                                                                             >
+                                                                                <button
+                                                                                    onClick={() => setOpenSolutionId(null)}
+                                                                                    className="
+        absolute
+        top-1
+        right-1
+        z-10
+        w-5
+        h-5
+        rounded-full
+        bg-white/20
+        hover:bg-white/30
+        flex
+        items-center
+        justify-center
+        cursor-pointer
+    "
+                                                                                >
+                                                                                    <X size={12} />
+                                                                                </button>
+                                                                                <div
+                                                                                    className="
+        flex
+        flex-col-reverse
+        max-h-[90px]
+        overflow-y-auto
+        pt-8
+        bg-[#4A3F77]
+        rounded-xl
 
-                                                                                {test.history
-                                                                                    ?.filter(
-                                                                                        (item: any) =>
-                                                                                            item.status === 'submitted'
-                                                                                    )
-                                                                                    .map(
-                                                                                        (
-                                                                                            item: any,
-                                                                                            index: number
-                                                                                        ) => (
+        [scrollbar-width:none]
+        [-ms-overflow-style:none]
+        [&::-webkit-scrollbar]:w-0
+        [&::-webkit-scrollbar]:h-0
+    "
+                                                                                >
 
-                                                                                            <button
-                                                                                                key={item._id}
-                                                                                                onClick={() => {
-                                                                                                    setOpenSolutionId(null)
-                                                                                                    handleTestAction(
-                                                                                                        test,
-                                                                                                        'solution',
-                                                                                                        item._id
-                                                                                                    )
+                                                                                    {test.history
+                                                                                        ?.filter(
+                                                                                            (item: any) =>
+                                                                                                item.status === 'submitted'
+                                                                                        )
+                                                                                        .map(
+                                                                                            (
+                                                                                                item: any,
+                                                                                                index: number
+                                                                                            ) => (
 
-                                                                                                }}
-                                                                                                className={`
+                                                                                                <button
+                                                                                                    key={item._id}
+                                                                                                    onClick={() => {
+                                                                                                        setOpenSolutionId(null)
+                                                                                                        handleTestAction(
+                                                                                                            test,
+                                                                                                            'solution',
+                                                                                                            item._id
+                                                                                                        )
+
+                                                                                                    }}
+                                                                                                    className={`
                                             w-full
                                             text-left
                                             px-4
@@ -1312,19 +1228,19 @@ export default function TestSection({ series }: Props) {
                                             last:border-b-0
                                             transition
                                          ${loadingTestId || hasRunningTest
-                                                                                                        ? 'cursor-not-allowed'
-                                                                                                        : 'cursor-pointer'
-                                                                                                    }
+                                                                                                            ? 'cursor-not-allowed'
+                                                                                                            : 'cursor-pointer'
+                                                                                                        }
                                             shrink-0
                                                                                         `}
-                                                                                            >
+                                                                                                >
 
-                                                                                                Attempt {index + 1}
+                                                                                                    Attempt {index + 1}
 
-                                                                                            </button>
-                                                                                        )
-                                                                                    )}
-
+                                                                                                </button>
+                                                                                            )
+                                                                                        )}
+                                                                                </div>
                                                                             </div>
 
                                                                         </div>
@@ -1406,7 +1322,10 @@ export default function TestSection({ series }: Props) {
                                                                 {authenticated && test.history?.some(
                                                                     (h: any) => h.status === 'submitted'
                                                                 ) &&
-                                                                    <div className="relative group">
+                                                                    <div
+                                                                        ref={solutionDropdownRef}
+                                                                        className="relative"
+                                                                    >
 
                                                                         <button
                                                                             onClick={() => {
@@ -1423,23 +1342,28 @@ export default function TestSection({ series }: Props) {
                                                                                     ? 'cursor-not-allowed'
                                                                                     : 'cursor-pointer'
                                                                                 }
-                        px-4
-                        py-2
-                        rounded-xl
-                        text-[11px]
-                        flex
-                        items-center
-                        gap-2
-                        bg-[#4A3F77]
-                        text-white
-                        shadow-[0_4px_12px_rgba(74,63,119,0.3)]
-                        hover:shadow-[0_6px_18px_rgba(74,63,119,0.4)]
-                        hover:-translate-y-0.5
-                        transition-all
-                        w-full
-                        flex
-                        text-center
-                        justify-center
+                           w-full
+    sm:w-auto
+    min-w-[140px]
+    h-[40px]
+
+    px-4
+    py-2
+    rounded-xl
+    text-[11px]
+
+    flex
+    items-center
+    justify-center
+    gap-2
+
+    bg-[#4A3F77]
+    text-white
+
+    shadow-[0_4px_12px_rgba(74,63,119,0.3)]
+    hover:shadow-[0_6px_18px_rgba(74,63,119,0.4)]
+    hover:-translate-y-0.5
+    transition-all
 `}
                                                                         >
 
@@ -1461,94 +1385,110 @@ export default function TestSection({ series }: Props) {
                                                                         </button>
 
                                                                         <div
-                                                                            className="
-                        absolute
-                        left-0
-                        bottom-0
-                        hidden
-                        group-hover:flex
-                        flex-col-reverse
-                        z-500
-                        w-full
-                        max-h-[90px]
-                        overflow-y-auto
-                        bg-[#4A3F77]
-                        border
-                        border-[#5b4b94]
-                        rounded-xl
-                        shadow-[0_6px_18px_rgba(74,63,119,0.35)]
-
-                        [scrollbar-width:none]
-                        [-ms-overflow-style:none]
-                        [&::-webkit-scrollbar]:w-0
-                        [&::-webkit-scrollbar]:h-0
-                    "
+                                                                            className={`
+                                                                                        absolute
+                                                                                        left-0
+                                                                                        bottom-0
+                                                                                        ${openSolutionId === test.testId ? 'block' : 'hidden'}
+                                                                                        z-50
+                                                                                        w-full
+                                                                                        bg-[#4A3F77]
+                                                                                        border
+                                                                                        border-[#5b4b94]
+                                                                                        rounded-xl
+                                                                                        shadow-[0_6px_18px_rgba(74,63,119,0.35)]
+                                                                                    `}
                                                                         >
+                                                                            <button
+                                                                                onClick={() => setOpenSolutionId(null)}
+                                                                                className="
+        absolute
+        top-1
+        right-1
+        z-10
+        w-5
+        h-5
+        rounded-full
+        bg-white/20
+        hover:bg-white/30
+        flex
+        items-center
+        justify-center
+        cursor-pointer
+    "
+                                                                            >
+                                                                                <X size={12} />
+                                                                            </button>
+                                                                            <div
+                                                                                className="
+        flex
+        flex-col-reverse
+        max-h-[90px]
+        overflow-y-auto
+         pt-8
+        bg-[#4A3F77]
+        rounded-xl
 
-                                                                            {test.history.map(
-                                                                                (
-                                                                                    item: any,
-                                                                                    index: number
-                                                                                ) => (
+        [scrollbar-width:none]
+        [-ms-overflow-style:none]
+        [&::-webkit-scrollbar]:w-0
+        [&::-webkit-scrollbar]:h-0
+    "
+                                                                            >
 
-                                                                                    <button
-                                                                                        key={item._id}
-                                                                                        onClick={() => {
+                                                                                {test.history
+                                                                                    ?.filter(
+                                                                                        (item: any) =>
+                                                                                            item.status === 'submitted'
+                                                                                    )
+                                                                                    .map(
+                                                                                        (
+                                                                                            item: any,
+                                                                                            index: number
+                                                                                        ) => (
 
-                                                                                            handleTestAction(
-                                                                                                test,
-                                                                                                'solution',
-                                                                                                item._id
-                                                                                            )
+                                                                                            <button
+                                                                                                key={item._id}
+                                                                                                onClick={() => {
+                                                                                                    setOpenSolutionId(null)
+                                                                                                    handleTestAction(
+                                                                                                        test,
+                                                                                                        'solution',
+                                                                                                        item._id
+                                                                                                    )
 
-                                                                                        }}
-                                                                                        disabled={
-                                                                                            isSolutionLoading(item._id)
-                                                                                        }
-                                                                                        className={`
-                                                                               
-        
-                                    w-full
-                                    text-left
-                                    px-4
-                                    py-3
-                                    text-[12px]
-                                    font-medium
-                                    text-white
-                                    bg-[#4A3F77]
-                                    hover:bg-[#5b4b94]
-                                    border-b
-                                    border-white/10
-                                    last:border-b-0
-                                    transition
-                                     flex
-                        text-center
-                        justify-center
-                                   ${loadingTestId || hasRunningTest
-                                                                                                ? 'cursor-not-allowed'
-                                                                                                : 'cursor-pointer'
-                                                                                            }
-                                    shrink-0
-                                    disabled:cursor-not-allowed
-                                     disabled:opacity-70
-                                `}
-                                                                                    >
+                                                                                                }}
+                                                                                                className={`
+                                            w-full
+                                            text-left
+                                            px-4
+                                            py-3
+                                            text-[12px]
+                                            flex
+                                            text-center
+                                            justify-center
+                                            font-medium
+                                            text-white
+                                            bg-[#4A3F77]
+                                            hover:bg-[#5b4b94]
+                                            border-b
+                                            border-white/10
+                                            last:border-b-0
+                                            transition
+                                         ${loadingTestId || hasRunningTest
+                                                                                                        ? 'cursor-not-allowed'
+                                                                                                        : 'cursor-pointer'
+                                                                                                    }
+                                            shrink-0
+                                                                                        `}
+                                                                                            >
 
-                                                                                        {
-                                                                                            isSolutionLoading(item._id)
-                                                                                                ? (
-                                                                                                    <div className="flex justify-center">
-                                                                                                        <Spinner size={14} />
-                                                                                                    </div>
-                                                                                                )
-                                                                                                : (
-                                                                                                    <>Attempt {index + 1}</>
-                                                                                                )
-                                                                                        }
-                                                                                    </button>
-                                                                                )
-                                                                            )}
+                                                                                                Attempt {index + 1}
 
+                                                                                            </button>
+                                                                                        )
+                                                                                    )}
+                                                                            </div>
                                                                         </div>
 
                                                                     </div>}
