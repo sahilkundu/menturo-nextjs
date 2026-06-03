@@ -1407,6 +1407,15 @@ export default function TestSection({ series }: Props) {
                                                                     <div className="relative group">
 
                                                                         <button
+                                                                            onClick={() => {
+
+                                                                                setOpenSolutionId(
+                                                                                    openSolutionId === test.testId
+                                                                                        ? null
+                                                                                        : test.testId
+                                                                                )
+
+                                                                            }}
                                                                             className={`
                        ${loadingTestId || hasRunningTest
                                                                                     ? 'cursor-not-allowed'
