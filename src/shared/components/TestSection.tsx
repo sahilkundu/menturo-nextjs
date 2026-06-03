@@ -1228,7 +1228,7 @@ export default function TestSection({ series }: Props) {
 
                                                                             >
 
-                                                                                <span className="bg-white/15 p-1 rounded-md text-[10px]">
+                                                                                <span className=" p-1 rounded-md text-[10px]">
 
                                                                                     <Book size={15} />
 
@@ -1236,7 +1236,10 @@ export default function TestSection({ series }: Props) {
 
                                                                                 <span>
 
-                                                                                    Solutions
+                                                                                    Solutions({test.history
+                                                                                        ?.filter(
+                                                                                            (item: any) => item.status === "submitted"
+                                                                                        ).length})
 
                                                                                 </span>
 
@@ -1262,7 +1265,6 @@ export default function TestSection({ series }: Props) {
                             border-[#5b4b94]
                             rounded-xl
                             shadow-[0_6px_18px_rgba(74,63,119,0.35)]
-
                             [scrollbar-width:none]
                             [-ms-overflow-style:none]
                             [&::-webkit-scrollbar]:w-0
@@ -1298,6 +1300,9 @@ export default function TestSection({ series }: Props) {
                                             px-4
                                             py-3
                                             text-[12px]
+                                            flex
+                                            text-center
+                                            justify-center
                                             font-medium
                                             text-white
                                             bg-[#4A3F77]
@@ -1358,6 +1363,9 @@ export default function TestSection({ series }: Props) {
                     gap-2
                     bg-[#4A3F77]
                     text-white
+                    flex
+                    justify-center
+                    text-center
                     shadow-[0_4px_12px_rgba(74,63,119,0.3)]
                     hover:shadow-[0_6px_18px_rgba(74,63,119,0.4)]
                     hover:-translate-y-0.5
@@ -1373,7 +1381,7 @@ export default function TestSection({ series }: Props) {
                                                                             ? <Spinner size={15} />
                                                                             : (
                                                                                 <>
-                                                                                    <span className="bg-white/15 p-1 rounded-md text-[10px]">
+                                                                                    <span className="p-1 rounded-md text-[10px]">
 
                                                                                         {test.access && authenticated && series?.access
                                                                                             ? <Unlock size={15} />
@@ -1384,8 +1392,6 @@ export default function TestSection({ series }: Props) {
                                                                                     {series?.access &&
                                                                                         <span>
                                                                                             {authenticated ? "Test Again" : <Lock size={15} />}
-
-
                                                                                         </span>
                                                                                     }
                                                                                 </>
@@ -1419,10 +1425,14 @@ export default function TestSection({ series }: Props) {
                         hover:shadow-[0_6px_18px_rgba(74,63,119,0.4)]
                         hover:-translate-y-0.5
                         transition-all
+                        w-full
+                        flex
+                        text-center
+                        justify-center
 `}
                                                                         >
 
-                                                                            <span className="bg-white/15 p-1 rounded-md text-[10px]">
+                                                                            <span className="p-1 rounded-md text-[10px]">
 
                                                                                 <Book size={15} />
 
@@ -1431,7 +1441,10 @@ export default function TestSection({ series }: Props) {
                                                                             <span>
 
                                                                                 Solutions
-
+                                                                                ({test.history
+                                                                                    ?.filter(
+                                                                                        (item: any) => item.status === "submitted"
+                                                                                    ).length})
                                                                             </span>
 
                                                                         </button>
@@ -1444,8 +1457,8 @@ export default function TestSection({ series }: Props) {
                         hidden
                         group-hover:flex
                         flex-col-reverse
-                        z-50
-                        w-[125px]
+                        z-500
+                        w-full
                         max-h-[90px]
                         overflow-y-auto
                         bg-[#4A3F77]
@@ -1497,6 +1510,9 @@ export default function TestSection({ series }: Props) {
                                     border-white/10
                                     last:border-b-0
                                     transition
+                                     flex
+                        text-center
+                        justify-center
                                    ${loadingTestId || hasRunningTest
                                                                                                 ? 'cursor-not-allowed'
                                                                                                 : 'cursor-pointer'
@@ -1556,6 +1572,8 @@ export default function TestSection({ series }: Props) {
                 gap-2
                 bg-[#4A3F77]
                 text-white
+                justify-center
+                text-center
                 shadow-[0_4px_12px_rgba(74,63,119,0.3)]
                 hover:shadow-[0_6px_18px_rgba(74,63,119,0.4)]
                 hover:-translate-y-0.5
@@ -1572,7 +1590,7 @@ export default function TestSection({ series }: Props) {
                                                                         : (
                                                                             <>
                                                                                 {authenticated &&
-                                                                                    <span className="bg-white/15 p-1 rounded-md text-[10px]">
+                                                                                    <span className=" p-1 rounded-md text-[10px]">
 
                                                                                         {test.access && series?.access
                                                                                             ? <Unlock size={15} />
