@@ -254,11 +254,11 @@ export default function TestPage() {
     // RENDER MAIN CONTENT
     // ======================================================
     return (
-        <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-6 space-y-8">
+        <div className="max-w-7xl mx-auto md:px-6 lg:px-8 py-6 space-y-8 border border-gray-200">
             <TestSectionHead
                 userName="Aman Sharma"
                 rollingId="SSCEXP246"
-                activePlan="Premium"
+                activePlan={series?.access ? "Premium" : "No Access"}
                 badgeText="🎯 Rank Booster"
             />
 

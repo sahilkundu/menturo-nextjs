@@ -18,6 +18,7 @@ import TestHeaderSkeleton from './Skeleton/TestSection/TestHeaderSkeleton'
 import TestInfoSkeleton from './Skeleton/TestSection/TestInfoSkeleton'
 import Spinner from './Spinner'
 import { useUserStore } from '../store/user'
+import { showPopupMessage } from '../utils/popup'
 type Props = {
     series: any
 }
@@ -44,20 +45,14 @@ export default function TestSection({ series }: Props) {
     } = useTestDataStore()
 
     const {
-        testsMap,
-        fetchTests,
         loadingTests,
         isFetchingMore,
-        testsPaginationBySeries,
         testsBySubjectMap,
         fetchTestsBySubject,
         testsPaginationBySubject,
         clearStore,
     } = useTestSeriesStore()
 
-    // const tests = testsMap[series?._id] || []
-    const allTests =
-        testsMap[series?._id] || []
 
     // const [selectedSubject, setSelectedSubject] =
     //     useState('all')
@@ -105,30 +100,7 @@ export default function TestSection({ series }: Props) {
 
         overscan: 5
     })
-    // Initial load
 
-    // useEffect(() => {
-    //     if (!series?._id) return
-    //     if (tests.length > 0) return
-
-    //     // fetchTests(series._id, {
-    //     //     page: 1,
-    //     //     limit: 3
-    //     // })
-    //     const firstSubject =
-    //         (series?.sub?.[0] || '').toLowerCase()
-
-    //     setSelectedSubject(firstSubject)
-
-    //     fetchTestsBySubject(
-    //         series._id,
-    //         firstSubject,
-    //         {
-    //             page: 1,
-    //             limit: 3
-    //         }
-    //     )
-    // }, [series])
     useEffect(() => {
         if (!series?._id) return
 
@@ -183,24 +155,7 @@ export default function TestSection({ series }: Props) {
 
             try {
 
-                // if (normalizedSelectedSubject === 'all') {
 
-                //     await fetchTests(series._id, {
-                //         page: pagination.currentPage + 1,
-                //         limit: 3
-                //     })
-
-                // } else {
-
-                //     await fetchTestsBySubject(
-                //         series._id,
-                //         normalizedSelectedSubject,
-                //         {
-                //             page: pagination.currentPage + 1,
-                //             limit: 3
-                //         }
-                //     )
-                // }
                 await fetchTestsBySubject(
                     series._id,
                     normalizedSelectedSubject,
@@ -260,27 +215,6 @@ export default function TestSection({ series }: Props) {
         )
     }
 
-    // Categories logic
-    //this is for all test loading can use later
-    // const categories = [
-
-    //     {
-    //         id: 1,
-    //         name: 'All'
-    //     },
-
-    //     ...((series?.sub || []).map(
-    //         (
-    //             sub: string,
-    //             index: number
-    //         ) => ({
-
-    //             id: index + 2,
-
-    //             name: sub
-    //         })
-    //     ))
-    // ]
 
     const includedFeatures = series?.info || []
 
@@ -291,6 +225,7 @@ export default function TestSection({ series }: Props) {
         mode: 'resume' | 'solution' = 'resume',
         historyId?: string
     ) => {
+
         if (!authenticated) {
 
             await fetch(
@@ -315,6 +250,13 @@ export default function TestSection({ series }: Props) {
 
             router.push("/login")
 
+            return
+        }
+        if (!series?.access) {
+            showPopupMessage(
+                "Access Denied",
+                false
+            )
             return
         }
 
@@ -538,7 +480,9 @@ export default function TestSection({ series }: Props) {
     }
     return (
 
+        // <div className="m-2 bg-white rounded-2xl border border-gray-100 overflow-hidden">
         <div className="m-2 bg-white rounded-2xl border border-gray-100 overflow-hidden">
+
 
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">
 
@@ -574,15 +518,15 @@ export default function TestSection({ series }: Props) {
                     </p>
 
                     {/* MAIN BOX */}
-                    <div className="bg-slate-50 max-w-4xl w-full rounded-2xl border border-gray-100 overflow-hidden">
+                    <div className="bg-slate-50 max-w-4xl w-full rounded-2xl  overflow-hidden">
 
                         {/* STICKY HEADER AREA */}
-                        <div className="sticky top-0 z-20 bg-slate-50 border-b border-gray-200">
+                        <div className="sticky top-0 z-20 bg-slate-50">
 
                             {/* TOP BUTTONS */}
                             <div className="p-3 sm:p-4 flex gap-2 sm:gap-3">
 
-                                <button className="cursor-pointer bg-sky-500 text-white px-4 sm:px-5 py-2 rounded-full font-bold text-xs sm:text-sm shadow-sm">
+                                <button className="cursor-pointer bg-[#4A3F77] text-white px-4 sm:px-5 py-2 rounded-full font-bold text-xs sm:text-sm shadow-sm">
 
                                     Mock Tests
 
@@ -596,48 +540,48 @@ export default function TestSection({ series }: Props) {
 
                             </div>
                             {/* CATEGORY */}
-                            <div className="px-3 pb-3">
+                            <div className="px-1 pb-3">
 
                                 <div className="
-        relative
-        bg-white
-        rounded-2xl
-        border
-        border-gray-200
-        overflow-hidden
-        shadow-sm
-    ">
+                                    relative
+                                    bg-white
+                                    rounded-2xl
+                                    border
+                                    border-gray-200
+                                    overflow-hidden
+                                    shadow-sm
+                                ">
 
                                     {/* LEFT FADE */}
                                     {showLeftArrow && (
                                         <div className="
-                absolute
-                left-0
-                top-0
-                bottom-0
-                z-10
-                w-14
-                bg-gradient-to-r
-                from-white
-                to-transparent
-                pointer-events-none
-            " />
+                                            absolute
+                                            left-0
+                                            top-0
+                                            bottom-0
+                                            z-10
+                                            w-14
+                                            bg-gradient-to-r
+                                            from-white
+                                            to-transparent
+                                            pointer-events-none
+                                        " />
                                     )}
 
                                     {/* RIGHT FADE */}
                                     {showRightArrow && (
                                         <div className="
-                absolute
-                right-0
-                top-0
-                bottom-0
-                z-10
-                w-14
-                bg-gradient-to-l
-                from-white
-                to-transparent
-                pointer-events-none
-            " />
+                                            absolute
+                                            right-0
+                                            top-0
+                                            bottom-0
+                                            z-10
+                                            w-14
+                                            bg-gradient-to-l
+                                            from-white
+                                            to-transparent
+                                            pointer-events-none
+                                        " />
                                     )}
 
                                     {/* LEFT BUTTON */}
@@ -648,35 +592,35 @@ export default function TestSection({ series }: Props) {
                                                 scrollCategories('left')
                                             }
                                             className="
-                    absolute
-                    left-2
-                    top-1/2
-                    -translate-y-1/2
-                    z-20
+                                                    absolute
+                                                    left-2
+                                                    top-1/2
+                                                    -translate-y-1/2
+                                                    z-20
 
-                    h-8
-                    w-8
+                                                    h-8
+                                                    w-8
 
-                    rounded-full
-                    bg-white/95
+                                                    rounded-full
+                                                    bg-white/95
 
-                    border
-                    border-gray-200
+                                                    border
+                                                    border-gray-200
 
-                    shadow-md
+                                                    shadow-md
 
-                    flex
-                    items-center
-                    justify-center
+                                                    flex
+                                                    items-center
+                                                    justify-center
 
-                    hover:bg-[#F5F3FF]
-                    hover:text-[#4A3F77]
+                                                    hover:bg-[#F5F3FF]
+                                                    hover:text-[#4A3F77]
 
-                    transition-all
-                    duration-200
+                                                    transition-all
+                                                    duration-200
 
-                    cursor-pointer
-                "
+                                                    cursor-pointer
+                                                "
                                         >
 
                                             <ChevronLeft size={16} />
@@ -692,35 +636,35 @@ export default function TestSection({ series }: Props) {
                                                 scrollCategories('right')
                                             }
                                             className="
-                    absolute
-                    right-2
-                    top-1/2
-                    -translate-y-1/2
-                    z-20
+                                                absolute
+                                                right-2
+                                                top-1/2
+                                                -translate-y-1/2
+                                                z-20
 
-                    h-8
-                    w-8
+                                                h-8
+                                                w-8
 
-                    rounded-full
-                    bg-white/95
+                                                rounded-full
+                                                bg-white/95
 
-                    border
-                    border-gray-200
+                                                border
+                                                border-gray-200
 
-                    shadow-md
+                                                shadow-md
 
-                    flex
-                    items-center
-                    justify-center
+                                                flex
+                                                items-center
+                                                justify-center
 
-                    hover:bg-[#F5F3FF]
-                    hover:text-[#4A3F77]
+                                                hover:bg-[#F5F3FF]
+                                                hover:text-[#4A3F77]
 
-                    transition-all
-                    duration-200
+                                                transition-all
+                                                duration-200
 
-                    cursor-pointer
-                "
+                                                cursor-pointer
+                                                "
                                         >
 
                                             <ChevronRight size={16} />
@@ -732,20 +676,20 @@ export default function TestSection({ series }: Props) {
                                     <div
                                         ref={categoryScrollRef}
                                         className="
-                flex
-                items-center
-                gap-2
+                                                flex
+                                                items-center
+                                                gap-2
 
-                overflow-x-auto
-                scroll-smooth
+                                                overflow-x-auto
+                                                scroll-smooth
 
-                px-3
-                py-3
+                                                px-3
+                                                py-3
 
-                [scrollbar-width:none]
-                [-ms-overflow-style:none]
-                [&::-webkit-scrollbar]:hidden
-            "
+                                                [scrollbar-width:none]
+                                                [-ms-overflow-style:none]
+                                                [&::-webkit-scrollbar]:hidden
+                                            "
                                     >
 
                                         {/* {categories.map((category) => {
@@ -1003,7 +947,7 @@ export default function TestSection({ series }: Props) {
                                 style={{
                                     height: `${rowVirtualizer.getTotalSize()}px`,
                                     width: '100%',
-                                    position: 'relative'
+                                    position: 'relative',
                                 }}
                             >
 
@@ -1053,7 +997,6 @@ export default function TestSection({ series }: Props) {
                                                 width: '100%',
                                                 transform: `translateY(${virtualRow.start}px)`
                                             }}
-                                            className="p-3 sm:p-4"
                                         >
 
                                             <div
@@ -1062,6 +1005,7 @@ export default function TestSection({ series }: Props) {
                             border
                             border-gray-200
                             rounded-xl
+                            m-1
                             p-3
                             sm:p-4
                             flex
@@ -1431,18 +1375,19 @@ export default function TestSection({ series }: Props) {
                                                                                 <>
                                                                                     <span className="bg-white/15 p-1 rounded-md text-[10px]">
 
-                                                                                        {test.access && authenticated
+                                                                                        {test.access && authenticated && series?.access
                                                                                             ? <Unlock size={15} />
                                                                                             : <Lock size={15} />
                                                                                         }
 
                                                                                     </span>
+                                                                                    {series?.access &&
+                                                                                        <span>
+                                                                                            {authenticated ? "Test Again" : <Lock size={15} />}
 
-                                                                                    <span>
-                                                                                        {authenticated ? "Test Again" : <Lock size={15} />}
 
-
-                                                                                    </span>
+                                                                                        </span>
+                                                                                    }
                                                                                 </>
                                                                             )
                                                                     }
@@ -1629,21 +1574,22 @@ export default function TestSection({ series }: Props) {
                                                                                 {authenticated &&
                                                                                     <span className="bg-white/15 p-1 rounded-md text-[10px]">
 
-                                                                                        {test.access
+                                                                                        {test.access && series?.access
                                                                                             ? <Unlock size={15} />
                                                                                             : <Lock size={15} />
                                                                                         }
 
                                                                                     </span>}
+                                                                                {series?.access &&
+                                                                                    <span>
+                                                                                        {authenticated ?
+                                                                                            "Start Test" :
+                                                                                            <Lock size={15} />
+                                                                                        }
 
-                                                                                <span>
-                                                                                    {authenticated ?
-                                                                                        "Start Test" :
-                                                                                        <Lock size={15} />
-                                                                                    }
 
-
-                                                                                </span>
+                                                                                    </span>
+                                                                                }
                                                                             </>
                                                                         )
                                                                 }
