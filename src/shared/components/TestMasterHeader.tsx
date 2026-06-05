@@ -4,6 +4,7 @@ import { useTestSeriesStore } from "../store/testSeriesStore";
 import { useRouter } from "next/navigation"
 import QuestionHistory from "./QuestionHistory";
 import TestTimer from "./TestTimer";
+import Spinner from "./Spinner";
 
 export default function TestMasterHeader() {
     const router = useRouter()
@@ -15,7 +16,9 @@ export default function TestMasterHeader() {
         timeLeft,
         isSubmitted,
         activeSubject,
-        activeTest
+        activeTest,
+        loadingSave,
+        loadingResult
     } = useTestDataStore()
 
     // history object
@@ -153,6 +156,7 @@ export default function TestMasterHeader() {
                 {/* RIGHT SIDE */}
                 <div className="flex items-center gap-1.5 xl:hidden">
                     <button
+                        disabled={loadingResult || loadingSave}
                         onClick={async () => {
 
                             if (isSubmitted) {
@@ -213,24 +217,31 @@ export default function TestMasterHeader() {
                         }}
                         className="cursor-pointer flex items-center gap-1 bg-white border border-slate-300 text-slate-500 px-2 py-1 rounded-lg hover:bg-slate-50 text-[10px] font-bold transition-colors"
                     >
-                        <svg
-                            className="w-3 h-3 text-slate-400"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            strokeWidth="2.5"
-                            stroke="currentColor"
-                        >
-                            <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l-3 3m0 0 3 3m-3-3h12.75"
-                            />
-                        </svg>
-                        {isSubmitted ? "Exit" : "Exit & Resume"}
+                        {!loadingSave &&
+                            <svg
+                                className="w-3 h-3 text-slate-400"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                strokeWidth="2.5"
+                                stroke="currentColor"
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l-3 3m0 0 3 3m-3-3h12.75"
+                                />
+                            </svg>
+                        }
+                        {loadingSave ? (
+                            <Spinner size={16} />
+                        ) : (
+                            isSubmitted ? "Exit" : "Exit & Resume"
+                        )}
                     </button>
 
                     {!isSubmitted &&
                         <button
+                            disabled={loadingResult || loadingSave}
                             onClick={async () => {
 
                                 const store =
@@ -298,38 +309,33 @@ export default function TestMasterHeader() {
                             }}
                             className="cursor-pointer flex items-center gap-1 bg-white border border-blue-200 text-blue-600 px-2.5 py-1 rounded-lg hover:bg-blue-50 text-[10px] font-bold shadow-sm transition-colors"
                         >
-                            <svg
-                                className="w-3 h-3 text-blue-500"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                strokeWidth="2.5"
-                                stroke="currentColor"
-                            >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-                                />
-                            </svg>
-                            Submit
+                            {!loadingResult &&
+                                <svg
+                                    className="w-3 h-3 text-blue-500"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    strokeWidth="2.5"
+                                    stroke="currentColor"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                                    />
+                                </svg>
+                            }
+                            {loadingResult ? (
+                                <Spinner size={16} />
+                            ) : (
+                                "Submit"
+                            )}
+
                         </button>
                     }
                 </div>
 
             </div>
-            {/* <div className="md:hidden overflow-x-auto whitespace-nowrap scroll-hide px-3 py-2 border-b border-slate-200 bg-white">
-                <div className="flex gap-2 w-max text-[10px] font-bold">
-                    <div className="flex items-center gap-1.5 bg-green-50 text-green-700 px-2.5 py-1 rounded-lg border border-green-100">
-                        <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>Correct : 10
-                    </div>
-                    <div className="flex items-center gap-1.5 bg-red-50 text-red-600 px-2.5 py-1 rounded-lg border border-red-100">
-                        <span className="w-1.5 h-1.5 rounded-full bg-red-500"></span>Wrong : 03
-                    </div>
-                    <div className="flex items-center gap-1.5 bg-yellow-50 text-yellow-700 px-2.5 py-1 rounded-lg border border-yellow-100">
-                        <span className="w-1.5 h-1.5 rounded-full bg-yellow-400"></span>Review : 02
-                    </div>
-                </div>
-            </div> */}
+
         </div>
     )
 }

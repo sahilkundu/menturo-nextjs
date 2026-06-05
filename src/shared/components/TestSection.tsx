@@ -226,7 +226,6 @@ export default function TestSection({ series }: Props) {
         mode: 'resume' | 'solution' = 'resume',
         historyId?: string
     ) => {
-
         if (!authenticated) {
 
             await fetch(
@@ -262,7 +261,9 @@ export default function TestSection({ series }: Props) {
         }
 
         // BLOCK MULTIPLE REQUESTS
+
         if (loadingTestId) return
+
         const actionKey =
             `${test.testId}-${mode}-${historyId || ''}`
 
@@ -449,27 +450,32 @@ export default function TestSection({ series }: Props) {
     }, [])
 
 
-    const solutionDropdownRef = useRef<HTMLDivElement>(null);
+    // Store refs for each test's dropdown and button
+    const dropdownRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
+    const buttonRefs = useRef<{ [key: string]: HTMLButtonElement | null }>({});
 
+    // Click outside handler
     useEffect(() => {
         const handleClickOutside = (e: MouseEvent) => {
-            if (
-                solutionDropdownRef.current &&
-                !solutionDropdownRef.current.contains(e.target as Node)
-            ) {
-                setOpenSolutionId(null);
-            }
+            if (!openSolutionId) return;
+
+            const target = e.target as Node;
+            const currentDropdown = dropdownRefs.current[openSolutionId];
+            const currentButton = buttonRefs.current[openSolutionId];
+
+            // Check if click is inside dropdown or its button
+            if (currentDropdown?.contains(target)) return;
+            if (currentButton?.contains(target)) return;
+
+            // Click is outside - close dropdown
+            setOpenSolutionId(null);
         };
 
         document.addEventListener("mousedown", handleClickOutside);
-
         return () => {
-            document.removeEventListener(
-                "mousedown",
-                handleClickOutside
-            );
+            document.removeEventListener("mousedown", handleClickOutside);
         };
-    }, []);
+    }, [openSolutionId]);
     if (!series) {
         return (
             <div className="m-2 bg-white rounded-2xl border border-gray-100 overflow-hidden">
@@ -1078,14 +1084,13 @@ export default function TestSection({ series }: Props) {
 
                                                                             {/* SOLUTION BUTTON */}
                                                                             <button
+                                                                                ref={(el) => {
+                                                                                    if (el) buttonRefs.current[test.testId] = el;
+                                                                                }}
                                                                                 onClick={() => {
-
                                                                                     setOpenSolutionId(
-                                                                                        openSolutionId === test.testId
-                                                                                            ? null
-                                                                                            : test.testId
+                                                                                        openSolutionId === test.testId ? null : test.testId
                                                                                     )
-
                                                                                 }}
                                                                                 className={`
    ${loadingTestId || hasRunningTest
@@ -1137,6 +1142,9 @@ export default function TestSection({ series }: Props) {
 
                                                                             {/* DROPDOWN */}
                                                                             <div
+                                                                                ref={(el) => {
+                                                                                    if (el) dropdownRefs.current[test.testId] = el;
+                                                                                }}
                                                                                 className={`
                                                                                         absolute
                                                                                         left-0
@@ -1152,6 +1160,9 @@ export default function TestSection({ series }: Props) {
                                                                                     `}
                                                                             >
                                                                                 <button
+                                                                                    ref={(el) => {
+                                                                                        if (el) buttonRefs.current[test.testId] = el;  // ← ADD THIS LINE
+                                                                                    }}
                                                                                     onClick={() => setOpenSolutionId(null)}
                                                                                     className="
         absolute
@@ -1203,6 +1214,7 @@ export default function TestSection({ series }: Props) {
                                                                                                     key={item._id}
                                                                                                     onClick={() => {
                                                                                                         setOpenSolutionId(null)
+                                                                                                        console.log("i am clicked here 1207")
                                                                                                         handleTestAction(
                                                                                                             test,
                                                                                                             'solution',
@@ -1323,7 +1335,6 @@ export default function TestSection({ series }: Props) {
                                                                     (h: any) => h.status === 'submitted'
                                                                 ) &&
                                                                     <div
-                                                                        ref={solutionDropdownRef}
                                                                         className="relative"
                                                                     >
 
@@ -1385,6 +1396,9 @@ export default function TestSection({ series }: Props) {
                                                                         </button>
 
                                                                         <div
+                                                                            ref={(el) => {
+                                                                                if (el) dropdownRefs.current[test.testId] = el;
+                                                                            }}
                                                                             className={`
                                                                                         absolute
                                                                                         left-0
@@ -1400,6 +1414,7 @@ export default function TestSection({ series }: Props) {
                                                                                     `}
                                                                         >
                                                                             <button
+
                                                                                 onClick={() => setOpenSolutionId(null)}
                                                                                 className="
         absolute
@@ -1448,9 +1463,11 @@ export default function TestSection({ series }: Props) {
                                                                                         ) => (
 
                                                                                             <button
+
                                                                                                 key={item._id}
                                                                                                 onClick={() => {
                                                                                                     setOpenSolutionId(null)
+                                                                                                    console.log("i am clicked here 1456")
                                                                                                     handleTestAction(
                                                                                                         test,
                                                                                                         'solution',

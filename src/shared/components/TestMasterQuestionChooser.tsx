@@ -1,7 +1,6 @@
 "use client"
 
 import { useTestDataStore } from "../store/testDataStore"
-import { useTestSeriesStore } from "../store/testSeriesStore"
 import { useRouter } from "next/navigation"
 import Spinner from "./Spinner"
 
@@ -39,7 +38,7 @@ export default function TestMasterQuestionChooser() {
     const qIDs = Array.isArray(historyObj?.qIDs)
         ? historyObj.qIDs
         : Object.values(historyObj?.qIDs || {})
-
+    console.log(qIDs[activeQuestionIndex])
     const getButtonStyles = (
         status: QuestionStatus,
         submitted: boolean

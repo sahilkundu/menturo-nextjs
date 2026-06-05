@@ -10,6 +10,7 @@ import {
 } from '../../../api'
 import { useTestSeriesStore } from './testSeriesStore'
 import { showPopupMessage } from '../utils/popup'
+import { useQHistoryStore } from './qHisStore'
 
 // =====================================
 // PAYLOADS
@@ -860,7 +861,9 @@ export const useTestDataStore =
                     // =====================================
                     // RESULT DATA
                     // =====================================
-
+                    useQHistoryStore
+                        .getState()
+                        .setQHistory(data?.qHistory || {});
                     const result =
                         data?.result || {}
                     const historyObj =
@@ -1031,6 +1034,9 @@ export const useTestDataStore =
                     //             data.history
                     //         )
                     // }
+                    useQHistoryStore
+                        .getState()
+                        .setQHistory(data?.qHistory || {});
                     const historyObj =
                         data?.test?.activeQuestionHistoryObj || {}
 
@@ -1178,7 +1184,9 @@ export const useTestDataStore =
                     // =====================================
                     // SUCCESS
                     // =====================================
-
+                    useQHistoryStore
+                        .getState()
+                        .setQHistory(data?.qHistory || {});
                     const historyObj =
                         data?.test?.activeQuestionHistoryObj || {}
 
@@ -1325,7 +1333,9 @@ export const useTestDataStore =
                     // =====================================
                     // RESULT DATA
                     // =====================================
-
+                    useQHistoryStore
+                        .getState()
+                        .setQHistory(data?.qHistory || {});
                     const result =
                         data?.result || {}
                     const historyObj =
