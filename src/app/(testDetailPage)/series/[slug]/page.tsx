@@ -6,6 +6,7 @@ import { useWSStore } from "../../../../shared/utils/wsStore"
 import { useTestSeriesStore } from "../../../../shared/store/testSeriesStore"
 import { useTestDataStore } from '../../../../shared/store/testDataStore'
 import { useUserStore } from '../../../../shared/store/user'
+import { SAVE_TEST } from '../../../../../api'
 const PaymentSummary = dynamic(
     () => import(
         "../../../../shared/components/PaymentSummary"
@@ -43,7 +44,8 @@ const PaymentSummarySkeleton = dynamic(
 export default function TestPage() {
     const {
 
-        clearActiveTest
+        clearActiveTest,
+        timeLeft
     } = useTestDataStore()
     const {
         authenticated,
@@ -58,16 +60,89 @@ export default function TestPage() {
 
     const pathname = usePathname()
 
-    useEffect(() => {
+    const saveTestBeforeLeave = async () => {
 
-        if (
-            !pathname.includes("/test")
-        ) {
-
-            clearActiveTest()
+        const store =
+            useTestDataStore.getState()
+        if (!store.activeTest || Object.keys(store.activeTest).length === 0) {
+            return
         }
 
+        const history =
+            store.activeTest
+                ?.activeQuestionHistoryObj
+
+        const runningHistory = store.activeTest?.history
+
+
+        if (!runningHistory?._id) {
+
+            return
+        }
+        try {
+            // Use fetch with keepalive to ensure it completes
+            await fetch(SAVE_TEST, {
+                method: 'POST',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    historyId:
+                        runningHistory._id,
+                    time: timeLeft,
+
+                    data: {
+
+                        [store.activeSubject]: {
+
+                            ...history[
+                            store.activeSubject
+                            ],
+
+                            activeIndex:
+                                store.activeQuestionIndex,
+
+                            language:
+                                store.activeLan,
+
+                            timeLeft:
+                                store.timeLeft
+                        }
+                    },
+
+                    e: 1
+                }),
+                keepalive: true // Ensures request completes even after page unload
+            })
+        } catch (error) {
+            console.error('Failed to save test:', error)
+        }
+
+
+        useTestDataStore.getState().clearActiveTest()
+    }
+
+    // useEffect(() => {
+
+    //     if (!pathname.includes("/test")) {
+    //         await saveTestBeforeLeave()
+
+    //         clearActiveTest()
+    //     }
+
+    // }, [pathname, clearActiveTest])
+    useEffect(() => {
+        const handlePathChange = async () => {
+            if (!pathname.includes("/test")) {
+                await saveTestBeforeLeave()
+                clearActiveTest()
+            }
+        }
+
+        handlePathChange()
     }, [pathname, clearActiveTest])
+
     // ======================================================
     // PARAMS
     // ======================================================
@@ -179,11 +254,11 @@ export default function TestPage() {
     // RENDER MAIN CONTENT
     // ======================================================
     return (
-        <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-6 space-y-8">
+        <div className="max-w-7xl mx-auto md:px-6 lg:px-8 py-6 space-y-8 border border-gray-200">
             <TestSectionHead
                 userName="Aman Sharma"
                 rollingId="SSCEXP246"
-                activePlan="Premium"
+                activePlan={series?.access ? "Premium" : "No Access"}
                 badgeText="🎯 Rank Booster"
             />
 

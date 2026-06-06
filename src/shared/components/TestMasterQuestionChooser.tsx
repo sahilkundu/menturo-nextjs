@@ -1,7 +1,6 @@
 "use client"
 
 import { useTestDataStore } from "../store/testDataStore"
-import { useTestSeriesStore } from "../store/testSeriesStore"
 import { useRouter } from "next/navigation"
 import Spinner from "./Spinner"
 
@@ -39,7 +38,7 @@ export default function TestMasterQuestionChooser() {
     const qIDs = Array.isArray(historyObj?.qIDs)
         ? historyObj.qIDs
         : Object.values(historyObj?.qIDs || {})
-
+    console.log(qIDs[activeQuestionIndex])
     const getButtonStyles = (
         status: QuestionStatus,
         submitted: boolean
@@ -403,12 +402,14 @@ export default function TestMasterQuestionChooser() {
                 <button
                     disabled={loadingSave || loadingResult}
                     onClick={async () => {
+
                         if (isSubmitted) {
 
                             router.back()
 
                             return
                         }
+
                         const store =
                             useTestDataStore.getState()
 
@@ -420,58 +421,34 @@ export default function TestMasterQuestionChooser() {
                         }
 
                         const history =
-                            store.activeTest
-                                ?.activeQuestionHistoryObj
+                            store.activeTest?.activeQuestionHistoryObj
 
-                        const testsMap =
-                            useTestSeriesStore
-                                .getState()
-                                .testsMap
+                        const runningHistory =
+                            store.activeTest?.history
 
-                        let historyId = ''
-
-                        Object.values(testsMap).forEach(
-                            (tests: any) => {
-
-                                tests.forEach((test: any) => {
-
-                                    const runningHistory =
-                                        test?.history?.find(
-                                            (h: any) =>
-                                                h.status === 'running'
-                                        )
-
-                                    if (runningHistory) {
-
-                                        historyId =
-                                            runningHistory._id
-                                    }
-                                })
-                            }
-                        )
-
-                        if (!historyId) {
+                        if (!runningHistory?._id) {
                             return
                         }
 
                         await fetchSave({
 
-                            historyId,
+                            historyId:
+                                runningHistory._id,
+
                             time: timeLeft,
 
                             data: {
 
                                 [activeSubject]: {
 
-                                    ...history[
-                                    activeSubject
-                                    ],
+                                    ...history?.[activeSubject],
 
                                     activeIndex:
                                         store.activeQuestionIndex,
 
                                     language:
                                         store.activeLan,
+
                                     timeLeft:
                                         timeLeft
                                 }
@@ -505,7 +482,7 @@ export default function TestMasterQuestionChooser() {
                     {
                         loadingSave
                             ? <Spinner size={16} />
-                            : "Exit Test"
+                            : isSubmitted ? "Exit" : "Exit & Resume"
                     }
 
                 </button>
@@ -529,64 +506,43 @@ export default function TestMasterQuestionChooser() {
                             const history =
                                 store.activeTest
                                     ?.activeQuestionHistoryObj
+                            const activeHistory =
+                                store.activeTest?.history
 
-                            const testsMap =
-                                useTestSeriesStore
-                                    .getState()
-                                    .testsMap
+                            if (!activeHistory) {
+                                return
+                            }
 
-                            let payload: any = null
+                            const payload = {
+                                time: timeLeft,
 
-                            Object.values(testsMap).forEach(
-                                (tests: any) => {
+                                historyId:
+                                    activeHistory._id,
 
-                                    tests.forEach((test: any) => {
+                                relationId:
+                                    activeHistory.relationId,
 
-                                        const runningHistory =
-                                            test?.history?.find(
-                                                (h: any) =>
-                                                    h.status === 'running'
-                                            )
+                                testId:
+                                    activeHistory.testId,
 
-                                        if (runningHistory) {
+                                ts:
+                                    activeHistory.ts,
 
-                                            payload = {
-                                                time: timeLeft,
+                                data: {
+                                    [activeSubject]: {
 
-                                                historyId:
-                                                    runningHistory._id,
+                                        ...history[activeSubject],
 
-                                                relationId:
-                                                    test.relationId,
+                                        activeIndex:
+                                            store.activeQuestionIndex,
 
-                                                testId:
-                                                    test.testId,
+                                        language:
+                                            store.activeLan,
 
-                                                ts:
-                                                    test.ts,
-
-                                                data: {
-
-                                                    [activeSubject]: {
-
-                                                        ...history[
-                                                        activeSubject
-                                                        ],
-
-                                                        activeIndex:
-                                                            store.activeQuestionIndex,
-
-                                                        language:
-                                                            store.activeLan,
-                                                        timeLeft:
-                                                            timeLeft
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    })
+                                        timeLeft
+                                    }
                                 }
-                            )
+                            }
 
                             if (!payload) {
                                 return

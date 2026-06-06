@@ -56,7 +56,16 @@ export default function HomePage() {
 
     // ================= WS =================
 
-
+    // Add this useEffect to clear cache when needed (optional - for debugging)
+    useEffect(() => {
+        // Check for clear cache flag in URL (for debugging)
+        const urlParams = new URLSearchParams(window.location.search)
+        if (urlParams.get('clearCache') === 'true') {
+            localStorage.clear() // Clears all localStorage
+            // Or use your specific clearStore() if imported
+            window.location.href = window.location.pathname // Remove param and reload
+        }
+    }, [])
 
 
 

@@ -421,7 +421,7 @@ export const useTestSeriesStore =
                             new Map(
 
                                 mergedTests.map(
-                                    (item: any) => [
+                                    (item: any, index) => [
                                         item.testId,
                                         item
                                     ]
@@ -429,7 +429,19 @@ export const useTestSeriesStore =
 
                             ).values()
                         )
+                    console.log(
+                        mergedTests.map((item: any) => ({
+                            name: item.n,
+                            testId: item.testId
+                        }))
+                    )
 
+                    console.log(
+                        uniqueTests.map((item: any) => ({
+                            name: item.n,
+                            testId: item.testId
+                        }))
+                    )
                     return {
 
                         testsBySubjectMap: {
@@ -896,7 +908,7 @@ export const useTestSeriesStore =
         // ======================================================
 
         clearStore: () => {
-
+            console.trace("CLEAR TEST STORE")
             set({
 
                 seriesMap: {},
@@ -921,7 +933,7 @@ export const useTestSeriesStore =
             })
         },
         clearTests: () => {
-
+            console.trace("CLEAR TESTS")
             set({
 
 

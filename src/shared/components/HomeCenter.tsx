@@ -4,7 +4,6 @@ import { useTestSeriesStore } from "../../shared/store/testSeriesStore"
 import { useWSStore } from "../utils/wsStore"
 import Header from "./Header"
 import TestCard from "./TestCard"
-import StateCard from "./StateCard"
 import { useRef, useEffect, useCallback, useState } from "react"
 import TestCardSkeleton from "./Skeleton/TestCardSkeleton"
 
@@ -209,12 +208,6 @@ export default function HomeCenter() {
         }
 
     }, [loadingSeries])
-    // =====================================================
-    // AUTO LOAD UNTIL HORIZONTAL SCROLL APPEARS
-    // =====================================================
-    // =====================================================
-    // AUTO LOAD UNTIL CARDS FILL AVAILABLE WIDTH
-    // =====================================================
 
     useEffect(() => {
 

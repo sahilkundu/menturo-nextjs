@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import TestMasterHeader from '../../../shared/components/TestMasterHeader';
 import TestMasterBody from '../../../shared/components/TestMasterBody';
 import TestMasterUserInfo from '../../../shared/components/TestMasterUserInfo';
@@ -8,263 +8,127 @@ import TestMasterReviewInfo from '../../../shared/components/TestMasterReviewInf
 import TestMasterQuestionChooser from '../../../shared/components/TestMasterQuestionChooser';
 import { useTestDataStore } from '../../../shared/store/testDataStore';
 // Mock Test Data for dynamic rendering
-import { usePathname } from "next/navigation"
-import { useTestSeriesStore } from '../../../shared/store/testSeriesStore';
 import { SAVE_TEST } from '../../../../api';
+import { useRouter } from 'next/navigation'
 
 export default function MockTestPage() {
     const {
         activeTest,
         activeSubject,
         setActiveSubject,
-        clearActiveTest,
-        fetchSave,
         timeLeft,
-        activeLan,
-        activeQuestionIndex,
     } = useTestDataStore()
+    const router = useRouter()
+    useEffect(() => {
+        if (!activeTest || Object.keys(activeTest).length === 0) {
+            const timer = setTimeout(() => {
+                router.back()
+            }, 100)
+            return () => clearTimeout(timer)
+        }
+    }, [])
 
     const [isSideBarOpen, setIsSideBarOpen] = useState(false)
     const handleSidebarOpen = () => {
         setIsSideBarOpen(true)
     }
+    // In any component using useTestDataStore
 
-    const pathname = usePathname()
+    // console.log('Active question type:', activeQType2)
+    // console.log(activeTest?.questions)
+    // console.log(activeTest?.activeQuestionHistoryObj?.[activeSubject])
+    // const pathname = usePathname()
 
-    useEffect(() => {
+    // useEffect(() => {
 
-        if (
-            !pathname.includes("/test")
-        ) {
+    //     if (
+    //         !pathname.includes("/test")
+    //     ) {
 
-            clearActiveTest()
-        }
+    //         clearActiveTest()
+    //     }
 
-    }, [pathname, clearActiveTest])
+    // }, [pathname, clearActiveTest])
 
     // save test before leave with browser 
     const saveTestBeforeLeave = async () => {
-
         const store =
             useTestDataStore.getState()
-
-        const history =
-            store.activeTest
-                ?.activeQuestionHistoryObj
-
-        const testsMap =
-            useTestSeriesStore
-                .getState()
-                .testsMap
-
-        let historyId = ""
-
-        Object.values(testsMap).forEach(
-            (tests: any) => {
-
-                tests.forEach((test: any) => {
-
-                    const runningHistory =
-                        test?.history?.find(
-                            (h: any) =>
-                                h.status === "running"
-                        )
-
-                    if (runningHistory) {
-
-                        historyId =
-                            runningHistory._id
-                    }
-                })
-            }
-        )
-
-        if (!historyId || !history) {
+        if (!store.activeTest || Object.keys(store.activeTest).length === 0) {
             return
         }
 
-        await store.fetchSave({
-
-            historyId,
-
-            data: {
-
-                [store.activeSubject]: {
-
-                    ...history[
-                    store.activeSubject
-                    ],
-
-                    activeIndex:
-                        store.activeQuestionIndex,
-
-                    language:
-                        store.activeLan,
-
-                    timeLeft:
-                        store.timeLeft
-                }
-            },
-
-            e: 1
-        })
-        useTestDataStore.getState().clearActiveTest()
-    }
-    const getLeavePayload = () => {
-
-        const store =
-            useTestDataStore.getState()
-
         const history =
             store.activeTest
                 ?.activeQuestionHistoryObj
 
-        const testsMap =
-            useTestSeriesStore
-                .getState()
-                .testsMap
+        const runningHistory = store.activeTest?.history
 
-        let historyId = ""
 
-        Object.values(testsMap).forEach(
-            (tests: any) => {
+        if (!runningHistory?._id) {
 
-                tests.forEach((test: any) => {
+            return
+        }
+        try {
+            // Use fetch with keepalive to ensure it completes
+            await fetch(SAVE_TEST, {
+                method: 'POST',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    historyId:
+                        runningHistory._id,
+                    time: timeLeft,
 
-                    const runningHistory =
-                        test?.history?.find(
-                            (h: any) =>
-                                h.status === "running"
-                        )
+                    data: {
 
-                    if (runningHistory) {
+                        [store.activeSubject]: {
 
-                        historyId =
-                            runningHistory._id
-                    }
-                })
-            }
-        )
+                            ...history[
+                            store.activeSubject
+                            ],
 
-        if (!historyId || !history) {
-            return null
+                            activeIndex:
+                                store.activeQuestionIndex,
+
+                            language:
+                                store.activeLan,
+
+                            timeLeft:
+                                store.timeLeft
+                        }
+                    },
+
+                    e: 1
+                }),
+                keepalive: true // Ensures request completes even after page unload
+            })
+        } catch (error) {
+            console.error('Failed to save test:', error)
         }
 
-        return {
 
-            historyId,
-
-            data: {
-
-                [store.activeSubject]: {
-
-                    ...history[
-                    store.activeSubject
-                    ],
-
-                    activeIndex:
-                        store.activeQuestionIndex,
-
-                    language:
-                        store.activeLan,
-
-                    timeLeft:
-                        store.timeLeft
-                }
-            },
-
-            e: 1
-        }
+        useTestDataStore.getState().clearActiveTest()
     }
     useEffect(() => {
-
-        const handleBeforeUnload = () => {
-
-            const payload =
-                getLeavePayload()
-
-            if (!payload) {
-                return
-            }
-
-            navigator.sendBeacon(
-                SAVE_TEST,
-                JSON.stringify(payload)
-            )
-        }
-
-        window.addEventListener(
-            "beforeunload",
-            handleBeforeUnload
-        )
-
-        return () => {
-
-            window.removeEventListener(
-                "beforeunload",
-                handleBeforeUnload
-            )
-        }
-
-    }, [])
-    useEffect(() => {
-
-        const handleVisibilityChange = () => {
-
-            if (
-                document.visibilityState ===
-                "hidden"
-            ) {
-
-                const payload =
-                    getLeavePayload()
-
-                if (!payload) {
-                    return
-                }
-
-                navigator.sendBeacon(
-                    SAVE_TEST,
-                    JSON.stringify(payload)
-                )
-            }
-        }
-
-        document.addEventListener(
-            "visibilitychange",
-            handleVisibilityChange
-        )
-
-        return () => {
-
-            document.removeEventListener(
-                "visibilitychange",
-                handleVisibilityChange
-            )
-        }
-
-    }, [])
-    useEffect(() => {
-
-        const handlePopState = () => {
-
+        const handlePageHide = () => {
             saveTestBeforeLeave()
         }
 
-        window.addEventListener(
-            "popstate",
-            handlePopState
-        )
+        window.addEventListener('pagehide', handlePageHide)
 
         return () => {
-
             window.removeEventListener(
-                "popstate",
-                handlePopState
+                'pagehide',
+                handlePageHide
             )
         }
-
     }, [])
+
+    // Empty dependency array - only cleanup on unmount
+    if (!activeTest || Object.keys(activeTest).length === 0) { return }
     return (
         <>
             <div className="w-full h-[100dvh]  p-2 md:p-3 overflow-hidden flex flex-col">

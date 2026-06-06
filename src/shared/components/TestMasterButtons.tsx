@@ -76,19 +76,15 @@ export default function TestMasterButtons({
 
                         saveAndNext(qId)
 
-                        // =================================
-                        // FLOOD BLOCK
-                        // =================================
-
                         const store =
                             useTestDataStore.getState()
 
                         if (
-                            store.loadingSave
+                            store.loadingSave ||
+                            store.loadingResult
                         ) {
                             return
                         }
-
                         // =================================
                         // ACTIVE DATA
                         // =================================
@@ -96,49 +92,11 @@ export default function TestMasterButtons({
                         const activeSubject =
                             store.activeSubject
 
-                        const history =
-                            store.activeTest
-                                ?.activeQuestionHistoryObj
+                        const runningHistory =
+                            store.activeTest?.history
 
-                        // =================================
-                        // GET historyId
-                        // =================================
 
-                        const testsMap =
-                            useTestSeriesStore
-                                .getState()
-                                .testsMap
-
-                        let historyId = ''
-
-                        Object.values(
-                            testsMap
-                        ).forEach((tests: any) => {
-
-                            tests.forEach((test: any) => {
-
-                                const runningHistory =
-                                    test?.history?.find(
-                                        (h: any) =>
-                                            h.status ===
-                                            'running'
-                                    )
-
-                                if (
-                                    runningHistory
-                                ) {
-
-                                    historyId =
-                                        runningHistory._id
-                                }
-                            })
-                        })
-
-                        // =================================
-                        // NO historyId
-                        // =================================
-
-                        if (!historyId) {
+                        if (!runningHistory) {
                             return
                         }
 
@@ -148,16 +106,16 @@ export default function TestMasterButtons({
 
                         await store.fetchSave({
 
-                            historyId,
+                            historyId:
+                                runningHistory._id,
+
                             time: timeLeft,
 
                             data: {
 
                                 [activeSubject]: {
 
-                                    ...history[
-                                    activeSubject
-                                    ],
+                                    ...history?.[activeSubject],
 
                                     activeIndex:
                                         store.activeQuestionIndex,

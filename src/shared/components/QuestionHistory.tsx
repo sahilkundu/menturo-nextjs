@@ -1,61 +1,117 @@
-import { useTestDataStore } from "../store/testDataStore"
+import { useQHistoryStore } from "../store/qHisStore";
+import { useTestDataStore } from "../store/testDataStore";
 
 export default function QuestionHistory() {
     const {
         activeTest,
-    } = useTestDataStore()
+        activeQuestionIndex,
+        activeSubject
+    } = useTestDataStore();
+
+    const qHistory =
+        useQHistoryStore(
+            (state) => state.qHistory
+        );
+
+    const historyObj =
+        activeTest?.activeQuestionHistoryObj?.[
+        activeSubject
+        ] || {};
+
+    const qIDs = Array.isArray(historyObj?.qIDs)
+        ? historyObj.qIDs
+        : Object.values(historyObj?.qIDs || {});
+
+    const currentHistory =
+        qHistory?.[qIDs?.[activeQuestionIndex]];
+
     return (
-        <div className="px-2 py-1 bg-sky-50/60 flex items-center justify-between text-[10px] font-bold text-slate-700">
+        <div className="bg-sky-50/70 border border-slate-200 rounded-xl px-3 py-2">
 
-            <div className="flex items-center gap-2">
-                <span className="flex items-center gap-1">
-                    A:
-                    <span className="bg-amber-500 text-white px-1 py-[1px] rounded-full text-[8px]">
-                        9
-                    </span>
-                </span>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
 
-                <span className="flex items-center gap-1">
-                    C:
-                    <span className="bg-emerald-500 text-white px-1 py-[1px] rounded-full text-[8px]">
-                        5
-                    </span>
-                </span>
+                {/* STATS */}
+                <div className="flex flex-wrap items-center gap-2">
 
-                <span className="flex items-center gap-1">
-                    W:
-                    <span className="bg-rose-500 text-white px-1 py-[1px] rounded-full text-[8px]">
-                        4
-                    </span>
-                </span>
+                    <div
+                        title="Total Attempts"
+                        className="flex items-center gap-1"
+                    >
+                        <span className="text-slate-600 text-xs font-semibold">
+                            A:
+                        </span>
 
-                <span className="text-sky-700">
-                    P: 56%
-                </span>
-            </div>
-            {activeTest?.totalMarks && activeTest?.obtainedMarks &&
-                <div className="flex items-center gap-1 pl-2 border-l border-slate-300/60">
+                        <span className="min-w-[28px] px-2 py-0.5 rounded-full bg-amber-500 text-white text-[11px] sm:text-xs font-bold text-center">
+                            {currentHistory?.ta ?? 0}
+                        </span>
+                    </div>
 
+                    <div
+                        title="Correct Answers"
+                        className="flex items-center gap-1"
+                    >
+                        <span className="text-slate-600 text-xs font-semibold">
+                            C:
+                        </span>
 
-                    <span>Total:</span>
+                        <span className="min-w-[28px] px-2 py-0.5 rounded-full bg-emerald-500 text-white text-[11px] sm:text-xs font-bold text-center">
+                            {currentHistory?.c ?? 0}
+                        </span>
+                    </div>
 
-                    <span className="text-slate-900 font-extrabold">
-                        {activeTest?.totalMarks}
-                    </span>
+                    <div
+                        title="Wrong Answers"
+                        className="flex items-center gap-1"
+                    >
+                        <span className="text-slate-600 text-xs font-semibold">
+                            W:
+                        </span>
 
+                        <span className="min-w-[28px] px-2 py-0.5 rounded-full bg-rose-500 text-white text-[11px] sm:text-xs font-bold text-center">
+                            {currentHistory?.w ?? 0}
+                        </span>
+                    </div>
 
-                    <span className="text-slate-400">|</span>
-
-                    <span>Obtained:</span>
-
-                    <span className="text-emerald-600 font-extrabold">
-                        {activeTest?.obtainedMarks}
-                    </span>
-
+                    <div
+                        title="Accuracy Percentage"
+                        className="px-2 py-0.5 rounded-full bg-sky-100 text-sky-700 text-[11px] sm:text-xs font-bold"
+                    >
+                        {currentHistory?.pr ?? 0}%
+                    </div>
 
                 </div>
-            }
+
+                {/* RESULT */}
+                {(activeTest?.totalMarks !== undefined &&
+                    activeTest?.obtainedMarks !== undefined) && (
+
+                        <div className="flex items-center flex-wrap gap-2 text-sm sm:text-base font-bold">
+
+                            <span className="text-slate-600">
+                                Total:
+                            </span>
+
+                            <span className="text-slate-900">
+                                {activeTest.totalMarks}
+                            </span>
+
+                            <span className="text-slate-300">
+                                |
+                            </span>
+
+                            <span className="text-slate-600">
+                                Obtained:
+                            </span>
+
+                            <span className="text-emerald-600">
+                                {activeTest.obtainedMarks}
+                            </span>
+
+                        </div>
+                    )}
+
+            </div>
 
         </div>
-    )
+    );
 }

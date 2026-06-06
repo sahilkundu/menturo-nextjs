@@ -28,7 +28,7 @@ export const showPopupMessage = (
 
         position: "top-end",
 
-        timer: 3000,
+        timer: 1500,
 
         showConfirmButton: false
     })
