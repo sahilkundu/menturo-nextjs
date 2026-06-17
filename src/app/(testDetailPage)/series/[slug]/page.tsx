@@ -1,13 +1,14 @@
 'use client'
 import dynamic from 'next/dynamic'
 import { useEffect, useRef } from 'react'
-import { useParams, usePathname } from 'next/navigation'
+import { useParams, usePathname, useRouter } from 'next/navigation'
 import { useWSStore } from "../../../../shared/utils/wsStore"
 import { useTestSeriesStore } from "../../../../shared/store/testSeriesStore"
 import { useTestDataStore } from '../../../../shared/store/testDataStore'
 import { useUserStore } from '../../../../shared/store/user'
 import { SAVE_TEST } from '../../../../../api'
 import SeriesPaymentPage from '../../../../shared/components/SeriesPaymentPage'
+import { showRouteLoader } from '../../../../shared/utils/routeLoader'
 const PaymentSummary = dynamic(
     () => import(
         "../../../../shared/components/PaymentSummary"
@@ -72,6 +73,9 @@ const hasActiveSeriesAccess = (access: any) => {
 
 
 export default function TestPage() {
+    const router =
+        useRouter()
+
     const {
 
         clearActiveTest,
@@ -200,9 +204,36 @@ export default function TestPage() {
     // ======================================================
     const series = seriesMap[slug]
     const canAccessSeries =
-       hasActiveSeriesAccess(series?.access)
+        hasActiveSeriesAccess(series?.access)
     console.log("===============================")
     console.log(canAccessSeries)
+
+    const goHome = () => {
+        showRouteLoader()
+        router.push("/")
+    }
+
+    const goLogin = async () => {
+        showRouteLoader()
+
+        await fetch(
+            "/redirect",
+            {
+                method: "POST",
+                credentials: "include",
+                headers: {
+                    "Content-Type":
+                        "application/json",
+                },
+                body: JSON.stringify({
+                    path:
+                        window.location.pathname,
+                }),
+            }
+        )
+
+        router.push("/login")
+    }
 
     // ======================================================
     // FETCH SERIES IF NOT IN STORE
@@ -290,12 +321,60 @@ export default function TestPage() {
     // ======================================================
     return (
         <div className="max-w-7xl mx-auto md:px-6 lg:px-8 py-6 space-y-8 border border-gray-200">
-            <TestSectionHead
-                userName=""
-                rollingId=""
-                activePlan={canAccessSeries ? "Premium" : "No Access"}
-                badgeText="🎯 Rank Booster"
-            />
+            <div className="flex justify-end gap-3 px-2 sm:px-0">
+                <button
+                    type="button"
+                    onClick={goHome}
+                    className="
+                        cursor-pointer
+                        rounded-xl
+                        border
+                        border-slate-200
+                        bg-white
+                        px-4
+                        py-2
+                        text-sm
+                        font-bold
+                        text-slate-700
+                        shadow-sm
+                        transition
+                        hover:bg-slate-50
+                    "
+                >
+                    Home
+                </button>
+
+                {!authenticated && (
+                    <button
+                        type="button"
+                        onClick={goLogin}
+                        className="
+                            cursor-pointer
+                            rounded-xl
+                            bg-[#4A3F77]
+                            px-4
+                            py-2
+                            text-sm
+                            font-bold
+                            text-white
+                            shadow-sm
+                            transition
+                            hover:bg-[#3D3466]
+                        "
+                    >
+                        Sign In
+                    </button>
+                )}
+            </div>
+
+            {authenticated && (
+                <TestSectionHead
+                    userName=""
+                    rollingId=""
+                    activePlan={canAccessSeries ? "Premium" : "No Access"}
+                    badgeText="🎯 Rank Booster"
+                />
+            )}
 
             <TestSection series={series} />
 

@@ -2,6 +2,7 @@
 
 import { useUserStore } from "../store/user"
 import { useRouter } from "next/navigation"
+import { showRouteLoader } from "../utils/routeLoader"
 
 
 interface FullSeries {
@@ -27,6 +28,8 @@ export default function PaymentSummary({ series }: FullSeries) {
 
             // not logged in
             if (!authenticated) {
+
+                showRouteLoader()
 
                 await fetch(
                     "/redirect",

@@ -6,6 +6,7 @@ import { useEffect } from "react"
 
 import { useLayoutStore } from "../../shared/store/uiResStore"
 import { useUserStore } from "../../shared/store/user"
+import { showRouteLoader } from "../../shared/utils/routeLoader"
 
 import { useRouter } from "next/navigation"
 
@@ -240,11 +241,15 @@ export default function HomePage() {
                     >
 
                         <div
-                            onClick={() =>
-                                authenticated
-                                    ? setRightSidebarOpen(true)
-                                    : router.push("/login")
-                            }
+                            onClick={() => {
+                                if (authenticated) {
+                                    setRightSidebarOpen(true)
+                                    return
+                                }
+
+                                showRouteLoader()
+                                router.push("/login")
+                            }}
                         >
                             <LiveBubbleBtn />
                         </div>

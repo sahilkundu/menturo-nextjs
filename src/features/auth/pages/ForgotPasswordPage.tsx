@@ -12,6 +12,7 @@ import {
 
 // import { FORGOT_PASSWORD } from '@/lib/api'
 import { FORGOT_PASS } from '../../../../api'
+import { showRouteLoader } from '../../../shared/utils/routeLoader'
 export default function ForgotPasswordPage() {
     const router = useRouter()
 
@@ -262,6 +263,8 @@ export default function ForgotPasswordPage() {
                 data.message ||
                 'Password updated successfully'
             )
+
+            showRouteLoader()
 
             setTimeout(() => {
                 router.replace(
@@ -634,9 +637,10 @@ export default function ForgotPasswordPage() {
                             <div className="text-center">
                                 <button
                                     type="button"
-                                    onClick={() =>
+                                    onClick={() => {
+                                        showRouteLoader()
                                         router.push('/login')
-                                    }
+                                    }}
                                     className="text-sm font-semibold text-purple-600 hover:text-purple-700 transition-colors"
                                 >
                                     Back to Login

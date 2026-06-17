@@ -11,6 +11,7 @@ import {
 
 import { LOGIN } from '../../../../api'
 import { useUserStore } from '../../../shared/store/user'
+import { showRouteLoader } from '../../../shared/utils/routeLoader'
 
 export default function Login() {
     const router = useRouter()
@@ -162,6 +163,8 @@ export default function Login() {
                     .getState()
                     .setUser(data.user)
 
+                showRouteLoader()
+
                 setTimeout(() => {
                     router.replace(
                         decodeURIComponent(
@@ -247,6 +250,7 @@ export default function Login() {
 
             if (authenticated) {
 
+                showRouteLoader()
                 router.replace("/")
             }
         }
@@ -341,9 +345,10 @@ export default function Login() {
                                 {/* Forgot Password */}
                                 <div className="flex justify-end">
                                     <button
-                                        onClick={() =>
+                                        onClick={() => {
+                                            showRouteLoader()
                                             router.push("/forgot-password")
-                                        }
+                                        }}
                                         type="button"
                                         className="text-sm text-purple-600 hover:text-purple-700 transition-colors"
                                     >
@@ -376,9 +381,10 @@ export default function Login() {
                             <p className="text-center text-sm text-gray-500">
                                 Don't have an account?{" "}
                                 <button
-                                    onClick={() =>
+                                    onClick={() => {
+                                        showRouteLoader()
                                         router.push("/register")
-                                    }
+                                    }}
                                     type="button"
                                     className="font-semibold text-purple-600 hover:text-purple-700 transition-colors"
                                 >

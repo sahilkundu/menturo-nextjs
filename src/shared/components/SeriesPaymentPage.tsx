@@ -4,6 +4,7 @@ import { useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { CHECK_COUPON, CREATE_ORDER } from '../../../api'
 import { useUserStore } from '../store/user'
+import { showRouteLoader } from '../utils/routeLoader'
 
 interface FullSeries {
     series?: any
@@ -126,6 +127,8 @@ export default function SeriesPaymentPage({ series }: FullSeries) {
     }
 
     const redirectToLogin = async () => {
+        showRouteLoader()
+
         await fetch(
             "/redirect",
             {

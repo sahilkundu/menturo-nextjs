@@ -8,6 +8,7 @@ import Spinner from '../../../shared/components/Spinner'
 import { useSessionStore } from '../../../shared/store/sessionStore'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
+import { showRouteLoader } from '../../../shared/utils/routeLoader'
 
 
 // TypeScript Interfaces
@@ -603,6 +604,7 @@ export default function SettingPage() {
         );
 
       if (currentSession) {
+        showRouteLoader();
         router.push("/login");
         return;
       }
@@ -653,6 +655,7 @@ export default function SettingPage() {
       );
 
       // optional
+      showRouteLoader();
       window.location.href = "/login";
 
     } catch {
@@ -894,7 +897,10 @@ export default function SettingPage() {
           <div className="flex items-center gap-4 sm:gap-6">
             <div className="flex items-center">
               <button
-                onClick={() => router.push("/")}
+                onClick={() => {
+                  showRouteLoader();
+                  router.push("/");
+                }}
                 className="
                 flex
                 justify-center

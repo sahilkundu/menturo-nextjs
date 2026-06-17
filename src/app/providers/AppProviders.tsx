@@ -10,6 +10,8 @@ import { useUserStore } from "../../shared/store/user"
 import { useWSChatStore } from "../../shared/store/wsChat"
 import { SITE_STATUS } from "../../../api"
 import { useRouter, usePathname } from "next/navigation"
+import RouteTransitionProvider from "./RouteTransitionProvider"
+import { showRouteLoader } from "../../shared/utils/routeLoader"
 
 interface Props {
     children: ReactNode
@@ -132,6 +134,8 @@ export default function AppProviders({
                         return response
                     }
 
+                    showRouteLoader()
+
                     router.push(
                         data.redirect
                     )
@@ -188,6 +192,7 @@ export default function AppProviders({
     return (
 
         <ThemeProvider>
+            <RouteTransitionProvider>
             {/* {pathname !== "/test" &&
                 <div className="w-full min-w-[320px] backdrop-blur-md bg-red-500/80 border border-white/20 shadow-[0_0_15px_rgba(239,68,68,0.5)] px-2 sm:px-2 py-0 sm:py-0 text-center">
                     <span className="text-white font-semibold text-[14px] sm:text-[16px] drop-shadow-lg block whitespace-nowrap sm:whitespace-normal">
@@ -196,6 +201,7 @@ export default function AppProviders({
                 </div>
             } */}
             {children}
+            </RouteTransitionProvider>
 
         </ThemeProvider>
     )

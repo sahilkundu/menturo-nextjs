@@ -20,10 +20,40 @@ import TestInfoSkeleton from './Skeleton/TestSection/TestInfoSkeleton'
 import Spinner from './Spinner'
 import { useUserStore } from '../store/user'
 import { showPopupMessage } from '../utils/popup'
+import { showRouteLoader } from '../utils/routeLoader'
 import TestSeriesInfo from './TestSeriesInfo'
 import PaymentSummary from './PaymentSummary'
 type Props = {
     series: any
+}
+
+const getSelectedSubjectKey = (
+    seriesId: string
+) => `selected_subject_${seriesId}`
+
+const getRestoreSubjectKey = (
+    seriesId: string
+) => `restore_selected_subject_${seriesId}`
+
+const getDefaultSubject = (
+    series: any
+) => {
+    const subjects =
+        series?.sub || []
+
+    const allSubject =
+        subjects.find(
+            (subject: string) =>
+                subject.trim().toLowerCase() === 'all'
+        )
+
+    return (
+        allSubject ||
+        subjects[0] ||
+        'all'
+    )
+        .trim()
+        .toLowerCase()
 }
 
 export default function TestSection({ series }: Props) {
@@ -59,21 +89,16 @@ export default function TestSection({ series }: Props) {
     } = useTestSeriesStore()
 
 
-    // const [selectedSubject, setSelectedSubject] =
-    //     useState('all')
-    // Load saved subject from localStorage on initial render
-    const [selectedSubject, setSelectedSubject] = useState(() => {
-        if (typeof window !== 'undefined') {
-            const saved = localStorage.getItem(`selected_subject_${series?._id}`)
-            return saved || 'all'
-        }
-        return 'all'
-    })
+    const [selectedSubject, setSelectedSubject] =
+        useState('all')
 
     // Save to localStorage whenever subject changes
     useEffect(() => {
         if (series?._id && selectedSubject) {
-            localStorage.setItem(`selected_subject_${series._id}`, selectedSubject)
+            localStorage.setItem(
+                getSelectedSubjectKey(series._id),
+                selectedSubject
+            )
         }
     }, [selectedSubject, series?._id])
     const normalizedSelectedSubject =
@@ -109,12 +134,24 @@ export default function TestSection({ series }: Props) {
     useEffect(() => {
         if (!series?._id) return
 
-        // Check if we already have tests for current subject
-        if (tests.length > 0) return
+        const selectedSubjectKey =
+            getSelectedSubjectKey(series._id)
 
-        // Get saved subject or use first subject
-        const savedSubject = localStorage.getItem(`selected_subject_${series._id}`)
-        const subjectToLoad = savedSubject || (series?.sub?.[0] || '').toLowerCase()
+        const restoreSubjectKey =
+            getRestoreSubjectKey(series._id)
+
+        const shouldRestoreSubject =
+            sessionStorage.getItem(restoreSubjectKey) === '1'
+
+        const savedSubject =
+            localStorage.getItem(selectedSubjectKey)
+
+        const subjectToLoad =
+            shouldRestoreSubject && savedSubject
+                ? savedSubject
+                : getDefaultSubject(series)
+
+        sessionStorage.removeItem(restoreSubjectKey)
 
         setSelectedSubject(subjectToLoad)
 
@@ -130,7 +167,7 @@ export default function TestSection({ series }: Props) {
                 }
             )
         }
-    }, [series?._id]) // Remove tests.length dependency
+    }, [series?._id])
 
     // Auto-load logic: load more if no scrollbar appears
     // AUTO LOAD ONLY IF CONTAINER HAS NO SCROLLBAR
@@ -232,6 +269,8 @@ export default function TestSection({ series }: Props) {
     ) => {
         if (!authenticated) {
 
+            showRouteLoader()
+
             await fetch(
                 "/redirect",
                 {
@@ -275,6 +314,7 @@ export default function TestSection({ series }: Props) {
 
             actionLoadingRef.current = true
             setLoadingTestId(actionKey)
+            showRouteLoader()
 
             // =====================================
             // SOLUTION MODE
@@ -289,6 +329,11 @@ export default function TestSection({ series }: Props) {
                     })
 
                 if (data?.success) {
+
+                    sessionStorage.setItem(
+                        getRestoreSubjectKey(series._id),
+                        '1'
+                    )
 
                     router.push("/test")
                 }
@@ -329,6 +374,11 @@ export default function TestSection({ series }: Props) {
 
                 if (data?.success) {
 
+                    sessionStorage.setItem(
+                        getRestoreSubjectKey(series._id),
+                        '1'
+                    )
+
                     router.push("/test")
                 }
 
@@ -353,6 +403,11 @@ export default function TestSection({ series }: Props) {
                 })
 
             if (data?.success) {
+
+                sessionStorage.setItem(
+                    getRestoreSubjectKey(series._id),
+                    '1'
+                )
 
                 router.push("/test")
             }
@@ -759,7 +814,10 @@ export default function TestSection({ series }: Props) {
                                                         setSelectedSubject(normalizedSubject)
 
                                                         // Save to localStorage
-                                                        localStorage.setItem(`selected_subject_${series._id}`, normalizedSubject)
+                                                        localStorage.setItem(
+                                                            getSelectedSubjectKey(series._id),
+                                                            normalizedSubject
+                                                        )
 
                                                         // Check if already loaded
                                                         const alreadyLoaded = testsBySubjectMap?.[series._id]?.[normalizedSubject]?.length > 0

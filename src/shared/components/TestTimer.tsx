@@ -3,6 +3,10 @@
 import { useEffect } from "react"
 import { useTestDataStore } from "../store/testDataStore"
 import { useTestSeriesStore } from "../store/testSeriesStore"
+import {
+    hideTestActionLoader,
+    showTestActionLoader,
+} from "../utils/testActionLoader"
 
 export default function TestTimer() {
 
@@ -102,7 +106,13 @@ export default function TestTimer() {
                 return
             }
 
-            await fetchResult(payload)
+            showTestActionLoader("Loading Solution")
+
+            try {
+                await fetchResult(payload)
+            } finally {
+                hideTestActionLoader()
+            }
         }
 
         submitTest()

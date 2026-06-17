@@ -5,6 +5,10 @@ import { useRouter } from "next/navigation"
 import QuestionHistory from "./QuestionHistory";
 import TestTimer from "./TestTimer";
 import Spinner from "./Spinner";
+import {
+    hideTestActionLoader,
+    showTestActionLoader,
+} from "../utils/testActionLoader";
 
 export default function TestMasterHeader() {
     const router = useRouter()
@@ -186,34 +190,42 @@ export default function TestMasterHeader() {
                                 return
                             }
 
-                            await fetchSave({
+                            showTestActionLoader("Exiting Test")
 
-                                historyId:
-                                    runningHistory._id,
+                            try {
+                                await fetchSave({
 
-                                time: timeLeft,
+                                    historyId:
+                                        runningHistory._id,
 
-                                data: {
+                                    time: timeLeft,
 
-                                    [activeSubject]: {
+                                    data: {
 
-                                        ...history?.[activeSubject],
+                                        [activeSubject]: {
 
-                                        activeIndex:
-                                            store.activeQuestionIndex,
+                                            ...history?.[activeSubject],
 
-                                        language:
-                                            store.activeLan,
+                                            activeIndex:
+                                                store.activeQuestionIndex,
 
-                                        timeLeft:
-                                            timeLeft
-                                    }
-                                },
+                                            language:
+                                                store.activeLan,
 
-                                e: 1
-                            })
+                                            timeLeft:
+                                                timeLeft
+                                        }
+                                    },
 
-                            router.back()
+                                    e: 1
+                                })
+                            } finally {
+                                hideTestActionLoader()
+                            }
+
+                            setTimeout(() => {
+                                router.back()
+                            }, 220)
                         }}
                         className="cursor-pointer flex items-center gap-1 bg-white border border-slate-300 text-slate-500 px-2 py-1 rounded-lg hover:bg-slate-50 text-[10px] font-bold transition-colors"
                     >
@@ -299,8 +311,13 @@ export default function TestMasterHeader() {
                                     return
                                 }
 
-                                const data =
+                                showTestActionLoader("Loading Solution")
+
+                                try {
                                     await fetchResult(payload)
+                                } finally {
+                                    hideTestActionLoader()
+                                }
 
                                 // if (data?.success) {
 

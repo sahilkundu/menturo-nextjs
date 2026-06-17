@@ -4,15 +4,17 @@ import { useEffect, useState } from "react"
 import { useLayoutStore } from "../store/uiResStore"
 import { useUserStore } from "../store/user"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import Image from "next/image"
 import { useWSChatStore } from "../store/wsChat"
+import { showRouteLoader } from "../utils/routeLoader"
 
 import Swal from 'sweetalert2'
 
 
 export default function Header() {
     const router = useRouter()
+    const pathname = usePathname()
     const handlePopup = () => {
 
 
@@ -68,13 +70,16 @@ export default function Header() {
 
             if (authenticated) {
 
-                router.replace("/")
+                if (pathname !== "/") {
+                    showRouteLoader()
+                    router.replace("/")
+                }
             }
         }
 
         checkAuth()
 
-    }, [])
+    }, [pathname, router])
     return (
         <>
             <div className="absolute inset-0 overflow-hidden pointer-events-none">

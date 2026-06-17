@@ -1,6 +1,10 @@
 "use client"
 
 import { useTestDataStore } from "../store/testDataStore"
+import {
+    hideTestActionLoader,
+    showTestActionLoader,
+} from "../utils/testActionLoader"
 import { useRouter } from "next/navigation"
 import Spinner from "./Spinner"
 
@@ -430,34 +434,42 @@ export default function TestMasterQuestionChooser() {
                             return
                         }
 
-                        await fetchSave({
+                        showTestActionLoader("Exiting Test")
 
-                            historyId:
-                                runningHistory._id,
+                        try {
+                            await fetchSave({
 
-                            time: timeLeft,
+                                historyId:
+                                    runningHistory._id,
 
-                            data: {
+                                time: timeLeft,
 
-                                [activeSubject]: {
+                                data: {
 
-                                    ...history?.[activeSubject],
+                                    [activeSubject]: {
 
-                                    activeIndex:
-                                        store.activeQuestionIndex,
+                                        ...history?.[activeSubject],
 
-                                    language:
-                                        store.activeLan,
+                                        activeIndex:
+                                            store.activeQuestionIndex,
 
-                                    timeLeft:
-                                        timeLeft
-                                }
-                            },
+                                        language:
+                                            store.activeLan,
 
-                            e: 1
-                        })
+                                        timeLeft:
+                                            timeLeft
+                                    }
+                                },
 
-                        router.back()
+                                e: 1
+                            })
+                        } finally {
+                            hideTestActionLoader()
+                        }
+
+                        setTimeout(() => {
+                            router.back()
+                        }, 220)
                     }}
                     className="
                         cursor-pointer
@@ -548,8 +560,13 @@ export default function TestMasterQuestionChooser() {
                                 return
                             }
 
-                            const data =
+                            showTestActionLoader("Loading Solution")
+
+                            try {
                                 await fetchResult(payload)
+                            } finally {
+                                hideTestActionLoader()
+                            }
 
                             // if (data?.success) {
 

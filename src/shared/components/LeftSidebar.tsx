@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation'
 import { useLayoutStore } from "../store/uiResStore"
 import Image from 'next/image'
+import { showRouteLoader } from '../utils/routeLoader'
 
 import Swal from 'sweetalert2'
 
@@ -199,6 +200,7 @@ export default function LeftSidebar() {
                         <button
                             onClick={() => {
                                 setLeftSidebarOpen(false)
+                                showRouteLoader()
                                 router.push("/setting")
                             }}
                             className="w-full h-11 rounded-2xl hover:bg-gray-50 text-gray-600 text-sm font-medium flex items-center gap-3 px-4 transition-colors">

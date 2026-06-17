@@ -4,6 +4,15 @@ import Image from "next/image"
 import { useState } from "react"
 import Spinner from "./Spinner"
 import { useTestSeriesStore } from "../store/testSeriesStore"
+import { showRouteLoader } from "../utils/routeLoader"
+
+const getSelectedSubjectKey = (
+    seriesId: string
+) => `selected_subject_${seriesId}`
+
+const getRestoreSubjectKey = (
+    seriesId: string
+) => `restore_selected_subject_${seriesId}`
 
 interface TestCardProps {
     accees?: any
@@ -443,6 +452,18 @@ export default function TestCard({
 
                             clearTests()
                             setLoading(true)
+                            showRouteLoader()
+
+                            if (slug) {
+                                sessionStorage.removeItem(
+                                    getRestoreSubjectKey(slug)
+                                )
+
+                                localStorage.setItem(
+                                    getSelectedSubjectKey(slug),
+                                    'all'
+                                )
+                            }
 
                             router.push(`/series/${slug}`)
                         }}

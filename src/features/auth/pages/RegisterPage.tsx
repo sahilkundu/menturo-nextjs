@@ -17,6 +17,7 @@ import { useUserStore } from '../../../shared/store/user'
 import { REGISTER, RESEND_REGISTER_OTP, VERIFY_REGISTER_OTP } from '../../../../api'
 import LoginExtraFeatures from '../../../shared/components/LoginExtraFeatures'
 import Spinner from '../../../shared/components/Spinner'
+import { showRouteLoader } from '../../../shared/utils/routeLoader'
 
 export default function Register() {
     const router = useRouter()
@@ -303,6 +304,8 @@ export default function Register() {
             .getState()
             .setUser(data.user)
 
+        showRouteLoader()
+
         setTimeout(() => {
             router.replace(
                 decodeURIComponent(
@@ -393,6 +396,8 @@ export default function Register() {
             useUserStore
                 .getState()
                 .setUser(data.user)
+
+            showRouteLoader()
 
             setTimeout(() => {
                 router.replace(
@@ -642,6 +647,7 @@ export default function Register() {
 
             if (authenticated) {
 
+                showRouteLoader()
                 router.replace("/")
             }
         }
@@ -1176,7 +1182,10 @@ export default function Register() {
                             <p className="text-center text-sm text-gray-500">
                                 Already have an account?{' '}
                                 <button
-                                    onClick={() => router.push('/login')}
+                                    onClick={() => {
+                                        showRouteLoader()
+                                        router.push('/login')
+                                    }}
                                     type="button"
                                     className="font-semibold text-purple-600 hover:text-purple-700 transition-colors"
                                 >

@@ -6,6 +6,7 @@ import TestMasterBody from '../../../shared/components/TestMasterBody';
 import TestMasterUserInfo from '../../../shared/components/TestMasterUserInfo';
 import TestMasterReviewInfo from '../../../shared/components/TestMasterReviewInfo';
 import TestMasterQuestionChooser from '../../../shared/components/TestMasterQuestionChooser';
+import TestActionLoader from '../../../shared/components/TestActionLoader';
 import { useTestDataStore } from '../../../shared/store/testDataStore';
 // Mock Test Data for dynamic rendering
 import { SAVE_TEST } from '../../../../api';
@@ -131,6 +132,8 @@ export default function MockTestPage() {
     if (!activeTest || Object.keys(activeTest).length === 0) { return }
     return (
         <>
+            <TestActionLoader />
+
             <div className="w-full h-[100dvh]  p-2 md:p-3 overflow-hidden flex flex-col">
 
                 <div className="
