@@ -1,0 +1,341 @@
+'use client'
+import { useTestDataStore } from "../store/testDataStore";
+import { useTestSeriesStore } from "../store/testSeriesStore";
+import { useRouter } from "next/navigation"
+import QuestionHistory from "./QuestionHistory";
+import TestTimer from "./TestTimer";
+import Spinner from "./Spinner";
+
+export default function TestMasterHeader() {
+    const router = useRouter()
+    const {
+        activeLan,
+        setActiveLan,
+        fetchSave,
+        fetchResult,
+        timeLeft,
+        isSubmitted,
+        activeSubject,
+        activeTest,
+        loadingSave,
+        loadingResult
+    } = useTestDataStore()
+
+    // history object
+    const historyObj =
+        activeTest?.activeQuestionHistoryObj?.[
+        activeSubject
+        ]
+
+    // available languages
+    // { en: "English", hn: "Hindi" }
+
+    const firstQId =
+        historyObj?.qIDs?.["0"]
+
+    const languageObj =
+        activeTest?.questions?.[
+            firstQId
+        ]?.multiLanguage || {}
+    const solution =
+        activeTest?.solution || {}
+
+    const stats =
+        Object.values(solution).reduce(
+            (acc: any, item: any) => {
+
+                if (item?.selected !== null) {
+
+                    if (Number(item?.ob || 0) > 0) {
+
+                        acc.correct += 1
+                    }
+
+                    else {
+
+                        acc.wrong += 1
+                    }
+                }
+
+                return acc
+            },
+            {
+                correct: 0,
+                wrong: 0
+            }
+        )
+
+    const totalQuestions =
+        Object.keys(solution).length
+
+    const notVisited =
+        totalQuestions -
+        stats.correct -
+        stats.wrong
+    return (
+        <div suppressHydrationWarning className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            {/* <div suppressHydrationWarning>
+                <h3 className="text-sm font-bold text-slate-800">
+                    SSC GD Mock Test 2026 Panel
+                </h3>
+                <p className="text-[11px] text-slate-400">
+                    Online Test Series • Re-attempt Mode
+                </p>
+
+            </div> */}
+            <QuestionHistory />
+            {isSubmitted &&
+                <div className="hidden md:flex flex-wrap gap-2 text-[11px] font-bold">
+
+                    <div className="
+        bg-green-50
+        text-green-700
+        border
+        border-green-200
+        px-2.5
+        py-1
+        rounded-lg
+    ">
+                        ✅ Correct : {stats?.correct}
+                    </div>
+
+                    <div className="
+        bg-red-50
+        text-red-600
+        border
+        border-red-200
+        px-2.5
+        py-1
+        rounded-lg
+    ">
+                        ❌ Wrong : {stats?.wrong}
+                    </div>
+
+                    <div className="
+        bg-slate-100
+        text-slate-700
+        border
+        border-slate-200
+        px-2.5
+        py-1
+        rounded-lg
+    ">
+                        📌 Not Answered : {notVisited}
+                    </div>
+
+                </div>}
+            {/* LANGUAGE SELECTOR */}
+
+            <div className="flex items-center justify-between min-h-[40px] gap-3">
+
+                {/* LEFT SIDE */}
+                <div className="flex items-center gap-2">
+                    <span className="text-[11px] font-semibold text-slate-500">
+                        View in:
+                    </span>
+
+                    <select
+                        value={activeLan}
+                        onChange={(e) => setActiveLan(e.target.value)}
+                        className="border border-slate-300 rounded px-1.5 py-0.5 text-[11px] font-medium text-slate-700 bg-white focus:outline-none"
+                    >
+                        {Object.entries(languageObj).map(([key, value]) => (
+                            <option key={key} value={key}>
+                                {String(value)}
+                            </option>
+                        ))}
+                    </select>
+
+                    <div className="shrink-0 bg-rose-50 border border-rose-100 rounded-xl px-2.5 py-1.5 text-center">
+                        <div className="text-[12px] font-black text-rose-600 tracking-wide">
+                            <TestTimer />
+                        </div>
+                    </div>
+                </div>
+
+                {/* RIGHT SIDE */}
+                <div className="flex items-center gap-1.5 xl:hidden">
+                    <button
+                        disabled={loadingResult || loadingSave}
+                        onClick={async () => {
+
+                            if (isSubmitted) {
+
+                                router.back()
+
+                                return
+                            }
+
+                            const store =
+                                useTestDataStore.getState()
+
+                            if (
+                                store.loadingSave ||
+                                store.loadingResult
+                            ) {
+                                return
+                            }
+
+                            const history =
+                                store.activeTest?.activeQuestionHistoryObj
+
+                            const runningHistory =
+                                store.activeTest?.history
+
+                            if (!runningHistory?._id) {
+                                return
+                            }
+
+                            await fetchSave({
+
+                                historyId:
+                                    runningHistory._id,
+
+                                time: timeLeft,
+
+                                data: {
+
+                                    [activeSubject]: {
+
+                                        ...history?.[activeSubject],
+
+                                        activeIndex:
+                                            store.activeQuestionIndex,
+
+                                        language:
+                                            store.activeLan,
+
+                                        timeLeft:
+                                            timeLeft
+                                    }
+                                },
+
+                                e: 1
+                            })
+
+                            router.back()
+                        }}
+                        className="cursor-pointer flex items-center gap-1 bg-white border border-slate-300 text-slate-500 px-2 py-1 rounded-lg hover:bg-slate-50 text-[10px] font-bold transition-colors"
+                    >
+                        {!loadingSave &&
+                            <svg
+                                className="w-3 h-3 text-slate-400"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                strokeWidth="2.5"
+                                stroke="currentColor"
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l-3 3m0 0 3 3m-3-3h12.75"
+                                />
+                            </svg>
+                        }
+                        {loadingSave ? (
+                            <Spinner size={16} />
+                        ) : (
+                            isSubmitted ? "Exit" : "Exit & Resume"
+                        )}
+                    </button>
+
+                    {!isSubmitted &&
+                        <button
+                            disabled={loadingResult || loadingSave}
+                            onClick={async () => {
+
+                                const store =
+                                    useTestDataStore.getState()
+
+                                if (
+                                    store.loadingResult ||
+                                    store.loadingSave
+                                ) {
+                                    return
+                                }
+
+                                const history =
+                                    store.activeTest
+                                        ?.activeQuestionHistoryObj
+                                const activeHistory =
+                                    store.activeTest?.history
+
+                                if (!activeHistory) {
+                                    return
+                                }
+
+                                const payload = {
+                                    time: timeLeft,
+
+                                    historyId:
+                                        activeHistory._id,
+
+                                    relationId:
+                                        activeHistory.relationId,
+
+                                    testId:
+                                        activeHistory.testId,
+
+                                    ts:
+                                        activeHistory.ts,
+
+                                    data: {
+                                        [activeSubject]: {
+
+                                            ...history[activeSubject],
+
+                                            activeIndex:
+                                                store.activeQuestionIndex,
+
+                                            language:
+                                                store.activeLan,
+
+                                            timeLeft
+                                        }
+                                    }
+                                }
+
+                                if (!payload) {
+                                    return
+                                }
+
+                                const data =
+                                    await fetchResult(payload)
+
+                                // if (data?.success) {
+
+                                //     router.refresh()
+                                // }
+                            }}
+                            className="cursor-pointer flex items-center gap-1 bg-white border border-blue-200 text-blue-600 px-2.5 py-1 rounded-lg hover:bg-blue-50 text-[10px] font-bold shadow-sm transition-colors"
+                        >
+                            {!loadingResult &&
+                                <svg
+                                    className="w-3 h-3 text-blue-500"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    strokeWidth="2.5"
+                                    stroke="currentColor"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                                    />
+                                </svg>
+                            }
+                            {loadingResult ? (
+                                <Spinner size={16} />
+                            ) : (
+                                "Submit"
+                            )}
+
+                        </button>
+                    }
+                </div>
+
+            </div>
+
+        </div>
+    )
+}

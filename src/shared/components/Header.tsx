@@ -1,0 +1,458 @@
+'use client'
+
+import { useEffect, useState } from "react"
+import { useLayoutStore } from "../store/uiResStore"
+import { useUserStore } from "../store/user"
+import Link from "next/link"
+import { useRouter } from "next/navigation"
+import Image from "next/image"
+import { useWSChatStore } from "../store/wsChat"
+
+import Swal from 'sweetalert2'
+
+
+export default function Header() {
+    const router = useRouter()
+    const handlePopup = () => {
+
+
+
+        Swal.fire({
+            icon: 'warning',
+            title: 'Typing Test Coming soon...',
+            text: "Live on 15 june 2026",
+            confirmButtonColor: '#2575fc'
+        })
+
+
+    }
+    const {
+        user,
+        authenticated,
+        fetchUser,
+
+    } = useUserStore()
+    const site =
+        useWSChatStore(
+            s => s.site
+        )
+    const headRight = useLayoutStore(
+        (state) => state.rightMobile
+    )
+    const headLeft = useLayoutStore(
+        (state) => state.leftMobile
+    )
+    const rightSidebarOpen = useLayoutStore(
+        (state) => state.rightSidebarOpen
+    )
+    const leftSidebarOpen = useLayoutStore(
+        (state) => state.leftSidebarOpen
+    )
+
+
+    const setLeftSidebarOpen = useLayoutStore(
+        (state) => state.setLeftSidebarOpen
+    )
+    const setRightSidebarOpen = useLayoutStore(
+        (state) => state.setRightSidebarOpen
+    )
+    useEffect(() => {
+
+        const checkAuth = async () => {
+
+            await fetchUser()
+
+            const {
+                authenticated
+            } = useUserStore.getState()
+
+            if (authenticated) {
+
+                router.replace("/")
+            }
+        }
+
+        checkAuth()
+
+    }, [])
+    return (
+        <>
+            <div className="absolute inset-0 overflow-hidden pointer-events-none">
+
+                <style>{`
+        @keyframes zigzagMove {
+
+            0% {
+                transform: translate(0, 0);
+            }
+
+            25% {
+                transform: translate(-18px, -35px);
+            }
+
+            50% {
+                transform: translate(18px, -70px);
+            }
+
+            75% {
+                transform: translate(-15px, -105px);
+            }
+
+            100% {
+                transform: translate(0, -140px);
+            }
+
+        }
+    `}</style>
+
+                <span className="
+        absolute
+        left-[5%]
+        top-[18%]
+        w-[18px]
+        h-[18px]
+        rounded-full
+        bg-[radial-gradient(circle_at_30%_30%,rgba(255,255,255,.95),rgba(255,255,255,.18))]
+        shadow-[0_0_18px_rgba(255,255,255,.35),0_0_40px_rgba(255,255,255,.12)]
+        animate-[zigzagMove_4s_linear_infinite]
+    " />
+
+                <span className="
+        absolute
+        left-[22%]
+        top-[70%]
+        w-[10px]
+        h-[10px]
+        rounded-full
+        bg-[radial-gradient(circle_at_30%_30%,rgba(255,255,255,.95),rgba(255,255,255,.18))]
+        shadow-[0_0_18px_rgba(255,255,255,.35),0_0_40px_rgba(255,255,255,.12)]
+        animate-[zigzagMove_3s_linear_infinite]
+    " />
+
+                <span className="
+        absolute
+        left-[40%]
+        top-[25%]
+        w-[24px]
+        h-[24px]
+        rounded-full
+        bg-[radial-gradient(circle_at_30%_30%,rgba(255,255,255,.95),rgba(255,255,255,.18))]
+        shadow-[0_0_18px_rgba(255,255,255,.35),0_0_40px_rgba(255,255,255,.12)]
+        animate-[zigzagMove_5s_linear_infinite]
+    " />
+
+                <span className="
+        absolute
+        left-[58%]
+        top-[80%]
+        w-[14px]
+        h-[14px]
+        rounded-full
+        bg-[radial-gradient(circle_at_30%_30%,rgba(255,255,255,.95),rgba(255,255,255,.18))]
+        shadow-[0_0_18px_rgba(255,255,255,.35),0_0_40px_rgba(255,255,255,.12)]
+        animate-[zigzagMove_4s_linear_infinite]
+    " />
+
+                <span className="
+        absolute
+        left-[75%]
+        top-[20%]
+        w-[20px]
+        h-[20px]
+        rounded-full
+        bg-[radial-gradient(circle_at_30%_30%,rgba(255,255,255,.95),rgba(255,255,255,.18))]
+        shadow-[0_0_18px_rgba(255,255,255,.35),0_0_40px_rgba(255,255,255,.12)]
+        animate-[zigzagMove_6s_linear_infinite]
+    " />
+
+                <span className="
+        absolute
+        left-[90%]
+        top-[60%]
+        w-[12px]
+        h-[12px]
+        rounded-full
+        bg-[radial-gradient(circle_at_30%_30%,rgba(255,255,255,.95),rgba(255,255,255,.18))]
+        shadow-[0_0_18px_rgba(255,255,255,.35),0_0_40px_rgba(255,255,255,.12)]
+        animate-[zigzagMove_8s_linear_infinite]
+    " />
+
+            </div>
+
+
+            {/* <!-- YOUR SAME CONTENT --> */}
+            <div className="relative z-10 p-5 lg:p-6">
+
+                {/* <!-- TOPBAR (MODIFIED: added mobile menu button + mobile profile trigger - original structure preserved) --> */}
+                <div className="flex flex-col lg:flex-row gap-4 justify-between lg:items-center">
+
+                    {/* <!-- LEFT (ADDED mobile menu button) --> */}
+                    <div className="flex items-center gap-4">
+
+                        {/* <!-- MOBILE MENU BUTTON (ADDED) --> */}
+                        {authenticated &&
+                            <div
+                                id="mobileMenuBtn"
+                                className="
+        hidden
+        max-[1280px]:flex
+
+        w-10
+        h-10
+
+        rounded-full
+
+        bg-white/15
+        backdrop-blur-xl
+
+        items-center
+        justify-center
+
+        text-white
+        text-[20px]
+
+        cursor-pointer
+
+        transition-all
+        duration-200
+    "
+                                onClick={() =>
+                                    headLeft && !leftSidebarOpen ? setLeftSidebarOpen(true) : ""}
+
+                            >
+                                ☰
+                            </div>}
+
+                        <div
+                            className="
+        w-12
+        h-12
+        rounded-2xl
+        bg-white/15
+        backdrop-blur-xl
+        border
+        border-white/15
+        flex
+        items-center
+        justify-center
+        shrink-0
+        p-1
+    "
+                        >
+                            <Image
+                                src="https://cdn.menturo.in/img/M3.png"
+                                alt="logo"
+                                width={40}
+                                height={40}
+                                loading="lazy"
+                                className="object-contain mx-auto"
+                            />
+                        </div>
+
+                        <div>
+
+                            <h2 className="text-white text-xl font-bold">
+                                Menturo
+                            </h2>
+
+                            <p className="text-white/70 text-sm">
+                                Education Dashboard
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                    {/* <!-- RIGHT (ADDED mobile profile trigger) --> */}
+                    <div className="flex items-center gap-3 flex-wrap">
+
+
+
+                        {/* <!-- MODE --> */}
+
+                        {authenticated &&
+                            <button className="w-10 h-10 rounded-full bg-white/15  backdrop-blur-xl border border-white/15 text-white">
+                                🔔
+                            </button>}
+
+                        {/* DESKTOP PROFILE IMAGE */}
+
+
+                        {/* MOBILE PROFILE IMAGE */}
+
+                        {
+                            authenticated ? (
+
+                                headRight ? (
+
+                                    <img
+                                        // src="https://i.pravatar.cc/100?img=12"
+                                        src="https://cdn.menturo.in/avatar/avatar.png"
+                                        className="
+                    w-10
+                    h-10
+                    rounded-full
+                    border-2
+                    border-white
+                    cursor-pointer
+                "
+                                        onClick={() => {
+
+                                            if (!rightSidebarOpen) {
+                                                setRightSidebarOpen(true)
+                                            }
+                                        }}
+                                    />
+
+                                ) : null
+
+                            ) : (
+
+                                <Link href="/login">
+
+                                    <button
+                                        className="
+                                        cursor-pointer
+                    bg-transparent
+                    border-2
+                    border-white
+                    rounded-full
+                    px-8
+                    py-2.5
+                    text-white
+                    font-semibold
+                "
+                                    >
+                                        Sign In
+                                    </button>
+
+                                </Link>
+                            )
+                        }
+
+                    </div>
+
+                </div>
+
+                {/* <!-- TEXT --> */}
+                <div className="mt-3">
+
+                    <p id="greetingText" className="text-violet-200 font-semibold ">
+                        <h4 className="text-sm md:text-base font-semibold mt-2">
+                            {new Date().getHours() < 12
+                                ? "Good Morning"
+                                : new Date().getHours() < 17
+                                    ? "Good Afternoon"
+                                    : new Date().getHours() < 21
+                                        ? "Good Evening"
+                                        : "Good Night"}{" "}
+                            👋
+                        </h4>
+                    </p>
+                    {authenticated &&
+                        <h3 id="welcomeUser" className="text-white text-1xl lg:text-1xl font-black leading-tight">
+                            Welcome Back,  {user?.username}
+                        </h3>
+                    }
+                    {/* <p className="text-white/70 mt-2 leading-7 max-w-[650px]">
+                        Manage students, online courses, mentors, analytics and performance from one modern
+                        dashboard.
+                    </p> */}
+
+                </div>
+
+                {/* <!-- STATS --> */}
+                <div className="grid grid-cols-2 xl:grid-cols-4 gap-2 mt-2 auto-rows-min w-full">
+
+                    {/* <!-- CARD --> */}
+                    <div className="bg-white/15 backdrop-blur-xl border border-white/15 rounded-2xl p-2.5 text-white h-fit">
+
+                        <p className="text-[11px] text-white/70 mb-1 font-normal">
+                            Students
+                        </p>
+
+                        <div className="flex items-center justify-between">
+
+                            <h2 className="text-lg font-normal">
+                                {site?.totalUsers}
+                            </h2>
+
+                            <button className="w-6 h-6 rounded-full bg-white text-black text-xs font-normal">
+                                ↗
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                    {/* <!-- CARD --> */}
+                    <div className="bg-white/15 backdrop-blur-xl border border-white/15 rounded-2xl p-2.5 text-white h-fit">
+
+                        <p className="text-[11px] text-white/70 mb-1 font-normal">
+                            Teachers
+                        </p>
+
+                        <div className="flex items-center justify-between">
+
+                            <h2 className="text-lg font-normal">
+                                29
+                            </h2>
+
+                            <button className="w-6 h-6 rounded-full bg-white text-black text-xs font-normal">
+                                ↗
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                    {/* <!-- CARD --> */}
+                    <div onClick={handlePopup} className="cursor-pointer bg-gradient-to-r from-[#ebf46d]/90 to-[#dff53f]/90 rounded-2xl p-2.5 text-black h-fit border border-white/20 shadow-lg shadow-lime-500/20">
+
+                        <p className="text-[11px] text-black/60 mb-1 font-medium">
+                            Typing Test
+                        </p>
+
+                        <div className="flex items-center justify-between">
+
+                            <p className="bg-white px-2 py-1 rounded-lg text-[11px] font-normal">
+                                Explore Typing
+                            </p>
+
+                            <div className="w-7 h-7 rounded-full bg-white text-white flex items-center justify-center">
+                                <button className="w-6 h-6 rounded-full bg-white text-black text-xs font-normal">
+                                    ↗
+                                </button>
+                            </div>
+
+                        </div>
+
+                    </div>
+                    <div className="bg-[#ebf46d] rounded-2xl p-2.5 h-fit">
+
+                        <p className="text-[11px] font-normal mb-2">
+                            Add Members
+                        </p>
+
+                        <div className="flex gap-1.5 flex-wrap">
+
+                            {/* <button className="bg-white px-2 py-1 rounded-lg text-[11px] font-normal">
+                                + Student
+                            </button> */}
+
+                            <button className="bg-white px-2 py-1 rounded-lg text-[11px] font-normal">
+                                + Courses
+                            </button>
+
+                        </div>
+
+                    </div>
+
+
+                </div>
+
+            </div >
+
+        </>
+    )
+}
