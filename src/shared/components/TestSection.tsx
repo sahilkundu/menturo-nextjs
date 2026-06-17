@@ -33,6 +33,8 @@ export default function TestSection({ series }: Props) {
         useState<string | null>(null)
     const [loadingTestId, setLoadingTestId] =
         useState<string | null>(null)
+    const actionLoadingRef =
+        useRef(false)
     const {
         authenticated
     } = useUserStore()
@@ -264,13 +266,14 @@ export default function TestSection({ series }: Props) {
 
         // BLOCK MULTIPLE REQUESTS
 
-        if (loadingTestId) return
+        if (loadingTestId || actionLoadingRef.current) return
 
         const actionKey =
             `${test.testId}-${mode}-${historyId || ''}`
 
         try {
 
+            actionLoadingRef.current = true
             setLoadingTestId(actionKey)
 
             // =====================================
@@ -356,6 +359,7 @@ export default function TestSection({ series }: Props) {
 
         } finally {
 
+            actionLoadingRef.current = false
             setLoadingTestId(null)
         }
     }
@@ -882,6 +886,32 @@ export default function TestSection({ series }: Props) {
                                     ) =>
                                         loadingTestId ===
                                         `${test.testId}-solution-${historyId}`
+                                    const isActionLocked =
+                                        loadingTestId !== null
+                                    const isTestSolutionLoading =
+                                        loadingTestId?.startsWith(
+                                            `${test.testId}-solution-`
+                                        )
+                                    const premiumButtonClass =
+                                        `
+                                            bg-[linear-gradient(135deg,#4A3F77_0%,#362D5F_100%)]
+                                            text-white
+                                            border
+                                            border-white/15
+                                            shadow-[0_10px_24px_rgba(74,63,119,0.26),inset_0_1px_0_rgba(255,255,255,0.18)]
+                                            hover:bg-[#3D3466]
+                                            active:scale-[0.98]
+                                        `
+                                    const disabledButtonClass =
+                                        `
+                                            cursor-not-allowed
+                                            border
+                                            border-[#D7D2E8]
+                                            bg-[#F3F1FA]
+                                            text-[#8D86A9]
+                                            shadow-none
+                                            pointer-events-none
+                                        `
                                     return (
 
                                         <div
@@ -899,10 +929,10 @@ export default function TestSection({ series }: Props) {
 
                                             <div
                                                 className="
-                            bg-white
+                            bg-[linear-gradient(180deg,#FFFFFF_0%,#FBFAFF_100%)]
                             border
-                            border-gray-200
-                            rounded-xl
+                            border-[#E5DFF4]
+                            rounded-2xl
                             m-1
                             p-3
                             sm:p-4
@@ -914,7 +944,7 @@ export default function TestSection({ series }: Props) {
                             sm:items-center
                             gap-3
                             transition
-                            hover:shadow-md
+                            shadow-[0_10px_26px_rgba(74,63,119,0.08)]
                         "
                                             >
 
@@ -929,7 +959,7 @@ export default function TestSection({ series }: Props) {
 
                                                         </h4>
 
-                                                        <span className="text-amber-500 text-[10px] font-bold bg-amber-50 px-1.5 py-0.5 rounded shrink-0">
+                                                        <span className="text-[#9A4A00] text-[10px] font-bold bg-[#FFF7D6] border border-[#F59E0B]/20 px-1.5 py-0.5 rounded shrink-0">
 
                                                             ⚡ {(test.totalAttempt || 0)} Users
 
@@ -937,7 +967,7 @@ export default function TestSection({ series }: Props) {
 
                                                     </div>
 
-                                                    <div className="flex gap-3 text-[11px] text-gray-400 font-medium flex-wrap">
+                                                    <div className="flex gap-3 text-[11px] text-[#6B647D] font-medium flex-wrap">
 
                                                         <span>
                                                             📄 {test.totalQuestions || 0} Questions
@@ -953,7 +983,7 @@ export default function TestSection({ series }: Props) {
 
                                                     </div>
 
-                                                    <div className="text-[11px] text-sky-600 font-semibold flex items-center gap-1">
+                                                    <div className="text-[11px] text-[#4A3F77] font-semibold flex items-center gap-1">
 
                                                         🌐 {(test.lan || []).join(', ')}
 
@@ -989,18 +1019,18 @@ export default function TestSection({ series }: Props) {
 
                                                                         if (
                                                                             !test.access ||
-                                                                            loadingTestId ||
+                                                                            isActionLocked ||
                                                                             hasRunningTest
                                                                         ) return
 
                                                                         handleTestAction(test)
                                                                     }}
                                                                     disabled={
-                                                                        loadingTestId !== null
+                                                                        isActionLocked || hasRunningTest || !test.access
                                                                     }
                                                                     className={`
                                                                     
-                    ${loadingTestId || hasRunningTest
+                    ${isActionLocked || hasRunningTest || !test.access
                                                                             ? 'cursor-not-allowed'
                                                                             : 'cursor-pointer'
                                                                         }
@@ -1016,31 +1046,20 @@ export default function TestSection({ series }: Props) {
                     justify-center
                     gap-2
                     transition-all
-                    active:scale-95
                     disabled:opacity-70
         disabled:cursor-not-allowed
         disabled:pointer-events-none
 
-                    ${test.access
-                                                                            ? `
-                            bg-[#4A3F77]
-                            text-white
-                            shadow-[0_4px_12px_rgba(74,63,119,0.3)]
-                            hover:shadow-[0_6px_18px_rgba(74,63,119,0.4)]
-                            hover:-translate-y-0.5
-                        `
-                                                                            : `
-                            bg-gray-300
-                            text-gray-600
-                            cursor-not-allowed
-                        `
+                    ${test.access && !isActionLocked && !hasRunningTest
+                                                                            ? premiumButtonClass
+                                                                            : disabledButtonClass
                                                                         }
                 `}
                                                                 >
 
                                                                     {
                                                                         isResumeLoading
-                                                                            ? <Spinner size={15} />
+                                                                            ? <Spinner size={16} />
                                                                             : (
                                                                                 <>
                                                                                     <span className="bg-white/15 p-1 rounded-md text-[10px]">
@@ -1090,12 +1109,20 @@ export default function TestSection({ series }: Props) {
                                                                                     if (el) buttonRefs.current[test.testId] = el;
                                                                                 }}
                                                                                 onClick={() => {
+                                                                                    if (
+                                                                                        isActionLocked ||
+                                                                                        hasRunningTest
+                                                                                    ) return
+
                                                                                     setOpenSolutionId(
                                                                                         openSolutionId === test.testId ? null : test.testId
                                                                                     )
                                                                                 }}
+                                                                                disabled={
+                                                                                    isActionLocked || hasRunningTest
+                                                                                }
                                                                                 className={`
-   ${loadingTestId || hasRunningTest
+   ${isActionLocked || hasRunningTest
                                                                                         ? 'cursor-not-allowed'
                                                                                         : 'cursor-pointer'
                                                                                     }
@@ -1114,31 +1141,34 @@ export default function TestSection({ series }: Props) {
     justify-center
     gap-2
 
-    bg-[#4A3F77]
-    text-white
-
-    shadow-[0_4px_12px_rgba(74,63,119,0.3)]
-    hover:shadow-[0_6px_18px_rgba(74,63,119,0.4)]
-    hover:-translate-y-0.5
+    ${isActionLocked || hasRunningTest
+                                                                                        ? disabledButtonClass
+                                                                                        : premiumButtonClass
+                                                                                    }
     transition-all
+    disabled:opacity-70
     `}
 
                                                                             >
 
-                                                                                <span className=" p-1 rounded-md text-[10px]">
+                                                                                {
+                                                                                    isTestSolutionLoading
+                                                                                        ? <Spinner size={16} />
+                                                                                        : (
+                                                                                            <>
+                                                                                                <span className="p-1 rounded-md text-[10px]">
+                                                                                                    <Book size={15} />
+                                                                                                </span>
 
-                                                                                    <Book size={15} />
-
-                                                                                </span>
-
-                                                                                <span>
-
-                                                                                    Solutions({test.history
-                                                                                        ?.filter(
-                                                                                            (item: any) => item.status === "submitted"
-                                                                                        ).length})
-
-                                                                                </span>
+                                                                                                <span>
+                                                                                                    Solutions({test.history
+                                                                                                        ?.filter(
+                                                                                                            (item: any) => item.status === "submitted"
+                                                                                                        ).length})
+                                                                                                </span>
+                                                                                            </>
+                                                                                        )
+                                                                                }
 
                                                                             </button>
 
@@ -1154,11 +1184,12 @@ export default function TestSection({ series }: Props) {
                                                                                         ${openSolutionId === test.testId ? 'block' : 'hidden'}
                                                                                         z-50
                                                                                         w-full
-                                                                                        bg-[#4A3F77]
+                                                                                        overflow-hidden
+                                                                                        bg-white
                                                                                         border
-                                                                                        border-[#5b4b94]
-                                                                                        rounded-xl
-                                                                                        shadow-[0_6px_18px_rgba(74,63,119,0.35)]
+                                                                                        border-[#E5DFF4]
+                                                                                        rounded-2xl
+                                                                                        shadow-[0_18px_38px_rgba(74,63,119,0.22)]
                                                                                     `}
                                                                             >
                                                                                 <button
@@ -1174,8 +1205,9 @@ export default function TestSection({ series }: Props) {
         w-5
         h-5
         rounded-full
-        bg-white/20
-        hover:bg-white/30
+        bg-[#F5F3FF]
+        text-[#4A3F77]
+        hover:bg-[#EFEAFE]
         flex
         items-center
         justify-center
@@ -1188,11 +1220,11 @@ export default function TestSection({ series }: Props) {
                                                                                     className="
         flex
         flex-col-reverse
-        max-h-[90px]
+        max-h-[118px]
         overflow-y-auto
         pt-8
-        bg-[#4A3F77]
-        rounded-xl
+        bg-white
+        rounded-2xl
 
         [scrollbar-width:none]
         [-ms-overflow-style:none]
@@ -1215,8 +1247,8 @@ export default function TestSection({ series }: Props) {
                                                                                                 <button
                                                                                                     key={item._id}
                                                                                                     onClick={() => {
-                                                                                                        setOpenSolutionId(null)
-                                                                                                        console.log("i am clicked here 1207")
+                                                                                                        if (isActionLocked) return
+
                                                                                                         handleTestAction(
                                                                                                             test,
                                                                                                             'solution',
@@ -1224,24 +1256,29 @@ export default function TestSection({ series }: Props) {
                                                                                                         )
 
                                                                                                     }}
+                                                                                                    disabled={isActionLocked}
                                                                                                     className={`
                                             w-full
                                             text-left
                                             px-4
-                                            py-3
+                                            py-2.5
                                             text-[12px]
                                             flex
                                             text-center
                                             justify-center
+                                            items-center
+                                            gap-2
                                             font-medium
-                                            text-white
-                                            bg-[#4A3F77]
-                                            hover:bg-[#5b4b94]
+                                            text-[#4A3F77]
+                                            bg-white
+                                            hover:bg-[#F8F6FF]
                                             border-b
-                                            border-white/10
+                                            border-[#EEEAF8]
                                             last:border-b-0
                                             transition
-                                         ${loadingTestId || hasRunningTest
+                                            disabled:opacity-70
+                                            disabled:pointer-events-none
+                                         ${isActionLocked || hasRunningTest
                                                                                                             ? 'cursor-not-allowed'
                                                                                                             : 'cursor-pointer'
                                                                                                         }
@@ -1249,7 +1286,18 @@ export default function TestSection({ series }: Props) {
                                                                                         `}
                                                                                                 >
 
-                                                                                                    Attempt {index + 1}
+                                                                                                    {
+                                                                                                        isSolutionLoading(item._id)
+                                                                                                            ? <Spinner size={16} />
+                                                                                                            : (
+                                                                                                                <>
+                                                                                                                    <span className="h-5 w-5 rounded-full bg-[#FFF7D6] text-[#9A4A00] grid place-items-center text-[10px] font-black">
+                                                                                                                        {index + 1}
+                                                                                                                    </span>
+                                                                                                                    Attempt {index + 1}
+                                                                                                                </>
+                                                                                                            )
+                                                                                                    }
 
                                                                                                 </button>
                                                                                             )
@@ -1272,15 +1320,16 @@ export default function TestSection({ series }: Props) {
                                                                 <button
                                                                     onClick={() =>
                                                                         test.access &&
+                                                                        !isActionLocked &&
                                                                         handleTestAction(test)
                                                                     }
                                                                     disabled={
-                                                                        loadingTestId !== null
+                                                                        isActionLocked || !test.access
                                                                     }
                                                                     className={`
 
         
-                   ${loadingTestId || hasRunningTest
+                   ${isActionLocked || hasRunningTest || !test.access
                                                                             ? 'cursor-not-allowed'
                                                                             : 'cursor-pointer'
                                                                         }
@@ -1291,14 +1340,13 @@ export default function TestSection({ series }: Props) {
                     flex
                     items-center
                     gap-2
-                    bg-[#4A3F77]
-                    text-white
                     flex
                     justify-center
                     text-center
-                    shadow-[0_4px_12px_rgba(74,63,119,0.3)]
-                    hover:shadow-[0_6px_18px_rgba(74,63,119,0.4)]
-                    hover:-translate-y-0.5
+                    ${!isActionLocked && !hasRunningTest && test.access
+                                                                            ? premiumButtonClass
+                                                                            : disabledButtonClass
+                                                                        }
                     transition-all
                     disabled:opacity-70
         disabled:cursor-not-allowed
@@ -1308,7 +1356,7 @@ export default function TestSection({ series }: Props) {
 
                                                                     {
                                                                         isResumeLoading
-                                                                            ? <Spinner size={15} />
+                                                                            ? <Spinner size={16} />
                                                                             : (
                                                                                 <>
                                                                                     <span className="p-1 rounded-md text-[10px]">
@@ -1342,6 +1390,7 @@ export default function TestSection({ series }: Props) {
 
                                                                         <button
                                                                             onClick={() => {
+                                                                                if (isActionLocked) return
 
                                                                                 setOpenSolutionId(
                                                                                     openSolutionId === test.testId
@@ -1350,8 +1399,9 @@ export default function TestSection({ series }: Props) {
                                                                                 )
 
                                                                             }}
+                                                                            disabled={isActionLocked}
                                                                             className={`
-                       ${loadingTestId || hasRunningTest
+                       ${isActionLocked || hasRunningTest
                                                                                     ? 'cursor-not-allowed'
                                                                                     : 'cursor-pointer'
                                                                                 }
@@ -1370,30 +1420,34 @@ export default function TestSection({ series }: Props) {
     justify-center
     gap-2
 
-    bg-[#4A3F77]
-    text-white
-
-    shadow-[0_4px_12px_rgba(74,63,119,0.3)]
-    hover:shadow-[0_6px_18px_rgba(74,63,119,0.4)]
-    hover:-translate-y-0.5
+    ${isActionLocked || hasRunningTest
+                                                                                    ? disabledButtonClass
+                                                                                    : premiumButtonClass
+                                                                                }
     transition-all
+    disabled:opacity-70
 `}
                                                                         >
 
-                                                                            <span className="p-1 rounded-md text-[10px]">
+                                                                            {
+                                                                                isTestSolutionLoading
+                                                                                    ? <Spinner size={16} />
+                                                                                    : (
+                                                                                        <>
+                                                                                            <span className="p-1 rounded-md text-[10px]">
+                                                                                                <Book size={15} />
+                                                                                            </span>
 
-                                                                                <Book size={15} />
-
-                                                                            </span>
-
-                                                                            <span>
-
-                                                                                Solutions
-                                                                                ({test.history
-                                                                                    ?.filter(
-                                                                                        (item: any) => item.status === "submitted"
-                                                                                    ).length})
-                                                                            </span>
+                                                                                            <span>
+                                                                                                Solutions
+                                                                                                ({test.history
+                                                                                                    ?.filter(
+                                                                                                        (item: any) => item.status === "submitted"
+                                                                                                    ).length})
+                                                                                            </span>
+                                                                                        </>
+                                                                                    )
+                                                                            }
 
                                                                         </button>
 
@@ -1408,11 +1462,12 @@ export default function TestSection({ series }: Props) {
                                                                                         ${openSolutionId === test.testId ? 'block' : 'hidden'}
                                                                                         z-50
                                                                                         w-full
-                                                                                        bg-[#4A3F77]
+                                                                                        overflow-hidden
+                                                                                        bg-white
                                                                                         border
-                                                                                        border-[#5b4b94]
-                                                                                        rounded-xl
-                                                                                        shadow-[0_6px_18px_rgba(74,63,119,0.35)]
+                                                                                        border-[#E5DFF4]
+                                                                                        rounded-2xl
+                                                                                        shadow-[0_18px_38px_rgba(74,63,119,0.22)]
                                                                                     `}
                                                                         >
                                                                             <button
@@ -1426,8 +1481,9 @@ export default function TestSection({ series }: Props) {
         w-5
         h-5
         rounded-full
-        bg-white/20
-        hover:bg-white/30
+        bg-[#F5F3FF]
+        text-[#4A3F77]
+        hover:bg-[#EFEAFE]
         flex
         items-center
         justify-center
@@ -1440,11 +1496,11 @@ export default function TestSection({ series }: Props) {
                                                                                 className="
         flex
         flex-col-reverse
-        max-h-[90px]
+        max-h-[118px]
         overflow-y-auto
          pt-8
-        bg-[#4A3F77]
-        rounded-xl
+        bg-white
+        rounded-2xl
 
         [scrollbar-width:none]
         [-ms-overflow-style:none]
@@ -1468,8 +1524,8 @@ export default function TestSection({ series }: Props) {
 
                                                                                                 key={item._id}
                                                                                                 onClick={() => {
-                                                                                                    setOpenSolutionId(null)
-                                                                                                    console.log("i am clicked here 1456")
+                                                                                                    if (isActionLocked) return
+
                                                                                                     handleTestAction(
                                                                                                         test,
                                                                                                         'solution',
@@ -1477,24 +1533,29 @@ export default function TestSection({ series }: Props) {
                                                                                                     )
 
                                                                                                 }}
+                                                                                                disabled={isActionLocked}
                                                                                                 className={`
                                             w-full
                                             text-left
                                             px-4
-                                            py-3
+                                            py-2.5
                                             text-[12px]
                                             flex
                                             text-center
                                             justify-center
+                                            items-center
+                                            gap-2
                                             font-medium
-                                            text-white
-                                            bg-[#4A3F77]
-                                            hover:bg-[#5b4b94]
+                                            text-[#4A3F77]
+                                            bg-white
+                                            hover:bg-[#F8F6FF]
                                             border-b
-                                            border-white/10
+                                            border-[#EEEAF8]
                                             last:border-b-0
                                             transition
-                                         ${loadingTestId || hasRunningTest
+                                            disabled:opacity-70
+                                            disabled:pointer-events-none
+                                         ${isActionLocked || hasRunningTest
                                                                                                         ? 'cursor-not-allowed'
                                                                                                         : 'cursor-pointer'
                                                                                                     }
@@ -1502,7 +1563,18 @@ export default function TestSection({ series }: Props) {
                                                                                         `}
                                                                                             >
 
-                                                                                                Attempt {index + 1}
+                                                                                                {
+                                                                                                    isSolutionLoading(item._id)
+                                                                                                        ? <Spinner size={16} />
+                                                                                                        : (
+                                                                                                            <>
+                                                                                                                <span className="h-5 w-5 rounded-full bg-[#FFF7D6] text-[#9A4A00] grid place-items-center text-[10px] font-black">
+                                                                                                                    {index + 1}
+                                                                                                                </span>
+                                                                                                                Attempt {index + 1}
+                                                                                                            </>
+                                                                                                        )
+                                                                                                }
 
                                                                                             </button>
                                                                                         )
@@ -1521,15 +1593,16 @@ export default function TestSection({ series }: Props) {
 
                                                             <button
                                                                 disabled={
-                                                                    loadingTestId !== null
+                                                                    isActionLocked || !test.access
                                                                 }
                                                                 onClick={() =>
                                                                     test.access &&
+                                                                    !isActionLocked &&
                                                                     handleTestAction(test)
                                                                 }
                                                                 className={`
                                                             
-                ${loadingTestId || hasRunningTest
+                ${isActionLocked || hasRunningTest || !test.access
                                                                         ? 'cursor-not-allowed'
                                                                         : 'cursor-pointer'
                                                                     }
@@ -1540,13 +1613,12 @@ export default function TestSection({ series }: Props) {
                 flex
                 items-center
                 gap-2
-                bg-[#4A3F77]
-                text-white
                 justify-center
                 text-center
-                shadow-[0_4px_12px_rgba(74,63,119,0.3)]
-                hover:shadow-[0_6px_18px_rgba(74,63,119,0.4)]
-                hover:-translate-y-0.5
+                ${!isActionLocked && !hasRunningTest && test.access
+                                                                        ? premiumButtonClass
+                                                                        : disabledButtonClass
+                                                                    }
                 transition-all
                 disabled:opacity-70
         disabled:cursor-not-allowed
@@ -1556,7 +1628,7 @@ export default function TestSection({ series }: Props) {
 
                                                                 {
                                                                     isResumeLoading
-                                                                        ? <Spinner size={15} />
+                                                                        ? <Spinner size={16} />
                                                                         : (
                                                                             <>
                                                                                 {authenticated &&
