@@ -43,7 +43,6 @@ export default function TestCard({
 
 }: TestCardProps) {
     const router = useRouter()
-    console.log(access)
     const isAvailable =
         av !== false
     let actionBtnName =
@@ -173,25 +172,21 @@ export default function TestCard({
 
             <div
                 className={`
-                    group
                     relative
                     flex-shrink-0
                     rounded-[24px]
                     overflow-hidden
                     border
-                    bg-white
+                    bg-[linear-gradient(180deg,#FFFFFF_0%,#FBFAFF_54%,#FFFFFF_100%)]
                     snap-start
-                    transition-all
-                    duration-500
-                    ease-out
+                    shadow-[0_18px_44px_rgba(74,63,119,0.14)]
                     before:absolute
-                    before:inset-x-4
-                    before:-top-16
-                    before:h-32
+                    before:inset-x-6
+                    before:-top-14
+                    before:h-28
                     before:rounded-full
-                    before:bg-[#4A3F77]/18
+                    before:bg-[#4A3F77]/16
                     before:blur-3xl
-                    before:transition-opacity
                     after:absolute
                     after:inset-0
                     after:pointer-events-none
@@ -200,11 +195,7 @@ export default function TestCard({
                     after:ring-inset
                     ${isAvailable
                         ? `
-                            border-[#4A3F77]/18
-                            shadow-[0_18px_48px_rgba(74,63,119,0.16)]
-                            hover:-translate-y-2
-                            hover:border-[#4A3F77]/35
-                            hover:shadow-[0_30px_72px_rgba(74,63,119,0.26)]
+                            border-[#4A3F77]/20
                             after:ring-white/80
                             before:opacity-100
                         `
@@ -222,7 +213,7 @@ export default function TestCard({
                 <div className="relative p-3 pb-0">
 
 
-                    <div className="relative overflow-hidden rounded-[20px] bg-[linear-gradient(135deg,#4A3F77_0%,#7C6BC6_42%,#FFB84D_100%)] p-[1px] shadow-[0_10px_22px_rgba(74,63,119,0.16),inset_0_1px_0_rgba(255,255,255,0.75)]">
+                    <div className="relative overflow-hidden rounded-[20px] bg-[linear-gradient(135deg,#4A3F77_0%,#6C5CAD_45%,#F59E0B_100%)] p-[1px] shadow-[0_12px_26px_rgba(74,63,119,0.18),inset_0_1px_0_rgba(255,255,255,0.75)]">
                         <Image
                             src={img}
                             alt={name}
@@ -234,13 +225,10 @@ export default function TestCard({
                                 w-full
                                 rounded-[19px]
                                 object-cover
-                                transition-transform
-                                duration-700
-                                group-hover:scale-[1.06]
                             "
                         />
 
-                        <div className="absolute inset-[1px] rounded-[19px] bg-[linear-gradient(180deg,rgba(255,255,255,0.16)_0%,rgba(74,63,119,0.02)_48%,rgba(20,16,39,0.30)_100%)]"></div>
+                        <div className="absolute inset-[1px] rounded-[19px] bg-[linear-gradient(180deg,rgba(255,255,255,0.08)_0%,rgba(74,63,119,0)_48%,rgba(20,16,39,0.36)_100%)]"></div>
                         <div className="absolute inset-x-4 top-0 h-px bg-white/70"></div>
                     </div>
 
@@ -274,7 +262,7 @@ export default function TestCard({
                                 : (
                                     isExpired
                                         ? "bg-[linear-gradient(135deg,#b42318,#7a271a)]"
-                                        : "bg-[linear-gradient(135deg,#FFB84D,#E88923)]"
+                                        : "bg-[linear-gradient(135deg,#F59E0B,#D97706)]"
                                 )
                             }
     `}
@@ -314,8 +302,8 @@ export default function TestCard({
                                 gap-1
                                 rounded-full
                                 border
-                                border-[#4A3F77]/12
-                                bg-[#F3F0FF]
+                                border-[#4A3F77]/14
+                                bg-[#F5F3FF]
                                 px-2
                                 py-1
                                 text-[9px]
@@ -329,7 +317,7 @@ export default function TestCard({
                             {board}
                         </p>
 
-                        <span className="rounded-full border border-[#F59E0B]/30 bg-[#FFF7D6] px-2 py-1 text-[9px] font-black uppercase text-[#A15C00] shadow-[inset_0_1px_0_rgba(255,255,255,0.9)]">
+                        <span className="rounded-full border border-[#F59E0B]/30 bg-[#FFF7D6] px-2 py-1 text-[9px] font-black uppercase text-[#9A4A00] shadow-[inset_0_1px_0_rgba(255,255,255,0.9)]">
                             Premium
                         </span>
                     </div>
@@ -359,28 +347,48 @@ export default function TestCard({
                                 !isFreeAccess
                             )
                             ? (
-                                <div className="mb-3 flex items-center justify-between rounded-[18px] border border-[#D9D6F0] bg-[linear-gradient(135deg,#F7F5FF_0%,#ECFEFF_50%,#FFF7ED_100%)] px-3 py-2.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.95)]">
+                                <div className="mb-3 rounded-[18px] border border-[#E2DDF3] bg-white px-3 py-2.5 shadow-[0_8px_20px_rgba(74,63,119,0.08),inset_0_1px_0_rgba(255,255,255,0.95)]">
 
-                                    <p className="flex items-center gap-1.5 text-[11px] font-extrabold text-[#0F766E]">
-                                        <i className="far fa-file-alt text-[#0891B2]"></i> {totalTest}
-                                    </p>
+                                    <div className="mb-2 flex items-center justify-between">
 
-                                    <div className="flex items-center gap-1">
+                                        <p className="flex items-center gap-1.5 text-[11px] font-extrabold text-[#4A3F77]">
+                                            <i className="far fa-file-alt text-[#F59E0B]"></i> {totalTest}
+                                        </p>
 
-                                        <span className="text-[#E11D48] line-through text-[11px] font-bold">
-                                            {totalPrice}
+                                        <span className="rounded-full bg-[#ECFDF5] px-2 py-1 text-[9px] font-black uppercase text-[#047857]">
+                                            Best Offer
                                         </span>
 
-                                        <h4
-                                            className={`
-                                                font-black
-                                                text-lg
-                                                leading-none
-                                                text-[#16A34A]
-                                            `}
-                                        >
-                                            {offerPrice}
-                                        </h4>
+                                    </div>
+
+                                    <div className="flex items-end justify-between gap-2">
+
+                                        <div>
+                                            <p className="text-[9px] font-black uppercase text-[#9CA3AF]">
+                                                Original
+                                            </p>
+
+                                            <span className="text-[#DC2626] line-through text-[13px] font-black">
+                                                {totalPrice}
+                                            </span>
+                                        </div>
+
+                                        <div className="text-right">
+                                            <p className="text-[9px] font-black uppercase text-[#4A3F77]">
+                                                Today
+                                            </p>
+
+                                            <h4
+                                                className={`
+                                                    font-black
+                                                    text-xl
+                                                    leading-none
+                                                    text-[#059669]
+                                                `}
+                                            >
+                                                {offerPrice}
+                                            </h4>
+                                        </div>
 
                                     </div>
 
@@ -390,13 +398,13 @@ export default function TestCard({
                     }
 
                     {/* DEMO */}
-                    <div className="mb-4 flex min-h-[34px] items-start gap-2 rounded-[18px] border border-[#BAE6FD] bg-[linear-gradient(135deg,#ECFEFF_0%,#F5F3FF_55%,#FFF7ED_100%)] px-3 py-2 shadow-[inset_0_1px_0_rgba(255,255,255,0.95)]">
+                    <div className="mb-4 flex min-h-[34px] items-start gap-2 rounded-[18px] border border-[#E8DEF8] bg-[#F8F6FF] px-3 py-2 shadow-[inset_0_1px_0_rgba(255,255,255,0.95)]">
 
-                        <span className="mt-0.5 grid h-4 w-4 flex-shrink-0 place-items-center rounded-full bg-[#06B6D4]/12">
-                            <i className="fas fa-flask text-[8px] text-[#0891B2]"></i>
+                        <span className="mt-0.5 grid h-4 w-4 flex-shrink-0 place-items-center rounded-full bg-[#4A3F77]/10">
+                            <i className="fas fa-gem text-[8px] text-[#4A3F77]"></i>
                         </span>
 
-                        <span className="text-[10px] font-extrabold leading-4 text-[#6D28D9]">
+                        <span className="text-[10px] font-extrabold leading-4 text-[#4A3F77]">
                             {demoInfo}
                         </span>
 
@@ -417,20 +425,19 @@ export default function TestCard({
                             items-center
                             justify-center
                             gap-2
-                            active:scale-[0.98]
-                            ${isAvailable
-                                ? 'cursor-pointer border border-white/15 bg-[#4A3F77] text-white shadow-[0_14px_28px_rgba(74,63,119,0.34),inset_0_1px_0_rgba(255,255,255,0.24)] hover:bg-[#3D3466] hover:shadow-[0_18px_38px_rgba(74,63,119,0.46),inset_0_1px_0_rgba(255,255,255,0.28)]'
+                            ${isAvailable && !loading
+                                ? 'cursor-pointer border border-white/15 bg-[#4A3F77] text-white shadow-[0_14px_28px_rgba(74,63,119,0.34),inset_0_1px_0_rgba(255,255,255,0.24)] hover:bg-[#3D3466] active:scale-[0.98]'
                                 : 'cursor-not-allowed border border-[#D7D2E8] bg-[#F3F1FA] text-[#8D86A9] shadow-none'
                             }
                         `}
                         disabled={!isAvailable || loading}
                         style={{
-                            cursor: !isAvailable
+                            cursor: !isAvailable || loading
                                 ? "not-allowed"
                                 : undefined
                         }}
                         onClick={() => {
-                            if (!isAvailable) {
+                            if (!isAvailable || loading) {
                                 return
                             }
 
