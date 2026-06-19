@@ -204,6 +204,9 @@ export default function TypingProPage() {
     const typingFrameRef =
         useRef<number | null>(null)
 
+    const pendingTypingFocusRef =
+        useRef(false)
+
     const typedRef =
         useRef('')
 
@@ -838,10 +841,22 @@ export default function TypingProPage() {
                 return false
             }
 
-            const paragraph =
+            const rawParagraph =
                 data.test?.paragraph ||
                 data.paragraph ||
                 ''
+
+            const loadedLanguage =
+                normalizeTypingLanguage(
+                    data.test?.language ||
+                    data.language ||
+                    language
+                )
+
+            const paragraph =
+                loadedLanguage === 'hindi'
+                    ? normalizeHindiText(rawParagraph)
+                    : rawParagraph
 
             const savedTypedText =
                 data.test?.typedText ||
@@ -876,9 +891,7 @@ export default function TypingProPage() {
                         data.title ||
                         'Typing Test',
                     language:
-                        data.test?.language ||
-                        data.language ||
-                        language,
+                        loadedLanguage,
                     level:
                         data.test?.level ||
                         data.level ||
@@ -891,7 +904,9 @@ export default function TypingProPage() {
                         selectedDuration,
                     paragraph,
                     typedText:
-                        savedTypedText
+                        loadedLanguage === 'hindi'
+                            ? normalizeHindiText(savedTypedText)
+                            : savedTypedText
                 }
 
             setTestData(loadedTest)
@@ -1074,7 +1089,7 @@ export default function TypingProPage() {
         const textarea =
             typingRef.current
 
-        if (!textarea || textarea.disabled) {
+        if (!textarea) {
             return
         }
 
@@ -1097,6 +1112,10 @@ export default function TypingProPage() {
             inline: 'nearest'
         })
 
+        if (textarea.disabled) {
+            return
+        }
+
         focus()
 
         window.setTimeout(
@@ -1115,6 +1134,39 @@ export default function TypingProPage() {
             180
         )
     }
+
+    useEffect(() => {
+        if (
+            !pendingTypingFocusRef.current ||
+            !testData?.paragraph ||
+            loadingTest ||
+            activeMode !== 'test'
+        ) {
+            return
+        }
+
+        pendingTypingFocusRef.current = false
+
+        requestAnimationFrame(() => {
+            focusTypingArea()
+        })
+
+        const retryTimer =
+            window.setTimeout(
+                () => {
+                    focusTypingArea('auto')
+                },
+                350
+            )
+
+        return () => {
+            window.clearTimeout(retryTimer)
+        }
+    }, [
+        activeMode,
+        loadingTest,
+        testData?.paragraph
+    ])
 
     const handleStartTest = async (
         test = selectedTest,
@@ -1144,6 +1196,12 @@ export default function TypingProPage() {
         setSelectedTest(test)
         setTestId(test.testId)
         setLoadingTestKey(buttonKey)
+        pendingTypingFocusRef.current =
+            mode !== 'solution'
+
+        if (mode !== 'solution') {
+            focusTypingArea()
+        }
 
         try {
             let loaded =
@@ -2022,6 +2080,7 @@ export default function TypingProPage() {
 
                             <div
                                 ref={paragraphRef}
+                                lang={displayLanguage === 'hindi' ? 'hi' : 'en'}
                                 className={[
                                     'mt-5 h-[265px] overflow-y-auto rounded-[10px] border border-slate-200 bg-[#fbfbff] p-5 text-[20px] leading-[2] text-slate-900',
                                     displayLanguage === 'hindi'
@@ -2119,6 +2178,7 @@ export default function TypingProPage() {
                             >
                                 <textarea
                                     ref={typingRef}
+                                    lang={displayLanguage === 'hindi' ? 'hi' : 'en'}
                                     onChange={handleInput}
                                     onKeyDown={handleKeyDown}
                                     disabled={ended || !testData?.paragraph}
@@ -2654,6 +2714,29 @@ function transliterateText(
                 : transliterateWord(part)
         )
         .join('')
+}
+
+function normalizeTypingLanguage(
+    language: unknown
+): Language {
+    const normalizedLanguage =
+        String(language || '')
+            .trim()
+            .toLowerCase()
+
+    return normalizedLanguage === 'english' ||
+        normalizedLanguage === 'en'
+        ? 'english'
+        : 'hindi'
+}
+
+function normalizeHindiText(
+    text: string
+) {
+    return text
+        .normalize('NFC')
+        .replace(/\u25CC/g, '')
+        .replace(/[\u200B-\u200D\uFEFF]/g, '')
 }
 
 function formatTime(
