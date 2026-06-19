@@ -1355,7 +1355,7 @@ export default function TypingProPage() {
 
         const nextValue =
             language === 'hindi'
-                ? normalizeHindiText(transliterateText(rawValue))
+                ? normalizeHindiTypingInput(rawValue)
                 : rawValue
 
         if (nextValue !== rawValue) {
@@ -1425,13 +1425,23 @@ export default function TypingProPage() {
             return
         }
 
+        const element =
+            event.currentTarget
+
         composingHindiRef.current =
             false
 
         commitTypedValue(
-            event.currentTarget,
-            event.currentTarget.value
+            element,
+            element.value
         )
+
+        requestAnimationFrame(() => {
+            commitTypedValue(
+                element,
+                element.value
+            )
+        })
     }
 
     const finishTest = (
@@ -2851,6 +2861,61 @@ function transliterateText(
                 : transliterateWord(part)
         )
         .join('')
+}
+
+function normalizeHindiTypingInput(
+    text: string
+) {
+    const normalizedText =
+        normalizeHindiText(text)
+
+    if (!normalizedText) {
+        return normalizedText
+    }
+
+    const trailingWhitespace =
+        normalizedText.match(/\s+$/)?.[0] || ''
+
+    const body =
+        trailingWhitespace
+            ? normalizedText.slice(
+                0,
+                -trailingWhitespace.length
+            )
+            : normalizedText
+
+    if (!body) {
+        return normalizedText
+    }
+
+    const lastSpaceIndex =
+        Math.max(
+            body.lastIndexOf(' '),
+            body.lastIndexOf('\n'),
+            body.lastIndexOf('\t')
+        )
+
+    const committedText =
+        lastSpaceIndex >= 0
+            ? body.slice(0, lastSpaceIndex + 1)
+            : trailingWhitespace
+                ? body
+                : ''
+
+    const activeWord =
+        lastSpaceIndex >= 0
+            ? body.slice(lastSpaceIndex + 1)
+            : trailingWhitespace
+                ? ''
+                : body
+
+    return [
+        transliterateText(committedText),
+        trailingWhitespace
+            ? transliterateWord(activeWord)
+            : activeWord,
+        trailingWhitespace
+    ].join('')
 }
 
 function normalizeTypingLanguage(
