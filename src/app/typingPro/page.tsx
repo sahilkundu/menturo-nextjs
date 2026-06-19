@@ -1068,6 +1068,54 @@ export default function TypingProPage() {
         router.push('/login')
     }
 
+    const focusTypingArea = (
+        behavior: ScrollBehavior = 'smooth'
+    ) => {
+        const textarea =
+            typingRef.current
+
+        if (!textarea || textarea.disabled) {
+            return
+        }
+
+        const scrollTarget =
+            textarea.closest('[data-typing-entry="true"]') as HTMLElement | null
+
+        const focus = () => {
+            try {
+                textarea.focus({
+                    preventScroll: true
+                })
+            } catch {
+                textarea.focus()
+            }
+        }
+
+        scrollTarget?.scrollIntoView({
+            behavior,
+            block: 'center',
+            inline: 'nearest'
+        })
+
+        focus()
+
+        window.setTimeout(
+            focus,
+            120
+        )
+
+        window.setTimeout(
+            () => {
+                scrollTarget?.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center',
+                    inline: 'nearest'
+                })
+            },
+            180
+        )
+    }
+
     const handleStartTest = async (
         test = selectedTest,
         mode: 'start' | 'resume' | 'solution' = 'start',
@@ -1130,10 +1178,14 @@ export default function TypingProPage() {
             void loadHistory(1, true)
 
             requestAnimationFrame(() => {
-                typingRef.current?.focus()
+                focusTypingArea()
             })
 
             await requestTypingFullscreen()
+
+            requestAnimationFrame(() => {
+                focusTypingArea('auto')
+            })
         } finally {
             setLoadingTestKey('')
         }
@@ -1152,7 +1204,7 @@ export default function TypingProPage() {
             return
         }
 
-        typingRef.current?.focus()
+        focusTypingArea()
     }
 
     const handleKeyDown = (
@@ -1379,7 +1431,7 @@ export default function TypingProPage() {
     return (
         <main className="typing-font min-h-screen bg-[#f7f8fc] text-[#080d31]">
 
-            <div className="mx-auto max-w-7xl px-2 pt-3 sm:px-3 lg:px-4">
+            <div className="w-full px-0 pt-0">
                 <TestSectionHead
                     userName=""
                     rollingId=""
@@ -1970,7 +2022,12 @@ export default function TypingProPage() {
 
                             <div
                                 ref={paragraphRef}
-                                className="mt-5 h-[265px] overflow-y-auto rounded-[10px] border border-slate-200 bg-[#fbfbff] p-5 text-[20px] leading-[2] text-slate-900"
+                                className={[
+                                    'mt-5 h-[265px] overflow-y-auto rounded-[10px] border border-slate-200 bg-[#fbfbff] p-5 text-[20px] leading-[2] text-slate-900',
+                                    displayLanguage === 'hindi'
+                                        ? 'devanagari-text'
+                                        : ''
+                                ].join(' ')}
                             >
                                 {loadingTest && (
                                     <div className="space-y-4">
@@ -2056,8 +2113,9 @@ export default function TypingProPage() {
                             </div>
 
                             <div
+                                data-typing-entry="true"
                                 onClick={handleTypingClick}
-                                className="mt-5 rounded-[10px] border-2 border-sky-500 bg-white p-5 shadow-inner"
+                                className="mt-5 scroll-mt-24 rounded-[10px] border-2 border-sky-500 bg-white p-5 shadow-inner"
                             >
                                 <textarea
                                     ref={typingRef}
@@ -2066,7 +2124,12 @@ export default function TypingProPage() {
                                     disabled={ended || !testData?.paragraph}
                                     readOnly={solutionMode}
                                     spellCheck={false}
-                                    className="h-48 w-full resize-none text-[16px] font-medium outline-none placeholder:text-slate-400 disabled:bg-white disabled:text-slate-500"
+                                    className={[
+                                        'h-48 w-full resize-none text-[16px] font-medium outline-none placeholder:text-slate-400 disabled:bg-white disabled:text-slate-500',
+                                        displayLanguage === 'hindi'
+                                            ? 'devanagari-text'
+                                            : ''
+                                    ].join(' ')}
                                     placeholder={
                                         !testData?.paragraph
                                             ? 'Click Start Test to load paragraph from backend...'

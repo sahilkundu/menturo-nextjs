@@ -162,7 +162,7 @@ export default function RouteTransitionProvider({
 
         window.addEventListener(
             "popstate",
-            start
+            stop
         )
 
         window.addEventListener(
@@ -179,7 +179,7 @@ export default function RouteTransitionProvider({
 
             window.removeEventListener(
                 "popstate",
-                start
+                stop
             )
 
             window.removeEventListener(
