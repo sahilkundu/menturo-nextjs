@@ -374,13 +374,13 @@ export default function TypingProPage() {
 
     const expectedChars =
         useMemo(
-            () => [...activeText],
+            () => splitGraphemes(activeText),
             [activeText]
         )
 
     const typedChars =
         useMemo(
-            () => [...typed],
+            () => splitGraphemes(typed),
             [typed]
         )
 
@@ -1331,7 +1331,7 @@ export default function TypingProPage() {
                 setTyped(typedRef.current)
             })
 
-        if (nextValue.length >= activeText.length) {
+        if (splitGraphemes(nextValue).length >= expectedChars.length) {
             setTyped(nextValue)
             finishTest(nextValue)
         }
@@ -2202,7 +2202,7 @@ export default function TypingProPage() {
                                 />
 
                                 <div className="flex items-center justify-between text-xs font-medium text-slate-600">
-                                    <span>{wordCount(typed)} Words • {typed.length} Characters</span>
+                                    <span>{wordCount(typed)} Words • {typedChars.length} Characters</span>
                                     <span className="flex items-center gap-2">
                                         {isFullscreen ? 'Fullscreen active' : ''}
                                         <button
@@ -2915,40 +2915,69 @@ function buildTypingResultPayload({
     }
 }
 
+function splitGraphemes(
+    text: string
+) {
+    if (
+        typeof Intl !== 'undefined' &&
+        'Segmenter' in Intl
+    ) {
+        const segmenter =
+            new Intl.Segmenter(
+                'hi',
+                {
+                    granularity: 'grapheme'
+                }
+            )
+
+        return Array.from(
+            segmenter.segment(text),
+            (part) => part.segment
+        )
+    }
+
+    return Array.from(text)
+}
+
 function levenshtein(
     a: string,
     b: string
 ) {
+    const aChars =
+        splitGraphemes(a)
+
+    const bChars =
+        splitGraphemes(b)
 
     const matrix =
         Array.from(
             {
-                length: a.length + 1
+                length: aChars.length + 1
             },
-            () => Array(b.length + 1).fill(0)
+            () => Array(bChars.length + 1).fill(0)
         )
 
-    for (let i = 0; i <= a.length; i += 1) {
+    for (let i = 0; i <= aChars.length; i += 1) {
         matrix[i][0] = i
     }
 
-    for (let j = 0; j <= b.length; j += 1) {
+    for (let j = 0; j <= bChars.length; j += 1) {
         matrix[0][j] = j
     }
 
-    for (let i = 1; i <= a.length; i += 1) {
-        for (let j = 1; j <= b.length; j += 1) {
+    for (let i = 1; i <= aChars.length; i += 1) {
+        for (let j = 1; j <= bChars.length; j += 1) {
             matrix[i][j] =
                 Math.min(
                     matrix[i - 1][j] + 1,
                     matrix[i][j - 1] + 1,
                     matrix[i - 1][j - 1] +
-                    (a[i - 1] === b[j - 1] ? 0 : 1)
+                    (aChars[i - 1] === bChars[j - 1] ? 0 : 1)
                 )
         }
     }
 
-    return matrix[a.length][b.length]
+    return matrix[aChars.length][bChars.length]
 }
 
 function analyzeText(
@@ -2963,10 +2992,10 @@ function analyzeText(
         actual.trim().split(/\s+/).filter(Boolean)
 
     const expectedChars =
-        [...expected]
+        splitGraphemes(expected)
 
     const actualChars =
-        [...actual]
+        splitGraphemes(actual)
 
     let correctChars =
         0
@@ -3097,18 +3126,24 @@ function computeLiveResult({
     let correctChars =
         0
 
+    const expectedChars =
+        splitGraphemes(expected)
+
+    const actualChars =
+        splitGraphemes(actual)
+
     for (
         let index = 0;
-        index < Math.min(expected.length, actual.length);
+        index < Math.min(expectedChars.length, actualChars.length);
         index += 1
     ) {
-        if (expected[index] === actual[index]) {
+        if (expectedChars[index] === actualChars[index]) {
             correctChars += 1
         }
     }
 
     const charsTyped =
-        actual.length
+        actualChars.length
 
     const grossWpm =
         charsTyped / 5 / minutes
@@ -3168,7 +3203,7 @@ function computeResult({
         elapsed / 60
 
     const charsTyped =
-        [...actual].length
+        splitGraphemes(actual).length
 
     const wordEntries =
         wordCount(actual)
