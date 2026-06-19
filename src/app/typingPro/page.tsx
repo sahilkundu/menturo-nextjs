@@ -10,6 +10,7 @@ import {
 
 import type {
     ChangeEvent,
+    CompositionEvent,
     KeyboardEvent,
     ReactNode
 } from 'react'
@@ -210,6 +211,15 @@ export default function TypingProPage() {
     const typedRef =
         useRef('')
 
+    const typingTestsLoadingRef =
+        useRef(false)
+
+    const typingTestsRequestIdRef =
+        useRef(0)
+
+    const composingHindiRef =
+        useRef(false)
+
     const user =
         useUserStore(
             (state) => state.user
@@ -368,6 +378,11 @@ export default function TypingProPage() {
         activeMode === 'test' &&
         Boolean(testData?.paragraph) &&
         !ended
+
+    const listControlsLocked =
+        settingsLocked ||
+        loadingAvailableTests ||
+        loadingTest
 
     const solutionMode =
         activeMode === 'solution'
@@ -665,6 +680,19 @@ export default function TypingProPage() {
         reset = true,
         nextLanguage = activeTypingLanguage
     ) => {
+        if (typingTestsLoadingRef.current) {
+            return
+        }
+
+        typingTestsLoadingRef.current =
+            true
+
+        const requestId =
+            typingTestsRequestIdRef.current + 1
+
+        typingTestsRequestIdRef.current =
+            requestId
+
         setLoadingAvailableTests(true)
 
         try {
@@ -688,6 +716,10 @@ export default function TypingProPage() {
 
             const data =
                 await response.json()
+
+            if (requestId !== typingTestsRequestIdRef.current) {
+                return
+            }
 
             if (!data?.success) {
                 showPopupMessage(
@@ -719,6 +751,10 @@ export default function TypingProPage() {
                     })
                     .map(normalizeTypingTest)
                     .filter((test: TypingTestListItem) => test.testId)
+
+            if (requestId !== typingTestsRequestIdRef.current) {
+                return
+            }
 
             setAvailableTests((current) =>
                 reset
@@ -790,12 +826,20 @@ export default function TypingProPage() {
                 )
             }
         } catch {
+            if (requestId !== typingTestsRequestIdRef.current) {
+                return
+            }
+
             showPopupMessage(
                 'Typing test list backend not available',
                 false
             )
         } finally {
-            setLoadingAvailableTests(false)
+            if (requestId === typingTestsRequestIdRef.current) {
+                typingTestsLoadingRef.current =
+                    false
+                setLoadingAvailableTests(false)
+            }
         }
     }
 
@@ -1297,8 +1341,9 @@ export default function TypingProPage() {
         }
     }
 
-    const handleInput = (
-        event: ChangeEvent<HTMLTextAreaElement>
+    const commitTypedValue = (
+        element: HTMLTextAreaElement,
+        rawValue: string
     ) => {
         if (!testData?.paragraph) {
             return
@@ -1308,15 +1353,12 @@ export default function TypingProPage() {
             return
         }
 
-        const element =
-            event.currentTarget
-
         const nextValue =
             language === 'hindi'
-                ? transliterateText(element.value)
-                : element.value
+                ? normalizeHindiText(transliterateText(rawValue))
+                : rawValue
 
-        if (nextValue !== element.value) {
+        if (nextValue !== rawValue) {
             element.value =
                 nextValue
             element.setSelectionRange(
@@ -1345,6 +1387,51 @@ export default function TypingProPage() {
             setTyped(nextValue)
             finishTest(nextValue)
         }
+    }
+
+    const handleInput = (
+        event: ChangeEvent<HTMLTextAreaElement>
+    ) => {
+        const nativeEvent =
+            event.nativeEvent as InputEvent
+
+        if (
+            language === 'hindi' &&
+            (
+                composingHindiRef.current ||
+                nativeEvent.isComposing
+            )
+        ) {
+            return
+        }
+
+        commitTypedValue(
+            event.currentTarget,
+            event.currentTarget.value
+        )
+    }
+
+    const handleCompositionStart = () => {
+        if (language === 'hindi') {
+            composingHindiRef.current =
+                true
+        }
+    }
+
+    const handleCompositionEnd = (
+        event: CompositionEvent<HTMLTextAreaElement>
+    ) => {
+        if (language !== 'hindi') {
+            return
+        }
+
+        composingHindiRef.current =
+            false
+
+        commitTypedValue(
+            event.currentTarget,
+            event.currentTarget.value
+        )
     }
 
     const finishTest = (
@@ -1539,8 +1626,17 @@ export default function TypingProPage() {
                                         <button
                                             key={value}
                                             type="button"
-                                            onClick={() => setActiveTypingLanguage(value)}
-                                            disabled={settingsLocked}
+                                            onClick={() => {
+                                                if (
+                                                    listControlsLocked ||
+                                                    activeTypingLanguage === value
+                                                ) {
+                                                    return
+                                                }
+
+                                                setActiveTypingLanguage(value)
+                                            }}
+                                            disabled={listControlsLocked}
                                             className={[
                                                 'rounded-[8px] px-3 py-2 text-xs font-black transition disabled:cursor-not-allowed disabled:opacity-60',
                                                 activeTypingLanguage === value
@@ -1563,7 +1659,7 @@ export default function TypingProPage() {
                                             true,
                                             activeTypingLanguage
                                         )}
-                                        disabled={loadingAvailableTests || settingsLocked}
+                                        disabled={listControlsLocked}
                                         className="text-[11px] font-black text-indigo-700 disabled:opacity-60"
                                     >
                                         Refresh
@@ -1642,7 +1738,7 @@ export default function TypingProPage() {
                                             <div
                                                 key={test.testId}
                                                 onClick={() => {
-                                                    if (settingsLocked) return
+                                                    if (listControlsLocked) return
 
                                                     setSelectedTest(test)
                                                     setTestId(test.testId)
@@ -1771,7 +1867,7 @@ export default function TypingProPage() {
                                         false,
                                         activeTypingLanguage
                                     )}
-                                    disabled={!typingTestsHasMore || loadingAvailableTests || settingsLocked}
+                                    disabled={!typingTestsHasMore || listControlsLocked}
                                     className="mt-3 flex w-full items-center justify-center gap-2 rounded-[9px] bg-indigo-50 px-4 py-2.5 text-xs font-black text-indigo-700 disabled:cursor-not-allowed disabled:opacity-50"
                                 >
                                     {loadingAvailableTests && availableTests.length > 0
@@ -1883,9 +1979,18 @@ export default function TypingProPage() {
                                         <div key={level} className="text-center">
                                             <button
                                                 type="button"
-                                                onClick={() => setActiveLevel(level)}
-                                                disabled={settingsLocked}
-                                                className="relative mx-auto block h-12 w-12"
+                                                onClick={() => {
+                                                    if (
+                                                        listControlsLocked ||
+                                                        activeLevel === level
+                                                    ) {
+                                                        return
+                                                    }
+
+                                                    setActiveLevel(level)
+                                                }}
+                                                disabled={listControlsLocked}
+                                                className="relative mx-auto block h-12 w-12 disabled:cursor-not-allowed disabled:opacity-60"
                                             >
                                                 <div
                                                     className={[
@@ -2210,6 +2315,8 @@ export default function TypingProPage() {
                                     ref={typingRef}
                                     lang={displayLanguage === 'hindi' ? 'hi' : 'en'}
                                     onChange={handleInput}
+                                    onCompositionStart={handleCompositionStart}
+                                    onCompositionEnd={handleCompositionEnd}
                                     onKeyDown={handleKeyDown}
                                     disabled={ended || !testData?.paragraph}
                                     readOnly={solutionMode}
