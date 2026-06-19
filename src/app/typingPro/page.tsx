@@ -424,15 +424,25 @@ export default function TypingProPage() {
     const currentWordStart =
         useMemo(
             () =>
-                typed.lastIndexOf(
-                    ' ',
-                    Math.max(
-                        0,
-                        typedChars.length - 1
-                    )
-                ) + 1,
+                findCurrentWordStart(
+                    expectedChars,
+                    typedChars.length
+                ),
             [
-                typed,
+                expectedChars,
+                typedChars.length
+            ]
+        )
+
+    const currentWordEnd =
+        useMemo(
+            () =>
+                findCurrentWordEnd(
+                    expectedChars,
+                    typedChars.length
+                ),
+            [
+                expectedChars,
                 typedChars.length
             ]
         )
@@ -1584,7 +1594,10 @@ export default function TypingProPage() {
                                             testData?.testId === test.testId
 
                                         const resumeHistory =
-                                            test.history?.find((item) => item.status === 'resume')
+                                            test.history?.find((item) =>
+                                                item.status === 'resume' ||
+                                                item.status === 'running'
+                                            )
 
                                         const submittedHistory =
                                             test.history?.find((item) => item.status === 'submitted')
@@ -2138,20 +2151,37 @@ export default function TypingProPage() {
 
                                     const isActiveWord =
                                         index >= currentWordStart &&
-                                        index <= typedChars.length
+                                        index <= currentWordEnd
+
+                                    const wordCompleted =
+                                        index < currentWordStart
 
                                     const statusClass =
-                                        isTyped
-                                            ? typedChar === char
-                                                ? 'text-emerald-700'
-                                                : !liveSpellingEnabled
-                                                    ? ''
-                                                : isActiveWord
-                                                    ? 'rounded bg-yellow-100 text-slate-900'
-                                                : 'rounded bg-red-100 text-red-700'
-                                            : highlightEnabled && current
-                                                ? 'rounded bg-yellow-100 border-b-2 border-yellow-500'
-                                                : ''
+                                        displayLanguage === 'hindi'
+                                            ? isTyped
+                                                ? wordCompleted && liveSpellingEnabled
+                                                    ? getHindiCompletedWordStatus(
+                                                        expectedChars,
+                                                        typedChars,
+                                                        index
+                                                    )
+                                                    : isActiveWord
+                                                        ? 'rounded bg-yellow-100 text-slate-900'
+                                                        : ''
+                                                : highlightEnabled && isActiveWord
+                                                    ? 'rounded bg-yellow-100 border-b-2 border-yellow-500'
+                                                    : ''
+                                            : isTyped
+                                                ? typedChar === char
+                                                    ? 'text-emerald-700'
+                                                    : !liveSpellingEnabled
+                                                        ? ''
+                                                        : isActiveWord
+                                                            ? 'rounded bg-yellow-100 text-slate-900'
+                                                            : 'rounded bg-red-100 text-red-700'
+                                                : highlightEnabled && current
+                                                    ? 'rounded bg-yellow-100 border-b-2 border-yellow-500'
+                                                    : ''
 
                                     return (
                                         <span
@@ -2937,6 +2967,134 @@ function splitGraphemes(
     }
 
     return Array.from(text)
+}
+
+function isWhitespaceGrapheme(
+    value: string
+) {
+    return /^\s+$/.test(value)
+}
+
+function findCurrentWordStart(
+    chars: string[],
+    currentIndex: number
+) {
+    let index =
+        Math.min(
+            currentIndex,
+            chars.length
+        ) - 1
+
+    while (
+        index >= 0 &&
+        !isWhitespaceGrapheme(chars[index])
+    ) {
+        index -= 1
+    }
+
+    return index + 1
+}
+
+function findCurrentWordEnd(
+    chars: string[],
+    currentIndex: number
+) {
+    let index =
+        Math.max(
+            0,
+            Math.min(
+                currentIndex,
+                chars.length
+            )
+        )
+
+    while (
+        index < chars.length &&
+        !isWhitespaceGrapheme(chars[index])
+    ) {
+        index += 1
+    }
+
+    return index
+}
+
+function getWordRange(
+    chars: string[],
+    index: number
+) {
+    let start =
+        Math.max(
+            0,
+            Math.min(
+                index,
+                chars.length
+            )
+        )
+
+    while (
+        start > 0 &&
+        !isWhitespaceGrapheme(chars[start - 1])
+    ) {
+        start -= 1
+    }
+
+    let end =
+        Math.max(
+            0,
+            Math.min(
+                index,
+                chars.length
+            )
+        )
+
+    while (
+        end < chars.length &&
+        !isWhitespaceGrapheme(chars[end])
+    ) {
+        end += 1
+    }
+
+    return {
+        start,
+        end
+    }
+}
+
+function getHindiCompletedWordStatus(
+    expectedChars: string[],
+    typedChars: string[],
+    index: number
+) {
+    if (isWhitespaceGrapheme(expectedChars[index])) {
+        return ''
+    }
+
+    const {
+        start,
+        end
+    } =
+        getWordRange(
+            expectedChars,
+            index
+        )
+
+    const expectedWord =
+        expectedChars
+            .slice(start, end)
+            .join('')
+
+    const typedWord =
+        typedChars
+            .slice(start, end)
+            .join('')
+
+    if (!typedWord) {
+        return ''
+    }
+
+    return expectedWord === typedWord
+        ? 'text-emerald-700'
+        : 'rounded bg-red-100 text-red-700'
 }
 
 function levenshtein(
