@@ -1,14 +1,13 @@
 "use client"
 
-import { ReactNode, useEffect, useRef } from "react"
+import { ReactNode, useEffect } from "react"
 
 import { ThemeProvider } from "./ThemeProvider"
 
 import { useWSStore } from "../../shared/utils/wsStore"
 
 import { useUserStore } from "../../shared/store/user"
-import { useWSChatStore } from "../../shared/store/wsChat"
-import { SITE_STATUS } from "../../../api"
+import { useTestSeriesStore } from "../../shared/store/testSeriesStore"
 import { useRouter, usePathname } from "next/navigation"
 import RouteTransitionProvider from "./RouteTransitionProvider"
 import { showRouteLoader } from "../../shared/utils/routeLoader"
@@ -27,69 +26,55 @@ export default function AppProviders({
     // USER
     // =====================================
 
-    const {
-        user,
-        authenticated
-    } = useUserStore()
+    const user =
+        useUserStore(
+            (state) => state.user
+        )
+    const authenticated =
+        useUserStore(
+            (state) => state.authenticated
+        )
+    const access =
+        useUserStore(
+            (state) => state.access
+        )
+    const loading =
+        useUserStore(
+            (state) => state.loading
+        )
+    const authChecked =
+        useUserStore(
+            (state) => state.authChecked
+        )
+    const fetchUser =
+        useUserStore(
+            (state) => state.fetchUser
+        )
+    const refreshSeriesAccess =
+        useTestSeriesStore(
+            (state) => state.refreshSeriesAccess
+        )
+    const wsSessionId =
+        useWSStore(
+            (state) => state.sessionId
+        )
 
-
-
-    const fetchedRef =
-        useRef(false)
 
     useEffect(() => {
-
-        if (fetchedRef.current && authenticated) {
-            return
+        if (
+            !authChecked &&
+            !loading
+        ) {
+            void fetchUser()
         }
-
-        fetchedRef.current = true
-
-        const fetchStats =
-            async () => {
-
-                try {
-
-                    const res =
-                        await fetch(
-                            SITE_STATUS
-                        )
-
-                    const data =
-                        await res.json()
-
-                    if (data.success) {
-
-                        useWSChatStore
-                            .getState()
-                            .setSiteStats({
-
-                                totalUsers:
-                                    data.totalUsers,
-
-                                totalOnline:
-                                    data.totalOnline
-                            })
-                    }
-                }
-                catch (err) {
-
-                    console.log(err)
-                }
-            }
-
-        fetchStats()
-
-        const interval =
-            setInterval(
-                fetchStats,
-                60000
-            )
-
-        return () =>
-            clearInterval(interval)
-
-    }, [])
+    }, [
+        authChecked,
+        loading,
+        fetchUser
+    ])
+    useEffect(() => {
+        refreshSeriesAccess(access)
+    }, [access, refreshSeriesAccess])
     useEffect(() => {
 
         const originalFetch =
@@ -158,36 +143,20 @@ export default function AppProviders({
     // =====================================
 
     useEffect(() => {
+        const wsUserId =
+            authenticated && user?.id
+                ? user.id
+                : `guest-${wsSessionId}`
 
-        if (
-            authenticated &&
-            user?.id
-        ) {
-
-            useWSStore
-                .getState()
-                .connect(user.id)
-        }
+        useWSStore
+            .getState()
+            .connect(wsUserId)
 
     }, [
         authenticated,
-        user?.id
+        user?.id,
+        wsSessionId
     ])
-
-    // =====================================
-    // DISCONNECT WS
-    // =====================================
-
-    useEffect(() => {
-
-        if (!authenticated) {
-
-            useWSStore
-                .getState()
-                .disconnect()
-        }
-
-    }, [authenticated])
 
     return (
 

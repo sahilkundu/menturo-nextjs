@@ -8,7 +8,7 @@ import {
     Book,
     X
 } from 'lucide-react'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTestSeriesStore } from "../../shared/store/testSeriesStore"
 import TestCardSkeleton from './Skeleton/TestSection/TestCardSkeleton'
@@ -20,7 +20,10 @@ import TestInfoSkeleton from './Skeleton/TestSection/TestInfoSkeleton'
 import Spinner from './Spinner'
 import { useUserStore } from '../store/user'
 import { showPopupMessage } from '../utils/popup'
-import { showRouteLoader } from '../utils/routeLoader'
+import {
+    hideRouteLoader,
+    showRouteLoader
+} from '../utils/routeLoader'
 import TestSeriesInfo from './TestSeriesInfo'
 import PaymentSummary from './PaymentSummary'
 type Props = {
@@ -56,6 +59,46 @@ const getDefaultSubject = (
         .toLowerCase()
 }
 
+const isTrue = (
+    value: unknown
+) =>
+    value === true ||
+    value === "true" ||
+    value === 1
+
+const hasSeriesAccess = (
+    access: any
+) => {
+    if (typeof access === "boolean") {
+        return access
+    }
+
+    return (
+        isTrue(access?.access) ||
+        isTrue(access?.canAccess)
+    )
+}
+
+const getSeriesAccessMessage = (
+    access: any
+) => {
+    if (
+        typeof access?.message?.displayMessage === "string" &&
+        access.message.displayMessage.trim()
+    ) {
+        return access.message.displayMessage
+    }
+
+    if (
+        typeof access?.message === "string" &&
+        access.message.trim()
+    ) {
+        return access.message
+    }
+
+    return "Access Denied"
+}
+
 export default function TestSection({ series }: Props) {
     const router = useRouter()
     const scrollRef = useRef<HTMLDivElement>(null)
@@ -65,28 +108,48 @@ export default function TestSection({ series }: Props) {
         useState<string | null>(null)
     const actionLoadingRef =
         useRef(false)
-    const {
-        authenticated
-    } = useUserStore()
+    const authenticated =
+        useUserStore(
+            (state) => state.authenticated
+        )
     const isAutoLoadingRef = useRef(false) // Track auto-loading state
-    const {
+    const fetchStartTest =
+        useTestDataStore(
+            (state) => state.fetchStartTest
+        )
+    const fetchResumeTest =
+        useTestDataStore(
+            (state) => state.fetchResumeTest
+        )
+    const fetchSolution =
+        useTestDataStore(
+            (state) => state.fetchSolution
+        )
 
-        fetchStartTest,
-
-        fetchResumeTest,
-        fetchSolution,
-
-
-    } = useTestDataStore()
-
-    const {
-        loadingTests,
-        isFetchingMore,
-        testsBySubjectMap,
-        fetchTestsBySubject,
-        testsPaginationBySubject,
-        clearStore,
-    } = useTestSeriesStore()
+    const loadingTests =
+        useTestSeriesStore(
+            (state) => state.loadingTests
+        )
+    const isFetchingMore =
+        useTestSeriesStore(
+            (state) => state.isFetchingMore
+        )
+    const testsBySubjectMap =
+        useTestSeriesStore(
+            (state) => state.testsBySubjectMap
+        )
+    const fetchTestsBySubject =
+        useTestSeriesStore(
+            (state) => state.fetchTestsBySubject
+        )
+    const testsPaginationBySubject =
+        useTestSeriesStore(
+            (state) => state.testsPaginationBySubject
+        )
+    const clearStore =
+        useTestSeriesStore(
+            (state) => state.clearStore
+        )
 
 
     const [selectedSubject, setSelectedSubject] =
@@ -102,7 +165,11 @@ export default function TestSection({ series }: Props) {
         }
     }, [selectedSubject, series?._id])
     const normalizedSelectedSubject =
-        selectedSubject.trim().toLowerCase()
+        useMemo(
+            () =>
+                selectedSubject.trim().toLowerCase(),
+            [selectedSubject]
+        )
 
     const pagination =
         testsPaginationBySubject?.[
@@ -112,11 +179,27 @@ export default function TestSection({ series }: Props) {
         ]
 
     const tests =
-        testsBySubjectMap?.[
-        series?._id
-        ]?.[
-        normalizedSelectedSubject
-        ] || []
+        useMemo(
+            () =>
+                testsBySubjectMap?.[
+                series?._id
+                ]?.[
+                normalizedSelectedSubject
+                ] || [],
+            [
+                normalizedSelectedSubject,
+                series?._id,
+                testsBySubjectMap
+            ]
+        )
+    const seriesCanAccess =
+        hasSeriesAccess(
+            series?.access
+        )
+    const seriesAccessMessage =
+        getSeriesAccessMessage(
+            series?.access
+        )
 
 
     const rowVirtualizer = useVirtualizer({
@@ -295,9 +378,9 @@ export default function TestSection({ series }: Props) {
 
             return
         }
-        if (!series?.access) {
+        if (!seriesCanAccess) {
             showPopupMessage(
-                "Access Denied",
+                seriesAccessMessage,
                 false
             )
             return
@@ -336,6 +419,15 @@ export default function TestSection({ series }: Props) {
                     )
 
                     router.push("/test")
+                }
+                else {
+                    hideRouteLoader()
+
+                    showPopupMessage(
+                        data?.message ||
+                        'Failed to load solution',
+                        false
+                    )
                 }
 
                 return
@@ -381,6 +473,15 @@ export default function TestSection({ series }: Props) {
 
                     router.push("/test")
                 }
+                else {
+                    hideRouteLoader()
+
+                    showPopupMessage(
+                        data?.message ||
+                        'Failed to resume test',
+                        false
+                    )
+                }
 
                 return
             }
@@ -410,6 +511,15 @@ export default function TestSection({ series }: Props) {
                 )
 
                 router.push("/test")
+            }
+            else {
+                hideRouteLoader()
+
+                showPopupMessage(
+                    data?.message ||
+                    'Failed to start test',
+                    false
+                )
             }
 
         } finally {
@@ -1419,13 +1529,13 @@ export default function TestSection({ series }: Props) {
                                                                                 <>
                                                                                     <span className="p-1 rounded-md text-[10px]">
 
-                                                                                        {test.access && authenticated && series?.access
+                                                                                        {test.access && authenticated && seriesCanAccess
                                                                                             ? <Unlock size={15} />
                                                                                             : <Lock size={15} />
                                                                                         }
 
                                                                                     </span>
-                                                                                    {series?.access &&
+                                                                                    {seriesCanAccess &&
                                                                                         <span>
                                                                                             {authenticated ? "Test Again" : <Lock size={15} />}
                                                                                         </span>
@@ -1692,13 +1802,13 @@ export default function TestSection({ series }: Props) {
                                                                                 {authenticated &&
                                                                                     <span className=" p-1 rounded-md text-[10px]">
 
-                                                                                        {test.access && series?.access
+                                                                                        {test.access && seriesCanAccess
                                                                                             ? <Unlock size={15} />
                                                                                             : <Lock size={15} />
                                                                                         }
 
                                                                                     </span>}
-                                                                                {series?.access &&
+                                                                                {seriesCanAccess &&
                                                                                     <span>
                                                                                         {authenticated ?
                                                                                             "Start Test" :

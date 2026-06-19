@@ -12,7 +12,12 @@ body {
 }
 body{
   background: var(--main);
+  font-family: var(--font-devanagari), Arial, sans-serif;
   /* overflow: hidden; */
+}
+
+.typing-font {
+  font-family: var(--font-devanagari), Arial, sans-serif;
 }
 .form-border{
   border: 1px solid var(--formButtonBackground);

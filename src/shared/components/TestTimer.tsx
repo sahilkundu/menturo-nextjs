@@ -10,15 +10,18 @@ import {
 
 export default function TestTimer() {
 
-    const {
-        activeTest,
-        timeLeft,
-        setTimeLeft,
-        isSubmitted,
-        fetchResult,
-        activeSubject
-
-    } = useTestDataStore()
+    const activeTest =
+        useTestDataStore((state) => state.activeTest)
+    const timeLeft =
+        useTestDataStore((state) => state.timeLeft)
+    const setTimeLeft =
+        useTestDataStore((state) => state.setTimeLeft)
+    const isSubmitted =
+        useTestDataStore((state) => state.isSubmitted)
+    const fetchResult =
+        useTestDataStore((state) => state.fetchResult)
+    const activeSubject =
+        useTestDataStore((state) => state.activeSubject)
     useEffect(() => {
 
         if (

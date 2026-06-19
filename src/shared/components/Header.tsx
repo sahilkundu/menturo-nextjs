@@ -22,18 +22,32 @@ export default function Header() {
         Swal.fire({
             icon: 'warning',
             title: 'Typing Test Coming soon...',
-            text: "Live on 15 june 2026",
+            text: "Live on 22 june 2026",
             confirmButtonColor: '#2575fc'
         })
 
 
     }
-    const {
-        user,
-        authenticated,
-        fetchUser,
-
-    } = useUserStore()
+    const user =
+        useUserStore(
+            (state) => state.user
+        )
+    const authenticated =
+        useUserStore(
+            (state) => state.authenticated
+        )
+    const authChecked =
+        useUserStore(
+            (state) => state.authChecked
+        )
+    const loading =
+        useUserStore(
+            (state) => state.loading
+        )
+    const fetchUser =
+        useUserStore(
+            (state) => state.fetchUser
+        )
     const site =
         useWSChatStore(
             s => s.site
@@ -61,6 +75,12 @@ export default function Header() {
     useEffect(() => {
 
         const checkAuth = async () => {
+            if (
+                authChecked ||
+                loading
+            ) {
+                return
+            }
 
             await fetchUser()
 
@@ -79,7 +99,13 @@ export default function Header() {
 
         checkAuth()
 
-    }, [pathname, router])
+    }, [
+        authChecked,
+        fetchUser,
+        loading,
+        pathname,
+        router
+    ])
     return (
         <>
             <div className="absolute inset-0 overflow-hidden pointer-events-none">

@@ -2,13 +2,17 @@
 import dynamic from 'next/dynamic'
 import { useEffect, useRef } from 'react'
 import { useParams, usePathname, useRouter } from 'next/navigation'
-import { useWSStore } from "../../../../shared/utils/wsStore"
 import { useTestSeriesStore } from "../../../../shared/store/testSeriesStore"
 import { useTestDataStore } from '../../../../shared/store/testDataStore'
 import { useUserStore } from '../../../../shared/store/user'
 import { SAVE_TEST } from '../../../../../api'
 import SeriesPaymentPage from '../../../../shared/components/SeriesPaymentPage'
 import { showRouteLoader } from '../../../../shared/utils/routeLoader'
+import {
+    createSeriesSlug,
+    extractSeriesIdFromSlug,
+    isSeriesIdOnlySlug
+} from '../../../../shared/seo'
 const PaymentSummary = dynamic(
     () => import(
         "../../../../shared/components/PaymentSummary"
@@ -55,19 +59,9 @@ const hasActiveSeriesAccess = (access: any) => {
         return false
     }
 
-    const isFreeAccess =
-        isTrue(access?.isFree)
-
-    const isPaid =
-        isTrue(access?.isPaid)
-
-    const isExpired =
-        isTrue(access?.isExpired)
-
     return (
-        (isPaid && !isExpired) ||
-        (isPaid && isExpired && isFreeAccess) ||
-        (!isPaid && isFreeAccess)
+        isTrue(access?.access) ||
+        isTrue(access?.canAccess)
     )
 }
 
@@ -76,20 +70,35 @@ export default function TestPage() {
     const router =
         useRouter()
 
-    const {
-
-        clearActiveTest,
-        timeLeft
-    } = useTestDataStore()
-    const {
-        authenticated,
-        fetchUser
-    } = useUserStore()
+    const clearActiveTest =
+        useTestDataStore(
+            (state) => state.clearActiveTest
+        )
+    const timeLeft =
+        useTestDataStore(
+            (state) => state.timeLeft
+        )
+    const authenticated =
+        useUserStore(
+            (state) => state.authenticated
+        )
+    const authChecked =
+        useUserStore(
+            (state) => state.authChecked
+        )
+    const fetchUser =
+        useUserStore(
+            (state) => state.fetchUser
+        )
     useEffect(() => {
-        if (!authenticated) {
+        if (!authenticated && !authChecked) {
             fetchUser()
         }
-    }, [])
+    }, [
+        authChecked,
+        authenticated,
+        fetchUser
+    ])
 
 
     const pathname = usePathname()
@@ -182,17 +191,13 @@ export default function TestPage() {
     // ======================================================
     const params = useParams()
     const slug = String(params.slug)
+    const seriesId = extractSeriesIdFromSlug(slug)
 
     // ======================================================
     // STORE
     // ======================================================
-    const seriesMap = useTestSeriesStore((state) => state.seriesMap)
+    const series = useTestSeriesStore((state) => state.seriesMap[seriesId])
     const fetchSingleSeries = useTestSeriesStore((state) => state.fetchSingleSeries)
-    const {
-        userId,
-        status,
-        guestId
-    } = useWSStore()
     // ======================================================
     // REFS FOR TRACKING
     // ======================================================
@@ -202,11 +207,8 @@ export default function TestPage() {
     // ======================================================
     // GET SERIES FROM STORE (direct lookup)
     // ======================================================
-    const series = seriesMap[slug]
     const canAccessSeries =
         hasActiveSeriesAccess(series?.access)
-    console.log("===============================")
-    console.log(canAccessSeries)
 
     const goHome = () => {
         showRouteLoader()
@@ -241,10 +243,10 @@ export default function TestPage() {
     useEffect(() => {
 
         // Don't fetch if no slug
-        if (!slug) return
+        if (!seriesId) return
 
         // If series already exists in store, mark as done
-        if (seriesMap[slug]) {
+        if (series) {
             initialLoadDoneRef.current = true
             fetchInProgressRef.current = false
             return
@@ -257,17 +259,10 @@ export default function TestPage() {
         // Start fetching
         fetchInProgressRef.current = true
 
-        fetchSingleSeries(slug, userId || guestId)
+        fetchSingleSeries(seriesId)
             .then((fetchedSeries) => {
 
-                if (fetchedSeries) {
-
-                    console.log(
-                        '✅ Series loaded successfully:',
-                        fetchedSeries.n
-                    )
-
-                } else {
+                if (!fetchedSeries) {
 
                     console.error(
                         '❌ Failed to load series'
@@ -298,87 +293,63 @@ export default function TestPage() {
 
     }, [
 
-        slug,
-        status,
-        userId,
-        seriesMap,
+        seriesId,
+        series,
         fetchSingleSeries
 
     ])
-    // ======================================================
-    // LOADING STATES
-    // ======================================================
 
-    // ======================================================
-    // SUGGESTED CARDS (exclude current series)
-    // ======================================================
-    const cards = Object.values(seriesMap)
-        .filter((item: any) => item._id !== slug)
-        .slice(0, 10)
+    useEffect(() => {
+        if (
+            !series ||
+            !isSeriesIdOnlySlug(slug)
+        ) {
+            return
+        }
+
+        const seoSlug =
+            createSeriesSlug(
+                series.n,
+                seriesId
+            )
+
+        if (
+            seoSlug &&
+            seoSlug !== slug
+        ) {
+            router.replace(`/series/${seoSlug}`)
+        }
+    }, [
+        router,
+        series,
+        seriesId,
+        slug
+    ])
 
     // ======================================================
     // RENDER MAIN CONTENT
     // ======================================================
     return (
-        <div className="max-w-7xl mx-auto md:px-6 lg:px-8 py-6 space-y-8 border border-gray-200">
-            <div className="flex justify-end gap-3 px-2 sm:px-0">
-                <button
-                    type="button"
-                    onClick={goHome}
-                    className="
-                        cursor-pointer
-                        rounded-xl
-                        border
-                        border-slate-200
-                        bg-white
-                        px-4
-                        py-2
-                        text-sm
-                        font-bold
-                        text-slate-700
-                        shadow-sm
-                        transition
-                        hover:bg-slate-50
-                    "
-                >
-                    Home
-                </button>
-
-                {!authenticated && (
-                    <button
-                        type="button"
-                        onClick={goLogin}
-                        className="
-                            cursor-pointer
-                            rounded-xl
-                            bg-[#4A3F77]
-                            px-4
-                            py-2
-                            text-sm
-                            font-bold
-                            text-white
-                            shadow-sm
-                            transition
-                            hover:bg-[#3D3466]
-                        "
-                    >
-                        Sign In
-                    </button>
-                )}
-            </div>
-
-            {authenticated && (
-                <TestSectionHead
-                    userName=""
-                    rollingId=""
-                    activePlan={canAccessSeries ? "Premium" : "No Access"}
-                    badgeText="🎯 Rank Booster"
-                />
-            )}
+        <div className="max-w-7xl mx-auto px-2 sm:px-3 lg:px-4 py-2 sm:py-3 space-y-3">
+            <TestSectionHead
+                userName=""
+                rollingId=""
+                activePlan={
+                    authenticated
+                        ? canAccessSeries
+                            ? "Premium"
+                            : "No Access"
+                        : "Guest"
+                }
+                badgeText="🎯 Rank Booster"
+                onHome={goHome}
+                onLogin={goLogin}
+                showSignIn={!authenticated}
+            />
 
             <TestSection series={series} />
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-7 md:gap-9 items-start">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-5 items-start">
                 {/* <div className="lg:col-span-1">
                     {series ? (
 

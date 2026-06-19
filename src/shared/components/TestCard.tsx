@@ -5,6 +5,7 @@ import { useState } from "react"
 import Spinner from "./Spinner"
 import { useTestSeriesStore } from "../store/testSeriesStore"
 import { showRouteLoader } from "../utils/routeLoader"
+import { createSeriesSlug } from "../seo"
 
 const getSelectedSubjectKey = (
     seriesId: string
@@ -54,6 +55,70 @@ export default function TestCard({
     const router = useRouter()
     const isAvailable =
         av !== false
+    const isTrue = (
+        value: unknown
+    ) =>
+        value === true ||
+        value === "true" ||
+        value === 1
+    const hasAccess =
+        isTrue(
+            access?.access
+        ) ||
+        isTrue(
+            access?.canAccess
+        )
+    const paidMessage =
+        typeof access?.message?.paidMessage === "string"
+            ? access.message.paidMessage.trim()
+            : ""
+    const freeMessage =
+        typeof access?.message?.freeMessage === "string"
+            ? access.message.freeMessage.trim()
+            : ""
+    const demoMessage =
+        typeof access?.message?.demoMessage === "string"
+            ? access.message.demoMessage.trim()
+            : ""
+    const displayMessage =
+        typeof access?.message?.displayMessage === "string"
+            ? access.message.displayMessage.trim()
+            : ""
+    const isPaidAccess =
+        paidMessage.length > 0 ||
+        displayMessage.toLowerCase().includes(
+            "full access"
+        ) ||
+        displayMessage.toLowerCase().includes(
+            "paid access"
+        )
+    const isFreeAccess =
+        freeMessage.length > 0 ||
+        displayMessage.toLowerCase().includes(
+            "free access"
+        )
+    const hasDemoAccess =
+        demoMessage.length > 0 ||
+        displayMessage.toLowerCase().includes(
+            "free demo"
+        )
+    const hasFullAccess =
+        hasAccess &&
+        (
+            isPaidAccess ||
+            isFreeAccess
+        )
+    const hasDemoOnlyAccess =
+        hasAccess &&
+        hasDemoAccess &&
+        !hasFullAccess
+    const accessMessage =
+        displayMessage
+            ? displayMessage
+            : typeof access?.message === "string" &&
+            access.message.trim()
+            ? access.message
+            : null
     let actionBtnName =
         btnName
 
@@ -62,118 +127,36 @@ export default function TestCard({
         !actionBtnName
     ) {
         actionBtnName =
-            liveName === "Demo"
+            hasFullAccess
+                ? "Attempt Tests"
+                : hasDemoOnlyAccess ||
+                    hasDemoAccess ||
+                    liveName === "Demo"
                 ? "Start Demo"
                 : "Buy Now"
     }
 
-    const isFreeAccess = access?.isFree
-    const {
-        clearTests
-    } = useTestSeriesStore()
-    const isPaid = access?.isPaid
-    const isExpired = access?.isExpired
+    const clearTests =
+        useTestSeriesStore(
+            (state) => state.clearTests
+        )
     const [loading, setLoading] =
         useState(false)
-    const formatTimestamp = (
-        timestamp: number
-    ) => {
-        if (!timestamp) return null
-        return new Intl.DateTimeFormat(
-            navigator.language,
-            {
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-                hour: "numeric",
-                minute: "2-digit",
-                second: "2-digit",
-                hour12: true,
-            }
-        ).format(new Date(timestamp));
-    };
-    const date =
-        formatTimestamp(
-            access?.validity?.to
-        );
-    if (isAvailable && isPaid) {
+    if (isAvailable && accessMessage) {
 
-        // =========================================
-        // PAID + EXPIRED
-        // =========================================
-
-        if (isExpired) {
-
-            if (isFreeAccess) {
-                demoInfo =
-                    `Series expired on ${date} but special free access for you`;
-
-                actionBtnName =
-                    `Attempt Tests`;
-            }
-            else {
-                demoInfo =
-                    `Series expired on ${date}`;
-            }
-        }
-
-        // =========================================
-        // PAID + NOT EXPIRED
-        // =========================================
-
-        else {
-
-            demoInfo =
-                `Series valid till ${date}`;
-
-            actionBtnName =
-                `Attempt Tests`;
-        }
+        demoInfo =
+            accessMessage
     }
 
-    else if (isAvailable) {
+    if (
+        isAvailable &&
+        (
+            hasFullAccess
+        )
+    ) {
 
-        // =========================================
-        // NOT PAID + EXPIRED
-        // =========================================
-
-        if (isExpired) {
-
-            if (isFreeAccess) {
-
-                demoInfo =
-                    `Series expired on ${date} but special free access for you`;
-
-                actionBtnName =
-                    `Attempt Tests`;
-            }
-            else {
-
-                demoInfo =
-                    `Series expired on ${date}`;
-            }
-        }
-
-        // =========================================
-        // NOT PAID + NOT EXPIRED
-        // =========================================
-
-        else {
-
-            // ONLY CHECK FREE ACCESS HERE
-
-            if (isFreeAccess) {
-
-                demoInfo =
-                    `Special free access for you`;
-
-                actionBtnName =
-                    `Attempt Tests`;
-            }
-
-            // ALL FALSE
-            // DO NOTHING
-        }
+        actionBtnName =
+            `Attempt Tests`;
     }
 
     return (
@@ -262,17 +245,11 @@ export default function TestCard({
                             backdrop-blur-md
 
                             ${(
-                                (isPaid && !isExpired) ||
-                                (isPaid && isExpired && isFreeAccess) ||
-                                (!isPaid && isFreeAccess)
+                                hasFullAccess
                             )
                                 ? "bg-[linear-gradient(135deg,#1f9d72,#0f7a5c)]"
 
-                                : (
-                                    isExpired
-                                        ? "bg-[linear-gradient(135deg,#b42318,#7a271a)]"
-                                        : "bg-[linear-gradient(135deg,#F59E0B,#D97706)]"
-                                )
+                                : "bg-[linear-gradient(135deg,#F59E0B,#D97706)]"
                             }
     `}
                     >
@@ -280,17 +257,11 @@ export default function TestCard({
 
                         {
                             (
-                                (isPaid && !isExpired) ||
-                                (isPaid && isExpired && isFreeAccess) ||
-                                (!isPaid && isFreeAccess)
+                                hasFullAccess
                             )
                                 ? "Full Access"
 
-                                : (
-                                    isExpired
-                                        ? "Expired"
-                                        : demoHead
-                                )
+                                : demoHead
                         }
                     </div>
 
@@ -347,14 +318,7 @@ export default function TestCard({
                     </h3>
                     {/* PRICE */}
                     {
-                        (
-                            !isPaid && !isFreeAccess
-                        ) ||
-                            (
-                                isPaid &&
-                                isExpired &&
-                                !isFreeAccess
-                            )
+                        !hasFullAccess
                             ? (
                                 <div className="mb-3 rounded-[18px] border border-[#E2DDF3] bg-white px-3 py-2.5 shadow-[0_8px_20px_rgba(74,63,119,0.08),inset_0_1px_0_rgba(255,255,255,0.95)]">
 
@@ -450,22 +414,26 @@ export default function TestCard({
                                 return
                             }
 
+                            if (!slug) {
+                                return
+                            }
+
                             clearTests()
                             setLoading(true)
                             showRouteLoader()
 
-                            if (slug) {
-                                sessionStorage.removeItem(
-                                    getRestoreSubjectKey(slug)
-                                )
+                            sessionStorage.removeItem(
+                                getRestoreSubjectKey(slug)
+                            )
 
-                                localStorage.setItem(
-                                    getSelectedSubjectKey(slug),
-                                    'all'
-                                )
-                            }
+                            localStorage.setItem(
+                                getSelectedSubjectKey(slug),
+                                'all'
+                            )
 
-                            router.push(`/series/${slug}`)
+                            router.push(
+                                `/series/${createSeriesSlug(name, slug)}`
+                            )
                         }}
                     >
                         {

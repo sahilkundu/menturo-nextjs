@@ -4,60 +4,70 @@ import { useTestSeriesStore } from "../../shared/store/testSeriesStore"
 import { useWSStore } from "../utils/wsStore"
 import Header from "./Header"
 import TestCard from "./TestCard"
-import { useRef, useEffect, useCallback, useState } from "react"
+import { useRef, useEffect, useCallback, useMemo, useState } from "react"
 import TestCardSkeleton from "./Skeleton/TestCardSkeleton"
+import { useUserStore } from "../store/user"
 
 
 export default function HomeCenter() {
-    const {
-
-
-        authType,
-
-        guestId,
-
-
-    } = useWSStore()
+    const authType =
+        useWSStore(
+            (state) => state.authType
+        )
+    const guestId =
+        useWSStore(
+            (state) => state.guestId
+        )
     const sliderRef = useRef<HTMLDivElement | null>(null)
     const [showSkeleton, setShowSkeleton] =
         useState(false)
     const fetchedRef =
         useRef(false)
     // MOVE STORE HERE
-    const {
-
-        seriesMap,
-
-        fetchSeries,
-
-        seriesPaginationByTag,
-
-        loadingSeries
-
-    } = useTestSeriesStore()
-
-    const {
-
-        status,
-
-        userId
-
-    } = useWSStore()
-    const scrollLeft = () => {
+    const seriesMap =
+        useTestSeriesStore(
+            (state) => state.seriesMap
+        )
+    const fetchSeries =
+        useTestSeriesStore(
+            (state) => state.fetchSeries
+        )
+    const pagination =
+        useTestSeriesStore(
+            (state) =>
+                state.seriesPaginationByTag['']
+        )
+    const loadingSeries =
+        useTestSeriesStore(
+            (state) => state.loadingSeries
+        )
+    const status =
+        useWSStore(
+            (state) => state.status
+        )
+    const userId =
+        useWSStore(
+            (state) => state.userId
+        )
+    const loadingUser =
+        useUserStore(
+            (state) => state.loading
+        )
+    const scrollLeft = useCallback(() => {
 
         sliderRef.current?.scrollBy({
             left: -320,
             behavior: "smooth"
         })
-    }
+    }, [])
 
-    const scrollRight = () => {
+    const scrollRight = useCallback(() => {
 
         sliderRef.current?.scrollBy({
             left: 320,
             behavior: "smooth"
         })
-    }
+    }, [])
     // =====================================================
     // AUTO LOAD ON SCROLL END
     // =====================================================
@@ -86,9 +96,7 @@ export default function HomeCenter() {
 
             if (!pagination?.hasMore) return
 
-            isFetchingRef.current = true
-
-            loadMore()
+            void loadMore()
         }
     }
 
@@ -110,9 +118,24 @@ export default function HomeCenter() {
     // SERIES ARRAY
     // =====================================================
 
-    const series =
-        Object.values(
-            seriesMap
+    const visibleSeries =
+        useMemo(
+            () =>
+                Object.values(seriesMap)
+                    .filter(
+                        (item: any) =>
+                            item &&
+                            item._id &&
+                            item.n
+                    ),
+            [seriesMap]
+        )
+    const shouldShowCardSkeleton =
+        visibleSeries.length === 0 &&
+        (
+            loadingSeries ||
+            loadingUser ||
+            !fetchedRef.current
         )
     // const series =
     //     Object.values(seriesMap)
@@ -136,11 +159,6 @@ export default function HomeCenter() {
     // PAGINATION
     // =====================================================
 
-    const pagination =
-        seriesPaginationByTag[
-        ''
-        ]
-
     // =====================================================
     // INITIAL LOAD
     // =====================================================
@@ -157,7 +175,7 @@ export default function HomeCenter() {
         }
 
         if (
-            series.length === 0
+            visibleSeries.length === 0
         ) {
 
             fetchedRef.current = true
@@ -172,34 +190,45 @@ export default function HomeCenter() {
 
     }, [
         status,
-
         authType,
-
         guestId,
-
-        userId
+        userId,
+        visibleSeries.length,
+        fetchSeries
     ])
     // =====================================================
     // LOAD MORE
     // =====================================================
 
     const loadMore =
-        useCallback(() => {
+        useCallback(async () => {
 
             if (loadingSeries) return
+
+            if (isFetchingRef.current) return
 
             if (!pagination) return
 
             if (!pagination.hasMore) return
 
-            fetchSeries({
-                page: pagination.currentPage + 1,
-                limit: 5
-            })
+            isFetchingRef.current = true
+
+            try {
+
+                await fetchSeries({
+                    page: pagination.currentPage + 1,
+                    limit: 5
+                })
+
+            } finally {
+
+                isFetchingRef.current = false
+            }
 
         }, [
             pagination,
-            loadingSeries
+            loadingSeries,
+            fetchSeries
         ])
 
     // =====================================================
@@ -232,65 +261,41 @@ export default function HomeCenter() {
 
         if (!element) return
 
-        const observer = new MutationObserver(() => {
+        if (loadingSeries) return
 
-            const cardCount =
-                element.querySelectorAll(
-                    '[data-test-card]'
-                ).length
+        if (!pagination?.hasMore) return
 
-            if (cardCount === 0) return
+        const frame =
+            requestAnimationFrame(() => {
 
-            if (loadingSeries) return
+                const cardCount =
+                    element.querySelectorAll(
+                        '[data-test-card]'
+                    ).length
 
-            if (!pagination?.hasMore) return
+                if (cardCount === 0) return
 
-            if (
-                element.scrollWidth <=
-                element.clientWidth
-            ) {
+                const hasHorizontalScrollbar =
+                    element.scrollWidth >
+                    element.clientWidth + 1
 
-                fetchSeries({
-                    page: pagination.currentPage + 1,
-                    limit: 5
-                })
-            }
+                if (!hasHorizontalScrollbar) {
 
-        })
+                    void loadMore()
+                }
+            })
 
-        observer.observe(
-            element,
-            {
-                childList: true,
-                subtree: true
-            }
-        )
+        return () => {
 
-        return () => observer.disconnect()
+            cancelAnimationFrame(frame)
+        }
 
     }, [
+        visibleSeries.length,
         loadingSeries,
         pagination?.currentPage,
-        pagination?.hasMore
-    ])
-    useEffect(() => {
-
-        const element = sliderRef.current
-
-        if (!element) return
-
-        console.log({
-            clientWidth: element.clientWidth,
-            scrollWidth: element.scrollWidth,
-            children: element.children.length,
-            loadingSeries,
-            page: pagination?.currentPage,
-            hasMore: pagination?.hasMore
-        })
-
-    }, [
-        series.length,
-        loadingSeries
+        pagination?.hasMore,
+        loadMore
     ])
     return (
         <>
@@ -413,19 +418,16 @@ export default function HomeCenter() {
     gap-4
     overflow-x-auto
     overflow-y-hidden
-    pb-2
-    scrollbar-hide
+    pb-1
+    scroll-smooth
+    [scrollbar-width:none]
+    [-ms-overflow-style:none]
+    [&::-webkit-scrollbar]:hidden
 "
                                     >
 
                                         {
-                                            series
-                                                ?.filter(
-                                                    (item: any) =>
-                                                        item &&
-                                                        item._id &&
-                                                        item.n
-                                                )
+                                            visibleSeries
                                                 .map((item: any) => (
                                                     <div
                                                         key={item._id}
@@ -456,9 +458,12 @@ export default function HomeCenter() {
                                                                     : "₹0"
                                                             }
                                                             demoInfo={
-                                                                item.demo
-                                                                    ? "Free Demo Available"
-                                                                    : "Premium Test Series"
+                                                                item?.access?.message?.displayMessage ||
+                                                                (
+                                                                    item.demo
+                                                                        ? "Free Demo Available"
+                                                                        : "Premium Test Series"
+                                                                )
                                                             }
                                                             demoHead={
                                                                 item.demo
@@ -485,9 +490,12 @@ export default function HomeCenter() {
 
 
                                         {
-                                            showSkeleton && (
+                                            (
+                                                shouldShowCardSkeleton ||
+                                                showSkeleton
+                                            ) && (
                                                 <>
-                                                    <TestCardSkeleton count={3} />
+                                                    <TestCardSkeleton count={shouldShowCardSkeleton ? 4 : 3} />
                                                 </>
                                             )
                                         }

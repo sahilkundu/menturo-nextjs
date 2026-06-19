@@ -2,6 +2,7 @@
 
 import { create } from 'zustand'
 import { LOAD_ONE_SERIES, LOAD_SERIES, LOAD_TESTS, LOAD_TESTS_BY_SUB, START_TEST } from '../../../api'
+import { useUserStore } from './user'
 
 // ======================================================
 // TYPES
@@ -32,6 +33,80 @@ export interface Config {
     buttonKey: string
 
     availableKey: string
+}
+
+const getSeriesId = (
+    series: any
+) => {
+    if (typeof series?._id === 'string') {
+        return series._id
+    }
+
+    if (typeof series?._id?.$oid === 'string') {
+        return series._id.$oid
+    }
+
+    return ''
+}
+
+const attachSeriesAccess = (
+    series: any,
+    accessMap?: Record<string, any>
+) => {
+    const seriesId =
+        getSeriesId(series)
+
+    const fallbackAccess =
+        useUserStore.getState().access
+
+    const access =
+        accessMap?.[seriesId] ||
+        fallbackAccess?.[seriesId] ||
+        series?.access
+
+    return {
+        ...series,
+        _id: seriesId || series?._id,
+        access
+    }
+}
+
+const attachAccessToSeriesMap = (
+    seriesMap: Record<string, any>,
+    accessMap?: Record<string, any>
+) => {
+    const hasProvidedAccessMap =
+        accessMap !== undefined
+
+    const fallbackAccess =
+        useUserStore.getState().access
+
+    const activeAccessMap =
+        accessMap || fallbackAccess
+
+    if (!activeAccessMap) {
+        return seriesMap
+    }
+
+    const updatedSeriesMap:
+        Record<string, any> = {}
+
+    Object.entries(seriesMap)
+        .forEach(([key, series]) => {
+            const seriesId =
+                getSeriesId(series) || key
+
+            updatedSeriesMap[key] = {
+                ...series,
+                access:
+                    hasProvidedAccessMap
+                        ? activeAccessMap?.[seriesId]
+                        : activeAccessMap?.[seriesId] ||
+                        series?.access
+            }
+        })
+
+    return updatedSeriesMap
 }
 
 interface Store {
@@ -118,6 +193,10 @@ interface Store {
     fetchSingleSeries: (
         seriesId: string
     ) => Promise<any | null>
+
+    refreshSeriesAccess: (
+        accessMap?: Record<string, any>
+    ) => void
 
     // TESTS
     fetchTests: (
@@ -513,8 +592,19 @@ export const useTestSeriesStore =
 
             // Already cached
             if (state.seriesMap[seriesId]) {
+                const seriesWithFreshAccess =
+                    attachSeriesAccess(
+                        state.seriesMap[seriesId]
+                    )
 
-                return state.seriesMap[seriesId]
+                set((currentState) => ({
+                    seriesMap: {
+                        ...currentState.seriesMap,
+                        [seriesId]: seriesWithFreshAccess
+                    }
+                }))
+
+                return seriesWithFreshAccess
             }
 
             set({
@@ -554,20 +644,26 @@ export const useTestSeriesStore =
                     return null
                 }
 
+                const seriesWithAccess =
+                    attachSeriesAccess(
+                        data.series,
+                        data.access
+                    )
+
                 set((state) => ({
 
                     seriesMap: {
 
                         ...state.seriesMap,
 
-                        [data.series._id]:
-                            data.series
+                        [seriesWithAccess._id]:
+                            seriesWithAccess
                     },
 
                     loadingSeries: false
                 }))
 
-                return data.series
+                return seriesWithAccess
             }
 
             catch (error) {
@@ -580,6 +676,17 @@ export const useTestSeriesStore =
 
                 return null
             }
+        },
+        refreshSeriesAccess: (
+            accessMap
+        ) => {
+            set((state) => ({
+                seriesMap:
+                    attachAccessToSeriesMap(
+                        state.seriesMap,
+                        accessMap
+                    )
+            }))
         },
         fetchSeries: async (
             params = {}
@@ -664,9 +771,12 @@ export const useTestSeriesStore =
                     ) {
 
                         const item =
-                            data.series[
-                            i
-                            ]
+                            attachSeriesAccess(
+                                data.series[
+                                i
+                                ],
+                                data.access
+                            )
 
                         updatedSeries[
                             item._id

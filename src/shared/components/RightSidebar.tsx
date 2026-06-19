@@ -1,18 +1,39 @@
 'use client'
 
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 
 import { useLayoutStore } from "../store/uiResStore"
 import Live from "./Live"
 import { useUserStore } from "../store/user"
 import { LOGOUT } from "../../../api"
 import { useWSChatStore } from "../store/wsChat"
+
+const isUserOnline = (
+    value: unknown
+) => {
+    if (typeof value === "string") {
+        return value.toLowerCase() === "true" ||
+            value === "1"
+    }
+
+    return value === true ||
+        value === 1
+}
+
 export default function RightSidebar() {
 
-    const {
-        user,
-        logout
-    } = useUserStore()
+    const user =
+        useUserStore(
+            (state) => state.user
+        )
+    const authenticated =
+        useUserStore(
+            (state) => state.authenticated
+        )
+    const logout =
+        useUserStore(
+            (state) => state.logout
+        )
     const head = useLayoutStore(
         (state) => state.rightMobile
     )
@@ -31,6 +52,31 @@ export default function RightSidebar() {
     const liveBubbleOpen = useLayoutStore(
         (state) => state.liveBubbleOpen
     )
+    const setLiveBubbleOpen = useLayoutStore(
+        (state) => state.setLiveBubbleOpen
+    )
+    const wsUsers =
+        useWSChatStore(
+            (state) =>
+                state.users
+        )
+    const users =
+        useMemo(
+            () =>
+                Object.values(wsUsers),
+            [wsUsers]
+        )
+    const onlineUsers =
+        useMemo(
+            () =>
+                users.filter(
+                    (user) =>
+                        isUserOnline(
+                            user.online
+                        )
+                ),
+            [users]
+        )
 
     // MOUNT ANIMATION FIX
     const [mounted, setMounted] = useState(false)
@@ -38,7 +84,7 @@ export default function RightSidebar() {
     useEffect(() => {
         setMounted(true)
     }, [])
-    const handleLogout = async () => {
+    const handleLogout = useCallback(async () => {
 
         try {
 
@@ -71,7 +117,7 @@ export default function RightSidebar() {
 
             console.log(error)
         }
-    }
+    }, [logout])
 
     return (
 
@@ -300,32 +346,34 @@ export default function RightSidebar() {
 
                     {/* STATS */}
                     {!liveBubbleOpen &&
-                        <div className="grid grid-cols-2 gap-3 mt-6">
+                        <div className="grid grid-cols-2 gap-2 mt-6">
 
-                            <div className="rounded-2xl bg-violet-50 p-4">
+                            <div className="min-w-0 rounded-2xl bg-violet-50 p-3">
 
-                                <p className="text-xs md:text-sm text-gray-500 mb-2">
+                                <p className="text-xs text-gray-500 mb-2">
                                     Total Users
                                 </p>
 
-                                <h2 className="text-2xl md:text-3xl font-black text-violet-700">
-                                    {site?.totalUsers}
+                                <h2 className="truncate text-2xl md:text-3xl font-black text-violet-700">
+                                    {site?.totalUsers ?? 0}
                                 </h2>
 
                             </div>
 
-                            <div className="rounded-2xl bg-green-50 p-4">
+                            <div className="min-w-0 rounded-2xl bg-green-50 p-3">
 
-                                <p className="text-xs md:text-sm text-gray-500 mb-2">
+                                <p className="text-xs text-gray-500 mb-2">
                                     Online
                                 </p>
 
-                                <div className="flex items-center gap-2">
+                                <div className="flex min-w-0 items-center gap-2">
 
-                                    <span className="w-3 h-3 rounded-full bg-green-500 animate-pulse"></span>
+                                    <span className="h-3 w-3 shrink-0 rounded-full bg-green-500 animate-pulse"></span>
 
-                                    <h2 className="text-2xl md:text-3xl font-black text-green-600">
-                                        {site.totalOnline}
+                                    <h2 className="min-w-0 truncate text-2xl md:text-3xl font-black text-green-600">
+                                        {!authenticated
+                                            ? site?.totalOnline ?? 0
+                                            : onlineUsers?.length}
                                     </h2>
 
                                 </div>
@@ -357,7 +405,13 @@ export default function RightSidebar() {
                                     Active Users
                                 </h3>
 
-                                <button className="text-sm md:text-base text-violet-600 font-medium">
+                                <button
+                                    type="button"
+                                    onClick={() =>
+                                        setLiveBubbleOpen(true)
+                                    }
+                                    className="text-sm md:text-base text-violet-600 font-medium"
+                                >
                                     View All
                                 </button>
 
@@ -365,10 +419,16 @@ export default function RightSidebar() {
                         }
 
                         {!liveBubbleOpen &&
-                            <Live activeDot={false} />
+                            <Live
+                                activeDot={false}
+                                users={onlineUsers}
+                            />
                         }
                         {liveBubbleOpen &&
-                            <Live activeDot={true} />
+                            <Live
+                                activeDot={true}
+                                users={users}
+                            />
                         }
                     </div>
 

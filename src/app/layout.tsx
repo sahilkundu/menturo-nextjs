@@ -1,31 +1,48 @@
 import '../index.css'
 
-import { ReactNode } from 'react'
+import type { ReactNode } from 'react'
 import type { Metadata, Viewport } from 'next'
+import { Noto_Sans_Devanagari } from 'next/font/google'
 import Script from 'next/script'
 import AppProviders from './providers/AppProviders'
+import {
+    defaultImage,
+    seoKeywords,
+    siteName,
+    siteUrl
+} from '../shared/seo'
+
+const notoSansDevanagari =
+    Noto_Sans_Devanagari({
+        subsets: ['devanagari', 'latin'],
+        weight: ['400', '500', '600', '700', '800', '900'],
+        variable: '--font-devanagari',
+        display: 'swap'
+    })
 
 export const metadata: Metadata = {
-    metadataBase: new URL('https://www.menturo.in'),
+    metadataBase: new URL(siteUrl),
+    applicationName: siteName,
+    referrer: 'origin-when-cross-origin',
+    authors: [
+        {
+            name: siteName,
+            url: siteUrl,
+        },
+    ],
+    creator: siteName,
+    publisher: siteName,
+    category: 'education',
 
     title: {
-        default: 'Menturo - Govt Exams, Haryana CET, UPSC, Banking, SSC',
+        default: 'Menturo - Govt Exam Mock Tests, Haryana CET, Hartron, SSC',
         template: '%s | Menturo',
     },
 
     description:
-        'Menturo is India\'s trusted platform for UPSC, Hartron, Banking, HTET, SSC, and other government exams.',
+        'Menturo helps students prepare for Haryana CET, Hartron, SSC CGL, SSC CHSL, SSC GD, DSSSB, UPSC, Banking, HTET, and state government exams with mock tests, PYQs, and typing practice.',
 
-    keywords: [
-        'Haryana CET',
-        'Hartron',
-        'UPSC',
-        'SSC',
-        'Banking',
-        'HTET',
-        'Mock Tests',
-        'Previous Year Questions',
-    ],
+    keywords: seoKeywords,
 
     verification: {
         google: 'lQ8DvOxm1SoOHSt0LFa2Z5QGd4qR1y2Iy2PmOsGdQpc',
@@ -41,19 +58,28 @@ export const metadata: Metadata = {
     },
 
     openGraph: {
-        title: 'Menturo',
+        title: 'Menturo - Government Exam Mock Tests',
         description:
-            'Government exam preparation platform with PYQs and mock tests.',
-        url: 'https://www.menturo.in',
-        siteName: 'Menturo',
+            'Prepare for Haryana CET, Hartron, SSC, DSSSB, UPSC, Banking, HTET, and state exams with mock tests and previous year questions.',
+        url: siteUrl,
+        siteName,
         images: [
             {
-                url: 'https://www.menturo.in/M3.png',
+                url: defaultImage,
                 width: 512,
                 height: 512,
+                alt: 'Menturo government exam preparation',
             },
         ],
         type: 'website',
+    },
+
+    twitter: {
+        card: 'summary_large_image',
+        title: 'Menturo - Government Exam Mock Tests',
+        description:
+            'Mock tests, PYQs, and typing practice for Haryana CET, Hartron, SSC, DSSSB, UPSC, Banking, HTET, and state exams.',
+        images: [defaultImage],
     },
 }
 export const viewport: Viewport = {
@@ -69,20 +95,31 @@ export default function RootLayout({
 
     return (
 
-        <html lang="en">
+        <html lang="en" className={notoSansDevanagari.variable}>
 
             <body suppressHydrationWarning>
                 <Script
-                    id="organization-schema"
+                    id="site-schema"
                     type="application/ld+json"
                     dangerouslySetInnerHTML={{
-                        __html: JSON.stringify({
-                            "@context": "https://schema.org",
-                            "@type": "Organization",
-                            "name": "Menturo",
-                            "url": "https://www.menturo.in",
-                            "logo": "https://www.menturo.in/M3.png"
-                        }),
+                        __html: JSON.stringify([
+                            {
+                                '@context': 'https://schema.org',
+                                '@type': 'Organization',
+                                name: siteName,
+                                url: siteUrl,
+                                logo: defaultImage,
+                                sameAs: [
+                                    siteUrl,
+                                ],
+                            },
+                            {
+                                '@context': 'https://schema.org',
+                                '@type': 'WebSite',
+                                name: siteName,
+                                url: siteUrl,
+                            },
+                        ]),
                     }}
                 />
                 <AppProviders>

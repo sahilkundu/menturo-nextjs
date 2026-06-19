@@ -21,6 +21,18 @@ export type SiteUser = {
     totalOnline: string | number
 }
 
+const isOnlineValue = (
+    value: unknown
+) => {
+    if (typeof value === 'string') {
+        return value.toLowerCase() === 'true' ||
+            value === '1'
+    }
+
+    return value === true ||
+        value === 1
+}
+
 interface WSChatStore {
 
     // ====================================
@@ -41,6 +53,9 @@ interface WSChatStore {
     ) => void
     setUserStatus: (
         data: OnlineUser
+    ) => void
+    setUsersSnapshot: (
+        users: OnlineUser[]
     ) => void
 
     // ====================================
@@ -84,10 +99,20 @@ export const useWSChatStore =
                     data
                 ) =>
 
-                    set({
+                    set((state) => ({
 
-                        site: data
-                    }),
+                        site: {
+                            totalUsers:
+                                data?.totalUsers ??
+                                state.site.totalUsers ??
+                                0,
+
+                            totalOnline:
+                                data?.totalOnline ??
+                                state.site.totalOnline ??
+                                0
+                        }
+                    })),
 
             // ====================================
             // SET USER STATUS
@@ -107,10 +132,45 @@ export const useWSChatStore =
 
                                 ...state.users,
 
-                                [data.username]: data
+                                [data.username]: {
+                                    ...data,
+                                    online:
+                                        isOnlineValue(
+                                            data.online
+                                        )
+                                }
                             }
                         })
                     ),
+
+            setUsersSnapshot:
+                (
+                    users
+                ) =>
+
+                    set(() => {
+                        const nextUsers:
+                            Record<string, OnlineUser> = {}
+
+                        for (const user of users) {
+                            if (!user?.username) {
+                                continue
+                            }
+
+                            nextUsers[user.username] = {
+                                ...user,
+                                online:
+                                    isOnlineValue(
+                                        user.online
+                                    )
+                            }
+                        }
+
+                        return {
+                            users:
+                                nextUsers
+                        }
+                    }),
 
             // ====================================
             // REMOVE USER

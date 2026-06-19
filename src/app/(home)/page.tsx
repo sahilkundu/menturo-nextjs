@@ -7,6 +7,12 @@ import { useEffect } from "react"
 import { useLayoutStore } from "../../shared/store/uiResStore"
 import { useUserStore } from "../../shared/store/user"
 import { showRouteLoader } from "../../shared/utils/routeLoader"
+import FooterSkeleton from "../../shared/components/Skeleton/FooterSkeleton"
+import HomeCenterSkeleton from "../../shared/components/Skeleton/HomeCenterSkeleton"
+import HomePageSkeleton from "../../shared/components/Skeleton/HomePageSkeleton"
+import LeftSidebarSkeleton from "../../shared/components/Skeleton/LeftSidebarSkeleton"
+import LiveBubbleSkeleton from "../../shared/components/Skeleton/LiveBubbleSkeleton"
+import RightSidebarSkeleton from "../../shared/components/Skeleton/RightSidebarSkeleton"
 
 import { useRouter } from "next/navigation"
 
@@ -16,11 +22,15 @@ import { useRouter } from "next/navigation"
 
 const HomeCenter = dynamic(
     () => import("../../shared/components/HomeCenter"),
+    {
+        loading: HomeCenterSkeleton
+    }
 )
 
 const LeftSidebar = dynamic(
     () => import("../../shared/components/LeftSidebar"),
     {
+        loading: LeftSidebarSkeleton,
         ssr: false
     }
 )
@@ -28,17 +38,22 @@ const LeftSidebar = dynamic(
 const RightSidebar = dynamic(
     () => import("../../shared/components/RightSidebar"),
     {
+        loading: RightSidebarSkeleton,
         ssr: false
     }
 )
 
 const Footer = dynamic(
-    () => import("../../shared/components/Footer")
+    () => import("../../shared/components/Footer"),
+    {
+        loading: FooterSkeleton
+    }
 )
 
 const LiveBubbleBtn = dynamic(
     () => import("../../shared/components/LiveBubbleBtn"),
     {
+        loading: LiveBubbleSkeleton,
         ssr: false
     }
 )
@@ -51,7 +66,8 @@ export default function HomePage() {
     // ================= USER =================
 
     const {
-        authenticated
+        authenticated,
+        loading
     } =
         useUserStore()
 
@@ -131,6 +147,12 @@ export default function HomePage() {
     // =========================================
     // UI
     // =========================================
+
+    if (loading) {
+        return (
+            <HomePageSkeleton authenticated={authenticated} />
+        )
+    }
 
     return (
 

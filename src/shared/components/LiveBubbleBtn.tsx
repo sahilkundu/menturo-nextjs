@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef } from "react"
+import { memo, useCallback, useEffect, useMemo, useRef } from "react"
 
 import { useLayoutStore } from "../store/uiResStore"
 import { useWSChatStore } from "../store/wsChat"
@@ -9,7 +9,19 @@ interface LiveBubbleProps {
     count?: number
 }
 
-export default function LiveBubbleBtn({
+const isUserOnline = (
+    value: unknown
+) => {
+    if (typeof value === "string") {
+        return value.toLowerCase() === "true" ||
+            value === "1"
+    }
+
+    return value === true ||
+        value === 1
+}
+
+function LiveBubbleBtn({
     count = 3
 }: LiveBubbleProps) {
     const wsUsers =
@@ -18,8 +30,18 @@ export default function LiveBubbleBtn({
                 state.users
         )
 
-    const users =
-        Object.values(wsUsers)
+    const onlineCount =
+        useMemo(
+            () =>
+                Object.values(wsUsers)
+                    .filter(
+                        user =>
+                            isUserOnline(
+                                user?.online
+                            )
+                    ).length,
+            [wsUsers]
+        )
 
     const bubbleRef = useRef<HTMLButtonElement | null>(null)
 
@@ -30,6 +52,14 @@ export default function LiveBubbleBtn({
     const setRightSidebarOpen = useLayoutStore(
         (state) => state.setRightSidebarOpen
     )
+    const openLive =
+        useCallback(() => {
+            setLiveBubbleOpen(true)
+            setRightSidebarOpen(true)
+        }, [
+            setLiveBubbleOpen,
+            setRightSidebarOpen
+        ])
 
     // CLOSE WHEN CLICK OUTSIDE
     useEffect(() => {
@@ -58,10 +88,7 @@ export default function LiveBubbleBtn({
     return (
         <button
             ref={bubbleRef}
-            onClick={() => {
-                setLiveBubbleOpen(true)
-                setRightSidebarOpen(true)
-            }}
+            onClick={openLive}
             className="
                 relative
                 w-[74px]
@@ -110,9 +137,7 @@ export default function LiveBubbleBtn({
                     shadow-md
                 "
             >
-                {users?.filter(
-                    user => user?.online
-                ).length}
+                {onlineCount}
             </div>
 
             {/* LIVE BADGE */}
@@ -138,3 +163,5 @@ export default function LiveBubbleBtn({
         </button>
     )
 }
+
+export default memo(LiveBubbleBtn)

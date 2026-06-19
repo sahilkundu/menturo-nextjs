@@ -29,7 +29,7 @@ export default function LeftSidebar() {
         Swal.fire({
             icon: 'warning',
             title: 'Coming soon...',
-            text: "Live on 15 june 2026",
+            text: "Live on 22 june 2026",
             confirmButtonColor: '#2575fc'
         })
 

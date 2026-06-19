@@ -163,6 +163,10 @@ export default function Login() {
                     .getState()
                     .setUser(data.user)
 
+                useUserStore
+                    .getState()
+                    .setAccess(data.access || {})
+
                 showRouteLoader()
 
                 setTimeout(() => {
@@ -234,15 +238,18 @@ export default function Login() {
             )
         }
     }
-    const {
-        fetchUser,
-    } = useUserStore()
+    const authChecked =
+        useUserStore((state) => state.authChecked)
+    const fetchUser =
+        useUserStore((state) => state.fetchUser)
 
     useEffect(() => {
 
         const checkAuth = async () => {
 
-            await fetchUser()
+            if (!authChecked) {
+                await fetchUser()
+            }
 
             const {
                 authenticated
@@ -257,7 +264,7 @@ export default function Login() {
 
         checkAuth()
 
-    }, [])
+    }, [authChecked, fetchUser, router])
 
     return (
         <div className="h-screen bg-[#4A3F77] overflow-y-auto">

@@ -44,11 +44,14 @@ interface Query {
 }
 
 export default function SettingPage() {
-  const {
-    user,
-    authenticated,
-    fetchUser
-  } = useUserStore()
+  const user =
+    useUserStore((state) => state.user)
+  const authenticated =
+    useUserStore((state) => state.authenticated)
+  const authChecked =
+    useUserStore((state) => state.authChecked)
+  const fetchUser =
+    useUserStore((state) => state.fetchUser)
   const {
     sessions,
     setSessions,
@@ -523,10 +526,10 @@ export default function SettingPage() {
   };
 
   useEffect(() => {
-    if (!authenticated) {
+    if (!authenticated && !authChecked) {
       fetchUser()
     }
-  }, [])
+  }, [authChecked, authenticated, fetchUser])
   const isNameChanged =
     userData.firstName !== originalName.firstName ||
     userData.lastName !== originalName.lastName;

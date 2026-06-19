@@ -12,18 +12,26 @@ import {
 
 export default function TestMasterHeader() {
     const router = useRouter()
-    const {
-        activeLan,
-        setActiveLan,
-        fetchSave,
-        fetchResult,
-        timeLeft,
-        isSubmitted,
-        activeSubject,
-        activeTest,
-        loadingSave,
-        loadingResult
-    } = useTestDataStore()
+    const activeLan =
+        useTestDataStore((state) => state.activeLan)
+    const setActiveLan =
+        useTestDataStore((state) => state.setActiveLan)
+    const fetchSave =
+        useTestDataStore((state) => state.fetchSave)
+    const fetchResult =
+        useTestDataStore((state) => state.fetchResult)
+    const timeLeft =
+        useTestDataStore((state) => state.timeLeft)
+    const isSubmitted =
+        useTestDataStore((state) => state.isSubmitted)
+    const activeSubject =
+        useTestDataStore((state) => state.activeSubject)
+    const activeTest =
+        useTestDataStore((state) => state.activeTest)
+    const loadingSave =
+        useTestDataStore((state) => state.loadingSave)
+    const loadingResult =
+        useTestDataStore((state) => state.loadingResult)
 
     // history object
     const historyObj =

@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useEffect } from 'react'
+import { useRef, useEffect, useCallback, useMemo } from 'react'
 
 import { useTestSeriesStore }
     from "../store/testSeriesStore"
@@ -30,26 +30,42 @@ export default function SuggestedPaymentCard({
     // STORE
     // ======================================================
 
-    const {
-        seriesMap,
-        fetchSeries,
-        loadingSeries,
-        seriesPaginationByTag
-    } = useTestSeriesStore()
+    const seriesMap =
+        useTestSeriesStore(
+            (state) => state.seriesMap
+        )
+    const fetchSeries =
+        useTestSeriesStore(
+            (state) => state.fetchSeries
+        )
+    const loadingSeries =
+        useTestSeriesStore(
+            (state) => state.loadingSeries
+        )
+    const pagination =
+        useTestSeriesStore(
+            (state) =>
+                state.seriesPaginationByTag['']
+        )
 
     // ======================================================
     // DATA
     // ======================================================
 
     const cards =
-        Object
-            .values(seriesMap)
-            .filter(
-                (series: any) =>
-                    series._id !== excludeSeriesId
-            )
-    const pagination =
-        seriesPaginationByTag['']
+        useMemo(
+            () =>
+                Object
+                    .values(seriesMap)
+                    .filter(
+                        (series: any) =>
+                            series._id !== excludeSeriesId
+                    ),
+            [
+                excludeSeriesId,
+                seriesMap
+            ]
+        )
 
     // ======================================================
     // INITIAL FETCH
@@ -64,7 +80,7 @@ export default function SuggestedPaymentCard({
             limit: 6
         })
 
-    }, [])
+    }, [fetchSeries])
 
     // ======================================================
     // AUTO LOAD IF NO SCROLLBAR
@@ -128,7 +144,7 @@ export default function SuggestedPaymentCard({
     // ======================================================
 
     const handleScroll =
-        async () => {
+        useCallback(async () => {
 
             const element =
                 scrollRef.current
@@ -176,13 +192,18 @@ export default function SuggestedPaymentCard({
 
                 limit: 6
             })
-        }
+        }, [
+            fetchSeries,
+            loadingSeries,
+            pagination?.currentPage,
+            pagination?.hasMore
+        ])
 
     // ======================================================
     // MOBILE BUTTON SCROLL
     // ======================================================
 
-    const scrollLeft = () => {
+    const scrollLeft = useCallback(() => {
 
         if (scrollRef.current) {
 
@@ -191,9 +212,9 @@ export default function SuggestedPaymentCard({
                 behavior: 'smooth',
             })
         }
-    }
+    }, [])
 
-    const scrollRight = () => {
+    const scrollRight = useCallback(() => {
 
         if (scrollRef.current) {
 
@@ -202,7 +223,7 @@ export default function SuggestedPaymentCard({
                 behavior: 'smooth',
             })
         }
-    }
+    }, [])
 
     // ======================================================
     // INITIAL SKELETON

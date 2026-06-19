@@ -13,12 +13,14 @@ import { SAVE_TEST } from '../../../../api';
 import { useRouter } from 'next/navigation'
 
 export default function MockTestPage() {
-    const {
-        activeTest,
-        activeSubject,
-        setActiveSubject,
-        timeLeft,
-    } = useTestDataStore()
+    const activeTest =
+        useTestDataStore((state) => state.activeTest)
+    const activeSubject =
+        useTestDataStore((state) => state.activeSubject)
+    const setActiveSubject =
+        useTestDataStore((state) => state.setActiveSubject)
+    const timeLeft =
+        useTestDataStore((state) => state.timeLeft)
     const router = useRouter()
     useEffect(() => {
         if (!activeTest || Object.keys(activeTest).length === 0) {

@@ -1006,10 +1006,6 @@ export const useTestDataStore =
                                 data.message ||
                                 'Failed to start test'
                         })
-                        showPopupMessage(
-                            data.message,
-                            false
-                        )
                         return data
                     }
 
@@ -1174,10 +1170,6 @@ export const useTestDataStore =
                                 data.message ||
                                 'Failed to resume test'
                         })
-                        showPopupMessage(
-                            data.message,
-                            false
-                        )
                         return data
                     }
 
@@ -1322,11 +1314,6 @@ export const useTestDataStore =
                                 data.message ||
                                 'Failed to fetch solution'
                         })
-                        showPopupMessage(
-                            data.message,
-                            false
-                        )
-
                         return data
                     }
 

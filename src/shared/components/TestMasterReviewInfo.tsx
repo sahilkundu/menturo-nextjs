@@ -16,10 +16,14 @@ export default function TestMasterReviewInfo({
     // STORE
     // =====================================
 
-    const {
-        activeTest,
-        activeSubject,
-    } = useTestDataStore()
+    const activeTest =
+        useTestDataStore(
+            (state) => state.activeTest
+        )
+    const activeSubject =
+        useTestDataStore(
+            (state) => state.activeSubject
+        )
 
     // =====================================
     // HISTORY

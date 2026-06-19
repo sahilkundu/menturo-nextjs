@@ -22,11 +22,17 @@ interface UserData {
 interface UserStore {
     user: UserData | null
 
+    access: Record<string, any>
+
     loading: boolean
 
     authenticated: boolean
 
+    authChecked: boolean
+
     setUser: (user: UserData | null) => void
+
+    setAccess: (access: Record<string, any>) => void
 
     logout: () => void
 
@@ -34,13 +40,17 @@ interface UserStore {
 }
 
 export const useUserStore =
-    create<UserStore>((set) => ({
+    create<UserStore>((set, get) => ({
 
         user: null,
+
+        access: {},
 
         loading: false,
 
         authenticated: false,
+
+        authChecked: false,
 
         // =========================
         // Set User
@@ -52,6 +62,12 @@ export const useUserStore =
                 authenticated: !!user,
             }),
 
+        setAccess: (access) =>
+            set({
+                access:
+                    access || {},
+            }),
+
         // =========================
         // Logout
         // =========================
@@ -59,7 +75,9 @@ export const useUserStore =
         logout: () =>
             set({
                 user: null,
+                access: {},
                 authenticated: false,
+                authChecked: true,
             }),
 
         // =========================
@@ -67,14 +85,13 @@ export const useUserStore =
         // =========================
 
         fetchUser: async () => {
-            // const state = useUserStore.getState()
+            const state =
+                get()
 
-            // if (
-            //     state.authenticated &&
-            //     state.user
-            // ) {
-            //     return
-            // }
+            if (state.loading) {
+                return
+            }
+
             try {
 
                 set({
@@ -100,14 +117,18 @@ export const useUserStore =
                 ) {
                     set({
                         user: data.user,
+                        access: data.access || {},
                         authenticated: true,
+                        authChecked: true,
                         loading: false,
                     })
                 }
                 else {
                     set({
                         user: null,
+                        access: {},
                         authenticated: false,
+                        authChecked: true,
                         loading: false,
                     })
                 }
@@ -118,7 +139,9 @@ export const useUserStore =
 
                 set({
                     user: null,
+                    access: {},
                     authenticated: false,
+                    authChecked: true,
                     loading: false,
                 })
             }

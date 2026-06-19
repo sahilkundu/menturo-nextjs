@@ -6,16 +6,18 @@ import TestMasterButtons from "./TestMasterButtons"
 
 export default function TestMasterBody() {
 
-    const {
-
-        activeTest,
-        activeQuestionIndex,
-        activeSubject,
-        activeLan,
-        selectedOptions,
-        visitQuestion
-
-    } = useTestDataStore()
+    const activeTest =
+        useTestDataStore((state) => state.activeTest)
+    const activeQuestionIndex =
+        useTestDataStore((state) => state.activeQuestionIndex)
+    const activeSubject =
+        useTestDataStore((state) => state.activeSubject)
+    const activeLan =
+        useTestDataStore((state) => state.activeLan)
+    const selectedOptions =
+        useTestDataStore((state) => state.selectedOptions)
+    const visitQuestion =
+        useTestDataStore((state) => state.visitQuestion)
 
     // =========================================
     // HISTORY OBJECT

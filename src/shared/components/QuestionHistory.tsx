@@ -2,11 +2,12 @@ import { useQHistoryStore } from "../store/qHisStore";
 import { useTestDataStore } from "../store/testDataStore";
 
 export default function QuestionHistory() {
-    const {
-        activeTest,
-        activeQuestionIndex,
-        activeSubject
-    } = useTestDataStore();
+    const activeTest =
+        useTestDataStore((state) => state.activeTest);
+    const activeQuestionIndex =
+        useTestDataStore((state) => state.activeQuestionIndex);
+    const activeSubject =
+        useTestDataStore((state) => state.activeSubject);
 
     const qHistory =
         useQHistoryStore(

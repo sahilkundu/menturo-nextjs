@@ -130,7 +130,13 @@ export const useWSStore =
                             current.readyState === WebSocket.CONNECTING
                         )
                     ) {
-                        return
+                        if (get().userId === userId) {
+                            return
+                        }
+
+                        current.onclose = null
+                        current.onerror = null
+                        current.close()
                     }
 
                     console.log(
@@ -222,6 +228,13 @@ export const useWSStore =
                                         userAgent:
                                             navigator.userAgent
                                     }
+                                })
+                            )
+
+                            ws.send(
+                                JSON.stringify({
+                                    event:
+                                        'site-stats'
                                 })
                             )
 
@@ -366,7 +379,13 @@ export const useWSStore =
                                     useWSChatStore
                                         .getState()
                                         .setSiteStats(
-                                            data.stats
+                                            data.stats || {
+                                                totalUsers:
+                                                    data.totalUsers,
+
+                                                totalOnline:
+                                                    data.totalOnline
+                                            }
                                         )
                                 }
 
@@ -378,22 +397,23 @@ export const useWSStore =
                                     'online-users'
                                 ) {
 
-                                    const wsChat =
-                                        useWSChatStore.getState()
+                                    useWSChatStore
+                                        .getState()
+                                        .setUsersSnapshot(
+                                            (
+                                                data.users || []
+                                            ).map((user: any) => ({
+                                                username:
+                                                    user.username,
 
-                                    for (const user of data.users) {
+                                                online:
+                                                    user.online ??
+                                                    true,
 
-                                        wsChat.setUserStatus({
-
-                                            username:
-                                                user.username,
-
-                                            online: true,
-
-                                            connections:
-                                                user.connections || 1
-                                        })
-                                    }
+                                                connections:
+                                                    user.connections || 0
+                                            }))
+                                        )
 
                                     return
                                 }

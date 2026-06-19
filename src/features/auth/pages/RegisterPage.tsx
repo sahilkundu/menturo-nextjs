@@ -198,17 +198,14 @@ export default function Register() {
     const validatePassword = (
         password: string
     ) => {
-        const passwordRegex =
-            /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/
-
         if (
             !password ||
-            !passwordRegex.test(password)
+            password.length < 6
         ) {
             return {
                 valid: false,
                 message:
-                    'Password must contain uppercase, lowercase, digit and special character',
+                    'Password must be at least 6 characters long',
             }
         }
 
@@ -432,6 +429,14 @@ export default function Register() {
             )
         }
 
+        if (
+            e.target.name === 'username'
+        ) {
+            value = value
+                .toLowerCase()
+                .replace(/\s+/g, '_')
+        }
+
         setForm((prev) => ({
             ...prev,
             [e.target.name]: value,
@@ -632,14 +637,17 @@ export default function Register() {
             setLoading(false)
         }
     }
-    const {
-        fetchUser,
-    } = useUserStore()
+    const authChecked =
+        useUserStore((state) => state.authChecked)
+    const fetchUser =
+        useUserStore((state) => state.fetchUser)
     useEffect(() => {
 
         const checkAuth = async () => {
 
-            await fetchUser()
+            if (!authChecked) {
+                await fetchUser()
+            }
 
             const {
                 authenticated
@@ -654,7 +662,7 @@ export default function Register() {
 
         checkAuth()
 
-    }, [])
+    }, [authChecked, fetchUser, router])
 
     async function resendEmailOtp() {
         try {

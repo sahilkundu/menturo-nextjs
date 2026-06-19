@@ -20,19 +20,28 @@ type QuestionStatus =
 export default function TestMasterQuestionChooser() {
     const router = useRouter()
 
-    const {
-        activeTest,
-        activeSubject,
-        activeQuestionIndex,
-        selectedOptions,
-        setActiveQuestionIndex,
-        fetchResult,
-        fetchSave,
-        loadingResult,
-        loadingSave,
-        isSubmitted,
-        timeLeft
-    } = useTestDataStore()
+    const activeTest =
+        useTestDataStore((state) => state.activeTest)
+    const activeSubject =
+        useTestDataStore((state) => state.activeSubject)
+    const activeQuestionIndex =
+        useTestDataStore((state) => state.activeQuestionIndex)
+    const selectedOptions =
+        useTestDataStore((state) => state.selectedOptions)
+    const setActiveQuestionIndex =
+        useTestDataStore((state) => state.setActiveQuestionIndex)
+    const fetchResult =
+        useTestDataStore((state) => state.fetchResult)
+    const fetchSave =
+        useTestDataStore((state) => state.fetchSave)
+    const loadingResult =
+        useTestDataStore((state) => state.loadingResult)
+    const loadingSave =
+        useTestDataStore((state) => state.loadingSave)
+    const isSubmitted =
+        useTestDataStore((state) => state.isSubmitted)
+    const timeLeft =
+        useTestDataStore((state) => state.timeLeft)
 
     const historyObj =
         activeTest?.activeQuestionHistoryObj?.[
@@ -42,7 +51,6 @@ export default function TestMasterQuestionChooser() {
     const qIDs = Array.isArray(historyObj?.qIDs)
         ? historyObj.qIDs
         : Object.values(historyObj?.qIDs || {})
-    console.log(qIDs[activeQuestionIndex])
     const getButtonStyles = (
         status: QuestionStatus,
         submitted: boolean

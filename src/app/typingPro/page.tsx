@@ -1,5 +1,6 @@
 'use client'
 
+import { useRouter } from 'next/navigation'
 import {
     useEffect,
     useMemo,
@@ -8,6 +9,7 @@ import {
 } from 'react'
 
 import type {
+    ChangeEvent,
     KeyboardEvent,
     ReactNode
 } from 'react'
@@ -18,36 +20,104 @@ import {
     CalendarDays,
     ChevronDown,
     Check,
-    ClipboardList,
     Clock3,
     Expand,
+    Eye,
+    EyeOff,
     Gauge,
-    Hash,
-    Info,
     Keyboard,
     Lightbulb,
     Lock,
-    Moon,
-    Play,
+    Minimize,
     RotateCcw,
-    Rocket,
     Send,
     Settings,
     Sparkles,
-    Sun,
     Target,
     Trophy,
     User,
     X
 } from 'lucide-react'
+import {
+    LOAD_TYPING_TESTS,
+    RESUME_TYPING_TEST,
+    START_TYPING_TEST,
+    TYPING_SOLUTION,
+    TYPING_HISTORY,
+    TYPING_RESULT
+} from '../../../api'
+import TestSectionHead from '../../shared/components/TestSectionHead'
+import Spinner from '../../shared/components/Spinner'
+import { useUserStore } from '../../shared/store/user'
+import { showPopupMessage } from '../../shared/utils/popup'
+import { showRouteLoader } from '../../shared/utils/routeLoader'
 
 type Language = 'hindi' | 'english'
 
 type Result = ReturnType<typeof computeResult>
 
-const passages = {
-    hindi: 'विज्ञान और तकनीक ने मानव जीवन को बहुत सरल और सुविधाजनक बना दिया है। कंप्यूटर एक ऐसी मशीन है जो अनेक कार्य बहुत ही तेजी और शुद्धता के साथ करती है। आज लगभग हर क्षेत्र में कंप्यूटर का उपयोग हो रहा है। शिक्षा, व्यापार, बैंक, रेलवे, अस्पताल, उद्योग, सरकारी कार्यालय आदि सभी जगहों पर कंप्यूटर का महत्व बढ़ता जा रहा है। यदि हमें भविष्य में सफल होना है तो कंप्यूटर का ज्ञान होना अत्यंत आवश्यक है। टाइपिंग सीखना भी बहुत जरूरी है क्योंकि कंप्यूटर पर कार्य करने के लिए टाइपिंग का ज्ञान अनिवार्य है।',
-    english: 'Typing speed matters when accuracy, rhythm, focus, and clean finger movement all work together during a timed exam. Practice daily with short word groups, keep your eyes on the screen, avoid random backspace habits, and try to maintain a steady pace from start to finish.'
+type TypingTestData = {
+    testId: string
+    historyId?: string
+    attemptNo?: number
+    title: string
+    language: Language
+    level: number
+    levelName: string
+    duration: number
+    words?: number
+    paragraph: string
+    typedText?: string
+}
+
+type TypingHistoryItem = {
+    resultId: string
+    testId: string
+    title: string
+    attemptedAt: number
+    duration: number
+    level: number
+    levelName: string
+    netWpm: number
+    grossWpm: number
+    accuracy: number
+    rank?: number
+    totalUsers?: number
+}
+
+type TypingTestListItem = {
+    testId: string
+    title: string
+    language: Language
+    level: number
+    levelName: string
+    duration: number
+    totalAttempt?: number
+    totalUsers?: number
+    access?: boolean
+    available?: boolean
+    levelUnlocked?: boolean
+    buttonName?: string
+    history?: Array<{
+        historyId?: string
+        status?: string
+        attemptNo?: number
+        score?: number
+        accuracy?: number
+    }>
+}
+
+type SubmitResponse = {
+    success: boolean
+    message?: string
+    resultId?: string
+    result?: Result
+    rank?: number
+    totalUsers?: number
+    level?: number
+    levelName?: string
+    best?: boolean
+    history?: TypingHistoryItem[]
 }
 
 const romanMap = [
@@ -103,14 +173,6 @@ const romanMap = [
     ['z', 'ज']
 ]
 
-const historyItems = [
-    ['1 Minute Test', '25 Apr, 2025 • 10:45 AM', '52 WPM', 'Best'],
-    ['1 Minute Test', '24 Apr, 2025 • 09:12 AM', '41 WPM', '92.10%'],
-    ['2 Minute Test', '23 Apr, 2025 • 04:30 PM', '63 WPM', '95.20%'],
-    ['1 Minute Test', '22 Apr, 2025 • 11:05 AM', '38 WPM', '90.12%'],
-    ['1 Minute Test', '21 Apr, 2025 • 08:50 PM', '45 WPM', '93.15%']
-]
-
 const levels = [
     'Easy',
     'Medium',
@@ -120,6 +182,9 @@ const levels = [
 ]
 
 export default function TypingProPage() {
+
+    const router =
+        useRouter()
 
     const typingRef =
         useRef<HTMLTextAreaElement>(null)
@@ -133,11 +198,118 @@ export default function TypingProPage() {
     const timerRef =
         useRef<ReturnType<typeof setInterval> | null>(null)
 
-    const [name, setName] =
-        useState('Aman Kumar')
+    const scrollFrameRef =
+        useRef<number | null>(null)
+
+    const typingFrameRef =
+        useRef<number | null>(null)
+
+    const typedRef =
+        useRef('')
+
+    const user =
+        useUserStore(
+            (state) => state.user
+        )
+
+    const authenticated =
+        useUserStore(
+            (state) => state.authenticated
+        )
+
+    const authChecked =
+        useUserStore(
+            (state) => state.authChecked
+        )
+
+    const fetchUser =
+        useUserStore(
+            (state) => state.fetchUser
+        )
+
+    const displayName =
+        [
+            user?.firstName,
+            user?.lastName
+        ]
+            .filter(Boolean)
+            .join(' ') ||
+        user?.username ||
+        'Guest'
 
     const [language, setLanguage] =
         useState<Language>('hindi')
+
+    const [activeTypingLanguage, setActiveTypingLanguage] =
+        useState<Language>('english')
+
+    const [activeLevel, setActiveLevel] =
+        useState('Easy')
+
+    const [levelAccess, setLevelAccess] =
+        useState<Record<string, boolean>>({
+            Easy: true
+        })
+
+    const previousLevelAccessRef =
+        useRef<Record<string, boolean>>({
+            Easy: true
+        })
+
+    const [levelProgress, setLevelProgress] =
+        useState<Record<string, {
+            total: number
+            passed: number
+            percent: number
+            minimumSpeed: number
+            minimumAccuracy: number
+            complete: boolean
+        }>>({})
+
+    const [testId, setTestId] =
+        useState('')
+
+    const [availableTests, setAvailableTests] =
+        useState<TypingTestListItem[]>([])
+
+    const [loadingAvailableTests, setLoadingAvailableTests] =
+        useState(false)
+
+    const [typingTestsPage, setTypingTestsPage] =
+        useState(1)
+
+    const [typingTestsHasMore, setTypingTestsHasMore] =
+        useState(true)
+
+    const [selectedTest, setSelectedTest] =
+        useState<TypingTestListItem | null>(null)
+
+    const [testData, setTestData] =
+        useState<TypingTestData | null>(null)
+
+    const [loadingTest, setLoadingTest] =
+        useState(false)
+
+    const [loadingTestKey, setLoadingTestKey] =
+        useState('')
+
+    const [submittingResult, setSubmittingResult] =
+        useState(false)
+
+    const [history, setHistory] =
+        useState<TypingHistoryItem[]>([])
+
+    const [historyPage, setHistoryPage] =
+        useState(1)
+
+    const [historyHasMore, setHistoryHasMore] =
+        useState(true)
+
+    const [loadingHistory, setLoadingHistory] =
+        useState(false)
+
+    const [resultMeta, setResultMeta] =
+        useState<SubmitResponse | null>(null)
 
     const [duration, setDuration] =
         useState(1)
@@ -163,6 +335,9 @@ export default function TypingProPage() {
     const [autoScrollEnabled, setAutoScrollEnabled] =
         useState(true)
 
+    const [liveSpellingEnabled, setLiveSpellingEnabled] =
+        useState(true)
+
     const [backspaces, setBackspaces] =
         useState(0)
 
@@ -172,8 +347,27 @@ export default function TypingProPage() {
     const [isFullscreen, setIsFullscreen] =
         useState(false)
 
+    const [showLivePanel, setShowLivePanel] =
+        useState(true)
+
+    const [activeMode, setActiveMode] =
+        useState<'idle' | 'test' | 'solution'>('idle')
+
     const activeText =
-        passages[language]
+        testData?.paragraph || ''
+
+    const displayLanguage =
+        testData?.paragraph
+            ? language
+            : activeTypingLanguage
+
+    const settingsLocked =
+        activeMode === 'test' &&
+        Boolean(testData?.paragraph) &&
+        !ended
+
+    const solutionMode =
+        activeMode === 'solution'
 
     const expectedChars =
         useMemo(
@@ -181,10 +375,69 @@ export default function TypingProPage() {
             [activeText]
         )
 
+    const typedChars =
+        useMemo(
+            () => [...typed],
+            [typed]
+        )
+
+    const paragraphWindow =
+        useMemo(
+            () => {
+                const currentIndex =
+                    typedChars.length
+
+                const start =
+                    Math.max(
+                        0,
+                        currentIndex - 90
+                    )
+
+                const end =
+                    Math.min(
+                        expectedChars.length,
+                        currentIndex + 260
+                    )
+
+                return {
+                    start,
+                    chars:
+                        expectedChars.slice(
+                            start,
+                            end
+                        ),
+                    hasBefore:
+                        start > 0,
+                    hasAfter:
+                        end < expectedChars.length
+                }
+            },
+            [
+                expectedChars,
+                typedChars.length
+            ]
+        )
+
+    const currentWordStart =
+        useMemo(
+            () =>
+                typed.lastIndexOf(
+                    ' ',
+                    Math.max(
+                        0,
+                        typedChars.length - 1
+                    )
+                ) + 1,
+            [
+                typed,
+                typedChars.length
+            ]
+        )
+
     const liveResult =
         useMemo(
             () =>
-                computeResult({
+                computeLiveResult({
                     expected: activeText,
                     actual: typed,
                     durationSec: duration * 60,
@@ -208,14 +461,76 @@ export default function TypingProPage() {
         setEnded(false)
         setBackspaces(0)
         setResult(null)
+        setActiveMode('idle')
+        typedRef.current = ''
+
+        if (typingRef.current) {
+            typingRef.current.value = ''
+        }
 
         if (timerRef.current) {
             clearInterval(timerRef.current)
         }
 
     }, [
-        duration,
-        language
+        duration
+    ])
+
+    useEffect(() => {
+        const urlTestId =
+            new URLSearchParams(window.location.search).get('testId')
+
+        if (urlTestId) {
+            setTestId(urlTestId)
+        }
+
+    }, [])
+
+    useEffect(() => {
+        void loadHistory(
+            1,
+            true
+        )
+    }, [
+        testData?.testId,
+        selectedTest?.testId,
+        testId,
+        activeTypingLanguage
+    ])
+
+    useEffect(() => {
+        setAvailableTests([])
+        setSelectedTest(null)
+        setTestData(null)
+        setTypingTestsPage(1)
+        setTypingTestsHasMore(true)
+        setLevelAccess({
+            Easy: true
+        })
+        previousLevelAccessRef.current = {
+            Easy: true
+        }
+        setLevelProgress({})
+        resetTest()
+        void loadTypingTests(
+            activeLevel,
+            1,
+            true,
+            activeTypingLanguage
+        )
+    }, [
+        activeLevel,
+        activeTypingLanguage
+    ])
+
+    useEffect(() => {
+        if (!authenticated && !authChecked) {
+            fetchUser()
+        }
+    }, [
+        authChecked,
+        authenticated,
+        fetchUser
     ])
 
     useEffect(() => {
@@ -267,10 +582,17 @@ export default function TypingProPage() {
         const current =
             paragraphRef.current?.querySelector('[data-current="true"]')
 
-        current?.scrollIntoView({
-            block: 'nearest',
-            inline: 'nearest'
-        })
+        if (scrollFrameRef.current) {
+            cancelAnimationFrame(scrollFrameRef.current)
+        }
+
+        scrollFrameRef.current =
+            requestAnimationFrame(() => {
+                current?.scrollIntoView({
+                    block: 'nearest',
+                    inline: 'nearest'
+                })
+            })
 
     }, [
         typed,
@@ -284,6 +606,15 @@ export default function TypingProPage() {
             if (timerRef.current) {
                 clearInterval(timerRef.current)
             }
+
+            if (scrollFrameRef.current) {
+                cancelAnimationFrame(scrollFrameRef.current)
+            }
+
+            if (typingFrameRef.current) {
+                cancelAnimationFrame(typingFrameRef.current)
+            }
+
         }
 
     }, [])
@@ -303,7 +634,10 @@ export default function TypingProPage() {
                             clearInterval(timerRef.current)
                         }
 
-                        finishTest()
+                        finishTest(
+                            typedRef.current,
+                            0
+                        )
                         return 0
                     }
 
@@ -312,9 +646,395 @@ export default function TypingProPage() {
             }, 1000)
     }
 
+    const loadTypingTests = async (
+        level = activeLevel,
+        page = 1,
+        reset = true,
+        nextLanguage = activeTypingLanguage
+    ) => {
+        setLoadingAvailableTests(true)
+
+        try {
+            const response =
+                await fetch(
+                    LOAD_TYPING_TESTS,
+                    {
+                        method: 'POST',
+                        credentials: 'include',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            level,
+                            lan: nextLanguage === 'hindi' ? 'hn' : 'en',
+                            page,
+                            limit: 8
+                        })
+                    }
+                )
+
+            const data =
+                await response.json()
+
+            if (!data?.success) {
+                showPopupMessage(
+                    data?.message ||
+                    'Unable to load typing tests',
+                    false
+                )
+                return
+            }
+
+            const tests =
+                (data.tests || data.typingTests || data.data || [])
+                    .filter((test: any) => {
+                        const rawLanguage =
+                            Array.isArray(test?.lan)
+                                ? test.lan[0]
+                                : test?.lan ||
+                                test?.language
+
+                        const normalizedLanguage =
+                            String(rawLanguage || '').toLowerCase()
+
+                        return [
+                            'en',
+                            'hn',
+                            'english',
+                            'hindi'
+                        ].includes(normalizedLanguage)
+                    })
+                    .map(normalizeTypingTest)
+                    .filter((test: TypingTestListItem) => test.testId)
+
+            setAvailableTests((current) =>
+                reset
+                    ? tests
+                    : [
+                        ...current,
+                        ...tests
+                    ]
+            )
+
+            setTypingTestsPage(page)
+            setTypingTestsHasMore(
+                Boolean(
+                    data.pagination?.hasMore ??
+                    data.hasMore ??
+                    tests.length >= 8
+                )
+            )
+
+            if (data.levelName || data.userLevel) {
+                setActiveLevel(data.levelName || data.userLevel)
+            }
+
+            if (data.levelAccess) {
+                const previousAccess =
+                    previousLevelAccessRef.current
+
+                levels.forEach((level) => {
+                    if (
+                        level !== 'Easy' &&
+                        data.levelAccess[level] === true &&
+                        previousAccess[level] === false
+                    ) {
+                        showPopupMessage(
+                            `${level} level unlocked`,
+                            true
+                        )
+                    }
+                })
+
+                previousLevelAccessRef.current =
+                    data.levelAccess
+                setLevelAccess(data.levelAccess)
+            }
+
+            if (data.levelProgress) {
+                setLevelProgress(data.levelProgress)
+            }
+
+            if (reset && tests.length > 0) {
+                const urlTestId =
+                    new URLSearchParams(window.location.search)
+                        .get('testId')
+
+                const nextSelectedTest =
+                    tests.find((test: TypingTestListItem) => test.testId === urlTestId) ||
+                    tests[0]
+
+                setSelectedTest((current) => {
+                    if (current) return current
+
+                    return nextSelectedTest
+                })
+
+                setTestId((current) => current || nextSelectedTest.testId)
+                void loadHistory(
+                    1,
+                    true
+                )
+            }
+        } catch {
+            showPopupMessage(
+                'Typing test list backend not available',
+                false
+            )
+        } finally {
+            setLoadingAvailableTests(false)
+        }
+    }
+
+    const loadTypingTest = async (
+        nextTestId = testId,
+        mode: 'start' | 'resume' | 'solution' = 'start',
+        historyId = '',
+        selectedDuration = duration
+    ) => {
+        if (!nextTestId.trim()) {
+            showPopupMessage(
+                'Please select a typing test',
+                false
+            )
+            return false
+        }
+
+        setLoadingTest(true)
+
+        try {
+            const endpoint =
+                mode === 'resume'
+                    ? RESUME_TYPING_TEST
+                    : mode === 'solution'
+                        ? TYPING_SOLUTION
+                        : START_TYPING_TEST
+
+            const response =
+                await fetch(
+                    endpoint,
+                    {
+                        method: 'POST',
+                        credentials: 'include',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            testId: nextTestId,
+                            historyId
+                        })
+                    }
+                )
+
+            const data =
+                await response.json()
+
+            if (!data?.success) {
+                showPopupMessage(
+                    data?.message ||
+                    'Unable to load typing paragraph',
+                    false
+                )
+                return false
+            }
+
+            const paragraph =
+                data.test?.paragraph ||
+                data.paragraph ||
+                ''
+
+            const savedTypedText =
+                data.test?.typedText ||
+                data.typedText ||
+                data.result?.typedText ||
+                ''
+
+            if (!paragraph) {
+                showPopupMessage(
+                    'Typing paragraph not found for this test id',
+                    false
+                )
+                return false
+            }
+
+            const loadedTest:
+                TypingTestData = {
+                    testId:
+                        data.test?.testId ||
+                        data.testId ||
+                        nextTestId,
+                    historyId:
+                        data.test?.historyId ||
+                        data.historyId ||
+                        historyId,
+                    attemptNo:
+                        data.test?.attemptNo ||
+                        data.attemptNo ||
+                        1,
+                    title:
+                        data.test?.title ||
+                        data.title ||
+                        'Typing Test',
+                    language:
+                        data.test?.language ||
+                        data.language ||
+                        language,
+                    level:
+                        data.test?.level ||
+                        data.level ||
+                        1,
+                    levelName:
+                        data.test?.levelName ||
+                        data.levelName ||
+                        getLevelName(data.test?.level || data.level || 1),
+                    duration:
+                        selectedDuration,
+                    paragraph,
+                    typedText:
+                        savedTypedText
+                }
+
+            setTestData(loadedTest)
+            setTestId(loadedTest.testId)
+            setSelectedTest((current) =>
+                current?.testId === loadedTest.testId
+                    ? current
+                    : availableTests.find((test) => test.testId === loadedTest.testId) ||
+                    current
+            )
+            setLanguage(loadedTest.language)
+            resetTest(
+                loadedTest.duration,
+                mode === 'solution'
+                    ? 'solution'
+                    : 'test'
+            )
+
+            if (mode === 'solution') {
+                typedRef.current =
+                    savedTypedText
+                setTyped(savedTypedText)
+
+                requestAnimationFrame(() => {
+                    if (typingRef.current) {
+                        typingRef.current.value =
+                            savedTypedText
+                    }
+                })
+            }
+
+            if (data.result) {
+                setResult(data.result)
+                setResultMeta({
+                    success: true,
+                    resultId:
+                        loadedTest.historyId,
+                    level:
+                        loadedTest.level,
+                    levelName:
+                        loadedTest.levelName
+                })
+            }
+
+            return true
+        } catch {
+            showPopupMessage(
+                'Typing test backend not available',
+                false
+            )
+            return false
+        } finally {
+            setLoadingTest(false)
+        }
+    }
+
+    const loadHistory = async (
+        page = historyPage,
+        reset = false,
+        historyTestId = ''
+    ) => {
+        if (loadingHistory) return
+
+        setLoadingHistory(true)
+
+        try {
+            const response =
+                await fetch(
+                    TYPING_HISTORY,
+                    {
+                        method: 'POST',
+                        credentials: 'include',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            testId: historyTestId,
+                            lan: activeTypingLanguage === 'hindi' ? 'hn' : 'en',
+                            page,
+                            limit: 8
+                        })
+                    }
+                )
+
+            const data =
+                await response.json()
+
+            if (!response.ok) {
+                showPopupMessage(
+                    data?.message ||
+                    'Unable to load typing history',
+                    false
+                )
+                return
+            }
+
+            if (!data?.success) {
+                showPopupMessage(
+                    data?.message ||
+                    'Unable to load typing history',
+                    false
+                )
+                return
+            }
+
+            const nextHistory =
+                data.history ||
+                data.results ||
+                []
+
+            setHistory((current) =>
+                reset
+                    ? nextHistory
+                    : [
+                        ...current,
+                        ...nextHistory
+                    ]
+            )
+
+            setHistoryPage(page)
+            setHistoryHasMore(
+                Boolean(
+                    data.pagination?.hasMore ??
+                    data.hasMore ??
+                    nextHistory.length >= 8
+                )
+            )
+        } catch {
+            showPopupMessage(
+                'Unable to load typing history',
+                false
+            )
+        } finally {
+            setLoadingHistory(false)
+        }
+    }
+
     const requestTypingFullscreen = async () => {
 
-        if (document.fullscreenElement) return
+        if (document.fullscreenElement) {
+            await document.exitFullscreen()
+            return
+        }
 
         try {
             await testShellRef.current?.requestFullscreen()
@@ -323,26 +1043,125 @@ export default function TypingProPage() {
         }
     }
 
-    const handleStartTest = async () => {
+    const goHome = () => {
+        showRouteLoader()
+        router.push('/')
+    }
 
-        resetTest()
+    const goLogin = async () => {
+        showRouteLoader()
 
-        requestAnimationFrame(() => {
-            typingRef.current?.focus()
-        })
+        await fetch(
+            '/redirect',
+            {
+                method: 'POST',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    path: window.location.pathname
+                })
+            }
+        )
 
-        await requestTypingFullscreen()
+        router.push('/login')
+    }
+
+    const handleStartTest = async (
+        test = selectedTest,
+        mode: 'start' | 'resume' | 'solution' = 'start',
+        historyId = ''
+    ) => {
+        const buttonKey =
+            `${test?.testId || testId}:${mode}:${historyId}`
+
+        if (!authenticated) {
+            showPopupMessage(
+                'Please sign in to start typing test',
+                false
+            )
+            await goLogin()
+            return
+        }
+
+        if (!test?.testId) {
+            showPopupMessage(
+                'Typing test is not loaded yet',
+                false
+            )
+            return
+        }
+
+        setSelectedTest(test)
+        setTestId(test.testId)
+        setLoadingTestKey(buttonKey)
+
+        try {
+            let loaded =
+                mode !== 'solution' &&
+                Boolean(
+                    testData?.paragraph &&
+                    testData.testId === test.testId
+                )
+
+            if (!loaded && !loadingTest) {
+                loaded =
+                    await loadTypingTest(
+                        test.testId,
+                        mode,
+                        historyId,
+                        duration
+                    )
+            }
+
+            if (!loaded) {
+                return
+            }
+
+            if (mode === 'solution') {
+                return
+            }
+
+            resetTest(
+                duration,
+                'test'
+            )
+            void loadHistory(1, true)
+
+            requestAnimationFrame(() => {
+                typingRef.current?.focus()
+            })
+
+            await requestTypingFullscreen()
+        } finally {
+            setLoadingTestKey('')
+        }
     }
 
     const handleTypingClick = async () => {
+        if (!testData?.paragraph) {
+            showPopupMessage(
+                'Click Start Test to load paragraph first',
+                false
+            )
+            return
+        }
+
+        if (solutionMode) {
+            return
+        }
 
         typingRef.current?.focus()
-        await requestTypingFullscreen()
     }
 
     const handleKeyDown = (
         event: KeyboardEvent<HTMLTextAreaElement>
     ) => {
+        if (solutionMode) {
+            event.preventDefault()
+            return
+        }
 
         if (event.key === 'Backspace') {
             if (!backspaceEnabled) {
@@ -359,30 +1178,69 @@ export default function TypingProPage() {
     }
 
     const handleInput = (
-        value: string
+        event: ChangeEvent<HTMLTextAreaElement>
     ) => {
+        if (!testData?.paragraph) {
+            return
+        }
+
+        if (solutionMode) {
+            return
+        }
+
+        const element =
+            event.currentTarget
 
         const nextValue =
             language === 'hindi'
-                ? transliterateText(value)
-                : value
+                ? transliterateText(element.value)
+                : element.value
+
+        if (nextValue !== element.value) {
+            element.value =
+                nextValue
+            element.setSelectionRange(
+                nextValue.length,
+                nextValue.length
+            )
+        }
 
         if (!started && nextValue.length > 0) {
             startTimer()
         }
 
-        setTyped(nextValue)
+        typedRef.current =
+            nextValue
 
-        if ([...nextValue].length >= expectedChars.length) {
+        if (typingFrameRef.current) {
+            cancelAnimationFrame(typingFrameRef.current)
+        }
+
+        typingFrameRef.current =
+            requestAnimationFrame(() => {
+                setTyped(typedRef.current)
+            })
+
+        if (nextValue.length >= activeText.length) {
+            setTyped(nextValue)
             finishTest(nextValue)
         }
     }
 
     const finishTest = (
-        finalText = typed
+        finalText = typedRef.current,
+        finalRemaining = remaining
     ) => {
 
-        if (ended) return
+        if (ended || submittingResult) return
+
+        if (!testData?.paragraph) {
+            showPopupMessage(
+                'Load typing test before submitting',
+                false
+            )
+            return
+        }
 
         if (timerRef.current) {
             clearInterval(timerRef.current)
@@ -391,116 +1249,147 @@ export default function TypingProPage() {
         setEnded(true)
         setStarted(false)
 
-        setResult(
+        const computed =
             computeResult({
                 expected: activeText,
                 actual: finalText,
                 durationSec: duration * 60,
-                remaining,
+                remaining: finalRemaining,
                 backspaces
             })
-        )
+
+        void submitTypingResult(computed, finalText)
     }
 
-    const resetTest = () => {
+    const submitTypingResult = async (
+        computed: Result,
+        finalText: string
+    ) => {
+        if (!testData) {
+            showPopupMessage(
+                'Typing test data missing',
+                false
+            )
+            return
+        }
+
+        setSubmittingResult(true)
+
+        const payload =
+            buildTypingResultPayload({
+                test: testData,
+                result: computed,
+                typedText: finalText,
+                duration,
+                remaining,
+                backspaces,
+                startedAt: Date.now() - computed.elapsed * 1000,
+                submittedAt: Date.now()
+            })
+
+        try {
+            const response =
+                await fetch(
+                    TYPING_RESULT,
+                    {
+                        method: 'POST',
+                        credentials: 'include',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(payload)
+                    }
+                )
+
+            const data: SubmitResponse =
+                await response.json()
+
+            setResultMeta(data)
+
+            if (data?.success) {
+                if (document.fullscreenElement) {
+                    await document.exitFullscreen()
+                }
+
+                setResult(
+                    data.result ||
+                    computed
+                )
+
+                showPopupMessage(
+                    data.message ||
+                    'Typing result saved',
+                    true
+                )
+
+                void loadHistory(1, true)
+                void loadTypingTests(
+                    activeLevel,
+                    1,
+                    true,
+                    activeTypingLanguage
+                )
+            } else {
+                showPopupMessage(
+                    data?.message ||
+                    'Unable to save typing result',
+                    false
+                )
+            }
+        } catch {
+            showPopupMessage(
+                'Unable to save typing result',
+                false
+            )
+        } finally {
+            setSubmittingResult(false)
+        }
+    }
+
+    const resetTest = (
+        nextDuration = duration,
+        nextMode: 'idle' | 'test' | 'solution' = 'idle'
+    ) => {
 
         if (timerRef.current) {
             clearInterval(timerRef.current)
         }
 
-        setRemaining(duration * 60)
+        if (typingFrameRef.current) {
+            cancelAnimationFrame(typingFrameRef.current)
+            typingFrameRef.current = null
+        }
+
+        setRemaining(nextDuration * 60)
         setTyped('')
+        typedRef.current = ''
+
+        if (typingRef.current) {
+            typingRef.current.value = ''
+        }
+
         setStarted(false)
         setEnded(false)
         setBackspaces(0)
         setResult(null)
+        setResultMeta(null)
+        setActiveMode(nextMode)
     }
 
     return (
-        <main className="min-h-screen bg-[#f7f8fc] text-[#080d31]">
+        <main className="typing-font min-h-screen bg-[#f7f8fc] text-[#080d31]">
 
-            <header className="sticky top-0 z-20 border-b border-slate-200/70 bg-white/95 px-5 py-2 shadow-[0_8px_26px_rgba(15,23,42,0.06)] backdrop-blur xl:px-8">
-
-                <div className="flex flex-wrap items-center justify-between gap-3">
-
-                    <div className="flex items-center gap-3">
-
-                        <div className="flex h-10 w-10 items-center justify-center rounded-[16px] bg-gradient-to-br from-[#6d2dea] to-[#2f18bb] text-white shadow-lg shadow-violet-200">
-                            <Keyboard size={18} />
-                        </div>
-
-                        <div>
-                            <h1 className="text-xl font-black tracking-normal text-[#080d31] md:text-[18px]">
-                                Hindi English Typing Test Pro
-                            </h1>
-
-                            <p className="mt-1 text-sm font-medium text-slate-500">
-                                3 Report Methods • Exam-style
-                            </p>
-                        </div>
-
-                    </div>
-
-                    <div className="flex flex-wrap items-center gap-3">
-
-                        <div className="flex items-center gap-1 rounded-full border border-slate-200 bg-white p-1.5 shadow-[0_8px_22px_rgba(15,23,42,0.08)]">
-                            <button className="flex h-9 w-9 items-center justify-center rounded-full bg-white text-indigo-700 shadow-sm">
-                                <Sun size={17} />
-                            </button>
-                            <button className="flex h-9 w-9 items-center justify-center rounded-full text-slate-700">
-                                <Moon size={17} />
-                            </button>
-                        </div>
-
-                        <div className="flex items-center gap-1 rounded-full border border-slate-200 bg-white p-1.5 shadow-[0_8px_22px_rgba(15,23,42,0.08)]">
-                            <button
-                                onClick={() => setLanguage('hindi')}
-                                className={[
-                                    'rounded-full px-5 py-2 text-xs font-black transition',
-                                    language === 'hindi'
-                                        ? 'bg-gradient-to-r from-[#722ee8] to-[#3a20c7] text-white shadow-md shadow-violet-200'
-                                        : 'text-slate-800'
-                                ].join(' ')}
-                            >
-                                हिंदी
-                            </button>
-
-                            <button
-                                onClick={() => setLanguage('english')}
-                                className={[
-                                    'rounded-full px-5 py-2 text-xs font-black transition',
-                                    language === 'english'
-                                        ? 'bg-gradient-to-r from-[#722ee8] to-[#3a20c7] text-white shadow-md shadow-violet-200'
-                                        : 'text-slate-800'
-                                ].join(' ')}
-                            >
-                                English
-                            </button>
-                        </div>
-
-                        <div className="flex items-center gap-3 pl-3">
-                            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#1e1190] text-xl font-black text-white">
-                                {name.trim().charAt(0) || 'A'}
-                            </div>
-
-                            <div>
-                                <div className="flex items-center gap-2">
-                                    <p className="text-sm font-black">{name || 'Guest'}</p>
-                                    <ChevronDown size={15} />
-                                </div>
-
-                                <p className="text-xs font-bold text-emerald-600">
-                                    <span className="mr-1 inline-block h-2 w-2 rounded-full bg-emerald-500"></span>
-                                    Online
-                                </p>
-                            </div>
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </header>
+            <div className="mx-auto max-w-7xl px-2 pt-3 sm:px-3 lg:px-4">
+                <TestSectionHead
+                    userName=""
+                    rollingId=""
+                    activePlan={authenticated ? 'Typing Pro' : 'Guest'}
+                    badgeText="Typing Test Pro"
+                    onHome={goHome}
+                    onLogin={goLogin}
+                    showSignIn={!authenticated}
+                />
+            </div>
 
             <div className="grid gap-6 px-5 py-5 xl:grid-cols-[360px_minmax(0,1fr)] xl:px-8">
 
@@ -508,54 +1397,302 @@ export default function TypingProPage() {
 
                     <section className="overflow-hidden rounded-[10px] bg-white shadow-[0_12px_34px_rgba(15,23,42,0.08)]">
 
-                        <div className="flex items-center gap-4 bg-gradient-to-r from-[#642be4] to-[#3519bd] p-5 text-white">
+                        <div className="flex items-center gap-4 bg-gradient-to-r from-[#642be4] to-[#3519bd] p-3 text-white">
                             <div className="flex h-11 w-11 items-center justify-center rounded-[10px] bg-white/15">
                                 <Settings size={23} />
                             </div>
 
                             <div>
-                                <h2 className="text-lg font-black">Test Settings</h2>
-                                <p className="text-xs text-white/85">Customize your typing test</p>
+                                <h2 className="text-lg font-black">Typing Tests</h2>
+                                <p className="text-xs text-white/85">Select a test</p>
                             </div>
                         </div>
 
                         <div className="space-y-4 p-5">
 
-                            <label className="block">
-                                <span className="text-xs font-black">Enter Your Name</span>
-                                <span className="mt-2 flex items-center rounded-[9px] border border-slate-200 bg-white px-3">
-                                    <input
-                                        value={name}
-                                        onChange={(event) => setName(event.target.value)}
-                                        className="min-w-0 flex-1 py-2.5 text-sm font-bold outline-none"
-                                    />
-                                    <User size={17} className="text-slate-500" />
-                                </span>
-                            </label>
+                            <div>
+                                <div className="mb-3 grid grid-cols-2 gap-2 rounded-[10px] bg-slate-100 p-1">
+                                    {([
+                                        ['english', 'English'],
+                                        ['hindi', 'Hindi']
+                                    ] as Array<[Language, string]>).map(([value, label]) => (
+                                        <button
+                                            key={value}
+                                            type="button"
+                                            onClick={() => setActiveTypingLanguage(value)}
+                                            disabled={settingsLocked}
+                                            className={[
+                                                'rounded-[8px] px-3 py-2 text-xs font-black transition disabled:cursor-not-allowed disabled:opacity-60',
+                                                activeTypingLanguage === value
+                                                    ? 'bg-white text-indigo-700 shadow-sm'
+                                                    : 'text-slate-600'
+                                            ].join(' ')}
+                                        >
+                                            {label}
+                                        </button>
+                                    ))}
+                                </div>
 
-                            <label className="block">
-                                <span className="text-xs font-black">Select Test Time</span>
-                                <span className="mt-2 flex items-center gap-3 rounded-[9px] border border-slate-200 bg-white px-3 py-2.5">
-                                    <Clock3 size={18} className="text-indigo-700" />
-                                    <select
-                                        value={duration}
-                                        onChange={(event) => setDuration(Number(event.target.value))}
-                                        className="min-w-0 flex-1 bg-transparent text-sm font-black outline-none"
+                                <div className="flex items-center justify-between gap-3">
+                                    <h3 className="text-xs font-black">{activeLevel} Typing Tests</h3>
+                                    <button
+                                        type="button"
+                                        onClick={() => loadTypingTests(
+                                            activeLevel,
+                                            1,
+                                            true,
+                                            activeTypingLanguage
+                                        )}
+                                        disabled={loadingAvailableTests || settingsLocked}
+                                        className="text-[11px] font-black text-indigo-700 disabled:opacity-60"
                                     >
-                                        {Array.from({ length: 10 }, (_, index) => index + 1).map((minute) => (
-                                            <option key={minute} value={minute}>
-                                                {minute} {minute === 1 ? 'Minute' : 'Minutes'}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </span>
-                            </label>
+                                        Refresh
+                                    </button>
+                                </div>
+
+                                <div className="mt-2 min-h-[330px] max-h-[370px] space-y-2 overflow-y-auto pr-1">
+                                    {loadingAvailableTests && availableTests.length === 0 && (
+                                        <div className="space-y-2">
+                                            {Array.from({ length: 4 }).map((_, index) => (
+                                                <div
+                                                    key={`typing-test-card-skeleton-${index}`}
+                                                    className="h-[94px] animate-pulse rounded-[14px] bg-slate-100"
+                                                ></div>
+                                            ))}
+                                        </div>
+                                    )}
+
+                                    {!loadingAvailableTests && availableTests.length === 0 && (
+                                        <div className="rounded-[12px] border border-dashed border-slate-200 bg-slate-50 p-4 text-center text-xs font-bold text-slate-500">
+                                            No typing tests found
+                                        </div>
+                                    )}
+
+                                    {availableTests.map((test) => {
+                                        const active =
+                                            selectedTest?.testId === test.testId ||
+                                            testData?.testId === test.testId
+
+                                        const resumeHistory =
+                                            test.history?.find((item) => item.status === 'resume')
+
+                                        const submittedHistory =
+                                            test.history?.find((item) => item.status === 'submitted')
+
+                                        const hasSubmitted =
+                                            Boolean(submittedHistory)
+
+                                        const unavailable =
+                                            test.available === false ||
+                                            test.levelUnlocked === false ||
+                                            test.access === false
+
+                                        const minimumSpeed =
+                                            levelProgress[test.levelName]?.minimumSpeed || 0
+                                        const minimumAccuracy =
+                                            levelProgress[test.levelName]?.minimumAccuracy || 0
+
+                                        const submittedScore =
+                                            submittedHistory?.score || 0
+                                        const submittedAccuracy =
+                                            submittedHistory?.accuracy || 0
+
+                                        const testPassed =
+                                            submittedScore >= minimumSpeed &&
+                                            submittedAccuracy >= minimumAccuracy
+
+                                        const testProgressColor =
+                                            !submittedHistory
+                                                ? 'bg-red-500'
+                                                : testPassed
+                                                ? 'bg-emerald-500'
+                                                : 'bg-amber-400'
+
+                                        const testProgressText =
+                                            !submittedHistory
+                                                ? `Not attempted • need ${minimumSpeed} WPM / ${minimumAccuracy}%`
+                                                : testPassed
+                                                ? `Passed • ${submittedScore} WPM / ${submittedAccuracy.toFixed(1)}%`
+                                                : `${submittedScore} WPM / ${submittedAccuracy.toFixed(1)}% • need ${minimumSpeed} WPM / ${minimumAccuracy}%`
+
+                                        return (
+                                            <div
+                                                key={test.testId}
+                                                onClick={() => {
+                                                    if (settingsLocked) return
+
+                                                    setSelectedTest(test)
+                                                    setTestId(test.testId)
+                                                    void loadHistory(
+                                                        1,
+                                                        true
+                                                    )
+                                                }}
+                                                className={[
+                                                    'cursor-pointer rounded-[14px] border bg-white p-3 shadow-[0_8px_20px_rgba(74,63,119,0.08)]',
+                                                    active
+                                                        ? 'border-[#4A3F77] ring-2 ring-[#4A3F77]/10'
+                                                        : 'border-[#E5DFF4]'
+                                                ].join(' ')}
+                                            >
+                                                <div className="grid gap-3">
+                                                    <div className="min-w-0">
+                                                        <div className="flex flex-wrap items-center gap-2">
+                                                            <h4 className="truncate text-sm font-black text-slate-900">
+                                                                {test.title}
+                                                            </h4>
+                                                            <span className="rounded border border-amber-200 bg-amber-50 px-1.5 py-0.5 text-[10px] font-black text-amber-700">
+                                                                ⚡ {test.totalAttempt || test.totalUsers || 0} Users
+                                                            </span>
+                                                        </div>
+
+                                                        <div className="mt-2 grid grid-cols-3 gap-2 text-[11px] font-bold text-slate-500">
+                                                            <span className="min-w-0 truncate">🌐 {test.language}</span>
+                                                            <span className="min-w-0 truncate">Level {test.level}: {test.levelName}</span>
+                                                            <span className="min-w-0 truncate">{test.words || 0} words</span>
+                                                        </div>
+
+                                                        <div className="mt-3">
+                                                            <div className="h-1.5 overflow-hidden rounded-full bg-slate-100">
+                                                                <div
+                                                                    className={`h-full rounded-full ${testProgressColor}`}
+                                                                    style={{
+                                                                        width: submittedHistory ? '100%' : '12%'
+                                                                    }}
+                                                                ></div>
+                                                            </div>
+                                                            <p className="mt-1 text-[10px] font-black text-slate-500">
+                                                                {testProgressText}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+                                                        {unavailable ? (
+                                                            <button
+                                                                type="button"
+                                                                disabled
+                                                                className="sm:col-span-3 rounded-xl border border-slate-200 bg-slate-100 px-4 py-2.5 text-[11px] font-black text-slate-500 disabled:cursor-not-allowed"
+                                                            >
+                                                                {test.buttonName || 'Available Soon'}
+                                                            </button>
+                                                        ) : resumeHistory && (
+                                                            <button
+                                                                type="button"
+                                                                onClick={(event) => {
+                                                                    event.stopPropagation()
+                                                                    void handleStartTest(
+                                                                        test,
+                                                                        'resume',
+                                                                        resumeHistory.historyId || ''
+                                                                    )
+                                                                }}
+                                                                disabled={loadingTest || settingsLocked}
+                                                                className="rounded-xl bg-[linear-gradient(135deg,#4A3F77_0%,#362D5F_100%)] px-4 py-2.5 text-[11px] font-black text-white shadow-[0_10px_24px_rgba(74,63,119,0.26)] disabled:cursor-wait disabled:opacity-70"
+                                                            >
+                                                                {loadingTestKey === `${test.testId}:resume:${resumeHistory.historyId || ''}`
+                                                                    ? <Spinner size={16} />
+                                                                    : 'Resume'}
+                                                            </button>
+                                                        )}
+
+                                                        {!unavailable && (
+                                                        <button
+                                                            type="button"
+                                                            onClick={(event) => {
+                                                                event.stopPropagation()
+                                                                void handleStartTest(test)
+                                                            }}
+                                                            disabled={loadingTest || settingsLocked}
+                                                            className="rounded-xl bg-[linear-gradient(135deg,#4A3F77_0%,#362D5F_100%)] px-4 py-2.5 text-[11px] font-black text-white shadow-[0_10px_24px_rgba(74,63,119,0.26)] disabled:cursor-not-allowed disabled:opacity-70"
+                                                        >
+                                                            {loadingTestKey === `${test.testId}:start:`
+                                                                ? <Spinner size={16} />
+                                                                : hasSubmitted
+                                                                    ? 'Test Again'
+                                                                    : test.buttonName || 'Start Test'}
+                                                        </button>
+                                                        )}
+
+                                                        {!unavailable && submittedHistory && (
+                                                            <button
+                                                                type="button"
+                                                                onClick={(event) => {
+                                                                    event.stopPropagation()
+                                                                    void handleStartTest(
+                                                                        test,
+                                                                        'solution',
+                                                                        submittedHistory.historyId || ''
+                                                                    )
+                                                                }}
+                                                                disabled={loadingTest || settingsLocked}
+                                                                className="rounded-xl border border-[#D7D2E8] bg-[#F3F1FA] px-4 py-2.5 text-[11px] font-black text-[#4A3F77] disabled:cursor-wait disabled:opacity-70"
+                                                            >
+                                                                {loadingTestKey === `${test.testId}:solution:${submittedHistory.historyId || ''}`
+                                                                    ? <Spinner size={16} />
+                                                                    : 'Solution'}
+                                                            </button>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )
+                                    })}
+                                </div>
+
+                                <button
+                                    type="button"
+                                    onClick={() => loadTypingTests(
+                                        activeLevel,
+                                        typingTestsPage + 1,
+                                        false,
+                                        activeTypingLanguage
+                                    )}
+                                    disabled={!typingTestsHasMore || loadingAvailableTests || settingsLocked}
+                                    className="mt-3 flex w-full items-center justify-center gap-2 rounded-[9px] bg-indigo-50 px-4 py-2.5 text-xs font-black text-indigo-700 disabled:cursor-not-allowed disabled:opacity-50"
+                                >
+                                    {loadingAvailableTests && availableTests.length > 0
+                                        ? <Spinner size={16} />
+                                        : typingTestsHasMore
+                                            ? 'Load More Tests'
+                                            : 'All Tests Loaded'}
+                                </button>
+                            </div>
+
+                            <div className="border-t border-slate-100 pt-4">
+                                <h3 className="text-xs font-black text-slate-900">Test Settings</h3>
+                                <p className="mt-1 text-[11px] font-bold text-slate-500">Choose before starting</p>
+                            </div>
+
+                            <div>
+                                <span className="text-xs font-black">Select Test Time</span>
+                                <div className="mt-2 grid grid-cols-5 gap-2">
+                                    {Array.from({ length: 10 }, (_, index) => index + 1).map((minute) => (
+                                        <button
+                                            key={minute}
+                                            type="button"
+                                            onClick={() => setDuration(minute)}
+                                            disabled={settingsLocked}
+                                            className={[
+                                                'flex items-center justify-center gap-1 rounded-[9px] border px-2 py-2 text-xs font-black disabled:cursor-not-allowed disabled:opacity-50',
+                                                duration === minute
+                                                    ? 'border-indigo-600 bg-indigo-600 text-white'
+                                                    : 'border-slate-200 bg-white text-slate-700'
+                                            ].join(' ')}
+                                        >
+                                            <Clock3 size={13} />
+                                            {minute}m
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
                             <div className="space-y-3 border-t border-slate-100 pt-3">
 
                                 <ChoiceRow
                                     icon={<Keyboard size={16} />}
                                     title="Backspace"
                                     enabled={backspaceEnabled}
+                                    disabled={settingsLocked}
                                     onChange={setBackspaceEnabled}
                                 />
 
@@ -563,21 +1700,20 @@ export default function TypingProPage() {
                                     icon={<Sparkles size={16} />}
                                     title="Highlight & Auto Scroll"
                                     enabled={highlightEnabled && autoScrollEnabled}
+                                    disabled={settingsLocked}
                                     onChange={(enabled) => {
                                         setHighlightEnabled(enabled)
                                         setAutoScrollEnabled(enabled)
                                     }}
                                 />
-                            </div>
 
-                            <div className="grid grid-cols-2 gap-3">
-                                <button
-                                    onClick={handleStartTest}
-                                    className="flex items-center justify-center gap-2 rounded-[10px] bg-gradient-to-r from-[#5a2ee6] to-[#391dc8] px-3 py-4 text-sm font-black text-white shadow-lg shadow-violet-200 transition active:scale-[0.98]"
-                                >
-                                    <Play size={18} />
-                                    Start Test
-                                </button>
+                                <ChoiceRow
+                                    icon={<Check size={16} />}
+                                    title="Live Spelling Check"
+                                    enabled={liveSpellingEnabled}
+                                    disabled={settingsLocked}
+                                    onChange={setLiveSpellingEnabled}
+                                />
                             </div>
 
                         </div>
@@ -592,7 +1728,6 @@ export default function TypingProPage() {
 
                         <div className="relative mt-4 px-1 pt-1">
                             <div className="absolute left-[9%] right-[9%] top-[23px] h-2 rounded-full bg-slate-200"></div>
-                            <div className="absolute left-[9%] top-[23px] h-2 w-[31%] rounded-full bg-gradient-to-r from-[#5125dd] via-[#1585f2] to-[#ffbd2f]"></div>
 
                             <div className="relative grid grid-cols-5 gap-1">
                                 {levels.map((level, index) => {
@@ -605,48 +1740,110 @@ export default function TypingProPage() {
                                         'border-slate-300 bg-slate-100 text-slate-700 shadow-slate-200'
                                     ]
 
+                                    const isActiveLevel =
+                                        activeLevel === level
+
+                                    const unlocked =
+                                        levelAccess[level] === true
+
+                                    const progress =
+                                        levelProgress[level] || {
+                                            total: 0,
+                                            passed: 0,
+                                            percent: unlocked ? 100 : 0,
+                                            minimumSpeed: 0,
+                                            minimumAccuracy: 0,
+                                            complete: unlocked
+                                        }
+
                                     return (
                                         <div key={level} className="text-center">
-                                            <div className="relative mx-auto h-12 w-12">
+                                            <button
+                                                type="button"
+                                                onClick={() => setActiveLevel(level)}
+                                                disabled={settingsLocked}
+                                                className="relative mx-auto block h-12 w-12"
+                                            >
                                                 <div
                                                     className={[
                                                         'flex h-11 w-11 items-center justify-center rounded-full border-2 text-base font-black shadow-lg',
-                                                        levelStyles[index]
+                                                        isActiveLevel
+                                                            ? 'border-[#22135f] bg-[#22135f] text-white shadow-violet-200'
+                                                            : !unlocked
+                                                            ? 'border-slate-300 bg-slate-100 text-slate-500 shadow-slate-200'
+                                                            : levelStyles[index]
                                                     ].join(' ')}
                                                 >
                                                     {index + 1}
                                                 </div>
 
-                                                {index < 2 && (
+                                                {unlocked && index > 0 && (
                                                     <span className="absolute bottom-0 right-0 flex h-4 w-4 items-center justify-center rounded-full border-2 border-white bg-emerald-500 text-white shadow-sm">
                                                         <Check size={10} strokeWidth={4} />
                                                     </span>
                                                 )}
 
-                                                {index > 1 && index < 4 && (
-                                                    <span
-                                                        className={[
-                                                            'absolute bottom-0 right-0 flex h-4 w-4 items-center justify-center rounded-full border-2 border-white shadow-sm',
-                                                            index === 2
-                                                                ? 'bg-amber-100 text-amber-600'
-                                                                : 'bg-slate-100 text-slate-500'
-                                                        ].join(' ')}
-                                                    >
+                                                {!unlocked && (
+                                                    <span className="absolute bottom-0 right-0 flex h-4 w-4 items-center justify-center rounded-full border-2 border-white bg-slate-100 text-slate-500 shadow-sm">
                                                         <Lock size={9} strokeWidth={3} />
                                                     </span>
                                                 )}
-                                            </div>
+                                            </button>
 
                                             <p className="mt-2 text-[11px] font-medium text-slate-600">{level}</p>
+                                            <div className="mx-auto mt-1 h-1.5 w-12 overflow-hidden rounded-full bg-slate-200">
+                                                <div
+                                                    className={[
+                                                        'h-full rounded-full',
+                                                        progress.complete
+                                                            ? 'bg-emerald-500'
+                                                            : progress.percent > 0
+                                                            ? 'bg-amber-400'
+                                                            : 'bg-red-400'
+                                                    ].join(' ')}
+                                                    style={{
+                                                        width: `${Math.max(0, Math.min(100, progress.percent))}%`
+                                                    }}
+                                                ></div>
+                                            </div>
+                                            <p className="mt-1 text-[10px] font-bold text-slate-500">
+                                                {progress.passed}/{progress.total}
+                                            </p>
                                         </div>
                                     )
                                 })}
                             </div>
                         </div>
 
-                        <div className="mt-4 flex items-center justify-center gap-2 rounded-[9px] bg-slate-50 px-3 py-2.5 text-xs font-bold text-slate-700 shadow-inner shadow-slate-100">
-                            <Lock size={15} className="text-amber-500" />
-                            Complete previous level to unlock next
+                        <div className="mt-4 rounded-[9px] bg-slate-50 px-3 py-2.5 text-xs font-bold text-slate-700 shadow-inner shadow-slate-100">
+                            <div className="flex items-center justify-between gap-3">
+                                <span className="flex items-center gap-2">
+                                    <Lock size={15} className="text-amber-500" />
+                                    {activeLevel} progress
+                                </span>
+                                <span>
+                                    {levelProgress[activeLevel]?.passed || 0}/{levelProgress[activeLevel]?.total || 0}
+                                </span>
+                            </div>
+
+                            <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-200">
+                                <div
+                                    className="h-full rounded-full bg-gradient-to-r from-red-400 via-amber-400 to-emerald-500"
+                                    style={{
+                                        width: `${Math.max(
+                                            0,
+                                            Math.min(
+                                                100,
+                                                levelProgress[activeLevel]?.percent || 0
+                                            )
+                                        )}%`
+                                    }}
+                                ></div>
+                            </div>
+
+                            <p className="mt-2 text-[11px] text-slate-500">
+                                Next level unlocks after passing all tests in previous level
+                            </p>
                         </div>
                     </section>
 
@@ -657,59 +1854,110 @@ export default function TypingProPage() {
                     className="min-w-0 space-y-4 bg-[#f7f8fc] fullscreen:overflow-auto fullscreen:p-5"
                 >
 
-                    <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
-                        <StatCard
-                            icon={<User size={26} />}
-                            label="USER NAME"
-                            value={name || 'Guest'}
-                            detail="ID: #TK2025-0456"
-                            iconClass="bg-violet-100 text-violet-700"
-                        />
+                    {isFullscreen && (
+                        <div className="sticky top-3 z-30 flex justify-end gap-2">
+                            <button
+                                type="button"
+                                onClick={() => setShowLivePanel((current) => !current)}
+                                className="flex h-10 items-center gap-2 rounded-[10px] bg-white px-3 text-xs font-black text-indigo-700 shadow-lg shadow-slate-300/60"
+                            >
+                                {showLivePanel ? <EyeOff size={16} /> : <Eye size={16} />}
+                                {showLivePanel ? 'Hide Live' : 'Show Live'}
+                            </button>
 
-                        <StatCard
-                            icon={<Clock3 size={26} />}
-                            label="TIME LEFT"
-                            value={formatTime(remaining)}
-                            detail={started ? 'Running' : ended ? 'Finished' : 'Ready'}
-                            iconClass="bg-blue-50 text-blue-600"
-                            meter={remaining / (duration * 60)}
-                        />
+                            <button
+                                type="button"
+                                onClick={() => document.exitFullscreen()}
+                                className="flex h-10 items-center gap-2 rounded-[10px] bg-[#22135f] px-3 text-xs font-black text-white shadow-lg shadow-violet-300/60"
+                            >
+                                <Minimize size={16} />
+                                Exit
+                            </button>
+                        </div>
+                    )}
 
-                        <StatCard
-                            icon={<Gauge size={26} />}
-                            label="LIVE SPEED"
-                            value={`${liveResult.net1.toFixed(2)} WPM`}
-                            detail={`${liveResult.grossWpm.toFixed(2)} gross`}
-                            iconClass="bg-emerald-50 text-emerald-600"
-                            accent="border-b-2 border-emerald-400"
-                        />
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                        <div>
+                            <p className="text-xs font-black uppercase text-indigo-700">
+                                {testData?.levelName || getLevelName(testData?.level || 1)} Level
+                            </p>
+                            <h2 className="text-xl font-black">
+                                {testData?.title || 'Typing Test'}
+                            </h2>
+                        </div>
 
-                        <StatCard
-                            icon={<Target size={26} />}
-                            label="ACCURACY"
-                            value={`${liveResult.accuracy.toFixed(2)}%`}
-                            detail={`${liveResult.totalErrors} errors`}
-                            iconClass="bg-red-50 text-red-600"
-                            valueClass="text-red-600"
-                            accent="border-b-2 border-amber-300"
-                        />
-
-                        <StatCard
-                            icon={<Trophy size={26} />}
-                            label="TODAY'S BEST"
-                            value="52 WPM"
-                            detail="Accuracy: 96.45%"
-                            iconClass="bg-amber-50 text-amber-600"
-                        />
+                        <button
+                            type="button"
+                            onClick={() => setShowLivePanel((current) => !current)}
+                            className="flex items-center gap-2 rounded-[10px] border border-slate-200 bg-white px-4 py-2.5 text-xs font-black text-indigo-700 shadow-sm"
+                        >
+                            {showLivePanel ? <EyeOff size={16} /> : <Eye size={16} />}
+                            {showLivePanel ? 'Hide Live Result' : 'Show Live Result'}
+                        </button>
                     </div>
 
-                    <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_280px]">
+                    {showLivePanel && (
+                        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+                            <StatCard
+                                icon={<User size={26} />}
+                                label="USER NAME"
+                                value={displayName}
+                                detail={user?.id ? `ID: ${user.id}` : 'Sign in required'}
+                                iconClass="bg-violet-100 text-violet-700"
+                            />
+
+                            <StatCard
+                                icon={<Clock3 size={26} />}
+                                label="TIME LEFT"
+                                value={formatTime(remaining)}
+                                detail={started ? 'Running' : ended ? 'Finished' : 'Ready'}
+                                iconClass="bg-blue-50 text-blue-600"
+                                meter={remaining / (duration * 60)}
+                            />
+
+                            <StatCard
+                                icon={<Gauge size={26} />}
+                                label="LIVE SPEED"
+                                value={`${liveResult.net1.toFixed(2)} WPM`}
+                                detail={`${liveResult.grossWpm.toFixed(2)} gross`}
+                                iconClass="bg-emerald-50 text-emerald-600"
+                                accent="border-b-2 border-emerald-400"
+                            />
+
+                            <StatCard
+                                icon={<Target size={26} />}
+                                label="ACCURACY"
+                                value={`${liveResult.accuracy.toFixed(2)}%`}
+                                detail={`${liveResult.totalErrors} errors`}
+                                iconClass="bg-red-50 text-red-600"
+                                valueClass="text-red-600"
+                                accent="border-b-2 border-amber-300"
+                            />
+
+                            <StatCard
+                                icon={<Trophy size={26} />}
+                                label="RANK"
+                                value={resultMeta?.rank ? `#${resultMeta.rank}` : '--'}
+                                detail={resultMeta?.totalUsers ? `${resultMeta.totalUsers} users` : 'After submit'}
+                                iconClass="bg-amber-50 text-amber-600"
+                            />
+                        </div>
+                    )}
+
+                    <div
+                        className={[
+                            'grid gap-5',
+                            isFullscreen
+                                ? ''
+                                : 'lg:grid-cols-[minmax(0,1fr)_280px]'
+                        ].join(' ')}
+                    >
 
                         <section className="rounded-[10px] bg-white p-5 shadow-[0_12px_34px_rgba(15,23,42,0.08)]">
 
                             <div className="flex flex-wrap items-center justify-between gap-3">
                                 <h2 className="text-lg font-black">
-                                    {language === 'hindi'
+                                    {displayLanguage === 'hindi'
                                         ? 'Hindi Typing Test (KrutiDev/DevLys 010)'
                                         : 'English Typing Test'}
                                 </h2>
@@ -724,21 +1972,66 @@ export default function TypingProPage() {
                                 ref={paragraphRef}
                                 className="mt-5 h-[265px] overflow-y-auto rounded-[10px] border border-slate-200 bg-[#fbfbff] p-5 text-[20px] leading-[2] text-slate-900"
                             >
-                                {expectedChars.map((char, index) => {
+                                {loadingTest && (
+                                    <div className="space-y-4">
+                                        {Array.from({ length: 5 }).map((_, index) => (
+                                            <div
+                                                key={`typing-paragraph-skeleton-${index}`}
+                                                className="h-5 animate-pulse rounded-full bg-slate-200"
+                                                style={{
+                                                    width: `${92 - index * 9}%`
+                                                }}
+                                            ></div>
+                                        ))}
+                                    </div>
+                                )}
+
+                                {!loadingTest && expectedChars.length === 0 && (
+                                    <div className="flex h-full flex-col items-center justify-center text-center">
+                                        <div className="flex h-14 w-14 items-center justify-center rounded-[14px] bg-indigo-50 text-indigo-700">
+                                            <Keyboard size={26} />
+                                        </div>
+                                        <p className="mt-4 text-base font-black text-slate-800">
+                                            Select a typing test and click Start Test
+                                        </p>
+                                        <p className="mt-1 max-w-md text-sm font-medium leading-6 text-slate-500">
+                                            Paragraph will load from backend only after start.
+                                        </p>
+                                    </div>
+                                )}
+
+                                {!loadingTest && paragraphWindow.hasBefore && (
+                                    <span className="mr-2 rounded bg-slate-100 px-2 py-1 text-sm font-bold text-slate-400">
+                                        ...
+                                    </span>
+                                )}
+
+                                {!loadingTest && paragraphWindow.chars.map((char, offset) => {
+
+                                    const index =
+                                        paragraphWindow.start + offset
 
                                     const current =
-                                        index === [...typed].length
+                                        index === typedChars.length
 
                                     const typedChar =
-                                        [...typed][index]
+                                        typedChars[index]
 
                                     const isTyped =
-                                        index < [...typed].length
+                                        index < typedChars.length
+
+                                    const isActiveWord =
+                                        index >= currentWordStart &&
+                                        index <= typedChars.length
 
                                     const statusClass =
                                         isTyped
                                             ? typedChar === char
                                                 ? 'text-emerald-700'
+                                                : !liveSpellingEnabled
+                                                    ? ''
+                                                : isActiveWord
+                                                    ? 'rounded bg-yellow-100 text-slate-900'
                                                 : 'rounded bg-red-100 text-red-700'
                                             : highlightEnabled && current
                                                 ? 'rounded bg-yellow-100 border-b-2 border-yellow-500'
@@ -754,6 +2047,12 @@ export default function TypingProPage() {
                                         </span>
                                     )
                                 })}
+
+                                {!loadingTest && paragraphWindow.hasAfter && (
+                                    <span className="ml-2 rounded bg-slate-100 px-2 py-1 text-sm font-bold text-slate-400">
+                                        ...
+                                    </span>
+                                )}
                             </div>
 
                             <div
@@ -762,14 +2061,18 @@ export default function TypingProPage() {
                             >
                                 <textarea
                                     ref={typingRef}
-                                    value={typed}
-                                    onChange={(event) => handleInput(event.target.value)}
+                                    onChange={handleInput}
                                     onKeyDown={handleKeyDown}
-                                    disabled={ended}
+                                    disabled={ended || !testData?.paragraph}
+                                    readOnly={solutionMode}
                                     spellCheck={false}
                                     className="h-48 w-full resize-none text-[16px] font-medium outline-none placeholder:text-slate-400 disabled:bg-white disabled:text-slate-500"
                                     placeholder={
-                                        language === 'hindi'
+                                        !testData?.paragraph
+                                            ? 'Click Start Test to load paragraph from backend...'
+                                            : solutionMode
+                                            ? 'Saved typed answer'
+                                            : displayLanguage === 'hindi'
                                             ? 'Hindi mode: Roman type karein, output Hindi me aayega...'
                                             : 'Start typing here...'
                                     }
@@ -793,7 +2096,7 @@ export default function TypingProPage() {
                             <div className="mt-4 grid gap-3 lg:grid-cols-[1fr_150px]">
                                 <div className="flex items-center gap-3 rounded-[9px] bg-indigo-50 px-4 py-3 text-xs font-bold text-indigo-800">
                                     <Lightbulb size={18} />
-                                    {language === 'hindi'
+                                    {displayLanguage === 'hindi'
                                         ? 'Tip: Focus on accuracy, speed will automatically improve.'
                                         : 'English mode active. Normal English typing chalegi.'}
                                 </div>
@@ -802,31 +2105,38 @@ export default function TypingProPage() {
                                     onClick={requestTypingFullscreen}
                                     className="flex items-center justify-center gap-2 rounded-[9px] border border-slate-200 bg-white px-4 py-3 text-xs font-black shadow-sm"
                                 >
-                                    <Expand size={17} className="text-indigo-700" />
-                                    Full Screen
+                                    {isFullscreen
+                                        ? <Minimize size={17} className="text-indigo-700" />
+                                        : <Expand size={17} className="text-indigo-700" />}
+                                    {isFullscreen ? 'Exit Full Screen' : 'Full Screen'}
                                 </button>
                             </div>
 
+                            {testData?.paragraph && (
                             <div className="mt-4 flex flex-wrap justify-end gap-3">
                                 <button
                                     onClick={() => finishTest()}
-                                    className="flex items-center gap-2 rounded-[10px] bg-gradient-to-r from-emerald-500 to-teal-600 px-7 py-3 text-sm font-black text-white shadow-lg shadow-emerald-100"
+                                    disabled={submittingResult || ended || solutionMode || !testData?.paragraph}
+                                    className="flex items-center gap-2 rounded-[10px] bg-gradient-to-r from-emerald-500 to-teal-600 px-7 py-3 text-sm font-black text-white shadow-lg shadow-emerald-100 disabled:cursor-not-allowed disabled:opacity-70"
                                 >
                                     <Send size={18} />
-                                    Submit Test
+                                    {submittingResult ? 'Saving...' : 'Submit Test'}
                                 </button>
 
                                 <button
                                     onClick={resetTest}
-                                    className="flex items-center gap-2 rounded-[10px] border border-slate-200 bg-white px-7 py-3 text-sm font-black text-indigo-700 shadow-sm"
+                                    disabled={settingsLocked}
+                                    className="flex items-center gap-2 rounded-[10px] border border-slate-200 bg-white px-7 py-3 text-sm font-black text-indigo-700 shadow-sm disabled:cursor-not-allowed disabled:opacity-50"
                                 >
                                     <RotateCcw size={18} />
                                     Retake Test
                                 </button>
                             </div>
+                            )}
 
                         </section>
 
+                        {!isFullscreen && (
                         <aside className="space-y-4">
 
                             <section className="rounded-[10px] bg-white p-4 shadow-[0_12px_34px_rgba(15,23,42,0.08)]">
@@ -835,17 +2145,18 @@ export default function TypingProPage() {
                                         <Clock3 size={17} className="text-slate-600" />
                                         Your Test History
                                     </h2>
-
-                                    <button className="flex items-center gap-1 text-xs font-black text-indigo-700">
-                                        View All
-                                        <ChevronDown size={13} className="-rotate-90" />
-                                    </button>
                                 </div>
 
-                                <div className="mt-4 space-y-2">
-                                    {historyItems.map(([title, date, speed, accuracy], index) => (
+                                <div className="mt-4 max-h-[300px] space-y-2 overflow-y-auto pr-1">
+                                    {history.length === 0 && !loadingHistory && (
+                                        <div className="rounded-[9px] border border-dashed border-slate-200 bg-slate-50 p-4 text-center text-xs font-bold text-slate-500">
+                                            No typing history yet
+                                        </div>
+                                    )}
+
+                                    {history.map((item, index) => (
                                         <div
-                                            key={`${title}-${date}`}
+                                            key={item.resultId || `${item.testId}-${item.attemptedAt}-${index}`}
                                             className={[
                                                 'rounded-[9px] border p-3',
                                                 index === 0
@@ -855,15 +2166,20 @@ export default function TypingProPage() {
                                         >
                                             <div className="flex items-start justify-between gap-3">
                                                 <div>
-                                                    <p className="text-xs font-black">{title}</p>
+                                                    <p className="text-xs font-black">{item.title || 'Typing Test'}</p>
                                                     <p className="mt-1.5 flex items-center gap-1 text-[10px] font-medium text-slate-500">
                                                         <CalendarDays size={12} />
-                                                        {date}
+                                                        {formatHistoryDate(item.attemptedAt)}
+                                                    </p>
+                                                    <p className="mt-1 text-[10px] font-black text-indigo-700">
+                                                        Level {item.level}: {item.levelName || getLevelName(item.level)}
                                                     </p>
                                                 </div>
 
                                                 <div className="text-right">
-                                                    <p className="text-xs font-black text-emerald-600">{speed}</p>
+                                                    <p className="text-xs font-black text-emerald-600">
+                                                        {item.netWpm.toFixed(2)} WPM
+                                                    </p>
                                                     <p
                                                         className={[
                                                             'mt-1 text-[11px] font-black',
@@ -872,63 +2188,43 @@ export default function TypingProPage() {
                                                                 : 'text-slate-800'
                                                         ].join(' ')}
                                                     >
-                                                        {accuracy}
+                                                        {item.accuracy.toFixed(2)}%
                                                     </p>
+                                                    {item.rank && (
+                                                        <p className="mt-1 text-[10px] font-black text-slate-500">
+                                                            Rank #{item.rank}
+                                                        </p>
+                                                    )}
                                                 </div>
                                             </div>
                                         </div>
                                     ))}
+
+                                    {loadingHistory && (
+                                        <div className="space-y-2">
+                                            {Array.from({ length: 3 }).map((_, index) => (
+                                                <div
+                                                    key={`history-skeleton-${index}`}
+                                                    className="h-[74px] animate-pulse rounded-[9px] bg-slate-100"
+                                                ></div>
+                                            ))}
+                                        </div>
+                                    )}
                                 </div>
 
-                                <button className="mt-4 flex w-full items-center justify-center gap-2 rounded-[9px] bg-indigo-50 px-4 py-3 text-xs font-black text-indigo-700">
+                                <button
+                                    type="button"
+                                    onClick={() => loadHistory(historyPage + 1)}
+                                    disabled={!historyHasMore || loadingHistory}
+                                    className="mt-4 flex w-full items-center justify-center gap-2 rounded-[9px] bg-indigo-50 px-4 py-3 text-xs font-black text-indigo-700 disabled:cursor-not-allowed disabled:opacity-50"
+                                >
                                     <BadgeCheck size={17} />
-                                    View All History
+                                    {historyHasMore ? 'Load More History' : 'All History Loaded'}
                                 </button>
                             </section>
 
-                            <section className="rounded-[10px] bg-white p-4 shadow-[0_12px_34px_rgba(15,23,42,0.08)]">
-                                <h2 className="flex items-center gap-2 text-sm font-black">
-                                    <Lock size={17} className="text-slate-700" />
-                                    Level Unlock System
-                                </h2>
-
-                                <p className="mt-2 text-xs font-medium text-slate-500">
-                                    Complete previous level with 90%+ accuracy
-                                </p>
-
-                                <div className="mt-4 flex items-center justify-between">
-                                    {levels.map((level, index) => (
-                                        <div
-                                            key={`right-${level}`}
-                                            className={[
-                                                'flex h-9 w-9 items-center justify-center rounded-full border text-xs font-black',
-                                                index < 2
-                                                    ? 'border-transparent bg-emerald-500 text-white'
-                                                    : index === 2
-                                                        ? 'border-amber-400 bg-amber-50 text-amber-700'
-                                                        : 'border-slate-300 bg-white text-slate-700'
-                                            ].join(' ')}
-                                        >
-                                            {index + 1}
-                                        </div>
-                                    ))}
-                                </div>
-
-                                <div className="mt-4 flex items-center gap-3 rounded-[10px] bg-violet-100 p-3 text-violet-900">
-                                    <div className="flex h-12 w-12 items-center justify-center rounded-[9px] bg-white/70">
-                                        <Lock size={24} />
-                                    </div>
-
-                                    <div>
-                                        <p className="text-sm font-black">Next Level Unlock</p>
-                                        <p className="mt-1 text-xs font-bold">
-                                            Score 90%+ accuracy to unlock Level 3
-                                        </p>
-                                    </div>
-                                </div>
-                            </section>
-
                         </aside>
+                        )}
 
                     </div>
 
@@ -939,8 +2235,9 @@ export default function TypingProPage() {
             {result && (
                 <ResultModal
                     result={result}
+                    meta={resultMeta}
+                    submitting={submittingResult}
                     onClose={() => setResult(null)}
-                    onRetake={resetTest}
                 />
             )}
 
@@ -952,16 +2249,18 @@ function ChoiceRow({
     icon,
     title,
     enabled,
+    disabled = false,
     onChange
 }: {
     icon: ReactNode
     title: string
     enabled: boolean
+    disabled?: boolean
     onChange: (enabled: boolean) => void
 }) {
 
     return (
-        <div className="grid grid-cols-[1fr_auto_auto] items-center gap-3">
+        <div className="grid grid-cols-[1fr_auto] items-center gap-3">
             <span className="flex items-center gap-3 text-sm font-black">
                 <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-violet-50 text-violet-700">
                     {icon}
@@ -971,38 +2270,31 @@ function ChoiceRow({
 
             <button
                 type="button"
-                onClick={() => onChange(true)}
-                className="flex items-center gap-2 text-sm font-bold"
+                role="switch"
+                aria-checked={enabled}
+                aria-label={`${title} ${enabled ? 'enabled' : 'disabled'}`}
+                onClick={() => onChange(!enabled)}
+                disabled={disabled}
+                className={[
+                    'relative flex h-8 w-16 shrink-0 items-center rounded-full p-1 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
+                    enabled
+                        ? 'bg-indigo-600'
+                        : 'bg-slate-300'
+                ].join(' ')}
             >
                 <span
                     className={[
-                        'flex h-5 w-5 items-center justify-center rounded border',
+                        'flex h-6 w-6 items-center justify-center rounded-full bg-white text-indigo-600 shadow-sm transition-transform duration-200',
                         enabled
-                            ? 'border-indigo-600 bg-indigo-600 text-white'
-                            : 'border-slate-300 bg-white'
+                            ? 'translate-x-8'
+                            : 'translate-x-0'
                     ].join(' ')}
                 >
-                    {enabled ? '✓' : ''}
+                    {enabled && <Check size={14} strokeWidth={3} />}
                 </span>
-                Enable
-            </button>
-
-            <button
-                type="button"
-                onClick={() => onChange(false)}
-                className="flex items-center gap-2 text-sm font-bold"
-            >
                 <span
-                    className={[
-                        'flex h-5 w-5 items-center justify-center rounded border',
-                        !enabled
-                            ? 'border-indigo-600 bg-indigo-600 text-white'
-                            : 'border-slate-300 bg-white'
-                    ].join(' ')}
-                >
-                    {!enabled ? '✓' : ''}
-                </span>
-                Disable
+                    className="sr-only"
+                >{enabled ? 'Enabled' : 'Disabled'}</span>
             </button>
         </div>
     )
@@ -1060,12 +2352,14 @@ function StatCard({
 
 function ResultModal({
     result,
-    onClose,
-    onRetake
+    meta,
+    submitting,
+    onClose
 }: {
     result: Result
+    meta: SubmitResponse | null
+    submitting: boolean
     onClose: () => void
-    onRetake: () => void
 }) {
 
     return (
@@ -1074,7 +2368,13 @@ function ResultModal({
                 <div className="sticky top-0 flex items-center justify-between bg-[#4E3C7D] px-5 py-4 text-white">
                     <div>
                         <h3 className="text-lg font-black">Your Detailed Typing Test Result</h3>
-                        <p className="text-xs text-white/70">Method 1 • Method 2 • 5% Mistakes Ignorable</p>
+                        <p className="text-xs text-white/70">
+                            {submitting
+                                ? 'Saving result...'
+                                : meta?.success
+                                    ? `${meta.levelName || getLevelName(meta.level || 1)} • Rank #${meta.rank || '--'}`
+                                    : 'Method 1 • Method 2 • 5% Mistakes Ignorable'}
+                        </p>
                     </div>
 
                     <button
@@ -1086,6 +2386,32 @@ function ResultModal({
                 </div>
 
                 <div className="space-y-4 p-5">
+                    {meta?.success && (
+                        <div className="grid gap-3 rounded-xl border border-indigo-100 bg-indigo-50 p-4 text-sm md:grid-cols-4">
+                            <div>
+                                <p className="text-xs font-black text-indigo-700">Result ID</p>
+                                <p className="mt-1 truncate font-black">{meta.resultId || '--'}</p>
+                            </div>
+                            <div>
+                                <p className="text-xs font-black text-indigo-700">Level</p>
+                                <p className="mt-1 font-black">
+                                    {meta.level || 1} {meta.levelName || getLevelName(meta.level || 1)}
+                                </p>
+                            </div>
+                            <div>
+                                <p className="text-xs font-black text-indigo-700">Rank</p>
+                                <p className="mt-1 font-black">
+                                    {meta.rank ? `#${meta.rank}` : '--'}
+                                    {meta.totalUsers ? ` / ${meta.totalUsers}` : ''}
+                                </p>
+                            </div>
+                            <div>
+                                <p className="text-xs font-black text-indigo-700">Best</p>
+                                <p className="mt-1 font-black">{meta.best ? 'New Best' : 'Saved'}</p>
+                            </div>
+                        </div>
+                    )}
+
                     <ReportBlock
                         title="Method 1"
                         subtitle="Net Speed = Gross Speed - Error Rate"
@@ -1105,7 +2431,7 @@ function ResultModal({
 
                     <ReportBlock
                         title="Method 2"
-                        subtitle="(Words - Mistakes x 10) / Time"
+                        subtitle="(Words - Mistakes) / Time"
                         color="blue"
                         rows={[
                             ['Gross Speed', `${result.grossWpm.toFixed(2)} WPM`],
@@ -1114,7 +2440,7 @@ function ResultModal({
                             ['Full Mistakes', `${result.analysis.fullMistakes}`],
                             ['Half Mistakes', `${result.analysis.halfMistakes}`],
                             ['Total Mistakes', `${result.analysis.totalMistakes.toFixed(2)}`],
-                            ['Penalty', `${(result.analysis.totalMistakes * 10).toFixed(2)}`],
+                            ['Penalty', `${result.analysis.totalMistakes.toFixed(2)}`],
                             ['Error %', `${result.errPct.toFixed(2)}%`]
                         ]}
                         net={result.net2}
@@ -1129,7 +2455,7 @@ function ResultModal({
                             ['Accuracy', `${result.accuracy.toFixed(2)}%`],
                             ['Ignorable', `${result.ignorable.toFixed(2)}`],
                             ['Net Mistakes', `${result.netMistakes.toFixed(2)}`],
-                            ['Penalty After', `${(result.netMistakes * 10).toFixed(2)}`],
+                            ['Penalty After', `${result.netMistakes.toFixed(2)}`],
                             ['Error %', `${result.errPct3.toFixed(2)}%`],
                             ['KDPH', `${Math.round(result.net3 * 300)}`]
                         ]}
@@ -1162,19 +2488,12 @@ function ResultModal({
                         </div>
                     </div>
 
-                    <div className="flex justify-end gap-3">
+                    <div className="flex justify-end">
                         <button
                             onClick={onClose}
                             className="rounded-xl bg-slate-500 px-6 py-2.5 text-sm font-black text-white"
                         >
                             Close
-                        </button>
-
-                        <button
-                            onClick={onRetake}
-                            className="rounded-xl bg-[#4E3C7D] px-6 py-2.5 text-sm font-black text-white"
-                        >
-                            Retake Test
                         </button>
                     </div>
                 </div>
@@ -1300,6 +2619,156 @@ function wordCount(
         : 0
 }
 
+function normalizeTypingTest(
+    test: any
+): TypingTestListItem {
+
+    const levelName =
+        test?.levelName ||
+        test?.lev ||
+        getLevelName(Number(test?.level || test?.l || 1))
+
+    const level =
+        Number(
+            test?.level ||
+            test?.l ||
+            levels.indexOf(levelName) + 1 ||
+            1
+        )
+
+    const rawLanguage =
+        Array.isArray(test?.lan)
+            ? test.lan[0]
+            : test?.language ||
+            test?.lan ||
+            'hindi'
+
+    const normalizedLanguage =
+        String(rawLanguage).toLowerCase()
+
+    const language: Language =
+        normalizedLanguage === 'english' ||
+        normalizedLanguage === 'en'
+            ? 'english'
+            : 'hindi'
+
+    return {
+        testId:
+            test?.testId ||
+            test?._id ||
+            '',
+        title:
+            test?.title ||
+            test?.n ||
+            test?.name ||
+            'Typing Test',
+        language,
+        level,
+        levelName:
+            levelName,
+        duration:
+            Number(test?.duration || test?.time || 1),
+        words:
+            Number(test?.words || test?.w || 0),
+        totalAttempt:
+            Number(test?.totalAttempt || test?.totalUsers || 0),
+        totalUsers:
+            Number(test?.totalUsers || test?.totalAttempt || 0),
+        access:
+            test?.access !== false,
+        available:
+            test?.available !== false &&
+            test?.av !== false,
+        levelUnlocked:
+            test?.levelUnlocked !== false,
+        history:
+            (test?.history || []).map((item: any) => ({
+                historyId:
+                    item?.historyId ||
+                    item?._id ||
+                    '',
+                status:
+                    item?.status ||
+                    item?.st ||
+                    '',
+                attemptNo:
+                    Number(item?.attemptNo || item?.an || 0),
+                score:
+                    Number(item?.score || item?.sc || 0),
+                accuracy:
+                    Number(item?.accuracy || 0)
+            })),
+        buttonName:
+            test?.buttonName ||
+            test?.btnName
+    }
+}
+
+function getLevelName(
+    level: number
+) {
+
+    return levels[level - 1] || 'Easy'
+}
+
+function formatHistoryDate(
+    attemptedAt: number
+) {
+
+    if (!attemptedAt) return '--'
+
+    return new Intl.DateTimeFormat(
+        'en-IN',
+        {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        }
+    ).format(new Date(attemptedAt))
+}
+
+function buildTypingResultPayload({
+    test,
+    result,
+    typedText,
+    duration,
+    remaining,
+    backspaces,
+    startedAt,
+    submittedAt
+}: {
+    test: TypingTestData
+    result: Result
+    typedText: string
+    duration: number
+    remaining: number
+    backspaces: number
+    startedAt: number
+    submittedAt: number
+}) {
+
+    return {
+        testId: test.testId,
+        historyId: test.historyId,
+        attemptNo: test.attemptNo,
+        title: test.title,
+        language: test.language,
+        level: test.level,
+        levelName: test.levelName || getLevelName(test.level),
+        durationSec: duration * 60,
+        elapsedSec: result.elapsed,
+        remainingSec: remaining,
+        startedAt,
+        submittedAt,
+        typedLength: result.charsTyped,
+        wordEntries: result.wordEntries,
+        backspaces,
+        typedText
+    }
+}
+
 function levenshtein(
     a: string,
     b: string
@@ -1384,10 +2853,7 @@ function analyzeText(
     }> = []
 
     const maxWords =
-        Math.max(
-            expectedWords.length,
-            actualWords.length
-        )
+        actualWords.length
 
     for (let index = 0; index < maxWords; index += 1) {
         const expectedWord =
@@ -1459,6 +2925,79 @@ function analyzeText(
     }
 }
 
+function computeLiveResult({
+    expected,
+    actual,
+    durationSec,
+    remaining,
+    backspaces
+}: {
+    expected: string
+    actual: string
+    durationSec: number
+    remaining: number
+    backspaces: number
+}) {
+
+    const elapsed =
+        Math.max(
+            1,
+            durationSec - remaining
+        )
+
+    const minutes =
+        elapsed / 60
+
+    let correctChars =
+        0
+
+    for (
+        let index = 0;
+        index < Math.min(expected.length, actual.length);
+        index += 1
+    ) {
+        if (expected[index] === actual[index]) {
+            correctChars += 1
+        }
+    }
+
+    const charsTyped =
+        actual.length
+
+    const grossWpm =
+        charsTyped / 5 / minutes
+
+    const totalErrors =
+        Math.max(
+            0,
+            charsTyped - correctChars
+        )
+
+    const errorRate =
+        totalErrors / 5 / minutes
+
+    return {
+        elapsed,
+        minutes,
+        wordEntries:
+            wordCount(actual),
+        charsTyped,
+        grossWpm,
+        accuracy:
+            charsTyped
+                ? (correctChars / charsTyped) * 100
+                : 0,
+        totalErrors,
+        errorRate,
+        net1:
+            Math.max(
+                0,
+                grossWpm - errorRate
+            ),
+        backspaces
+    }
+}
+
 function computeResult({
     expected,
     actual,
@@ -1520,7 +3059,7 @@ function computeResult({
     const net2 =
         Math.max(
             0,
-            (wordEntries - analysis.totalMistakes * 10) / minutes
+            (wordEntries - analysis.totalMistakes) / minutes
         )
 
     const ignorable =
@@ -1538,7 +3077,7 @@ function computeResult({
     const net3 =
         Math.max(
             0,
-            (wordEntries - netMistakes * 10) / minutes
+            (wordEntries - netMistakes) / minutes
         )
 
     return {

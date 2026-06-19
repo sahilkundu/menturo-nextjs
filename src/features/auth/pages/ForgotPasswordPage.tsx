@@ -68,17 +68,14 @@ export default function ForgotPasswordPage() {
     const validatePassword = (
         password: string
     ) => {
-        const passwordRegex =
-            /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/
-
         if (
             !password ||
-            !passwordRegex.test(password)
+            password.length < 6
         ) {
             return {
                 valid: false,
                 message:
-                    'Password must contain uppercase, lowercase, digit and special character',
+                    'Password must be at least 6 characters long',
             }
         }
 

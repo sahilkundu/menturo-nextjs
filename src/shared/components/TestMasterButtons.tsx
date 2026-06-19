@@ -9,17 +9,26 @@ export default function TestMasterButtons({
 
 }: any) {
 
-    const {
-
-        selectedOptions,
-        prevQuestion,
-        clearResponse,
-        markForReview,
-        saveAndNext,
-        isSubmitted,
-        timeLeft
-
-    } = useTestDataStore()
+    const prevQuestion =
+        useTestDataStore(
+            (state) => state.prevQuestion
+        )
+    const clearResponse =
+        useTestDataStore(
+            (state) => state.clearResponse
+        )
+    const markForReview =
+        useTestDataStore(
+            (state) => state.markForReview
+        )
+    const saveAndNext =
+        useTestDataStore(
+            (state) => state.saveAndNext
+        )
+    const isSubmitted =
+        useTestDataStore(
+            (state) => state.isSubmitted
+        )
 
     return (
 

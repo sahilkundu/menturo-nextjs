@@ -1,13 +1,27 @@
 'use client'
-import { useWSChatStore } from "../store/wsChat"
+import { memo, useMemo } from "react"
+import { OnlineUser, useWSChatStore } from "../store/wsChat"
 interface LiveProps {
     activeDot?: boolean
+    users?: OnlineUser[]
 }
 
-export default function Live({
-    activeDot = false
-}: LiveProps) {
+const isUserOnline = (
+    value: unknown
+) => {
+    if (typeof value === 'string') {
+        return value.toLowerCase() === 'true' ||
+            value === '1'
+    }
 
+    return value === true ||
+        value === 1
+}
+
+function Live({
+    activeDot = false,
+    users: providedUsers
+}: LiveProps) {
     const wsUsers =
         useWSChatStore(
             (state) =>
@@ -15,8 +29,38 @@ export default function Live({
         )
 
     const users =
-        Object.values(wsUsers)
-
+        useMemo(
+            () =>
+                providedUsers ||
+                Object.values(wsUsers),
+            [
+                providedUsers,
+                wsUsers
+            ]
+        )
+    const onlineUsers =
+        useMemo(
+            () =>
+                users.filter(
+                    (user) =>
+                        isUserOnline(
+                            user.online
+                        )
+                ),
+            [users]
+        )
+    const visibleUsers =
+        useMemo(
+            () =>
+                activeDot
+                    ? users
+                    : onlineUsers,
+            [
+                activeDot,
+                onlineUsers,
+                users
+            ]
+        )
     return (
         <>
 
@@ -37,7 +81,7 @@ export default function Live({
                         </div>
 
                         <div className="px-3 py-1 rounded-full bg-green-100 text-green-700 text-xs md:text-sm font-medium">
-                            {users.filter(user => user.online).length} Online
+                            {onlineUsers.length} Online
                         </div>
 
                     </div>
@@ -52,7 +96,19 @@ export default function Live({
 
             <div className="space-y-4">
 
-                {users.map((user, index) => (
+                {visibleUsers.length === 0 && (
+                    <p className="px-2 text-sm text-gray-400">
+                        No active users
+                    </p>
+                )}
+
+                {visibleUsers.map((user, index) => {
+                    const userOnline =
+                        isUserOnline(
+                            user.online
+                        )
+
+                    return (
 
                     <div
                         key={index}
@@ -82,7 +138,7 @@ export default function Live({
                                 />
 
                                 {/* ACTIVE DOT */}
-                                {activeDot && user.online && (
+                                {activeDot && userOnline && (
                                     <span className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-green-500 border-2 border-white"></span>
                                 )}
 
@@ -95,7 +151,7 @@ export default function Live({
                                 </h4>
 
                                 <p className="text-xs md:text-sm text-gray-400">
-                                    {user.online
+                                    {userOnline
                                         ? 'Online'
                                         : 'Offline'}
                                 </p>
@@ -106,23 +162,28 @@ export default function Live({
 
                         <button
                             className={`text-xs md:text-sm px-3 py-2 rounded-full ${activeDot
-                                ? user.online
+                                ? userOnline
                                     ? "bg-green-100 text-green-700"
                                     : "bg-gray-100 text-gray-500"
-                                : "bg-violet-100 text-violet-700"
+                                : userOnline
+                                    ? "bg-violet-100 text-violet-700"
+                                    : "bg-gray-100 text-gray-500"
                                 }`}
                         >
                             {activeDot
-                                ? user.online
+                                ? userOnline
                                     ? "Active"
                                     : "Offline"
-                                : "Active"
+                                : userOnline
+                                    ? "Active"
+                                    : "Offline"
                             }
                         </button>
 
                     </div>
 
-                ))}
+                    )
+                })}
 
             </div>
 
@@ -131,9 +192,7 @@ export default function Live({
                 <div className="mt-5 pt-4 border-t border-gray-100 text-center">
                     <p className="text-xs md:text-sm text-gray-400">
                         {
-                            users.filter(
-                                user => user.online
-                            ).length
+                            onlineUsers.length
                         } Student(s) online
                     </p>
                 </div>
@@ -142,3 +201,5 @@ export default function Live({
         </>
     )
 }
+
+export default memo(Live)
