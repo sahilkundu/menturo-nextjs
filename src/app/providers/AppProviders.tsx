@@ -1,6 +1,6 @@
 "use client"
 
-import { ReactNode, useEffect } from "react"
+import { ReactNode, Suspense, useEffect } from "react"
 
 import { ThemeProvider } from "./ThemeProvider"
 
@@ -161,16 +161,18 @@ export default function AppProviders({
     return (
 
         <ThemeProvider>
-            <RouteTransitionProvider>
-            {/* {pathname !== "/test" &&
-                <div className="w-full min-w-[320px] backdrop-blur-md bg-red-500/80 border border-white/20 shadow-[0_0_15px_rgba(239,68,68,0.5)] px-2 sm:px-2 py-0 sm:py-0 text-center">
-                    <span className="text-white font-semibold text-[14px] sm:text-[16px] drop-shadow-lg block whitespace-nowrap sm:whitespace-normal">
-                        Website under maintenance
-                    </span>
-                </div>
-            } */}
-            {children}
-            </RouteTransitionProvider>
+            <Suspense fallback={null}>
+                <RouteTransitionProvider>
+                    {/* {pathname !== "/test" &&
+                        <div className="w-full min-w-[320px] backdrop-blur-md bg-red-500/80 border border-white/20 shadow-[0_0_15px_rgba(239,68,68,0.5)] px-2 sm:px-2 py-0 sm:py-0 text-center">
+                            <span className="text-white font-semibold text-[14px] sm:text-[16px] drop-shadow-lg block whitespace-nowrap sm:whitespace-normal">
+                                Website under maintenance
+                            </span>
+                        </div>
+                    } */}
+                    {children}
+                </RouteTransitionProvider>
+            </Suspense>
 
         </ThemeProvider>
     )
