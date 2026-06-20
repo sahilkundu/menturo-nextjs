@@ -806,6 +806,51 @@ export default function TypingProPage() {
     }, [])
 
     useEffect(() => {
+        const handleTypingTestUpdate = (event: Event) => {
+            const data =
+                (event as CustomEvent).detail as {
+                    testId?: string
+                    historyItem?: {
+                        historyId?: string
+                        status?: string
+                        attemptNo?: number
+                        score?: number
+                        accuracy?: number
+                    }
+                    actions?: TypingTestListItem['actions']
+                }
+
+            if (!data.testId || !data.historyItem || !data.actions) {
+                return
+            }
+
+            setAvailableTests((current) =>
+                current.map((test) =>
+                    test.testId === data.testId
+                        ? {
+                            ...test,
+                            history: [data.historyItem],
+                            actions: data.actions
+                        }
+                        : test
+                )
+            )
+        }
+
+        window.addEventListener(
+            'menturo-typing-test-updated',
+            handleTypingTestUpdate
+        )
+
+        return () => {
+            window.removeEventListener(
+                'menturo-typing-test-updated',
+                handleTypingTestUpdate
+            )
+        }
+    }, [])
+
+    useEffect(() => {
         void loadHistory(
             1,
             true
@@ -2696,7 +2741,7 @@ export default function TypingProPage() {
                             </button>
                         </div>
                     )}
-{runningTest || hasLoadedParagraph &&
+                    {hasLoadedParagraph && (
                     <div className="flex flex-wrap items-center justify-between gap-3 rounded-[12px] border border-slate-200 bg-white p-2 shadow-[0_10px_28px_rgba(15,23,42,0.07)]">
                         <div className="mt-0 rounded-[9px] bg-slate-50 px-4 py-2.5 text-xs font-bold text-slate-700 shadow-inner shadow-slate-100">
                             <div className="flex items-center justify-between gap-3">
@@ -2743,7 +2788,7 @@ export default function TypingProPage() {
                             {showLivePanel ? 'Hide Live Result' : 'Show Live Result'}
                         </button>
                     </div>
-}
+                    )}
                     {showLivePanel && (
                         <div
                             className={[

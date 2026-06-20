@@ -312,6 +312,15 @@ export const useWSStore =
                                         event.data
                                     )
 
+                                if (data.event === 'typing-test-updated') {
+                                    window.dispatchEvent(
+                                        new CustomEvent(
+                                            'menturo-typing-test-updated',
+                                            { detail: data }
+                                        )
+                                    )
+                                    return
+                                }
 
                                 if (data.event === "session-updated") {
                                     console.log("event arrived ")
