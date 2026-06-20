@@ -1308,6 +1308,10 @@ export default function TypingProPage() {
             }
 
             if (mode === 'solution') {
+                // Solution is read-only, but it must never inherit the
+                // submitted screen's hidden/disabled state.
+                setEnded(false)
+                setActiveMode('solution')
                 typedRef.current =
                     savedTypedText
                 setTyped(savedTypedText)
@@ -2807,9 +2811,7 @@ export default function TypingProPage() {
                         <section
                             className={[
                                 'w-full min-w-0 max-w-full overflow-hidden rounded-[10px] bg-white p-3 shadow-[0_12px_34px_rgba(15,23,42,0.08)] sm:p-5',
-                                ended && !solutionMode
-                                    ? 'hidden md:block'
-                                    : !loadingTest && !hasLoadedParagraph
+                                !loadingTest && !hasLoadedParagraph
                                     ? 'hidden md:block'
                                     : ''
                             ].join(' ')}
@@ -2943,7 +2945,7 @@ export default function TypingProPage() {
                                     onCompositionStart={handleCompositionStart}
                                     onCompositionEnd={handleCompositionEnd}
                                     onKeyDown={handleKeyDown}
-                                    disabled={ended || !hasLoadedParagraph}
+                                    disabled={!hasLoadedParagraph || (ended && !solutionMode)}
                                     readOnly={solutionMode}
                                     spellCheck={false}
                                     className={[
