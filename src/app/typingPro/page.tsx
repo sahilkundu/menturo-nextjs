@@ -2133,14 +2133,14 @@ export default function TypingProPage() {
 
             <div
                 className={[
-                    'grid gap-6 px-2 py-2 xl:px-2',
+                    'grid min-w-0 max-w-full gap-6 overflow-x-hidden px-2 py-2 xl:px-2',
                     runningTest
                         ? ''
                         : 'xl:grid-cols-[300px_minmax(0,1fr)]'
                 ].join(' ')}
             >
 
-                <aside className={runningTest ? 'hidden' : 'space-y-4'}>
+                <aside className={runningTest ? 'hidden' : 'min-w-0 max-w-full space-y-4'}>
 
                     <section className="overflow-hidden rounded-[10px] bg-white shadow-[0_12px_34px_rgba(15,23,42,0.08)]">
 
@@ -2797,7 +2797,7 @@ export default function TypingProPage() {
 
                     <div
                         className={[
-                            'grid gap-5',
+                            'grid min-w-0 max-w-full gap-5',
                             isFullscreen || runningTest
                                 ? ''
                                 : 'lg:grid-cols-[minmax(0,1fr)_280px]'
@@ -2807,7 +2807,9 @@ export default function TypingProPage() {
                         <section
                             className={[
                                 'min-w-0 max-w-full overflow-hidden rounded-[10px] bg-white p-3 shadow-[0_12px_34px_rgba(15,23,42,0.08)] sm:p-5',
-                                !loadingTest && !hasLoadedParagraph
+                                ended
+                                    ? 'hidden md:block'
+                                    : !loadingTest && !hasLoadedParagraph
                                     ? 'hidden md:block'
                                     : ''
                             ].join(' ')}
