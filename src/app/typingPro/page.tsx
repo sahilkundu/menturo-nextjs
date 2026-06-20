@@ -2661,7 +2661,7 @@ export default function TypingProPage() {
 
                 <section
                     ref={testShellRef}
-                    className="min-w-0 space-y-4 bg-[#f7f8fc] fullscreen:overflow-auto fullscreen:p-5"
+                    className="min-w-0 max-w-full space-y-4 overflow-x-hidden bg-[#f7f8fc] fullscreen:overflow-auto fullscreen:p-5"
                 >
 
                     {isFullscreen && (
@@ -2806,7 +2806,7 @@ export default function TypingProPage() {
 
                         <section
                             className={[
-                                'rounded-[10px] bg-white p-5 shadow-[0_12px_34px_rgba(15,23,42,0.08)]',
+                                'min-w-0 max-w-full overflow-hidden rounded-[10px] bg-white p-3 shadow-[0_12px_34px_rgba(15,23,42,0.08)] sm:p-5',
                                 !loadingTest && !hasLoadedParagraph
                                     ? 'hidden md:block'
                                     : ''
@@ -2814,7 +2814,7 @@ export default function TypingProPage() {
                         >
 
                             <div className="flex flex-wrap items-center justify-between gap-3">
-                                <h2 className="text-lg font-black">
+                                <h2 className="min-w-0 truncate text-base font-black sm:text-lg">
                                     {displayLanguage === 'hindi'
                                         ? `Hindi Typing Test (${getHindiInputModeTitle(hindiInputMode)})`
                                         : 'English Typing Test'}
@@ -2827,7 +2827,7 @@ export default function TypingProPage() {
                                             Time Left: {formatTime(remaining)}
                                         </div>
                                     )}
-                                    <p className="flex items-center gap-2 text-xs font-bold text-indigo-700">
+                                    <p className="hidden items-center gap-2 text-xs font-bold text-indigo-700 sm:flex">
                                         <Keyboard size={17} />
                                         Exam-like result layout
                                     </p>
@@ -2838,7 +2838,7 @@ export default function TypingProPage() {
                                 ref={paragraphRef}
                                 lang={displayLanguage === 'hindi' ? 'hi' : 'en'}
                                 className={[
-                                    'mt-5 h-[265px] overflow-y-auto rounded-[10px] border border-slate-200 bg-[#fbfbff] p-5 text-[20px] leading-[2] text-slate-900',
+                                    'mt-5 h-[265px] w-full max-w-full overflow-x-hidden overflow-y-auto break-words rounded-[10px] border border-slate-200 bg-[#fbfbff] p-3 text-base leading-8 text-slate-900 sm:p-5 sm:text-[20px] sm:leading-[2]',
                                     displayLanguage === 'hindi'
                                         ? 'devanagari-text'
                                         : ''
@@ -2884,7 +2884,7 @@ export default function TypingProPage() {
                                     return (
                                         <span
                                             key={`${char}-${index}`}
-                                            className={`whitespace-pre-wrap ${statusClass}`}
+                                            className={`break-words whitespace-pre-wrap ${statusClass}`}
                                         >
                                             {char}
                                         </span>
@@ -2897,7 +2897,7 @@ export default function TypingProPage() {
                                             <span
                                                 key={`${segment.text}-${index}`}
                                                 data-current={segment.current || undefined}
-                                                className={`whitespace-pre-wrap transition ${segment.className}`}
+                                                className={`break-words whitespace-pre-wrap transition ${segment.className}`}
                                             >
                                                 {segment.text}
                                             </span>
@@ -2907,13 +2907,13 @@ export default function TypingProPage() {
 
                                 {!loadingTest && !ended && !solutionMode && !liveSpellingEnabled && expectedChars.length > 0 && (
                                     <>
-                                        <span className="whitespace-pre-wrap text-slate-900">
+                                        <span className="break-words whitespace-pre-wrap text-slate-900">
                                             {paragraphDisplay.completed}
                                         </span>
                                         <span
                                             data-current="true"
                                             className={[
-                                                'whitespace-pre-wrap transition',
+                                                'break-words whitespace-pre-wrap transition',
                                                 highlightEnabled
                                                     ? 'rounded bg-yellow-100 border-b-2 border-yellow-500'
                                                     : ''
@@ -2921,7 +2921,7 @@ export default function TypingProPage() {
                                         >
                                             {paragraphDisplay.current}
                                         </span>
-                                        <span className="whitespace-pre-wrap text-slate-900">
+                                        <span className="break-words whitespace-pre-wrap text-slate-900">
                                             {paragraphDisplay.upcoming}
                                         </span>
                                     </>
@@ -2932,7 +2932,7 @@ export default function TypingProPage() {
                             <div
                                 data-typing-entry="true"
                                 onClick={handleTypingClick}
-                                className="mt-5 scroll-mt-24 rounded-[10px] border-2 border-sky-500 bg-white p-5 shadow-inner"
+                                className="mt-5 min-w-0 scroll-mt-24 rounded-[10px] border-2 border-sky-500 bg-white p-3 shadow-inner sm:p-5"
                             >
                                 <textarea
                                     ref={typingRef}
