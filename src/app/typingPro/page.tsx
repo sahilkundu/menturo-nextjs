@@ -2807,7 +2807,7 @@ export default function TypingProPage() {
                         <section
                             className={[
                                 'w-full min-w-0 max-w-full overflow-hidden rounded-[10px] bg-white p-3 shadow-[0_12px_34px_rgba(15,23,42,0.08)] sm:p-5',
-                                ended
+                                ended && !solutionMode
                                     ? 'hidden md:block'
                                     : !loadingTest && !hasLoadedParagraph
                                     ? 'hidden md:block'
