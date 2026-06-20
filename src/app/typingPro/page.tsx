@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { BarChart3, CalendarDays, Check, Clock3, Globe2, Lock, Play, Settings, Trophy } from 'lucide-react'
 import TestSectionHead from '../../shared/components/TestSectionHead'
@@ -31,11 +31,30 @@ export default function TypingProPage() {
     const applyTypingTestUpdate = useTypingStore((state) => state.applyTypingTestUpdate)
     const controlsLocked = loadingTests
     const [selectedTestId, setSelectedTestId] = useState('')
+    const [testMenuOpen, setTestMenuOpen] = useState(false)
+    const testMenuRef = useRef<HTMLDivElement>(null)
     const visibleTests = selectedTestId ? tests.filter((test) => test.testId === selectedTestId) : tests
+    const selectedTest = tests.find((test) => test.testId === selectedTestId)
+    const selectedTestLabel = selectedTest ? `${tests.indexOf(selectedTest) + 1}. ${selectedTest.title}` : `All loaded tests (${tests.length})`
 
     useEffect(() => { if (!authenticated && !authChecked) fetchUser() }, [authenticated, authChecked, fetchUser])
     useEffect(() => { void loadTests(level, 1, true, language); void loadHistory(1, true) }, [language, level, loadHistory, loadTests])
     useEffect(() => { setSelectedTestId('') }, [language, level])
+    useEffect(() => {
+        const closeMenu = (event: MouseEvent) => {
+            if (!testMenuRef.current?.contains(event.target as Node)) setTestMenuOpen(false)
+        }
+        const closeOnEscape = (event: KeyboardEvent) => {
+            if (event.key === 'Escape') setTestMenuOpen(false)
+        }
+
+        document.addEventListener('mousedown', closeMenu)
+        document.addEventListener('keydown', closeOnEscape)
+        return () => {
+            document.removeEventListener('mousedown', closeMenu)
+            document.removeEventListener('keydown', closeOnEscape)
+        }
+    }, [])
     useEffect(() => {
         const handleTypingTestUpdate = (event: Event) => {
             const update = (event as CustomEvent).detail
@@ -61,7 +80,7 @@ export default function TypingProPage() {
             <section className="rounded-[14px] bg-[#f8f9fc] p-2 shadow-[0_5px_18px_rgba(36,29,83,.13)]"><div className="flex flex-wrap gap-2">{(['english','hindi'] as const).map((item) => <button key={item} disabled={controlsLocked} onClick={() => setLanguage(item)} className={`flex items-center gap-2 rounded-[12px] border px-7 py-3 text-sm font-black disabled:cursor-wait disabled:opacity-60 ${language === item ? 'border-[#4b397c] bg-[#4b397c] text-white' : 'border-slate-200 bg-white text-slate-600'}`}><Globe2 size={15}/>{item === 'english' ? 'English' : 'Hindi'}</button>)}</div></section>
             <section className="rounded-[14px] bg-white p-3 shadow-[0_5px_18px_rgba(36,29,83,.13)]"><div className="flex gap-2 overflow-x-auto pb-1">{levels.map((item, index) => { const unlocked = item === 'Easy' || access[item] === true; return <button key={item} disabled={controlsLocked} onClick={() => setLevel(item)} className={`relative shrink-0 rounded-[11px] border px-5 py-3 text-xs font-black disabled:cursor-wait disabled:opacity-60 ${level === item ? 'border-[#4b397c] bg-[#4b397c] text-white' : unlocked ? 'border-slate-200 bg-white text-slate-600' : 'border-slate-200 bg-[#eff4fa] text-slate-400'}`}>{!unlocked && <Lock className="mr-1 inline" size={12}/>} {index + 1}. {item}</button> })}</div></section>
             <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_300px]">
-                <section className="rounded-[14px] border border-[#e4ddf7] bg-white p-3 shadow-[0_5px_18px_rgba(36,29,83,.09)] sm:p-4"><div className="mb-4 flex flex-wrap items-center justify-between gap-3"><div><h1 className="text-base font-black">{level} {language === 'english' ? 'English' : 'Hindi'} Typing Tests</h1><p className="mt-1 text-xs font-bold text-slate-500">Choose a test to start, resume, or view its solution.</p></div><select value={selectedTestId} onChange={(event) => setSelectedTestId(event.target.value)} disabled={!tests.length} aria-label="Filter loaded typing tests" className="max-w-full rounded-[9px] border border-[#d8cff3] bg-[#f8f6ff] px-3 py-2 text-xs font-black text-[#4b397c] outline-none disabled:opacity-50 sm:w-64"><option value="">All loaded tests ({tests.length})</option>{tests.map((test, index) => <option key={test.testId} value={test.testId}>{index + 1}. {test.title}</option>)}</select></div><div className="space-y-3">{visibleTests.map((test) => <TestCard key={test.testId} test={test} requirements={progress[test.levelName]} onOpen={open}/>)}</div>{loadingTests && <p className="py-8 text-center text-sm font-bold text-slate-500">Loading typing tests…</p>}{!loadingTests && !tests.length && <p className="rounded-xl border border-dashed p-8 text-center text-sm font-bold text-slate-500">No tests found for this level.</p>}{!loadingTests && tests.length > 0 && !visibleTests.length && <p className="rounded-xl border border-dashed p-8 text-center text-sm font-bold text-slate-500">Select a loaded test from the menu above.</p>}<button disabled={!testsHasMore || loadingTests} onClick={() => void loadTests(level, testPage + 1, false, language)} className="mt-4 w-full rounded-[10px] bg-[#eef1ff] py-3 text-xs font-black text-[#4b39cf] disabled:opacity-50">{loadingTests ? 'Loading…' : testsHasMore ? 'Load More Tests' : 'All Tests Loaded'}</button></section>
+                <section className="rounded-[14px] border border-[#e4ddf7] bg-white p-3 shadow-[0_5px_18px_rgba(36,29,83,.09)] sm:p-4"><div className="mb-4 flex flex-wrap items-center justify-between gap-3"><div><h1 className="text-base font-black">{level} {language === 'english' ? 'English' : 'Hindi'} Typing Tests</h1><p className="mt-1 text-xs font-bold text-slate-500">Choose a test to start, resume, or view its solution.</p></div><div ref={testMenuRef} className="relative w-full sm:w-64"><button type="button" disabled={!tests.length} onClick={() => setTestMenuOpen((open) => !open)} aria-label="Filter loaded typing tests" aria-haspopup="listbox" aria-expanded={testMenuOpen} className="flex w-full items-center justify-between gap-2 rounded-[9px] border border-[#d8cff3] bg-[#f8f6ff] px-3 py-2 text-left text-xs font-black text-[#4b397c] outline-none disabled:opacity-50"><span className="min-w-0 truncate">{selectedTestLabel}</span><span aria-hidden="true" className="shrink-0">▾</span></button>{testMenuOpen && <div role="listbox" aria-label="Loaded typing tests" className="absolute right-0 z-20 mt-1 w-full overflow-hidden rounded-[9px] border border-[#d8cff3] bg-[#f8f6ff] py-1 shadow-lg"><button type="button" role="option" aria-selected={!selectedTestId} onClick={() => { setSelectedTestId(''); setTestMenuOpen(false) }} className={`block w-full truncate px-3 py-2 text-left text-xs font-black ${!selectedTestId ? 'bg-[#4b397c] text-white' : 'bg-[#f8f6ff] text-[#4b397c] hover:bg-[#eee9fb]'}`}>All loaded tests ({tests.length})</button>{tests.map((test, index) => <button key={test.testId} type="button" role="option" aria-selected={selectedTestId === test.testId} title={`${index + 1}. ${test.title}`} onClick={() => { setSelectedTestId(test.testId); setTestMenuOpen(false) }} className={`block w-full truncate px-3 py-2 text-left text-xs font-black ${selectedTestId === test.testId ? 'bg-[#4b397c] text-white' : 'bg-[#f8f6ff] text-[#4b397c] hover:bg-[#eee9fb]'}`}>{index + 1}. {test.title}</button>)}</div>}</div></div><div className="space-y-3">{visibleTests.map((test) => <TestCard key={test.testId} test={test} requirements={progress[test.levelName]} onOpen={open}/>)}</div>{loadingTests && <p className="py-8 text-center text-sm font-bold text-slate-500">Loading typing tests…</p>}{!loadingTests && !tests.length && <p className="rounded-xl border border-dashed p-8 text-center text-sm font-bold text-slate-500">No tests found for this level.</p>}{!loadingTests && tests.length > 0 && !visibleTests.length && <p className="rounded-xl border border-dashed p-8 text-center text-sm font-bold text-slate-500">Select a loaded test from the menu above.</p>}<button disabled={!testsHasMore || loadingTests} onClick={() => void loadTests(level, testPage + 1, false, language)} className="mt-4 w-full rounded-[10px] bg-[#eef1ff] py-3 text-xs font-black text-[#4b39cf] disabled:opacity-50">{loadingTests ? 'Loading…' : testsHasMore ? 'Load More Tests' : 'All Tests Loaded'}</button></section>
                 <aside className="space-y-4"><Setup duration={duration} setDuration={setDuration} backspace={backspace} highlight={highlight} spelling={spelling} setSetting={setSetting}/><Progress level={level} access={access} progress={progress}/><History history={history} loading={loadingHistory} more={historyHasMore} onMore={() => void loadHistory(historyPage + 1, false)}/></aside>
             </div>
         </div>
