@@ -24,6 +24,7 @@ export const LOAD_TYPING_TESTS = `${BASE_URL}/api/typing-tests`
 export const LOAD_TYPING_TEST = `${BASE_URL}/api/typing-test`
 export const START_TYPING_TEST = `${BASE_URL}/api/typing/start`
 export const RESUME_TYPING_TEST = `${BASE_URL}/api/typing/resume`
+export const EXIT_TYPING_TEST = `${BASE_URL}/api/typing/exit`
 export const TYPING_SOLUTION = `${BASE_URL}/api/typing/solution`
 export const TYPING_RESULT = `${BASE_URL}/api/typing-result`
 export const TYPING_HISTORY = `${BASE_URL}/api/typing-history`
