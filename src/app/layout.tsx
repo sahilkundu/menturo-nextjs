@@ -2,7 +2,6 @@ import '../index.css'
 
 import type { ReactNode } from 'react'
 import type { Metadata, Viewport } from 'next'
-import { Noto_Sans_Devanagari } from 'next/font/google'
 import Script from 'next/script'
 import AppProviders from './providers/AppProviders'
 import {
@@ -11,14 +10,6 @@ import {
     siteName,
     siteUrl
 } from '../shared/seo'
-
-const notoSansDevanagari =
-    Noto_Sans_Devanagari({
-        subsets: ['devanagari', 'latin'],
-        weight: ['400', '500', '600', '700', '800', '900'],
-        variable: '--font-devanagari',
-        display: 'swap'
-    })
 
 export const metadata: Metadata = {
     metadataBase: new URL(siteUrl),
@@ -95,7 +86,7 @@ export default function RootLayout({
 
     return (
 
-        <html lang="en" className={notoSansDevanagari.variable}>
+        <html lang="en">
 
             <body suppressHydrationWarning>
                 <Script

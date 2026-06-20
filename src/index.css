@@ -1,3 +1,9 @@
+@import "@fontsource/noto-sans-devanagari/400.css";
+@import "@fontsource/noto-sans-devanagari/500.css";
+@import "@fontsource/noto-sans-devanagari/600.css";
+@import "@fontsource/noto-sans-devanagari/700.css";
+@import "@fontsource/noto-sans-devanagari/800.css";
+@import "@fontsource/noto-sans-devanagari/900.css";
 @import "tailwindcss";
 
 /* ================= CSS VARIABLES (Base fallback) ================= */
@@ -12,15 +18,15 @@ body {
 }
 body{
   background: var(--main);
-  font-family: var(--font-devanagari), Arial, sans-serif;
+  font-family: "Noto Sans Devanagari", Arial, sans-serif;
   /* overflow: hidden; */
 }
 
 .typing-font {
-  font-family: var(--font-devanagari), "Noto Sans Devanagari", "Kohinoor Devanagari", "Devanagari Sangam MN", "Mangal", Arial, sans-serif;
+  font-family: "Noto Sans Devanagari", "Kohinoor Devanagari", "Devanagari Sangam MN", "Mangal", Arial, sans-serif;
 }
 .devanagari-text {
-  font-family: var(--font-devanagari), "Noto Sans Devanagari", "Kohinoor Devanagari", "Devanagari Sangam MN", "Mangal", Arial, sans-serif;
+  font-family: "Noto Sans Devanagari", "Kohinoor Devanagari", "Devanagari Sangam MN", "Mangal", Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
