@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation'
 import {
     useEffect,
+    useDeferredValue,
     useMemo,
     useRef,
     useState
@@ -30,7 +31,6 @@ import {
     Lightbulb,
     Lock,
     Minimize,
-    RotateCcw,
     Send,
     Settings,
     Sparkles,
@@ -41,6 +41,7 @@ import {
 } from 'lucide-react'
 import {
     LOAD_TYPING_TESTS,
+    EXIT_TYPING_TEST,
     RESUME_TYPING_TEST,
     START_TYPING_TEST,
     TYPING_SOLUTION,
@@ -49,11 +50,18 @@ import {
 } from '../../../api'
 import TestSectionHead from '../../shared/components/TestSectionHead'
 import Spinner from '../../shared/components/Spinner'
+import TestActionLoader from '../../shared/components/TestActionLoader'
 import { useUserStore } from '../../shared/store/user'
 import { showPopupMessage } from '../../shared/utils/popup'
 import { showRouteLoader } from '../../shared/utils/routeLoader'
+import {
+    hideTestActionLoader,
+    showTestActionLoader
+} from '../../shared/utils/testActionLoader'
 
 type Language = 'hindi' | 'english'
+
+type HindiInputMode = 'unicode' | 'phonetic' | 'remington'
 
 type Result = ReturnType<typeof computeResult>
 
@@ -99,6 +107,11 @@ type TypingTestListItem = {
     available?: boolean
     levelUnlocked?: boolean
     buttonName?: string
+    actions?: {
+        primary?: 'start' | 'resume' | 'test-again'
+        resumeHistoryId?: string
+        solutionHistoryId?: string
+    }
     history?: Array<{
         historyId?: string
         status?: string
@@ -119,6 +132,21 @@ type SubmitResponse = {
     levelName?: string
     best?: boolean
     history?: TypingHistoryItem[]
+    historyItem?: {
+        historyId: string
+        status: 'submitted' | 'resume'
+        score?: number
+        accuracy?: number
+    }
+    levelProgress?: Record<string, {
+        total: number
+        passed: number
+        percent: number
+        minimumSpeed: number
+        minimumAccuracy: number
+        complete: boolean
+    }>
+    levelAccess?: Record<string, boolean>
 }
 
 const romanMap = [
@@ -174,6 +202,133 @@ const romanMap = [
     ['z', 'ज']
 ]
 
+const hindiInputModes: Array<{
+    value: HindiInputMode
+    label: string
+    detail: string
+}> = [
+    {
+        value: 'unicode',
+        label: 'Unicode',
+        detail: 'Direct Hindi'
+    },
+    {
+        value: 'phonetic',
+        label: 'Google Indic',
+        detail: 'bharat -> भारत'
+    },
+    {
+        value: 'remington',
+        label: 'Remington',
+        detail: 'KrutiDev/DevLys'
+    }
+]
+
+const krutiDevShortcutMap: Record<string, string> = {
+    '¡': 'ँ',
+    '£': 'ख्र',
+    'ª': '्र',
+    '«': 'त्र्',
+    '¶': 'फ्',
+    '¸': 'य्',
+    '¼': '(',
+    '½': ')',
+    'Å': 'ऊ',
+    'Ì': 'द्य',
+    'Í': 'ट्ट',
+    'Î': 'ट्ठ',
+    'Ï': 'ड्ड',
+    'Ñ': 'कृ',
+    'Ô': 'ड्ढ',
+    'Ø': 'क्र',
+    'Ù': 'त्त्',
+    'Ý': 'फ्र',
+    'à': 'ह्न',
+    'á': 'ह्य',
+    'â': 'ह्र',
+    'ã': 'ह्म',
+    'ä': 'क्त',
+    'æ': 'द्र',
+    'é': 'न्न',
+    'ó': 'स्त्र'
+}
+
+const remingtonKeyMap: Record<string, string> = {
+    q: 'ु',
+    w: 'ू',
+    e: 'म',
+    r: 'त',
+    t: 'ज',
+    y: 'ल',
+    u: 'न',
+    i: 'प',
+    o: 'व',
+    p: 'च',
+    a: 'ं',
+    s: 'े',
+    d: 'क',
+    f: 'ि',
+    g: 'ह',
+    h: 'ी',
+    j: 'र',
+    k: 'ा',
+    l: 'स',
+    z: '्र',
+    x: 'ग',
+    c: 'ब',
+    v: 'अ',
+    b: 'इ',
+    n: 'द',
+    m: 'उ',
+    Q: 'फ',
+    W: 'ऊ',
+    E: 'म्',
+    R: 'त्',
+    T: 'ज्',
+    Y: 'ल्',
+    U: 'न्',
+    I: 'प्',
+    O: 'व्',
+    P: 'च्',
+    A: '।',
+    S: 'ै',
+    D: 'क्',
+    F: 'थ',
+    G: 'ळ',
+    H: 'भ',
+    J: 'श्र',
+    K: 'ज्ञ',
+    L: 'स्',
+    Z: 'र्',
+    X: 'ग्',
+    C: 'ब्',
+    V: 'ट',
+    B: 'ठ',
+    N: 'छ',
+    M: 'ड',
+    '`': '़',
+    '~': 'द्य',
+    '-': '-',
+    '=': 'ृ',
+    '[': 'ख',
+    ']': ',',
+    '\\': 'ॉ',
+    ';': 'य',
+    "'": 'श',
+    ',': 'ए',
+    '.': 'ण',
+    '/': 'ध',
+    '<': 'ऐ',
+    '>': 'झ',
+    '?': 'घ'
+}
+
+const legacyRemingtonInputChars =
+    new Set([
+        ...Object.keys(krutiDevShortcutMap),
+        ...Object.keys(remingtonKeyMap)
+    ])
+
 const levels = [
     'Easy',
     'Medium',
@@ -216,6 +371,12 @@ export default function TypingProPage() {
 
     const typingTestsRequestIdRef =
         useRef(0)
+
+    const resumeExpiredRef =
+        useRef(false)
+
+    const zeroTimeSubmitRef =
+        useRef(false)
 
     const composingHindiRef =
         useRef(false)
@@ -351,6 +512,9 @@ export default function TypingProPage() {
     const [liveSpellingEnabled, setLiveSpellingEnabled] =
         useState(true)
 
+    const [hindiInputMode, setHindiInputMode] =
+        useState<HindiInputMode>('phonetic')
+
     const [backspaces, setBackspaces] =
         useState(0)
 
@@ -369,14 +533,20 @@ export default function TypingProPage() {
     const activeText =
         testData?.paragraph || ''
 
+    const hasLoadedParagraph =
+        Boolean(testData?.paragraph)
+
+    const activeDuration =
+        testData?.duration || duration
+
     const displayLanguage =
-        testData?.paragraph
+        hasLoadedParagraph
             ? language
             : activeTypingLanguage
 
     const settingsLocked =
         activeMode === 'test' &&
-        Boolean(testData?.paragraph) &&
+        hasLoadedParagraph &&
         !ended
 
     const listControlsLocked =
@@ -386,6 +556,11 @@ export default function TypingProPage() {
 
     const solutionMode =
         activeMode === 'solution'
+
+    const runningTest =
+        activeMode === 'test' &&
+        hasLoadedParagraph &&
+        !ended
 
     const expectedChars =
         useMemo(
@@ -399,53 +574,35 @@ export default function TypingProPage() {
             [typed]
         )
 
-    const paragraphWindow =
-        useMemo(
-            () => {
-                const currentIndex =
-                    typedChars.length
-
-                const start =
-                    Math.max(
-                        0,
-                        currentIndex - 90
-                    )
-
-                const end =
-                    Math.min(
-                        expectedChars.length,
-                        currentIndex + 260
-                    )
-
-                return {
-                    start,
-                    chars:
-                        expectedChars.slice(
-                            start,
-                            end
-                        ),
-                    hasBefore:
-                        start > 0,
-                    hasAfter:
-                        end < expectedChars.length
-                }
-            },
-            [
-                expectedChars,
-                typedChars.length
-            ]
-        )
+    const deferredTyped =
+        useDeferredValue(typed)
 
     const currentWordStart =
         useMemo(
-            () =>
-                findCurrentWordStart(
-                    expectedChars,
-                    typedChars.length
-                ),
+            () => findExpectedBoundaryAfterWords(
+                expectedChars,
+                countCommittedTypedWords(typedChars)
+            ),
             [
                 expectedChars,
-                typedChars.length
+                typedChars
+            ]
+        )
+
+    const hindiCommittedUntil =
+        useMemo(
+            () =>
+                displayLanguage === 'hindi'
+                    ? findHindiCommittedUntil(
+                        expectedChars,
+                        typedChars
+                    )
+                    : currentWordStart,
+            [
+                expectedChars,
+                typedChars,
+                displayLanguage,
+                currentWordStart
             ]
         )
 
@@ -454,28 +611,162 @@ export default function TypingProPage() {
             () =>
                 findCurrentWordEnd(
                     expectedChars,
-                    typedChars.length
+                    currentWordStart
                 ),
             [
                 expectedChars,
-                typedChars.length
+                currentWordStart
             ]
         )
+
+    const hindiActiveWordEnd =
+        useMemo(
+            () =>
+                displayLanguage === 'hindi'
+                    ? findCurrentWordEnd(
+                        expectedChars,
+                        currentWordStart
+                    )
+                    : currentWordEnd,
+            [
+                expectedChars,
+                displayLanguage,
+                currentWordStart,
+                currentWordEnd
+            ]
+        )
+
+    // Keep the entire paragraph visible, but render only three reactive text
+    // nodes. Per-word/character React nodes make mobile browsers stutter.
+    const paragraphDisplay =
+        useMemo(() => {
+            const activeEnd =
+                displayLanguage === 'hindi'
+                    ? hindiActiveWordEnd
+                    : currentWordEnd + 1
+
+            return {
+                completed: expectedChars.slice(0, currentWordStart).join(''),
+                current: expectedChars.slice(currentWordStart, activeEnd).join(''),
+                upcoming: expectedChars.slice(activeEnd).join('')
+            }
+        }, [
+            currentWordEnd,
+            currentWordStart,
+            displayLanguage,
+            expectedChars,
+            hindiActiveWordEnd
+        ])
+
+    const liveSpellingSegments =
+        useMemo(() => {
+            const segments: Array<{
+                text: string
+                className: string
+                current: boolean
+            }> = []
+            const typedText = typedChars.join('')
+            const typedWords = typedText.trim()
+                ? typedText.trim().split(/\s+/)
+                : []
+            const endsWithSpace = /\s$/.test(typedText)
+            const activeWordIndex = endsWithSpace
+                ? typedWords.length
+                : Math.max(0, typedWords.length - 1)
+            const committedWordCount = endsWithSpace
+                ? typedWords.length
+                : Math.max(0, typedWords.length - 1)
+            let expectedCursor = 0
+            let wordIndex = 0
+
+            const append = (
+                text: string,
+                className = '',
+                current = false
+            ) => {
+                if (!text) return
+
+                const previous = segments.at(-1)
+                if (
+                    previous &&
+                    previous.className === className &&
+                    previous.current === current
+                ) {
+                    previous.text += text
+                    return
+                }
+
+                segments.push({ text, className, current })
+            }
+
+            while (expectedCursor < expectedChars.length) {
+                if (isWhitespaceGrapheme(expectedChars[expectedCursor])) {
+                    append(expectedChars[expectedCursor])
+                    expectedCursor += 1
+                    continue
+                }
+
+                const wordStart = expectedCursor
+                while (
+                    expectedCursor < expectedChars.length &&
+                    !isWhitespaceGrapheme(expectedChars[expectedCursor])
+                ) {
+                    expectedCursor += 1
+                }
+
+                const expectedWord = expectedChars.slice(wordStart, expectedCursor)
+
+                if (wordIndex > activeWordIndex) {
+                    append(expectedChars.slice(wordStart).join(''))
+                    break
+                }
+
+                const typedWord = splitGraphemes(typedWords[wordIndex] || '')
+                const isCurrentWord = wordIndex === activeWordIndex
+                const isIncompleteCommittedWord =
+                    wordIndex < committedWordCount &&
+                    typedWord.length !== expectedWord.length
+
+                expectedWord.forEach((char, index) => {
+                    const isWrongKeystroke =
+                        isIncompleteCommittedWord ||
+                        (
+                            index < typedWord.length &&
+                            typedWord[index] !== char
+                        )
+                    const className = isWrongKeystroke
+                        ? 'rounded bg-red-100 text-red-700'
+                        : isCurrentWord && highlightEnabled
+                            ? 'bg-yellow-100 border-b-2 border-yellow-500'
+                            : ''
+
+                    append(char, className, isCurrentWord)
+                })
+
+                wordIndex += 1
+            }
+
+            return segments
+        }, [
+            expectedChars,
+            highlightEnabled,
+            typedChars
+        ])
 
     const liveResult =
         useMemo(
             () =>
                 computeLiveResult({
                     expected: activeText,
-                    actual: typed,
-                    durationSec: duration * 60,
+                    actual: deferredTyped,
+                    durationSec: activeDuration * 60,
                     remaining,
                     backspaces
                 }),
             [
                 activeText,
-                typed,
-                duration,
+                deferredTyped,
+                activeDuration,
                 remaining,
                 backspaces
             ]
@@ -623,9 +914,11 @@ export default function TypingProPage() {
             })
 
     }, [
-        typed,
+        currentWordStart,
+        hindiActiveWordEnd,
         highlightEnabled,
-        autoScrollEnabled
+        autoScrollEnabled,
+        runningTest
     ])
 
     useEffect(() => {
@@ -633,6 +926,7 @@ export default function TypingProPage() {
         return () => {
             if (timerRef.current) {
                 clearInterval(timerRef.current)
+                timerRef.current = null
             }
 
             if (scrollFrameRef.current) {
@@ -680,6 +974,9 @@ export default function TypingProPage() {
         reset = true,
         nextLanguage = activeTypingLanguage
     ) => {
+        if(nextLanguage === 'hindi'){
+            return
+        }
         if (typingTestsLoadingRef.current) {
             return
         }
@@ -858,6 +1155,7 @@ export default function TypingProPage() {
         }
 
         setLoadingTest(true)
+        resumeExpiredRef.current = false
 
         try {
             const endpoint =
@@ -878,7 +1176,11 @@ export default function TypingProPage() {
                         },
                         body: JSON.stringify({
                             testId: nextTestId,
-                            historyId
+                            historyId,
+                            durationSec:
+                                mode === 'start'
+                                    ? selectedDuration * 60
+                                    : undefined
                         })
                     }
                 )
@@ -955,7 +1257,12 @@ export default function TypingProPage() {
                         data.levelName ||
                         getLevelName(data.test?.level || data.level || 1),
                     duration:
-                        selectedDuration,
+                        Math.max(
+                            1,
+                            Math.round(
+                                (data.durationSec || selectedDuration * 60) / 60
+                            )
+                        ),
                     paragraph,
                     typedText:
                         loadedLanguage === 'hindi'
@@ -978,6 +1285,27 @@ export default function TypingProPage() {
                     ? 'solution'
                     : 'test'
             )
+
+            if (mode === 'resume') {
+                const resumedText =
+                    loadedTest.typedText || ''
+                const remainingSec = Math.max(
+                    0,
+                    data.remainingSec ?? loadedTest.duration * 60
+                )
+
+                typedRef.current = resumedText
+                setTyped(resumedText)
+                setBackspaces(Math.max(0, data.backspaces || 0))
+                setRemaining(remainingSec)
+                resumeExpiredRef.current = remainingSec === 0
+
+                requestAnimationFrame(() => {
+                    if (typingRef.current) {
+                        typingRef.current.value = resumedText
+                    }
+                })
+            }
 
             if (mode === 'solution') {
                 typedRef.current =
@@ -1022,6 +1350,7 @@ export default function TypingProPage() {
         reset = false,
         historyTestId = ''
     ) => {
+        if(activeTypingLanguage === 'hindi') return
         if (loadingHistory) return
 
         setLoadingHistory(true)
@@ -1250,6 +1579,9 @@ export default function TypingProPage() {
         setSelectedTest(test)
         setTestId(test.testId)
         setLoadingTestKey(buttonKey)
+        if (mode === 'resume') {
+            showTestActionLoader('Resuming Typing Test')
+        }
         pendingTypingFocusRef.current =
             mode !== 'solution'
 
@@ -1258,12 +1590,10 @@ export default function TypingProPage() {
         }
 
         try {
-            let loaded =
-                mode !== 'solution' &&
-                Boolean(
-                    testData?.paragraph &&
-                    testData.testId === test.testId
-                )
+            // Every start, retry, and resume must obtain a fresh backend session.
+            // In particular, resume transitions its history from `resume` to
+            // `running` and returns backend-authoritative time remaining.
+            let loaded = false
 
             if (!loaded && !loadingTest) {
                 loaded =
@@ -1283,10 +1613,14 @@ export default function TypingProPage() {
                 return
             }
 
-            resetTest(
-                duration,
-                'test'
-            )
+            if (mode === 'resume') {
+                if (resumeExpiredRef.current) {
+                    return
+                }
+
+                startTimer()
+            }
+
             void loadHistory(1, true)
 
             requestAnimationFrame(() => {
@@ -1300,6 +1634,9 @@ export default function TypingProPage() {
             })
         } finally {
             setLoadingTestKey('')
+            if (mode === 'resume') {
+                hideTestActionLoader()
+            }
         }
     }
 
@@ -1336,9 +1673,62 @@ export default function TypingProPage() {
             setBackspaces((current) => current + 1)
         }
 
+        if (
+            language === 'hindi' &&
+            hindiInputMode === 'remington' &&
+            event.key.length === 1
+        ) {
+            const mappedKey =
+                krutiDevShortcutMap[event.key] ||
+                remingtonKeyMap[event.key]
+
+            if (mappedKey) {
+                event.preventDefault()
+                insertRemingtonText(
+                    event.currentTarget,
+                    mappedKey
+                )
+                return
+            }
+        }
+
         if (!started && event.key.length === 1) {
             startTimer()
         }
+    }
+
+    const insertRemingtonText = (
+        element: HTMLTextAreaElement,
+        text: string
+    ) => {
+        const selectionStart =
+            element.selectionStart
+
+        const selectionEnd =
+            element.selectionEnd
+
+        const nextValue =
+            [
+                element.value.slice(0, selectionStart),
+                text,
+                element.value.slice(selectionEnd)
+            ].join('')
+
+        element.value =
+            nextValue
+
+        const nextCursor =
+            selectionStart + text.length
+
+        element.setSelectionRange(
+            nextCursor,
+            nextCursor
+        )
+
+        commitTypedValue(
+            element,
+            nextValue
+        )
     }
 
     const commitTypedValue = (
@@ -1355,7 +1745,10 @@ export default function TypingProPage() {
 
         const nextValue =
             language === 'hindi'
-                ? normalizeHindiTypingInput(rawValue)
+                ? normalizeHindiInputByMode(
+                    rawValue,
+                    hindiInputMode
+                )
                 : rawValue
 
         if (nextValue !== rawValue) {
@@ -1470,13 +1863,43 @@ export default function TypingProPage() {
             computeResult({
                 expected: activeText,
                 actual: finalText,
-                durationSec: duration * 60,
+                durationSec: activeDuration * 60,
                 remaining: finalRemaining,
                 backspaces
             })
 
         void submitTypingResult(computed, finalText)
     }
+
+    useEffect(() => {
+        if (
+            !runningTest ||
+            remaining > 0 ||
+            ended ||
+            submittingResult ||
+            zeroTimeSubmitRef.current
+        ) {
+            if (remaining > 0) {
+                zeroTimeSubmitRef.current = false
+            }
+            return
+        }
+
+        // This catches both a timer reaching 0:00 and a resume response that
+        // already has no time remaining.
+        zeroTimeSubmitRef.current = true
+        const frame = requestAnimationFrame(() => {
+            finishTest(typedRef.current, 0)
+        })
+
+        return () => cancelAnimationFrame(frame)
+    }, [
+        ended,
+        remaining,
+        runningTest,
+        submittingResult,
+        testData?.historyId
+    ])
 
     const submitTypingResult = async (
         computed: Result,
@@ -1491,13 +1914,14 @@ export default function TypingProPage() {
         }
 
         setSubmittingResult(true)
+        showTestActionLoader('Submitting Typing Test')
 
         const payload =
             buildTypingResultPayload({
                 test: testData,
                 result: computed,
                 typedText: finalText,
-                duration,
+                duration: activeDuration,
                 remaining,
                 backspaces,
                 startedAt: Date.now() - computed.elapsed * 1000,
@@ -1524,6 +1948,7 @@ export default function TypingProPage() {
             setResultMeta(data)
 
             if (data?.success) {
+                showTestActionLoader('Loading Result')
                 if (document.fullscreenElement) {
                     await document.exitFullscreen()
                 }
@@ -1539,12 +1964,35 @@ export default function TypingProPage() {
                     true
                 )
 
-                void loadHistory(1, true)
-                void loadTypingTests(
-                    activeLevel,
-                    1,
-                    true,
-                    activeTypingLanguage
+                const historyItem = data.historyItem || {
+                    historyId: testData.historyId || '',
+                    status: 'submitted' as const,
+                    score: data.result?.net3 || computed.net3,
+                    accuracy: data.result?.accuracy || computed.accuracy
+                }
+
+                if (data.levelProgress) {
+                    setLevelProgress(data.levelProgress)
+                }
+
+                if (data.levelAccess) {
+                    setLevelAccess(data.levelAccess)
+                }
+
+                setAvailableTests((current) =>
+                    current.map((item) =>
+                        item.testId === testData.testId
+                            ? {
+                                ...item,
+                                history: [historyItem],
+                                actions: {
+                                    primary: 'test-again',
+                                    resumeHistoryId: '',
+                                    solutionHistoryId: historyItem.historyId
+                                }
+                            }
+                            : item
+                    )
                 )
             } else {
                 showPopupMessage(
@@ -1560,6 +2008,75 @@ export default function TypingProPage() {
             )
         } finally {
             setSubmittingResult(false)
+            hideTestActionLoader()
+        }
+    }
+
+    const exitTypingTest = async () => {
+        if (!testData?.historyId || !testData.testId || !runningTest) {
+            return
+        }
+
+        setSubmittingResult(true)
+        showTestActionLoader('Saving Typing Progress')
+
+        try {
+            const response = await fetch(EXIT_TYPING_TEST, {
+                method: 'POST',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    historyId: testData.historyId,
+                    testId: testData.testId,
+                    typedText: typedRef.current,
+                    backspaces
+                })
+            })
+            const data = await response.json()
+
+            if (!response.ok || !data?.success) {
+                showPopupMessage(data?.message || 'Unable to save typing progress', false)
+                return
+            }
+
+            if (timerRef.current) {
+                clearInterval(timerRef.current)
+                timerRef.current = null
+            }
+
+            if (document.fullscreenElement) {
+                await document.exitFullscreen()
+            }
+
+            showPopupMessage('Progress saved. You can resume this test later.', true)
+            const historyItem = data.historyItem || {
+                historyId: testData.historyId,
+                status: 'resume' as const
+            }
+            setAvailableTests((current) =>
+                current.map((item) =>
+                    item.testId === testData.testId
+                        ? {
+                            ...item,
+                            history: [historyItem],
+                            actions: {
+                                primary: 'resume',
+                                resumeHistoryId: historyItem.historyId,
+                                solutionHistoryId: ''
+                            }
+                        }
+                        : item
+                )
+            )
+            resetTest()
+            setTestData(null)
+        } catch {
+            showPopupMessage('Unable to save typing progress', false)
+        } finally {
+            setSubmittingResult(false)
+            hideTestActionLoader()
         }
     }
 
@@ -1568,8 +2085,12 @@ export default function TypingProPage() {
         nextMode: 'idle' | 'test' | 'solution' = 'idle'
     ) => {
 
+        zeroTimeSubmitRef.current = false
+        resumeExpiredRef.current = false
+
         if (timerRef.current) {
             clearInterval(timerRef.current)
+            timerRef.current = null
         }
 
         if (typingFrameRef.current) {
@@ -1596,6 +2117,8 @@ export default function TypingProPage() {
     return (
         <main className="typing-font min-h-screen bg-[#f7f8fc] text-[#080d31]">
 
+            <TestActionLoader />
+
             <div className="w-full px-0 pt-0">
                 <TestSectionHead
                     userName=""
@@ -1608,13 +2131,20 @@ export default function TypingProPage() {
                 />
             </div>
 
-            <div className="grid gap-6 px-5 py-5 xl:grid-cols-[360px_minmax(0,1fr)] xl:px-8">
+            <div
+                className={[
+                    'grid gap-6 px-2 py-2 xl:px-2',
+                    runningTest
+                        ? ''
+                        : 'xl:grid-cols-[300px_minmax(0,1fr)]'
+                ].join(' ')}
+            >
 
-                <aside className="space-y-4">
+                <aside className={runningTest ? 'hidden' : 'space-y-4'}>
 
                     <section className="overflow-hidden rounded-[10px] bg-white shadow-[0_12px_34px_rgba(15,23,42,0.08)]">
 
-                        <div className="flex items-center gap-4 bg-gradient-to-r from-[#642be4] to-[#3519bd] p-3 text-white">
+                        <div className="flex items-center gap-4 bg-gradient-to-r from-[#642be4] to-[#3519bd] p-1 text-white">
                             <div className="flex h-11 w-11 items-center justify-center rounded-[10px] bg-white/15">
                                 <Settings size={23} />
                             </div>
@@ -1625,7 +2155,7 @@ export default function TypingProPage() {
                             </div>
                         </div>
 
-                        <div className="space-y-4 p-5">
+                        <div className="space-y-4 p-2">
 
                             <div>
                                 <div className="mb-3 grid grid-cols-2 gap-2 rounded-[10px] bg-slate-100 p-1">
@@ -1646,7 +2176,7 @@ export default function TypingProPage() {
 
                                                 setActiveTypingLanguage(value)
                                             }}
-                                            disabled={listControlsLocked}
+                                            disabled={value === 'hindi' || listControlsLocked}
                                             className={[
                                                 'rounded-[8px] px-3 py-2 text-xs font-black transition disabled:cursor-not-allowed disabled:opacity-60',
                                                 activeTypingLanguage === value
@@ -1701,15 +2231,27 @@ export default function TypingProPage() {
 
                                         const resumeHistory =
                                             test.history?.find((item) =>
+                                                item.historyId === test.actions?.resumeHistoryId
+                                            ) || test.history?.find((item) =>
                                                 item.status === 'resume' ||
                                                 item.status === 'running'
                                             )
 
                                         const submittedHistory =
-                                            test.history?.find((item) => item.status === 'submitted')
+                                            test.history?.find((item) =>
+                                                item.historyId === test.actions?.solutionHistoryId
+                                            ) || test.history?.find((item) => item.status === 'submitted')
 
                                         const hasSubmitted =
                                             Boolean(submittedHistory)
+
+                                        const primaryAction =
+                                            test.actions?.primary ||
+                                            (resumeHistory
+                                                ? 'resume'
+                                                : hasSubmitted
+                                                    ? 'test-again'
+                                                    : 'start')
 
                                         const unavailable =
                                             test.available === false ||
@@ -1766,13 +2308,13 @@ export default function TypingProPage() {
                                             >
                                                 <div className="grid gap-3">
                                                     <div className="min-w-0">
-                                                        <div className="flex flex-wrap items-center gap-2">
-                                                            <h4 className="truncate text-sm font-black text-slate-900">
+                                                        <div className="flex min-w-0 items-center gap-2">
+                                                            <h4
+                                                                title={test.title}
+                                                                className="min-w-0 flex-1 truncate text-sm font-black text-slate-900"
+                                                            >
                                                                 {test.title}
                                                             </h4>
-                                                            <span className="rounded border border-amber-200 bg-amber-50 px-1.5 py-0.5 text-[10px] font-black text-amber-700">
-                                                                ⚡ {test.totalAttempt || test.totalUsers || 0} Users
-                                                            </span>
                                                         </div>
 
                                                         <div className="mt-2 grid grid-cols-3 gap-2 text-[11px] font-bold text-slate-500">
@@ -1796,16 +2338,16 @@ export default function TypingProPage() {
                                                         </div>
                                                     </div>
 
-                                                    <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+                                                    <div className="grid grid-cols-2 gap-2">
                                                         {unavailable ? (
                                                             <button
                                                                 type="button"
                                                                 disabled
-                                                                className="sm:col-span-3 rounded-xl border border-slate-200 bg-slate-100 px-4 py-2.5 text-[11px] font-black text-slate-500 disabled:cursor-not-allowed"
+                                                                className="col-span-2 rounded-xl border border-slate-200 bg-slate-100 px-4 py-2.5 text-[11px] font-black text-slate-500 disabled:cursor-not-allowed"
                                                             >
                                                                 {test.buttonName || 'Available Soon'}
                                                             </button>
-                                                        ) : resumeHistory && (
+                                                        ) : primaryAction === 'resume' && resumeHistory ? (
                                                             <button
                                                                 type="button"
                                                                 onClick={(event) => {
@@ -1823,9 +2365,7 @@ export default function TypingProPage() {
                                                                     ? <Spinner size={16} />
                                                                     : 'Resume'}
                                                             </button>
-                                                        )}
-
-                                                        {!unavailable && (
+                                                        ) : (
                                                         <button
                                                             type="button"
                                                             onClick={(event) => {
@@ -1887,12 +2427,6 @@ export default function TypingProPage() {
                                             : 'All Tests Loaded'}
                                 </button>
                             </div>
-
-                            <div className="border-t border-slate-100 pt-4">
-                                <h3 className="text-xs font-black text-slate-900">Test Settings</h3>
-                                <p className="mt-1 text-[11px] font-bold text-slate-500">Choose before starting</p>
-                            </div>
-
                             <div>
                                 <span className="text-xs font-black">Select Test Time</span>
                                 <div className="mt-2 grid grid-cols-5 gap-2">
@@ -1915,6 +2449,43 @@ export default function TypingProPage() {
                                     ))}
                                 </div>
                             </div>
+
+                            {displayLanguage === 'hindi' && (
+                                <div>
+                                    <span className="text-xs font-black">Hindi Input Method</span>
+                                    <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-3">
+                                        {hindiInputModes.map((mode) => (
+                                            <button
+                                                key={mode.value}
+                                                type="button"
+                                                onClick={() => setHindiInputMode(mode.value)}
+                                                disabled={settingsLocked}
+                                                className={[
+                                                    'rounded-[9px] border px-3 py-2 text-left disabled:cursor-not-allowed disabled:opacity-50',
+                                                    hindiInputMode === mode.value
+                                                        ? 'border-indigo-600 bg-indigo-600 text-white'
+                                                        : 'border-slate-200 bg-white text-slate-700'
+                                                ].join(' ')}
+                                            >
+                                                <span className="block text-xs font-black">
+                                                    {mode.label}
+                                                </span>
+                                                <span
+                                                    className={[
+                                                        'mt-1 block text-[10px] font-bold',
+                                                        hindiInputMode === mode.value
+                                                            ? 'text-white/80'
+                                                            : 'text-slate-500'
+                                                    ].join(' ')}
+                                                >
+                                                    {mode.detail}
+                                                </span>
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
                             <div className="space-y-3 border-t border-slate-100 pt-3">
 
                                 <ChoiceRow
@@ -2052,8 +2623,8 @@ export default function TypingProPage() {
                                 })}
                             </div>
                         </div>
-
-                        <div className="mt-4 rounded-[9px] bg-slate-50 px-3 py-2.5 text-xs font-bold text-slate-700 shadow-inner shadow-slate-100">
+                        
+                        <div className="mt-3 rounded-[9px] bg-slate-50 px-2 py-1 text-xs font-bold text-slate-700 shadow-inner shadow-slate-100">
                             <div className="flex items-center justify-between gap-3">
                                 <span className="flex items-center gap-2">
                                     <Lock size={15} className="text-amber-500" />
@@ -2083,6 +2654,7 @@ export default function TypingProPage() {
                                 Next level unlocks after passing all tests in previous level
                             </p>
                         </div>
+
                     </section>
 
                 </aside>
@@ -2105,37 +2677,78 @@ export default function TypingProPage() {
 
                             <button
                                 type="button"
-                                onClick={() => document.exitFullscreen()}
+                                onClick={() => {
+                                    if (runningTest) {
+                                        void exitTypingTest()
+                                        return
+                                    }
+
+                                    void document.exitFullscreen()
+                                }}
                                 className="flex h-10 items-center gap-2 rounded-[10px] bg-[#22135f] px-3 text-xs font-black text-white shadow-lg shadow-violet-300/60"
                             >
-                                <Minimize size={16} />
-                                Exit
+                                {runningTest ? <X size={16} /> : <Minimize size={16} />}
+                                {runningTest ? 'Exit & Save' : 'Exit'}
                             </button>
                         </div>
                     )}
+{runningTest || hasLoadedParagraph &&
+                    <div className="flex flex-wrap items-center justify-between gap-3 rounded-[12px] border border-slate-200 bg-white p-2 shadow-[0_10px_28px_rgba(15,23,42,0.07)]">
+                        <div className="mt-0 rounded-[9px] bg-slate-50 px-4 py-2.5 text-xs font-bold text-slate-700 shadow-inner shadow-slate-100">
+                            <div className="flex items-center justify-between gap-3">
+                                <span className="flex items-center gap-2">
+                                    <Lock size={15} className="text-amber-500" />
+                                    {activeLevel} progress
+                                </span>
+                                <span>
+                                    {levelProgress[activeLevel]?.passed || 0}/{levelProgress[activeLevel]?.total || 0}
+                                </span>
+                            </div>
 
-                    <div className="flex flex-wrap items-center justify-between gap-3">
-                        <div>
-                            <p className="text-xs font-black uppercase text-indigo-700">
-                                {testData?.levelName || getLevelName(testData?.level || 1)} Level
+                            <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-200">
+                                <div
+                                    className="h-full rounded-full bg-gradient-to-r from-red-400 via-amber-400 to-emerald-500"
+                                    style={{
+                                        width: `${Math.max(
+                                            0,
+                                            Math.min(
+                                                100,
+                                                levelProgress[activeLevel]?.percent || 0
+                                            )
+                                        )}%`
+                                    }}
+                                ></div>
+                            </div>
+
+                            <p className="mt-2 text-[11px] text-slate-500">
+                                Next level unlocks after passing all tests in previous level
                             </p>
-                            <h2 className="text-xl font-black">
-                                {testData?.title || 'Typing Test'}
-                            </h2>
                         </div>
 
                         <button
                             type="button"
                             onClick={() => setShowLivePanel((current) => !current)}
-                            className="flex items-center gap-2 rounded-[10px] border border-slate-200 bg-white px-4 py-2.5 text-xs font-black text-indigo-700 shadow-sm"
+                            className={[
+                                'items-center gap-2 rounded-[10px] border border-slate-200 bg-white px-4 py-2.5 text-xs font-black text-indigo-700 shadow-sm',
+                                hasLoadedParagraph
+                                    ? 'flex'
+                                    : 'hidden'
+                            ].join(' ')}
                         >
                             {showLivePanel ? <EyeOff size={16} /> : <Eye size={16} />}
                             {showLivePanel ? 'Hide Live Result' : 'Show Live Result'}
                         </button>
                     </div>
-
+}
                     {showLivePanel && (
-                        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+                        <div
+                            className={[
+                                'grid gap-4 md:grid-cols-2 xl:grid-cols-5',
+                                hasLoadedParagraph
+                                    ? ''
+                                    : 'hidden'
+                            ].join(' ')}
+                        >
                             <StatCard
                                 icon={<User size={26} />}
                                 label="USER NAME"
@@ -2150,7 +2763,7 @@ export default function TypingProPage() {
                                 value={formatTime(remaining)}
                                 detail={started ? 'Running' : ended ? 'Finished' : 'Ready'}
                                 iconClass="bg-blue-50 text-blue-600"
-                                meter={remaining / (duration * 60)}
+                                meter={remaining / (activeDuration * 60)}
                             />
 
                             <StatCard
@@ -2185,25 +2798,40 @@ export default function TypingProPage() {
                     <div
                         className={[
                             'grid gap-5',
-                            isFullscreen
+                            isFullscreen || runningTest
                                 ? ''
                                 : 'lg:grid-cols-[minmax(0,1fr)_280px]'
                         ].join(' ')}
                     >
 
-                        <section className="rounded-[10px] bg-white p-5 shadow-[0_12px_34px_rgba(15,23,42,0.08)]">
+                        <section
+                            className={[
+                                'rounded-[10px] bg-white p-5 shadow-[0_12px_34px_rgba(15,23,42,0.08)]',
+                                !loadingTest && !hasLoadedParagraph
+                                    ? 'hidden md:block'
+                                    : ''
+                            ].join(' ')}
+                        >
 
                             <div className="flex flex-wrap items-center justify-between gap-3">
                                 <h2 className="text-lg font-black">
                                     {displayLanguage === 'hindi'
-                                        ? 'Hindi Typing Test (KrutiDev/DevLys 010)'
+                                        ? `Hindi Typing Test (${getHindiInputModeTitle(hindiInputMode)})`
                                         : 'English Typing Test'}
                                 </h2>
 
-                                <p className="flex items-center gap-2 text-xs font-bold text-indigo-700">
-                                    <Keyboard size={17} />
-                                    Exam-like result layout
-                                </p>
+                                <div className="flex items-center gap-2">
+                                    {runningTest && (
+                                        <div className="flex items-center gap-2 rounded-[9px] bg-indigo-700 px-3 py-2 text-xs font-black text-white">
+                                            <Clock3 size={16} />
+                                            Time Left: {formatTime(remaining)}
+                                        </div>
+                                    )}
+                                    <p className="flex items-center gap-2 text-xs font-bold text-indigo-700">
+                                        <Keyboard size={17} />
+                                        Exam-like result layout
+                                    </p>
+                                </div>
                             </div>
 
                             <div
@@ -2244,76 +2872,61 @@ export default function TypingProPage() {
                                     </div>
                                 )}
 
-                                {!loadingTest && paragraphWindow.hasBefore && (
-                                    <span className="mr-2 rounded bg-slate-100 px-2 py-1 text-sm font-bold text-slate-400">
-                                        ...
-                                    </span>
-                                )}
-
-                                {!loadingTest && paragraphWindow.chars.map((char, offset) => {
-
-                                    const index =
-                                        paragraphWindow.start + offset
-
-                                    const current =
-                                        index === typedChars.length
-
-                                    const typedChar =
-                                        typedChars[index]
-
-                                    const isTyped =
-                                        index < typedChars.length
-
-                                    const isActiveWord =
-                                        index >= currentWordStart &&
-                                        index <= currentWordEnd
-
-                                    const wordCompleted =
-                                        index < currentWordStart
-
-                                    const statusClass =
-                                        displayLanguage === 'hindi'
-                                            ? isTyped
-                                                ? wordCompleted && liveSpellingEnabled
-                                                    ? getHindiCompletedWordStatus(
-                                                        expectedChars,
-                                                        typedChars,
-                                                        index
-                                                    )
-                                                    : isActiveWord
-                                                        ? 'rounded bg-yellow-100 text-slate-900'
-                                                        : ''
-                                                : highlightEnabled && isActiveWord
-                                                    ? 'rounded bg-yellow-100 border-b-2 border-yellow-500'
-                                                    : ''
-                                            : isTyped
-                                                ? typedChar === char
-                                                    ? 'text-emerald-700'
-                                                    : !liveSpellingEnabled
-                                                        ? ''
-                                                        : isActiveWord
-                                                            ? 'rounded bg-yellow-100 text-slate-900'
-                                                            : 'rounded bg-red-100 text-red-700'
-                                                : highlightEnabled && current
-                                                    ? 'rounded bg-yellow-100 border-b-2 border-yellow-500'
-                                                    : ''
+                                {!loadingTest && (ended || solutionMode) && expectedChars.map((char, index) => {
+                                    const typedChar = typedChars[index]
+                                    const wasTyped = index < typedChars.length
+                                    const statusClass = wasTyped
+                                        ? typedChar === char
+                                            ? 'text-emerald-700'
+                                            : 'rounded bg-red-100 text-red-700'
+                                        : ''
 
                                     return (
                                         <span
                                             key={`${char}-${index}`}
-                                            data-current={current}
-                                            className={`whitespace-pre-wrap transition ${statusClass}`}
+                                            className={`whitespace-pre-wrap ${statusClass}`}
                                         >
                                             {char}
                                         </span>
                                     )
                                 })}
 
-                                {!loadingTest && paragraphWindow.hasAfter && (
-                                    <span className="ml-2 rounded bg-slate-100 px-2 py-1 text-sm font-bold text-slate-400">
-                                        ...
-                                    </span>
+                                {!loadingTest && !ended && !solutionMode && liveSpellingEnabled && expectedChars.length > 0 && (
+                                    <>
+                                        {liveSpellingSegments.map((segment, index) => (
+                                            <span
+                                                key={`${segment.text}-${index}`}
+                                                data-current={segment.current || undefined}
+                                                className={`whitespace-pre-wrap transition ${segment.className}`}
+                                            >
+                                                {segment.text}
+                                            </span>
+                                        ))}
+                                    </>
                                 )}
+
+                                {!loadingTest && !ended && !solutionMode && !liveSpellingEnabled && expectedChars.length > 0 && (
+                                    <>
+                                        <span className="whitespace-pre-wrap text-slate-900">
+                                            {paragraphDisplay.completed}
+                                        </span>
+                                        <span
+                                            data-current="true"
+                                            className={[
+                                                'whitespace-pre-wrap transition',
+                                                highlightEnabled
+                                                    ? 'rounded bg-yellow-100 border-b-2 border-yellow-500'
+                                                    : ''
+                                            ].join(' ')}
+                                        >
+                                            {paragraphDisplay.current}
+                                        </span>
+                                        <span className="whitespace-pre-wrap text-slate-900">
+                                            {paragraphDisplay.upcoming}
+                                        </span>
+                                    </>
+                                )}
+
                             </div>
 
                             <div
@@ -2328,7 +2941,7 @@ export default function TypingProPage() {
                                     onCompositionStart={handleCompositionStart}
                                     onCompositionEnd={handleCompositionEnd}
                                     onKeyDown={handleKeyDown}
-                                    disabled={ended || !testData?.paragraph}
+                                    disabled={ended || !hasLoadedParagraph}
                                     readOnly={solutionMode}
                                     spellCheck={false}
                                     className={[
@@ -2338,12 +2951,12 @@ export default function TypingProPage() {
                                             : ''
                                     ].join(' ')}
                                     placeholder={
-                                        !testData?.paragraph
+                                        !hasLoadedParagraph
                                             ? 'Click Start Test to load paragraph from backend...'
                                             : solutionMode
                                             ? 'Saved typed answer'
                                             : displayLanguage === 'hindi'
-                                            ? 'Hindi mode: Roman type karein, output Hindi me aayega...'
+                                            ? getHindiInputPlaceholder(hindiInputMode)
                                             : 'Start typing here...'
                                     }
                                 />
@@ -2367,7 +2980,7 @@ export default function TypingProPage() {
                                 <div className="flex items-center gap-3 rounded-[9px] bg-indigo-50 px-4 py-3 text-xs font-bold text-indigo-800">
                                     <Lightbulb size={18} />
                                     {displayLanguage === 'hindi'
-                                        ? 'Tip: Focus on accuracy, speed will automatically improve.'
+                                        ? getHindiInputTip(hindiInputMode)
                                         : 'English mode active. Normal English typing chalegi.'}
                                 </div>
 
@@ -2382,8 +2995,19 @@ export default function TypingProPage() {
                                 </button>
                             </div>
 
-                            {testData?.paragraph && (
+                            {testData?.paragraph && !ended && !solutionMode && (
                             <div className="mt-4 flex flex-wrap justify-end gap-3">
+                                {runningTest && (
+                                    <button
+                                        type="button"
+                                        onClick={exitTypingTest}
+                                        disabled={submittingResult}
+                                        className="flex items-center gap-2 rounded-[10px] border border-amber-300 bg-amber-50 px-7 py-3 text-sm font-black text-amber-800 shadow-sm disabled:cursor-not-allowed disabled:opacity-70"
+                                    >
+                                        <X size={18} />
+                                        {submittingResult ? 'Saving...' : 'Exit & Resume Later'}
+                                    </button>
+                                )}
                                 <button
                                     onClick={() => finishTest()}
                                     disabled={submittingResult || ended || solutionMode || !testData?.paragraph}
@@ -2393,20 +3017,12 @@ export default function TypingProPage() {
                                     {submittingResult ? 'Saving...' : 'Submit Test'}
                                 </button>
 
-                                <button
-                                    onClick={resetTest}
-                                    disabled={settingsLocked}
-                                    className="flex items-center gap-2 rounded-[10px] border border-slate-200 bg-white px-7 py-3 text-sm font-black text-indigo-700 shadow-sm disabled:cursor-not-allowed disabled:opacity-50"
-                                >
-                                    <RotateCcw size={18} />
-                                    Retake Test
-                                </button>
                             </div>
                             )}
 
                         </section>
 
-                        {!isFullscreen && (
+                        {!isFullscreen && !runningTest && (
                         <aside className="space-y-4">
 
                             <section className="rounded-[10px] bg-white p-4 shadow-[0_12px_34px_rgba(15,23,42,0.08)]">
@@ -2435,8 +3051,13 @@ export default function TypingProPage() {
                                             ].join(' ')}
                                         >
                                             <div className="flex items-start justify-between gap-3">
-                                                <div>
-                                                    <p className="text-xs font-black">{item.title || 'Typing Test'}</p>
+                                                <div className="min-w-0 flex-1">
+                                                    <p
+                                                        title={item.title || 'Typing Test'}
+                                                        className="truncate text-xs font-black"
+                                                    >
+                                                        {item.title || 'Typing Test'}
+                                                    </p>
                                                     <p className="mt-1.5 flex items-center gap-1 text-[10px] font-medium text-slate-500">
                                                         <CalendarDays size={12} />
                                                         {formatHistoryDate(item.attemptedAt)}
@@ -2446,7 +3067,7 @@ export default function TypingProPage() {
                                                     </p>
                                                 </div>
 
-                                                <div className="text-right">
+                                                <div className="shrink-0 text-right">
                                                     <p className="text-xs font-black text-emerald-600">
                                                         {item.netWpm.toFixed(2)} WPM
                                                     </p>
@@ -2918,6 +3539,93 @@ function normalizeHindiTypingInput(
     ].join('')
 }
 
+function normalizeHindiInputByMode(
+    text: string,
+    mode: HindiInputMode
+) {
+    if (mode === 'unicode') {
+        return normalizeHindiText(text)
+    }
+
+    if (mode === 'remington') {
+        return normalizeHindiText(
+            convertRemingtonKrutiDevToUnicode(text)
+        )
+    }
+
+    return normalizeHindiTypingInput(text)
+}
+
+function convertRemingtonKrutiDevToUnicode(
+    text: string
+) {
+    let converted =
+        ''
+
+    for (const char of text) {
+        converted +=
+            legacyRemingtonInputChars.has(char)
+                ? krutiDevShortcutMap[char] ||
+                remingtonKeyMap[char] ||
+                char
+                : char
+    }
+
+    return reorderLegacyHindiMatras(converted)
+}
+
+function reorderLegacyHindiMatras(
+    text: string
+) {
+    return text
+        .replace(/ि([क-हक़-य़][़]?्?[रयवल]?)/g, '$1ि')
+        .replace(/र्([क-हक़-य़][़]?)/g, '$1्र')
+}
+
+function getHindiInputModeLabel(
+    mode: HindiInputMode
+) {
+    if (mode === 'unicode') return 'Unicode'
+    if (mode === 'remington') return 'Remington'
+    return 'Google Indic'
+}
+
+function getHindiInputModeTitle(
+    mode: HindiInputMode
+) {
+    if (mode === 'unicode') return 'Unicode Hindi'
+    if (mode === 'remington') return 'Remington / KrutiDev / DevLys010'
+    return 'Google Indic / Phonetic'
+}
+
+function getHindiInputPlaceholder(
+    mode: HindiInputMode
+) {
+    if (mode === 'unicode') {
+        return 'Unicode Hindi directly type karein...'
+    }
+
+    if (mode === 'remington') {
+        return 'Remington/KrutiDev keys se type karein...'
+    }
+
+    return 'Google Indic: bharat type karein aur भारत suggestion accept karein...'
+}
+
+function getHindiInputTip(
+    mode: HindiInputMode
+) {
+    if (mode === 'unicode') {
+        return 'Unicode mode active. Direct Hindi text type/paste karein.'
+    }
+
+    if (mode === 'remington') {
+        return 'Remington mode active. KrutiDev/DevLys key output Unicode result se compare hoga.'
+    }
+
+    return 'Google Indic mode active. Keyboard suggestion final Hindi text ko preserve karega.'
+}
+
 function normalizeTypingLanguage(
     language: unknown
 ): Language {
@@ -3190,6 +3898,146 @@ function findCurrentWordEnd(
     return index
 }
 
+function countCommittedTypedWords(
+    typedChars: string[]
+) {
+    const typedText =
+        typedChars.join('')
+
+    if (!typedText.trim()) {
+        return 0
+    }
+
+    const committedText =
+        /\s$/.test(typedText)
+            ? typedText.trim()
+            : typedText.slice(
+                0,
+                Math.max(
+                    0,
+                    typedText.search(/\S+$/)
+                )
+            ).trim()
+
+    return committedText
+        ? committedText.split(/\s+/).length
+        : 0
+}
+
+function findExpectedBoundaryAfterWords(
+    expectedChars: string[],
+    wordCount: number
+) {
+    if (wordCount <= 0) {
+        return 0
+    }
+
+    let wordsSeen =
+        0
+
+    let inWord =
+        false
+
+    for (let index = 0; index < expectedChars.length; index += 1) {
+        const isSpace =
+            isWhitespaceGrapheme(expectedChars[index])
+
+        if (!isSpace && !inWord) {
+            inWord =
+                true
+        }
+
+        if (isSpace && inWord) {
+            wordsSeen += 1
+            inWord =
+                false
+
+            if (wordsSeen >= wordCount) {
+                return index + 1
+            }
+        }
+    }
+
+    return inWord && wordsSeen + 1 >= wordCount
+        ? expectedChars.length
+        : expectedChars.length
+}
+
+function findHindiCommittedUntil(
+    expectedChars: string[],
+    typedChars: string[]
+) {
+    return findExpectedBoundaryAfterWords(
+        expectedChars,
+        countCommittedTypedWords(typedChars)
+    )
+}
+
+function findHindiActiveWordStart(
+    expectedChars: string[],
+    typedChars: string[]
+) {
+    return findHindiCommittedUntil(
+        expectedChars,
+        typedChars
+    )
+}
+
+function getCommittedTypedWords(
+    typedChars: string[]
+) {
+    const typedText =
+        typedChars.join('')
+
+    if (!typedText.trim()) {
+        return []
+    }
+
+    const committedText =
+        /\s$/.test(typedText)
+            ? typedText.trim()
+            : typedText.slice(
+                0,
+                Math.max(
+                    0,
+                    typedText.search(/\S+$/)
+                )
+            ).trim()
+
+    return committedText
+        ? committedText.split(/\s+/)
+        : []
+}
+
+function getExpectedWordIndexAt(
+    expectedChars: string[],
+    index: number
+) {
+    let wordIndex =
+        -1
+
+    let inWord =
+        false
+
+    for (let cursor = 0; cursor <= index && cursor < expectedChars.length; cursor += 1) {
+        const isSpace =
+            isWhitespaceGrapheme(expectedChars[cursor])
+
+        if (!isSpace && !inWord) {
+            wordIndex += 1
+            inWord =
+                true
+        }
+
+        if (isSpace) {
+            inWord =
+                false
+        }
+    }
+
+    return wordIndex
+}
+
 function getWordRange(
     chars: string[],
     index: number
@@ -3256,9 +4104,12 @@ function getHindiCompletedWordStatus(
             .join('')
 
     const typedWord =
-        typedChars
-            .slice(start, end)
-            .join('')
+        getCommittedTypedWords(typedChars)[
+            getExpectedWordIndexAt(
+                expectedChars,
+                index
+            )
+        ] || ''
 
     if (!typedWord) {
         return ''
