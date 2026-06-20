@@ -2115,7 +2115,7 @@ export default function TypingProPage() {
     }
 
     return (
-        <main className="typing-font min-h-screen bg-[#f7f8fc] text-[#080d31]">
+        <main className="typing-font min-h-screen w-full max-w-[100vw] overflow-x-hidden bg-[#f7f8fc] text-[#080d31]">
 
             <TestActionLoader />
 
@@ -2133,14 +2133,14 @@ export default function TypingProPage() {
 
             <div
                 className={[
-                    'grid min-w-0 max-w-full gap-6 overflow-x-hidden px-2 py-2 xl:px-2',
+                    'grid w-full min-w-0 max-w-full gap-6 px-2 py-2 xl:px-2',
                     runningTest
                         ? ''
                         : 'xl:grid-cols-[300px_minmax(0,1fr)]'
                 ].join(' ')}
             >
 
-                <aside className={runningTest ? 'hidden' : 'min-w-0 max-w-full space-y-4'}>
+                <aside className={runningTest ? 'hidden' : 'w-full min-w-0 max-w-full space-y-4'}>
 
                     <section className="overflow-hidden rounded-[10px] bg-white shadow-[0_12px_34px_rgba(15,23,42,0.08)]">
 
@@ -2661,7 +2661,7 @@ export default function TypingProPage() {
 
                 <section
                     ref={testShellRef}
-                    className="min-w-0 max-w-full space-y-4 overflow-x-hidden bg-[#f7f8fc] fullscreen:overflow-auto fullscreen:p-5"
+                    className="w-full min-w-0 max-w-full space-y-4 bg-[#f7f8fc] fullscreen:overflow-auto fullscreen:p-5"
                 >
 
                     {isFullscreen && (
@@ -2797,7 +2797,7 @@ export default function TypingProPage() {
 
                     <div
                         className={[
-                            'grid min-w-0 max-w-full gap-5',
+                            'grid w-full min-w-0 max-w-full gap-5',
                             isFullscreen || runningTest
                                 ? ''
                                 : 'lg:grid-cols-[minmax(0,1fr)_280px]'
@@ -2806,7 +2806,7 @@ export default function TypingProPage() {
 
                         <section
                             className={[
-                                'min-w-0 max-w-full overflow-hidden rounded-[10px] bg-white p-3 shadow-[0_12px_34px_rgba(15,23,42,0.08)] sm:p-5',
+                                'w-full min-w-0 max-w-full overflow-hidden rounded-[10px] bg-white p-3 shadow-[0_12px_34px_rgba(15,23,42,0.08)] sm:p-5',
                                 ended
                                     ? 'hidden md:block'
                                     : !loadingTest && !hasLoadedParagraph
@@ -3025,7 +3025,7 @@ export default function TypingProPage() {
                         </section>
 
                         {!isFullscreen && !runningTest && (
-                        <aside className="space-y-4">
+                        <aside className="w-full min-w-0 max-w-full space-y-4">
 
                             <section className="rounded-[10px] bg-white p-4 shadow-[0_12px_34px_rgba(15,23,42,0.08)]">
                                 <div className="flex items-center justify-between">
