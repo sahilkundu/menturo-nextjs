@@ -425,13 +425,32 @@ export default function SeriesPaymentPage({ series }: FullSeries) {
                     const planKey =
                         String(plan.planID)
 
+                    const basePrice =
+                        Number(plan.price) || 0
+
+                    const offerDiscount =
+                        Number(plan.offerPrice) || 0
+
+                    // In the current data model offerPrice is a discount
+                    // amount: price=10, offerPrice=7 means the user pays 3.
+                    const hasOffer =
+                        offerDiscount > 0 &&
+                        offerDiscount < basePrice
+
+                    const effectivePlanPrice =
+                        hasOffer
+                            ? basePrice - offerDiscount
+                            : basePrice
+
                     const discountPercent =
-                        Math.round(
-                            ((plan.price - plan.offerPrice) / plan.price) * 100
-                        )
+                        hasOffer && basePrice > 0
+                            ? Math.round(
+                                (offerDiscount / basePrice) * 100
+                            )
+                            : 0
 
                     const savedAmount =
-                        plan.price - plan.offerPrice
+                        hasOffer ? offerDiscount : 0
 
                     const planCouponCode =
                         couponCodes[planKey] || ''
@@ -445,7 +464,7 @@ export default function SeriesPaymentPage({ series }: FullSeries) {
                             : 0
 
                     const totalAmount =
-                        Math.max(0, plan.offerPrice - couponSaved)
+                        Math.max(0, effectivePlanPrice - couponSaved)
 
                     const cardStyles = [
                         {
@@ -552,9 +571,11 @@ export default function SeriesPaymentPage({ series }: FullSeries) {
                                         ⏳ {plan.duration}
                                     </span>
 
-                                    <span className="bg-green-100 text-green-700 text-[11px] font-bold px-2.5 py-1 rounded-full">
-                                        {discountPercent}% OFF
-                                    </span>
+                                    {hasOffer ? (
+                                        <span className="bg-green-100 text-green-700 text-[11px] font-bold px-2.5 py-1 rounded-full">
+                                            {discountPercent}% OFF
+                                        </span>
+                                    ) : null}
                                 </div>
 
                                 <p className="text-gray-500 text-xs mt-2 line-clamp-2 min-h-[32px]">
@@ -567,15 +588,19 @@ export default function SeriesPaymentPage({ series }: FullSeries) {
                                             ₹{totalAmount}
                                         </span>
 
-                                        <span className="line-through text-gray-400 mb-1 text-sm">
-                                            ₹{plan.price}
-                                        </span>
+                                        {hasOffer ? (
+                                            <span className="line-through text-gray-400 mb-1 text-sm">
+                                                ₹{basePrice}
+                                            </span>
+                                        ) : null}
                                     </div>
 
                                     <div className="mt-1.5 flex items-center gap-2 flex-wrap">
-                                        <span className="bg-green-100 text-green-700 text-[11px] font-bold px-2.5 py-1 rounded-full">
-                                            Save ₹{savedAmount + couponSaved}
-                                        </span>
+                                        {savedAmount + couponSaved > 0 ? (
+                                            <span className="bg-green-100 text-green-700 text-[11px] font-bold px-2.5 py-1 rounded-full">
+                                                Save ₹{savedAmount + couponSaved}
+                                            </span>
+                                        ) : null}
 
                                         {couponSaved > 0 ? (
                                             <span className="bg-emerald-50 text-emerald-700 text-[11px] font-bold px-2.5 py-1 rounded-full">
