@@ -64,10 +64,19 @@ const attachSeriesAccess = (
         fallbackAccess?.[seriesId] ||
         series?.access
 
+    const plans =
+        Array.isArray(access?.plans)
+            ? access.plans
+            : series?.plans
+
     return {
         ...series,
         _id: seriesId || series?._id,
-        access
+        access,
+        // Custom plans are decided on the server for this user + series.
+        // Rendering them from access prevents the public TS plan from
+        // overwriting the authorised custom price.
+        plans
     }
 }
 
@@ -96,13 +105,19 @@ const attachAccessToSeriesMap = (
             const seriesId =
                 getSeriesId(series) || key
 
+            const seriesAccess =
+                hasProvidedAccessMap
+                    ? activeAccessMap?.[seriesId]
+                    : activeAccessMap?.[seriesId] ||
+                    series?.access
+
             updatedSeriesMap[key] = {
                 ...series,
-                access:
-                    hasProvidedAccessMap
-                        ? activeAccessMap?.[seriesId]
-                        : activeAccessMap?.[seriesId] ||
-                        series?.access
+                access: seriesAccess,
+                plans:
+                    Array.isArray(seriesAccess?.plans)
+                        ? seriesAccess.plans
+                        : series?.plans
             }
         })
 
