@@ -4,6 +4,8 @@ const nextConfig = {
             process.env.NODE_ENV === "production",
     },
     images: {
+        formats: ['image/avif', 'image/webp'],
+        qualities: [65, 75],
         remotePatterns: [
             {
                 protocol: "https",

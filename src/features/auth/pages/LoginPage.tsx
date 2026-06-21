@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import {
     Mail,
+    Smartphone,
     Lock,
     Eye,
     EyeOff
@@ -16,8 +17,8 @@ import { showRouteLoader } from '../../../shared/utils/routeLoader'
 export default function Login() {
     const router = useRouter()
 
-    const [emailOrMobile, setEmailOrMobile] =
-        useState('')
+    const [email, setEmail] = useState('')
+    const [mobile, setMobile] = useState('')
 
     const [password, setPassword] =
         useState('')
@@ -102,10 +103,11 @@ export default function Login() {
     // =========================
 
     async function apiLogin(
-        emailOrMobile: string,
+        email: string,
+        mobile: string,
         password: string
     ) {
-        if (!emailOrMobile) {
+        if (!email && !mobile) {
             return {
                 success: false,
                 message:
@@ -134,19 +136,8 @@ export default function Login() {
                     },
 
                     body: JSON.stringify({
-                        mobile:
-                            /^\d+$/.test(
-                                emailOrMobile
-                            )
-                                ? emailOrMobile
-                                : '',
-
-                        email:
-                            /^\d+$/.test(
-                                emailOrMobile
-                            )
-                                ? ''
-                                : emailOrMobile,
+                        mobile,
+                        email,
 
                         password,
                     }),
@@ -198,20 +189,24 @@ export default function Login() {
 
         setError('')
 
-        const isMobile =
-            /^\d+$/.test(emailOrMobile)
-
-        const validation = isMobile
-            ? validateMobile(
-                emailOrMobile
-            )
-            : validateEmail(
-                emailOrMobile
-            )
-
-        if (!validation.valid) {
-            setError(validation.message)
+        if (!email && !mobile) {
+            setError('Enter your email address or mobile number')
             return
+        }
+
+        if (email && mobile) {
+            setError('Use either your email address or mobile number')
+            return
+        }
+
+        if (email) {
+            const validation = validateEmail(email)
+            if (!validation.valid) { setError(validation.message); return }
+        }
+
+        if (mobile) {
+            const validation = validateMobile(mobile)
+            if (!validation.valid) { setError(validation.message); return }
         }
 
         if (!password.trim()) {
@@ -225,7 +220,8 @@ export default function Login() {
 
         const result =
             await apiLogin(
-                emailOrMobile,
+                email,
+                mobile,
                 password
             )
 
@@ -267,8 +263,8 @@ export default function Login() {
     }, [authChecked, fetchUser, router])
 
     return (
-        <div className="h-screen bg-[#4A3F77] overflow-y-auto">
-            <div className="min-h-full w-full px-4 py-6 flex items-start justify-center">
+        <div className="min-h-[100dvh] overflow-y-auto bg-[#4A3F77] lg:bg-transparent">
+            <div className="flex min-h-[100dvh] w-full items-start justify-center px-4 py-6 lg:px-4 lg:py-10">
                 <div className="relative w-full max-w-md my-auto">
                     {/* Background Decoration */}
                     <div className="absolute inset-0 bg-gradient-to-br from-purple-100/30 to-transparent rounded-3xl -z-10" />
@@ -290,7 +286,7 @@ export default function Login() {
                             {/* Form */}
                             <form onSubmit={handleSubmit} className="space-y-4">
 
-                                {/* Email / Mobile */}
+                                {/* Email */}
                                 <div className="relative">
                                     <Mail
                                         size={18}
@@ -298,12 +294,38 @@ export default function Login() {
                                     />
 
                                     <input
+                                        id="login-email"
+                                        name="email"
+                                        type="email"
+                                        autoComplete="username"
+                                        value={email}
+                                        onChange={(e) => {
+                                            const value = e.target.value
+                                            if (!/^\d{10,}$/.test(value)) { setMobile(''); setEmail(value) }
+                                        }}
+                                        placeholder="Email address (optional)"
+                                        className="h-12 w-full rounded-xl bg-gray-50 border border-gray-200 pl-11 pr-4 text-gray-800 placeholder:text-gray-400 text-[16px] outline-none focus:bg-white focus:border-purple-400 focus:ring-2 focus:ring-purple-100 transition-all"
+                                    />
+                                </div>
+
+                                <div className="flex items-center gap-3" aria-hidden="true">
+                                    <div className="h-px flex-1 bg-gray-200" />
+                                    <span className="text-xs font-semibold text-gray-400">OR</span>
+                                    <div className="h-px flex-1 bg-gray-200" />
+                                </div>
+
+                                {/* Mobile */}
+                                <div className="relative">
+                                    <Smartphone size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+                                    <input
+                                        id="login-mobile"
+                                        name="mobile"
                                         type="text"
-                                        value={emailOrMobile}
-                                        onChange={(e) =>
-                                            setEmailOrMobile(e.target.value)
-                                        }
-                                        placeholder="Email or Mobile Number"
+                                        autoComplete="username"
+                                        inputMode="numeric"
+                                        value={mobile}
+                                        onChange={(e) => { setEmail(''); setMobile(e.target.value.replace(/\D/g, '').slice(0, 10)) }}
+                                        placeholder="Mobile number (optional)"
                                         className="h-12 w-full rounded-xl bg-gray-50 border border-gray-200 pl-11 pr-4 text-gray-800 placeholder:text-gray-400 text-[16px] outline-none focus:bg-white focus:border-purple-400 focus:ring-2 focus:ring-purple-100 transition-all"
                                     />
                                 </div>
@@ -316,7 +338,10 @@ export default function Login() {
                                     />
 
                                     <input
+                                        id="login-password"
+                                        name="password"
                                         type={showPassword ? "text" : "password"}
+                                        autoComplete="current-password"
                                         value={password}
                                         onChange={(e) =>
                                             setPassword(e.target.value)

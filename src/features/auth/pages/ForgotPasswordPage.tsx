@@ -342,8 +342,8 @@ export default function ForgotPasswordPage() {
     }, [step])
 
     return (
-        <div className="h-screen bg-[#4A3F77] overflow-y-auto">
-            <div className="min-h-full w-full px-4 py-6 flex items-start justify-center">
+        <div className="min-h-[100dvh] overflow-y-auto bg-[#4A3F77] lg:bg-transparent">
+            <div className="flex min-h-[100dvh] w-full items-start justify-center px-4 py-6 lg:px-4 lg:py-10">
                 <div className="relative w-full max-w-md my-auto">
                     {/* Background Decoration */}
                     <div className="absolute inset-0 bg-gradient-to-br from-purple-100/30 to-transparent rounded-3xl -z-10" />

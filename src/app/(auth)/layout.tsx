@@ -1,38 +1,13 @@
-'use client'
-import { ReactNode } from 'react';
-import Image from '../../shared/components/Image';
-import { useTheme } from "../../app/providers/ThemeProvider";
+import type { ReactNode } from 'react'
+import Image from 'next/image'
 
-interface Props {
-    children: ReactNode;
-}
-
-export default function AuthLayout({ children }: Props) {
-    const { system } = useTheme();
-    const useDesktopImage = system.loginStyle === 'image-left';
-
-    return (
-        <div className="relative h-screen overflow-hidden">
-
-            {/* BACKGROUND IMAGE ONLY FOR MOBILE */}
-
-
-            {/* DESKTOP LAYOUT */}
-            <div className="h-full flex flex-col lg:flex-row relative z-10">
-
-                {/* LEFT IMAGE (desktop only) */}
-
-
-                {/* RIGHT CONTENT ALWAYS ABOVE */}
-                <div className="w-full lg:w-full h-full overflow-y-auto flex">
-                    <div className="w-full flex items-center justify-center min-h-full">
-                        <div className="w-full">
-                            {children}
-                        </div>
-                    </div>
-                </div>
-
-            </div>
+export default function AuthLayout({ children }: { children: ReactNode }) {
+    return <div className="relative min-h-[100dvh] overflow-hidden bg-[#101b1d]">
+        <aside className="absolute inset-y-0 left-0 hidden w-[62%] lg:block">
+            <Image src="https://cdn.menturo.in/img/loginBg.png" alt="Menturo learning" fill loading="eager" quality={65} sizes="(min-width: 1024px) 62vw, 100vw" className="object-cover object-center" />
+        </aside>
+        <div className="relative z-10 min-h-[100dvh] lg:ml-auto lg:w-[38%]">
+            {children}
         </div>
-    );
+    </div>
 }
