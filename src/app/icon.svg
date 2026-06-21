@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" role="img" aria-labelledby="title">
+  <title>Menturo</title>
+  <rect width="48" height="48" rx="10" fill="#ffffff"/>
+  <path fill="#16bfa5" d="M6 12h8l6 14 6-14h8v25h-7V23l-5.2 12h-3.6L13 23v14H6z"/>
+  <path fill="#16bfa5" d="m29 9 10-4 10 4-10 4z"/>
+  <path fill="#16bfa5" d="M33 14v6.5c0 2.7 2.8 4.5 6 4.5s6-1.8 6-4.5V14l-6 2.4z"/>
+  <path fill="#16bfa5" d="M47 13.5h1v9h-1z"/>
+</svg>

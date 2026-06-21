@@ -24,6 +24,15 @@ export const metadata: Metadata = {
     creator: siteName,
     publisher: siteName,
     category: 'education',
+    icons: {
+        icon: [
+            {
+                url: '/icon.svg',
+                type: 'image/svg+xml',
+                sizes: '48x48',
+            },
+        ],
+    },
 
     title: {
         default: 'Menturo - Govt Exam Mock Tests, Haryana CET, Hartron, SSC',
