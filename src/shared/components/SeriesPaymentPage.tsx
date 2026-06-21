@@ -300,6 +300,19 @@ export default function SeriesPaymentPage({ series }: FullSeries) {
                 )
             }
 
+            if (
+                typeof order?.key !== 'string' ||
+                !order.key.startsWith('rzp_') ||
+                typeof order?.orderId !== 'string' ||
+                !order.orderId ||
+                !Number.isFinite(Number(order?.amount)) ||
+                Number(order.amount) <= 0
+            ) {
+                throw new Error(
+                    'Payment configuration is incomplete. Please contact support.'
+                )
+            }
+
             const checkout =
                 new window.Razorpay({
                     key:
