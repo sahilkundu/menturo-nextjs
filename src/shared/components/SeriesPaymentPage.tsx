@@ -338,6 +338,10 @@ export default function SeriesPaymentPage({ series }: FullSeries) {
                     // This is only a UX signal. Access is granted solely by
                     // Razorpay's signed server-to-server webhook.
                     handler: async () => {
+                        // The browser checkout is finished at this point.
+                        // Close it before our independent webhook-verification
+                        // state starts, so Razorpay cannot keep its modal open.
+                        checkout.close()
                         setIsVerifyingPayment(true)
 
                         try {
@@ -371,6 +375,14 @@ export default function SeriesPaymentPage({ series }: FullSeries) {
                             setIsVerifyingPayment(false)
                         }
                     },
+                    modal: {
+                        ondismiss: () => {
+                            setBuyLoading((prev) => ({
+                                ...prev,
+                                [planKey]: false
+                            }))
+                        }
+                    },
                     prefill:
                         {},
                     theme:
@@ -379,6 +391,18 @@ export default function SeriesPaymentPage({ series }: FullSeries) {
                                 '#4A3F77'
                         }
                 })
+
+            // A failed Checkout attempt never grants access. Close the
+            // Razorpay UI and return control to the payment cards.
+            checkout.on(
+                'payment.failed',
+                () => {
+                    checkout.close()
+                    setPaymentMessage(
+                        'Payment was not completed. No amount was verified or access granted.'
+                    )
+                }
+            )
 
             checkout.open()
         }
@@ -417,7 +441,7 @@ export default function SeriesPaymentPage({ series }: FullSeries) {
                             Verifying Your Payment
                         </h2>
                         <p className="mt-2 text-sm text-slate-500">
-                            Please wait while Razorpay securely confirms your payment.
+                            Please wait while Menturo confirms your payment.
                         </p>
                         <p className="mt-3 text-xs font-semibold text-indigo-600">
                             Do not refresh or close this page.
