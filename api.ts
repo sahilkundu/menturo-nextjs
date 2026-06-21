@@ -37,6 +37,6 @@ export const GET_GRIEVANCES = `${BASE_URL}/grievances`
 export const FORGOT_PASS = `${BASE_URL}/update-pass`
 export const CHECK_COUPON = `${BASE_URL}/checkCoupon`
 export const CREATE_ORDER = `${BASE_URL}/create-order`
-export const WEBSOCKET = `ws://localhost:8080/ws`
-// export const WEBSOCKET =
-//     `wss://betaws.menturo.in/ws`
+// export const WEBSOCKET = `ws://localhost:8080/ws`
+export const WEBSOCKET =
+    `wss://betaws.menturo.in/ws`
