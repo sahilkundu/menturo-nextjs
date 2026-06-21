@@ -114,7 +114,16 @@ export function installEncryptedFetch() {
             credentials: request.credentials, cache: request.cache, redirect: request.redirect,
             referrer: request.referrer, referrerPolicy: request.referrerPolicy, signal: request.signal } : {}),
             ...init, credentials: init?.credentials ?? request?.credentials ?? 'include', headers, body })
-        if (response.headers.get('X-Menturo-Encrypted') !== '1') return response
+        let encryptedResponse = response.headers.get('X-Menturo-Encrypted') === '1'
+        if (!encryptedResponse) {
+            try {
+                const candidate = await response.clone().json() as Partial<Envelope>
+                encryptedResponse = candidate.v === 1 && candidate.sid === session.sessionId &&
+                    typeof candidate.iv === 'string' && typeof candidate.ct === 'string' &&
+                    typeof candidate.tag === 'string'
+            } catch (_) { }
+        }
+        if (!encryptedResponse) return response
         const plaintext = await decrypt(session, 'http-s2c', await response.text())
         if (response.headers.get('X-Menturo-Mode') === 'off') {
             sessionPromise = null
