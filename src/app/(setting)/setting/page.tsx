@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { useUserStore } from '../../../shared/store/user'
 import { showPopupMessage } from '../../../shared/utils/popup'
-import { FORGOT_PASS, GET_SESSIONS, LOGOUT, UPDATE_PASS, UPDATE_PROFILE } from '../../../../api'
+import { FORGOT_PASS, GET_GRIEVANCES, GET_SESSIONS, LOGOUT, UPDATE_PASS, UPDATE_PROFILE } from '../../../../api'
 import Spinner from '../../../shared/components/Spinner'
 import { useSessionStore } from '../../../shared/store/sessionStore'
 import { useRouter } from 'next/navigation'
@@ -41,6 +41,12 @@ interface Query {
   text: string
   status: string
   time: string
+}
+interface Grievance {
+  id: string
+  query: string
+  status: string
+  createdAt: number
 }
 
 export default function SettingPage() {
@@ -80,11 +86,20 @@ export default function SettingPage() {
   const [passwordLoading, setPasswordLoading] = useState(false);
   const [logoutAllLoading, setLogoutAllLoading] =
     useState(false);
+  const [grievances, setGrievances] = useState<Grievance[]>([]);
   const router = useRouter();
   const [logoutSessionLoading, setLogoutSessionLoading] =
     useState<string | null>(null);
   const [coinBalance, setCoinBalance] = useState<number>(1250)
   const [testAttempts, setTestAttempts] = useState<number>(12)
+
+  useEffect(() => {
+    if (!authenticated) return;
+    fetch(GET_GRIEVANCES, { credentials: 'include' })
+      .then((response) => response.json())
+      .then((data) => { if (data.success) setGrievances(data.grievances || []) })
+      .catch(() => undefined);
+  }, [authenticated]);
 
   // Form visibility states
   const [showMobileForm, setShowMobileForm] = useState<boolean>(false)
@@ -1234,6 +1249,20 @@ export default function SettingPage() {
                 </div>
                 <button onClick={handleDailyBonus} className="w-full mt-3 text-[11px] border border-blue-200 text-blue-600 py-1.5 rounded-lg hover:bg-blue-50">Collect Daily Bonus → +20 Coins</button>
               </section> */}
+              <section className="bg-white rounded-2xl p-5 border border-slate-100">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-[16px] font-bold flex items-center gap-2"><i className="fa-regular fa-message text-violet-600"></i> My Grievances</h3>
+                  <span className="text-[11px] text-slate-500">{grievances.length}</span>
+                </div>
+                <div className="max-h-[260px] overflow-y-auto space-y-3 pr-2 scrollbar-thin scrollbar-thumb-slate-300">
+                  {!grievances.length && <p className="py-3 text-center text-xs text-slate-500">No grievances submitted yet.</p>}
+                  {grievances.map((grievance) => <div key={grievance.id} className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+                    <div className="flex items-center justify-between gap-3"><span className="text-xs font-bold text-slate-700">#{grievance.id.slice(-6)}</span><span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold capitalize text-amber-700">{grievance.status}</span></div>
+                    <p className="mt-2 line-clamp-3 text-xs text-slate-600">{grievance.query}</p>
+                    <p className="mt-2 text-[10px] text-slate-400">{new Date(grievance.createdAt).toLocaleString()}</p>
+                  </div>)}
+                </div>
+              </section>
               <section className="bg-white rounded-2xl p-5 border border-slate-100">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-[16px] font-bold flex items-center gap-2">

@@ -143,6 +143,14 @@ export default function PrivacyPolicyPage() {
                         We assure our users that this policy will remain unchanged to uphold
                         strict privacy standards.
                     </li>
+
+                    <li>
+                        If Menturo enables third-party advertising, advertising partners may
+                        use cookies or similar technologies to measure ad performance and,
+                        where consent is required, personalize advertising. Users will be
+                        offered the required consent choices before such advertising cookies
+                        are used.
+                    </li>
                 </ul>
 
                 <div className="mt-8">
@@ -164,4 +172,3 @@ export default function PrivacyPolicyPage() {
         </div>
     );
 }
-

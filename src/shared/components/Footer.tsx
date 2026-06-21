@@ -80,17 +80,17 @@ export default function Footer() {
                                     Company
                                 </h3>
                                 <ul className="space-y-2">
-                                    <li><a href="#"
+                                    <li><Link href="/about"
                                         className="text-sm text-purple-200/70 hover:text-white hover:translate-x-1 transition-all inline-block">About
-                                        Us</a></li>
+                                        Us</Link></li>
                                     <li><a href="#"
                                         className="text-sm text-purple-200/70 hover:text-white hover:translate-x-1 transition-all inline-block">Careers</a>
                                     </li>
                                     <li><a href="#"
                                         className="text-sm text-purple-200/70 hover:text-white hover:translate-x-1 transition-all inline-block">Press</a>
                                     </li>
-                                    <li><a href="#"
-                                        className="text-sm text-purple-200/70 hover:text-white hover:translate-x-1 transition-all inline-block">Contact</a>
+                                    <li><Link href="/contact"
+                                        className="text-sm text-purple-200/70 hover:text-white hover:translate-x-1 transition-all inline-block">Contact</Link>
                                     </li>
                                 </ul>
                             </div>
@@ -105,10 +105,19 @@ export default function Footer() {
                                 <ul className="space-y-2">
                                     <li>
                                         <Link
-                                            href="#"
+                                            href="/about"
                                             className="text-sm text-purple-200/70 hover:text-white hover:translate-x-1 transition-all inline-block"
                                         >
-                                            Help Center
+                                            About Menturo
+                                        </Link>
+                                    </li>
+
+                                    <li>
+                                        <Link
+                                            href="/contact"
+                                            className="text-sm text-purple-200/70 hover:text-white hover:translate-x-1 transition-all inline-block"
+                                        >
+                                            Contact Support
                                         </Link>
                                     </li>
 

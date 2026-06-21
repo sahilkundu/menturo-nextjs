@@ -67,10 +67,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
             priority: 1,
         },
         {
-            url: `${siteUrl}/typingPro`,
+           url: `${siteUrl}/typingPro`,
+           lastModified: now,
+           changeFrequency: 'weekly',
+           priority: 0.9,
+       },
+        {
+            url: `${siteUrl}/about`,
             lastModified: now,
-            changeFrequency: 'weekly',
-            priority: 0.9,
+            changeFrequency: 'monthly',
+            priority: 0.5,
+        },
+        {
+            url: `${siteUrl}/contact`,
+            lastModified: now,
+            changeFrequency: 'monthly',
+            priority: 0.5,
         },
         {
             url: `${siteUrl}/privacy-policy`,

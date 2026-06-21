@@ -298,6 +298,10 @@ export default function Header() {
                     {/* <!-- RIGHT (ADDED mobile profile trigger) --> */}
                     <div className="flex items-center gap-3 flex-wrap">
 
+                        <Link href="/contact" className="inline-flex h-9 items-center rounded-xl bg-red-600 px-3 text-xs font-bold text-white shadow-sm transition hover:bg-red-700">
+                            Support / सहायता
+                        </Link>
+
 
 
                         {/* <!-- MODE --> */}

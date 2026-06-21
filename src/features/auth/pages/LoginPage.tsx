@@ -19,6 +19,7 @@ export default function Login() {
 
     const [email, setEmail] = useState('')
     const [mobile, setMobile] = useState('')
+    const [loginMethod, setLoginMethod] = useState<'email' | 'mobile'>('email')
 
     const [password, setPassword] =
         useState('')
@@ -285,9 +286,13 @@ export default function Login() {
 
                             {/* Form */}
                             <form onSubmit={handleSubmit} className="space-y-4">
+                                <div className="grid grid-cols-2 rounded-xl bg-gray-100 p-1">
+                                    <button type="button" onClick={() => { setLoginMethod('email'); setMobile(''); setError('') }} className={loginMethod === 'email' ? 'rounded-lg bg-white py-2 text-sm font-semibold text-purple-700 shadow-sm' : 'rounded-lg py-2 text-sm font-semibold text-gray-500'}>Email</button>
+                                    <button type="button" onClick={() => { setLoginMethod('mobile'); setEmail(''); setError('') }} className={loginMethod === 'mobile' ? 'rounded-lg bg-white py-2 text-sm font-semibold text-purple-700 shadow-sm' : 'rounded-lg py-2 text-sm font-semibold text-gray-500'}>Mobile</button>
+                                </div>
 
                                 {/* Email */}
-                                <div className="relative">
+                                {loginMethod === 'email' && <div className="relative">
                                     <Mail
                                         size={18}
                                         className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
@@ -295,7 +300,7 @@ export default function Login() {
 
                                     <input
                                         id="login-email"
-                                        name="email"
+                                        name="username"
                                         type="email"
                                         autoComplete="username"
                                         value={email}
@@ -306,20 +311,14 @@ export default function Login() {
                                         placeholder="Email address (optional)"
                                         className="h-12 w-full rounded-xl bg-gray-50 border border-gray-200 pl-11 pr-4 text-gray-800 placeholder:text-gray-400 text-[16px] outline-none focus:bg-white focus:border-purple-400 focus:ring-2 focus:ring-purple-100 transition-all"
                                     />
-                                </div>
-
-                                <div className="flex items-center gap-3" aria-hidden="true">
-                                    <div className="h-px flex-1 bg-gray-200" />
-                                    <span className="text-xs font-semibold text-gray-400">OR</span>
-                                    <div className="h-px flex-1 bg-gray-200" />
-                                </div>
+                                </div>}
 
                                 {/* Mobile */}
-                                <div className="relative">
+                                {loginMethod === 'mobile' && <div className="relative">
                                     <Smartphone size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
                                     <input
                                         id="login-mobile"
-                                        name="mobile"
+                                        name="username"
                                         type="text"
                                         autoComplete="username"
                                         inputMode="numeric"
@@ -328,7 +327,7 @@ export default function Login() {
                                         placeholder="Mobile number (optional)"
                                         className="h-12 w-full rounded-xl bg-gray-50 border border-gray-200 pl-11 pr-4 text-gray-800 placeholder:text-gray-400 text-[16px] outline-none focus:bg-white focus:border-purple-400 focus:ring-2 focus:ring-purple-100 transition-all"
                                     />
-                                </div>
+                                </div>}
 
                                 {/* Password */}
                                 <div className="relative">
