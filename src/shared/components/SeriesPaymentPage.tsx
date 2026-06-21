@@ -78,6 +78,11 @@ export default function SeriesPaymentPage({ series }: FullSeries) {
                 state.authenticated
         )
 
+    const fetchUser =
+        useUserStore(
+            (state) => state.fetchUser
+        )
+
     const scrollRef =
         useRef<HTMLDivElement>(null)
 
@@ -309,10 +314,34 @@ export default function SeriesPaymentPage({ series }: FullSeries) {
                         `${series?.n || 'Test Series'} - ${plan.name}`,
                     order_id:
                         order.orderId,
-                    handler:
-                        () => {
-                            alert('Payment completed successfully')
-                        },
+                    // This is only a UX signal. Access is granted solely by
+                    // Razorpay's signed server-to-server webhook.
+                    handler: async () => {
+                        for (let attempt = 0; attempt < 12; attempt++) {
+                            await new Promise((resolve) =>
+                                window.setTimeout(resolve, 1500)
+                            )
+
+                            await fetchUser()
+
+                            const access =
+                                useUserStore.getState().access[
+                                getSeriesId(series)
+                                ]
+
+                            if (
+                                access?.access === true ||
+                                access?.canAccess === true ||
+                                access === true
+                            ) {
+                                router.refresh()
+                                alert('Payment confirmed. Your test series is now unlocked.')
+                                return
+                            }
+                        }
+
+                        alert('Payment received. Access will unlock automatically after Razorpay confirms it.')
+                    },
                     prefill:
                         {},
                     theme:

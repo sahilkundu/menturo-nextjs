@@ -60,7 +60,7 @@ const hasActiveSeriesAccess = (access: any) => {
         return false
     }
 
-    return (
+    return access === true || (
         isTrue(access?.access) ||
         isTrue(access?.canAccess)
     )
