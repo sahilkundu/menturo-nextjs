@@ -71,8 +71,56 @@ const getSeriesRoutes = async (
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const now = new Date()
 
+    const publicRoutes: MetadataRoute.Sitemap = [
+        {
+            url: siteUrl,
+            lastModified: now,
+            changeFrequency: 'daily',
+            priority: 1,
+        },
+        {
+            url: `${siteUrl}/typingPro`,
+            lastModified: now,
+            changeFrequency: 'weekly',
+            priority: 0.8,
+        },
+        {
+            url: `${siteUrl}/about`,
+            lastModified: now,
+            changeFrequency: 'monthly',
+            priority: 0.5,
+        },
+        {
+            url: `${siteUrl}/contact`,
+            lastModified: now,
+            changeFrequency: 'monthly',
+            priority: 0.5,
+        },
+        {
+            url: `${siteUrl}/privacy-policy`,
+            lastModified: now,
+            changeFrequency: 'yearly',
+            priority: 0.3,
+        },
+        {
+            url: `${siteUrl}/terms-and-conditions`,
+            lastModified: now,
+            changeFrequency: 'yearly',
+            priority: 0.3,
+        },
+        {
+            url: `${siteUrl}/cancellation-and-refund`,
+            lastModified: now,
+            changeFrequency: 'yearly',
+            priority: 0.3,
+        },
+    ]
+
     const seriesRoutes =
         await getSeriesRoutes(now)
 
-    return seriesRoutes
+    return [
+        ...publicRoutes,
+        ...seriesRoutes,
+    ]
 }
