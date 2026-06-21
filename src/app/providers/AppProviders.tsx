@@ -1,6 +1,6 @@
 "use client"
 
-import { ReactNode, Suspense, useEffect } from "react"
+import { ReactNode, Suspense, useEffect, useLayoutEffect } from "react"
 
 import { ThemeProvider } from "./ThemeProvider"
 
@@ -11,6 +11,7 @@ import { useTestSeriesStore } from "../../shared/store/testSeriesStore"
 import { useRouter, usePathname } from "next/navigation"
 import RouteTransitionProvider from "./RouteTransitionProvider"
 import { showRouteLoader } from "../../shared/utils/routeLoader"
+import { installEncryptedFetch } from "../../shared/utils/encryptedTransport"
 
 interface Props {
     children: ReactNode
@@ -19,6 +20,8 @@ interface Props {
 export default function AppProviders({
     children
 }: Props) {
+    useLayoutEffect(() => installEncryptedFetch(), [])
+
     const router = useRouter()
     const pathname = usePathname()
 

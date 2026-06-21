@@ -14,6 +14,11 @@ import { showPopupMessage } from './popup'
 import { useWSChatStore } from '../store/wsChat'
 import { useTestDataStore } from '../store/testDataStore'
 import { useUserStore } from '../store/user'
+import {
+    encryptedWebSocketUrl,
+    readEncryptedWebSocket,
+    sendEncryptedWebSocket
+} from './encryptedTransport'
 // =====================================================
 // GLOBAL SESSION
 // =====================================================
@@ -115,6 +120,7 @@ export const useWSStore =
                 (
                     userId
                 ) => {
+                    void (async () => {
 
                     const current =
                         get().socket
@@ -155,10 +161,8 @@ export const useWSStore =
                     // CREATE SOCKET
                     // =================================
 
-                    const ws =
-                        new WebSocket(
-                            WEBSOCKET
-                        )
+                    const encryptedSocket = await encryptedWebSocketUrl(WEBSOCKET)
+                    const ws = new WebSocket(encryptedSocket.url)
 
                     set({
                         socket: ws
@@ -189,9 +193,7 @@ export const useWSStore =
                             // SEND USER CONNECT
                             // =============================
 
-                            ws.send(
-
-                                JSON.stringify({
+                            sendEncryptedWebSocket(ws, {
 
                                     event:
                                         'user-connect',
@@ -229,14 +231,11 @@ export const useWSStore =
                                             navigator.userAgent
                                     }
                                 })
-                            )
 
-                            ws.send(
-                                JSON.stringify({
+                            sendEncryptedWebSocket(ws, {
                                     event:
                                         'site-stats'
                                 })
-                            )
 
                             // =============================
                             // CLEAR OLD HEARTBEAT
@@ -268,9 +267,7 @@ export const useWSStore =
                                             socket.readyState === WebSocket.OPEN
                                         ) {
 
-                                            socket.send(
-
-                                                JSON.stringify({
+                                            sendEncryptedWebSocket(socket, {
 
                                                     event:
                                                         'ping',
@@ -288,7 +285,6 @@ export const useWSStore =
                                                             .currentRoute ||
                                                         window.location.pathname
                                                 })
-                                            )
                                         }
 
                                     },
@@ -301,16 +297,15 @@ export const useWSStore =
                     // =================================
 
                     ws.onmessage =
-                        (
+                        async (
                             event
                         ) => {
 
                             try {
 
-                                const data =
-                                    JSON.parse(
-                                        event.data
-                                    )
+                                const data = JSON.parse(
+                                    await readEncryptedWebSocket(event.data)
+                                )
 
                                 if (data.event === 'typing-test-updated') {
                                     window.dispatchEvent(
@@ -585,6 +580,11 @@ export const useWSStore =
                                     'disconnected'
                             })
                         }
+
+                    })().catch(error => {
+                        console.error('WS ENCRYPTION ERROR', error)
+                        set({ socket: null, online: false, status: 'disconnected' })
+                    })
                 },
 
             // =====================================
@@ -612,9 +612,7 @@ export const useWSStore =
                         return
                     }
 
-                    socket.send(
-
-                        JSON.stringify({
+                    sendEncryptedWebSocket(socket, {
 
                             event:
                                 'route-change',
@@ -629,7 +627,6 @@ export const useWSStore =
                                 get()
                                     .sessionId
                         })
-                    )
                 },
 
             // =====================================
@@ -652,11 +649,7 @@ export const useWSStore =
                         return
                     }
 
-                    socket.send(
-                        JSON.stringify(
-                            data
-                        )
-                    )
+                    sendEncryptedWebSocket(socket, data)
                 },
 
             // =====================================

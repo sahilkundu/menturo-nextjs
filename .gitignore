@@ -16,6 +16,8 @@ dist-ssr/
 .next/
 out/
 
+TRANSPORT_ENCRYPTION.md
+
 # Environment files
 .env
 .env.*
