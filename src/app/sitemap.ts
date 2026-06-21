@@ -5,6 +5,8 @@ import {
 } from '../shared/seo'
 import { BASE_URL } from '../../api'
 
+export const dynamic = 'force-dynamic'
+
 const getSeriesRoutes = async (
     now: Date
 ): Promise<MetadataRoute.Sitemap> => {
@@ -19,11 +21,15 @@ const getSeriesRoutes = async (
                     `${BASE_URL}/api/seo/series-sitemap?page=${page}&limit=100`,
                     {
                         method: 'GET',
-                        next: {
-                            revalidate: 3600,
-                        },
+                        cache: 'no-store',
                     }
                 )
+
+            if (!response.ok) {
+                throw new Error(
+                    `Series sitemap API returned ${response.status}`
+                )
+            }
 
             const data =
                 await response.json()
