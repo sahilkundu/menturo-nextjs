@@ -46,25 +46,49 @@ const getSavedValue = (data: any) => {
     return Number.isFinite(parsed) ? parsed : 0
 }
 
+const RAZORPAY_SCRIPT_ID = 'razorpay-checkout-script'
+
+let razorpayScriptPromise: Promise<boolean> | null = null
+
 const loadRazorpayScript = () => {
-    return new Promise<boolean>((resolve) => {
-        if (window.Razorpay) {
-            resolve(true)
-            return
-        }
+    if (window.Razorpay) {
+        return Promise.resolve(true)
+    }
+
+    if (razorpayScriptPromise) {
+        return razorpayScriptPromise
+    }
+
+    razorpayScriptPromise = new Promise<boolean>((resolve) => {
+        const existingScript =
+            document.getElementById(
+                RAZORPAY_SCRIPT_ID
+            ) as HTMLScriptElement | null
 
         const script =
-            document.createElement('script')
+            existingScript || document.createElement('script')
 
-        script.src =
-            'https://checkout.razorpay.com/v1/checkout.js'
-        script.onload =
-            () => resolve(true)
-        script.onerror =
-            () => resolve(false)
+        const finish = (loaded: boolean) => {
+            if (!loaded) {
+                script.remove()
+                razorpayScriptPromise = null
+            }
 
-        document.body.appendChild(script)
+            resolve(loaded)
+        }
+
+        script.onload = () => finish(true)
+        script.onerror = () => finish(false)
+
+        if (!existingScript) {
+            script.id = RAZORPAY_SCRIPT_ID
+            script.src =
+                'https://checkout.razorpay.com/v1/checkout.js'
+            document.body.appendChild(script)
+        }
     })
+
+    return razorpayScriptPromise
 }
 
 export default function SeriesPaymentPage({ series }: FullSeries) {
@@ -85,6 +109,9 @@ export default function SeriesPaymentPage({ series }: FullSeries) {
 
     const scrollRef =
         useRef<HTMLDivElement>(null)
+
+    const paymentRefreshStartedRef =
+        useRef(false)
 
     const [couponCodes, setCouponCodes] =
         useState<Record<string, string>>({})
@@ -362,7 +389,14 @@ export default function SeriesPaymentPage({ series }: FullSeries) {
                                     access?.canAccess === true ||
                                     access === true
                                 ) {
-                                    router.refresh()
+                                    // Reload once only after the webhook-backed
+                                    // access check succeeds. This clears the
+                                    // checkout state and renders the current
+                                    // route with the newly granted access.
+                                    if (!paymentRefreshStartedRef.current) {
+                                        paymentRefreshStartedRef.current = true
+                                        window.location.reload()
+                                    }
                                     return
                                 }
                             }
