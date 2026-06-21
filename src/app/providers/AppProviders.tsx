@@ -146,6 +146,10 @@ export default function AppProviders({
     // =====================================
 
     useEffect(() => {
+        if (!authChecked) {
+            return
+        }
+
         const wsUserId =
             authenticated && user?.id
                 ? user.id
@@ -156,6 +160,7 @@ export default function AppProviders({
             .connect(wsUserId)
 
     }, [
+        authChecked,
         authenticated,
         user?.id,
         wsSessionId

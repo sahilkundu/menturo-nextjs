@@ -86,9 +86,6 @@ export default function Footer() {
                                     <li><Link href="/"
                                         className="text-sm text-purple-200/70 hover:text-white hover:translate-x-1 transition-all inline-block">Test Series</Link>
                                     </li>
-                                    <li><Link href="/typingPro"
-                                        className="text-sm text-purple-200/70 hover:text-white hover:translate-x-1 transition-all inline-block">Typing Practice</Link>
-                                    </li>
                                     <li><Link href="/contact"
                                         className="text-sm text-purple-200/70 hover:text-white hover:translate-x-1 transition-all inline-block">Contact</Link>
                                     </li>
@@ -103,24 +100,6 @@ export default function Footer() {
                                 </h3>
 
                                 <ul className="space-y-2">
-                                    <li>
-                                        <Link
-                                            href="/about"
-                                            className="text-sm text-purple-200/70 hover:text-white hover:translate-x-1 transition-all inline-block"
-                                        >
-                                            About Menturo
-                                        </Link>
-                                    </li>
-
-                                    <li>
-                                        <Link
-                                            href="/contact"
-                                            className="text-sm text-purple-200/70 hover:text-white hover:translate-x-1 transition-all inline-block"
-                                        >
-                                            Contact Support
-                                        </Link>
-                                    </li>
-
                                     <li>
                                         <Link
                                             href="/cancellation-and-refund"
@@ -157,15 +136,9 @@ export default function Footer() {
                                     Resources
                                 </h3>
                                 <ul className="space-y-2">
-                                    <li><Link href="/"
-                                        className="text-sm text-purple-200/70 hover:text-white hover:translate-x-1 transition-all inline-block">Mock
-                                        Tests</Link></li>
                                     <li><Link href="/typingPro"
                                         className="text-sm text-purple-200/70 hover:text-white hover:translate-x-1 transition-all inline-block">Typing
                                         Practice</Link></li>
-                                    <li><Link href="/typingPro"
-                                        className="text-sm text-purple-200/70 hover:text-white hover:translate-x-1 transition-all inline-block">Typing
-                                        Pro</Link></li>
                                 </ul>
                             </div>
 
@@ -218,9 +191,6 @@ export default function Footer() {
                                 </p>
                                 <div className="flex flex-wrap justify-center gap-4">
                                     <Link href="/sitemap.xml" className="text-xs text-purple-300/60 hover:text-purple-300 transition">Sitemap</Link>
-                                    <Link href="/privacy-policy" className="text-xs text-purple-300/60 hover:text-purple-300 transition">Privacy</Link>
-                                    <Link href="/terms-and-conditions"
-                                        className="text-xs text-purple-300/60 hover:text-purple-300 transition">Terms</Link>
                                 </div>
                             </div>
                         </div>

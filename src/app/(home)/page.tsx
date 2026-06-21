@@ -1,7 +1,6 @@
 'use client'
 
 import dynamic from 'next/dynamic'
-import Link from 'next/link'
 
 import { useEffect } from "react"
 
@@ -248,25 +247,6 @@ export default function HomePage() {
                 slot={process.env.NEXT_PUBLIC_ADSENSE_HOME_SLOT}
                 className="mx-auto mt-6 w-[calc(100%-24px)] max-w-6xl"
             />
-
-            <section className="mx-auto mt-8 grid w-[calc(100%-24px)] max-w-6xl gap-3 rounded-3xl bg-white p-5 shadow-sm sm:grid-cols-2 lg:grid-cols-6">
-                {[
-                    { href: '/typingPro', label: 'Typing Practice' },
-                    { href: '/', label: 'Test Series' },
-                    { href: '/about', label: 'About' },
-                    { href: '/contact', label: 'Contact' },
-                    { href: '/privacy-policy', label: 'Privacy' },
-                    { href: '/terms-and-conditions', label: 'Terms' },
-                ].map((item) => (
-                    <Link
-                        key={item.href}
-                        href={item.href}
-                        className="rounded-2xl border border-violet-100 bg-violet-50 px-4 py-3 text-center text-sm font-black text-[#4b397c] transition hover:bg-violet-100"
-                    >
-                        {item.label}
-                    </Link>
-                ))}
-            </section>
 
             {/* FOOTER */}
 
