@@ -10,6 +10,7 @@ import { useTypingStore } from '../../shared/store/typingStore'
 import type { TypingAction, TypingTest } from '../../shared/store/typingStore'
 import { showPopupMessage } from '../../shared/utils/popup'
 import { showRouteLoader } from '../../shared/utils/routeLoader'
+import AdSenseAd from '../../shared/components/AdSenseAd'
 
 const levels = ['Easy', 'Medium', 'Hard', 'Expert', 'Master']
 const historyDate = (value: number) => value ? new Intl.DateTimeFormat('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }).format(new Date(value)) : 'Recent attempt'
@@ -88,6 +89,10 @@ export default function TypingProPage() {
             </div>
             <aside className="space-y-4 xl:col-start-2"><Setup duration={duration} setDuration={setDuration} backspace={backspace} highlight={highlight} spelling={spelling} setSetting={setSetting}/><Progress level={level} access={access} progress={progress}/><History history={history} loading={loadingHistory} more={historyHasMore} onMore={() => void loadHistory(historyPage + 1, false)}/></aside>
         </div>
+        <AdSenseAd
+            slot={process.env.NEXT_PUBLIC_ADSENSE_TYPING_SLOT}
+            className="mx-auto mt-6 max-w-[1180px]"
+        />
     </main>
 }
 

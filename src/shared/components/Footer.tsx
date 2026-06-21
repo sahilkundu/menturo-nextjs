@@ -71,7 +71,7 @@ export default function Footer() {
                         </div>
 
                         {/* <!-- Links Grid --> */}
-                        <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-5 mt-10">
+                        <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-3 mt-10">
 
                             {/* <!-- Column 1 - Quick Links --> */}
                             <div className="text-left">
@@ -83,11 +83,11 @@ export default function Footer() {
                                     <li><Link href="/about"
                                         className="text-sm text-purple-200/70 hover:text-white hover:translate-x-1 transition-all inline-block">About
                                         Us</Link></li>
-                                    <li><a href="#"
-                                        className="text-sm text-purple-200/70 hover:text-white hover:translate-x-1 transition-all inline-block">Careers</a>
+                                    <li><Link href="/"
+                                        className="text-sm text-purple-200/70 hover:text-white hover:translate-x-1 transition-all inline-block">Test Series</Link>
                                     </li>
-                                    <li><a href="#"
-                                        className="text-sm text-purple-200/70 hover:text-white hover:translate-x-1 transition-all inline-block">Press</a>
+                                    <li><Link href="/typingPro"
+                                        className="text-sm text-purple-200/70 hover:text-white hover:translate-x-1 transition-all inline-block">Typing Practice</Link>
                                     </li>
                                     <li><Link href="/contact"
                                         className="text-sm text-purple-200/70 hover:text-white hover:translate-x-1 transition-all inline-block">Contact</Link>
@@ -150,47 +150,22 @@ export default function Footer() {
                                 </ul>
                             </div>
 
-                            {/* <!-- Column 3 - Exams --> */}
-                            <div className="text-left">
-                                <h3 className="font-bold text-white text-sm mb-4 flex items-center gap-2">
-                                    <span className="w-1 h-4 bg-purple-400 rounded-full"></span>
-                                    Exams
-                                </h3>
-                                <ul className="space-y-2">
-                                    <li><a href="#"
-                                        className="text-sm text-purple-200/70 hover:text-white hover:translate-x-1 transition-all inline-block">SSC
-                                        CGL</a></li>
-                                    <li><a href="#"
-                                        className="text-sm text-purple-200/70 hover:text-white hover:translate-x-1 transition-all inline-block">UPSC
-                                        Prelims</a></li>
-                                    <li><a href="#"
-                                        className="text-sm text-purple-200/70 hover:text-white hover:translate-x-1 transition-all inline-block">Railway
-                                        NTPC</a></li>
-                                    <li><a href="#"
-                                        className="text-sm text-purple-200/70 hover:text-white hover:translate-x-1 transition-all inline-block">Banking
-                                        PO</a></li>
-                                </ul>
-                            </div>
-
-                            {/* <!-- Column 4 - Resources --> */}
+                            {/* <!-- Column 3 - Resources --> */}
                             <div className="text-left">
                                 <h3 className="font-bold text-white text-sm mb-4 flex items-center gap-2">
                                     <span className="w-1 h-4 bg-purple-400 rounded-full"></span>
                                     Resources
                                 </h3>
                                 <ul className="space-y-2">
-                                    <li><a href="#"
+                                    <li><Link href="/"
                                         className="text-sm text-purple-200/70 hover:text-white hover:translate-x-1 transition-all inline-block">Mock
-                                        Tests</a></li>
-                                    <li><a href="#"
-                                        className="text-sm text-purple-200/70 hover:text-white hover:translate-x-1 transition-all inline-block">Previous
-                                        Papers</a></li>
-                                    <li><a href="#"
-                                        className="text-sm text-purple-200/70 hover:text-white hover:translate-x-1 transition-all inline-block">Study
-                                        Materials</a></li>
-                                    <li><a href="#"
-                                        className="text-sm text-purple-200/70 hover:text-white hover:translate-x-1 transition-all inline-block">Video
-                                        Lectures</a></li>
+                                        Tests</Link></li>
+                                    <li><Link href="/typingPro"
+                                        className="text-sm text-purple-200/70 hover:text-white hover:translate-x-1 transition-all inline-block">Typing
+                                        Practice</Link></li>
+                                    <li><Link href="/typingPro"
+                                        className="text-sm text-purple-200/70 hover:text-white hover:translate-x-1 transition-all inline-block">Typing
+                                        Pro</Link></li>
                                 </ul>
                             </div>
 
@@ -241,12 +216,11 @@ export default function Footer() {
                                 <p className="text-xs text-purple-300/60">
                                     © 2026 Menturo. All rights reserved. Made with ❤️ for students
                                 </p>
-                                <div className="flex gap-4">
-                                    <a href="#" className="text-xs text-purple-300/60 hover:text-purple-300 transition">Sitemap</a>
-                                    <a href="#" className="text-xs text-purple-300/60 hover:text-purple-300 transition">Cookie
-                                        Policy</a>
-                                    <a href="#"
-                                        className="text-xs text-purple-300/60 hover:text-purple-300 transition">Accessibility</a>
+                                <div className="flex flex-wrap justify-center gap-4">
+                                    <Link href="/sitemap.xml" className="text-xs text-purple-300/60 hover:text-purple-300 transition">Sitemap</Link>
+                                    <Link href="/privacy-policy" className="text-xs text-purple-300/60 hover:text-purple-300 transition">Privacy</Link>
+                                    <Link href="/terms-and-conditions"
+                                        className="text-xs text-purple-300/60 hover:text-purple-300 transition">Terms</Link>
                                 </div>
                             </div>
                         </div>

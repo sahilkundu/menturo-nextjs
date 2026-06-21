@@ -65,9 +65,18 @@ const nextConfig = {
                             https://*.adtrafficquality.google
                             https://*.cloudflare.com
                             https://challenges.cloudflare.com
-                            https://*.challenges.cloudflare.com;
+                            https://*.challenges.cloudflare.com
+                            https://pagead2.googlesyndication.com
+                            https://googleads.g.doubleclick.net
+                            https://*.googlesyndication.com
+                            https://*.doubleclick.net;
 
-                            script-src 'self' 'unsafe-inline' 'unsafe-eval';
+                            script-src 'self' 'unsafe-inline' 'unsafe-eval'
+                            https://pagead2.googlesyndication.com
+                            https://www.googletagservices.com
+                            https://www.google.com
+                            https://*.google.com
+                            https://*.gstatic.com;
 
                             style-src 'self' 'unsafe-inline';
 
@@ -83,7 +92,10 @@ const nextConfig = {
                             https://myapp-ws-latest.onrender.com;
 
                             frame-src 'self'
-                            https://challenges.cloudflare.com;
+                            https://challenges.cloudflare.com
+                            https://googleads.g.doubleclick.net
+                            https://*.googlesyndication.com
+                            https://*.google.com;
 
                         `
                             .replace(/\n/g, " ")

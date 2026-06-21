@@ -13,6 +13,7 @@ import {
     extractSeriesIdFromSlug,
     isSeriesIdOnlySlug
 } from '../../../../shared/seo'
+import AdSenseAd from '../../../../shared/components/AdSenseAd'
 const PaymentSummary = dynamic(
     () => import(
         "../../../../shared/components/PaymentSummary"
@@ -377,6 +378,10 @@ export default function TestPage() {
 
                 </div>
             </div>
+
+            <AdSenseAd
+                slot={process.env.NEXT_PUBLIC_ADSENSE_SERIES_SLOT}
+            />
         </div>
     )
 }

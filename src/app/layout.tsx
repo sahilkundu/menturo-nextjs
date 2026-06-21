@@ -4,6 +4,7 @@ import type { ReactNode } from 'react'
 import type { Metadata, Viewport } from 'next'
 import Script from 'next/script'
 import AppProviders from './providers/AppProviders'
+import CookieConsent from '../shared/components/CookieConsent'
 import {
     defaultImage,
     seoKeywords,
@@ -125,6 +126,7 @@ export default function RootLayout({
                 <AppProviders>
                     {children}
                 </AppProviders>
+                <CookieConsent />
 
             </body>
 
