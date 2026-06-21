@@ -98,6 +98,12 @@ export default function SeriesPaymentPage({ series }: FullSeries) {
     const [buyLoading, setBuyLoading] =
         useState<Record<string, boolean>>({})
 
+    const [isVerifyingPayment, setIsVerifyingPayment] =
+        useState(false)
+
+    const [paymentMessage, setPaymentMessage] =
+        useState('')
+
     const updateCouponCode = (
         planID: string,
         value: string
@@ -251,6 +257,8 @@ export default function SeriesPaymentPage({ series }: FullSeries) {
         const planKey =
             String(plan.planID)
 
+        setPaymentMessage('')
+
         setBuyLoading((prev) => ({
             ...prev,
             [planKey]: true
@@ -330,30 +338,38 @@ export default function SeriesPaymentPage({ series }: FullSeries) {
                     // This is only a UX signal. Access is granted solely by
                     // Razorpay's signed server-to-server webhook.
                     handler: async () => {
-                        for (let attempt = 0; attempt < 12; attempt++) {
-                            await new Promise((resolve) =>
-                                window.setTimeout(resolve, 1500)
-                            )
+                        setIsVerifyingPayment(true)
 
-                            await fetchUser()
+                        try {
+                            for (let attempt = 0; attempt < 12; attempt++) {
+                                await new Promise((resolve) =>
+                                    window.setTimeout(resolve, 1500)
+                                )
 
-                            const access =
-                                useUserStore.getState().access[
-                                getSeriesId(series)
-                                ]
+                                await fetchUser()
 
-                            if (
-                                access?.access === true ||
-                                access?.canAccess === true ||
-                                access === true
-                            ) {
-                                router.refresh()
-                                alert('Payment confirmed. Your test series is now unlocked.')
-                                return
+                                const access =
+                                    useUserStore.getState().access[
+                                    getSeriesId(series)
+                                    ]
+
+                                if (
+                                    access?.access === true ||
+                                    access?.canAccess === true ||
+                                    access === true
+                                ) {
+                                    router.refresh()
+                                    return
+                                }
                             }
-                        }
 
-                        alert('Payment received. Access will unlock automatically after Razorpay confirms it.')
+                            setPaymentMessage(
+                                'Payment received. Access will unlock automatically after Razorpay confirms it.'
+                            )
+                        }
+                        finally {
+                            setIsVerifyingPayment(false)
+                        }
                     },
                     prefill:
                         {},
@@ -367,7 +383,7 @@ export default function SeriesPaymentPage({ series }: FullSeries) {
             checkout.open()
         }
         catch (error: any) {
-            alert(
+            setPaymentMessage(
                 error?.message ||
                 'Payment could not be started'
             )
@@ -389,6 +405,36 @@ export default function SeriesPaymentPage({ series }: FullSeries) {
 
     return (
         <div className="m-3 lg:col-span-2 space-y-5 overflow-hidden">
+            {isVerifyingPayment ? (
+                <div
+                    className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/40 backdrop-blur-sm px-5"
+                    role="status"
+                    aria-live="assertive"
+                >
+                    <div className="w-full max-w-sm rounded-3xl bg-white p-7 text-center shadow-2xl">
+                        <div className="mx-auto mb-5 h-12 w-12 animate-spin rounded-full border-4 border-indigo-100 border-t-indigo-600" />
+                        <h2 className="text-xl font-black text-slate-900">
+                            Verifying Your Payment
+                        </h2>
+                        <p className="mt-2 text-sm text-slate-500">
+                            Please wait while Razorpay securely confirms your payment.
+                        </p>
+                        <p className="mt-3 text-xs font-semibold text-indigo-600">
+                            Do not refresh or close this page.
+                        </p>
+                    </div>
+                </div>
+            ) : null}
+
+            {paymentMessage ? (
+                <div
+                    className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-semibold text-amber-800"
+                    role="status"
+                >
+                    {paymentMessage}
+                </div>
+            ) : null}
+
             <div className="flex items-center justify-between gap-3 flex-wrap">
                 <div>
                     <h3 className="text-xl sm:text-2xl font-black flex items-center gap-2 text-gray-900">
