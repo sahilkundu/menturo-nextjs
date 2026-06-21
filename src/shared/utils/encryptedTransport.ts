@@ -1,12 +1,19 @@
 import { BASE_URL } from '../../../api'
 
 type Direction = 'http-c2s' | 'http-s2c' | 'ws-c2s' | 'ws-s2c'
-export interface CryptoSession { enabled: boolean; sessionId: string; keys?: Record<Direction, CryptoKey> }
+export interface CryptoSession {
+    enabled: boolean
+    sessionId: string
+    expiresAt: number
+    keys?: Record<Direction, CryptoKey>
+}
 interface Envelope { v: number; sid: string; iv: string; ct: string; tag: string }
 
 const encoder = new TextEncoder()
 const decoder = new TextDecoder()
 let sessionPromise: Promise<CryptoSession> | null = null
+let currentSession: CryptoSession | null = null
+const REFRESH_EARLY_MS = 15 * 60 * 1000
 const activeSockets = new Set<WebSocket>()
 const restartSockets = () => {
     for (const socket of activeSockets) {
@@ -36,7 +43,7 @@ async function createSession(nativeFetch: typeof window.fetch): Promise<CryptoSe
     })
     if (!response.ok) throw new Error(`Encryption handshake failed (${response.status})`)
     const handshake = await response.json()
-    if (!handshake.enabled) return { enabled: false, sessionId: '' }
+    if (!handshake.enabled) return { enabled: false, sessionId: '', expiresAt: Number.POSITIVE_INFINITY }
     const pinnedKey = process.env.NEXT_PUBLIC_APP_ENCRYPTION_PUBLIC_KEY?.replace(/\s/g, '')
     if (!pinnedKey) throw new Error('NEXT_PUBLIC_APP_ENCRYPTION_PUBLIC_KEY is required when encryption is enabled')
     const serverPublicKey = await crypto.subtle.importKey('spki', fromBase64(pinnedKey),
@@ -55,12 +62,31 @@ async function createSession(nativeFetch: typeof window.fetch): Promise<CryptoSe
             material.slice(index * 32, index * 32 + 32), { name: 'AES-GCM' }, false,
             names[index].endsWith('c2s') ? ['encrypt'] : ['decrypt'])
     }
-    return { enabled: true, sessionId: handshake.sessionId, keys }
+    return {
+        enabled: true,
+        sessionId: handshake.sessionId,
+        expiresAt: Date.now() + Math.max(60, Number(handshake.expiresIn) || 28800) * 1000,
+        keys
+    }
 }
 
-export function getEncryptionSession(nativeFetch: typeof window.fetch = window.fetch) {
-    sessionPromise ??= createSession(nativeFetch).catch(error => { sessionPromise = null; throw error })
-    return sessionPromise
+const resetEncryptionSession = (restartWebSocket = true) => {
+    sessionPromise = null
+    currentSession = null
+    if (restartWebSocket) restartSockets()
+}
+
+export async function getEncryptionSession(nativeFetch: typeof window.fetch = window.fetch) {
+    if (currentSession?.enabled && currentSession.expiresAt - Date.now() <= REFRESH_EARLY_MS) {
+        resetEncryptionSession()
+    }
+    if (currentSession) return currentSession
+    sessionPromise ??= createSession(nativeFetch).catch(error => {
+        sessionPromise = null
+        throw error
+    })
+    currentSession = await sessionPromise
+    return currentSession
 }
 
 async function encrypt(session: CryptoSession, direction: Direction, plaintext: string) {
@@ -92,8 +118,7 @@ export function installEncryptedFetch() {
         if (!session.enabled) {
             const response = await nativeFetch(input, init)
             if (response.status === 426) {
-                sessionPromise = null
-                restartSockets()
+                resetEncryptionSession()
                 return window.fetch(input, init)
             }
             return response
@@ -114,6 +139,12 @@ export function installEncryptedFetch() {
             credentials: request.credentials, cache: request.cache, redirect: request.redirect,
             referrer: request.referrer, referrerPolicy: request.referrerPolicy, signal: request.signal } : {}),
             ...init, credentials: init?.credentials ?? request?.credentials ?? 'include', headers, body })
+        if (response.headers.get('X-Menturo-Rekey') === '1' && headers.get('X-Menturo-Retry') !== '1') {
+            resetEncryptionSession()
+            const retryHeaders = new Headers(init?.headers ?? request?.headers)
+            retryHeaders.set('X-Menturo-Retry', '1')
+            return window.fetch(input, { ...init, headers: retryHeaders })
+        }
         let encryptedResponse = response.headers.get('X-Menturo-Encrypted') === '1'
         if (!encryptedResponse) {
             try {
@@ -126,8 +157,7 @@ export function installEncryptedFetch() {
         if (!encryptedResponse) return response
         const plaintext = await decrypt(session, 'http-s2c', await response.text())
         if (response.headers.get('X-Menturo-Mode') === 'off') {
-            sessionPromise = null
-            restartSockets()
+            resetEncryptionSession()
         }
         const responseHeaders = new Headers(response.headers)
         responseHeaders.delete('Content-Length'); responseHeaders.delete('Content-Encoding')
