@@ -1,7 +1,8 @@
 // api.ts
 
-// export const BASE_URL = "http://localhost:8080"
-export const BASE_URL = "https://betaws.menturo.in"
+export const BASE_URL =
+    process.env.NEXT_PUBLIC_API_BASE_URL ||
+    "https://betaws.menturo.in"
 
 export const LOGIN = `${BASE_URL}/login`
 
@@ -37,6 +38,6 @@ export const GET_GRIEVANCES = `${BASE_URL}/grievances`
 export const FORGOT_PASS = `${BASE_URL}/update-pass`
 export const CHECK_COUPON = `${BASE_URL}/checkCoupon`
 export const CREATE_ORDER = `${BASE_URL}/create-order`
-// export const WEBSOCKET = `ws://localhost:8080/ws`
 export const WEBSOCKET =
+    process.env.NEXT_PUBLIC_WEBSOCKET_URL ||
     `wss://betaws.menturo.in/ws`

@@ -1613,7 +1613,8 @@ export default function TypingProPage() {
     const handleStartTest = async (
         test = selectedTest,
         mode: 'start' | 'resume' | 'solution' = 'start',
-        historyId = ''
+        historyId = '',
+        selectedDuration = duration
     ) => {
         const buttonKey =
             `${test?.testId || testId}:${mode}:${historyId}`
@@ -1660,7 +1661,7 @@ export default function TypingProPage() {
                         test.testId,
                         mode,
                         historyId,
-                        duration
+                        selectedDuration
                     )
             }
 
@@ -2185,6 +2186,7 @@ export default function TypingProPage() {
         const requestedTestId = pendingTest?.testId
         const requestedMode = pendingTest?.action
         const requestedHistoryId = pendingTest?.historyId || ''
+        const requestedDuration = pendingTest?.duration || duration
 
         if (
             queryActionStartedRef.current ||
@@ -2208,7 +2210,7 @@ export default function TypingProPage() {
             language: 'english' as Language,
             level: 1,
             levelName: 'Easy',
-            duration
+            duration: requestedDuration
         }
 
         if (!['start', 'resume', 'solution'].includes(requestedMode)) {
@@ -2219,7 +2221,8 @@ export default function TypingProPage() {
         void handleStartTest(
             test,
             requestedMode as 'start' | 'resume' | 'solution',
-            requestedHistoryId
+            requestedHistoryId,
+            requestedDuration
         )
     }, [
         availableTests,

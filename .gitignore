@@ -23,6 +23,9 @@ TRANSPORT_ENCRYPTION.md
 .env.*
 *.local
 
+# Local development encryption configuration
+.local-keys/
+
 # Coverage
 coverage/
 
