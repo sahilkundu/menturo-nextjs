@@ -103,7 +103,7 @@ export default function TypingProPage() {
 
     return <main className="typing-font min-h-[100dvh] bg-[#f6f7fb] px-2 py-2 pb-24 text-[#121735] sm:px-3 xl:h-[100dvh] xl:min-h-0 xl:overflow-hidden xl:pb-2">
         <TestSectionHead userName="" rollingId="" activePlan={authenticated ? 'Typing Pro' : 'Guest'} badgeText="Typing Master Pro" onHome={() => router.push('/')} onLogin={login} showSignIn={!authenticated} />
-        <div className="mx-auto mt-3 max-w-[1240px] xl:grid xl:h-[calc(100dvh-84px)] xl:min-h-0 xl:grid-cols-[minmax(0,1fr)_292px] xl:grid-rows-[220px_minmax(0,1fr)] xl:items-stretch xl:gap-x-5 xl:gap-y-3">
+        <div className="mx-auto mt-3 max-w-[1240px] xl:grid xl:h-[calc(100dvh-84px)] xl:min-h-0 xl:grid-cols-[minmax(0,1fr)_292px] xl:grid-rows-[260px_minmax(0,1fr)] xl:items-stretch xl:gap-x-5 xl:gap-y-3">
             <div className="space-y-3 xl:contents">
             <div className="space-y-3 xl:col-start-1 xl:row-start-1 xl:flex xl:h-full xl:flex-col xl:gap-3 xl:space-y-0">
             <section className="xl:col-start-1 rounded-[14px] bg-[#f8f9fc] p-2 shadow-[0_5px_18px_rgba(36,29,83,.13)] xl:p-1.5"><div className="flex flex-wrap gap-2">{(['english','hindi'] as const).map((item) => <button key={item} disabled={controlsLocked} onClick={() => setLanguage(item)} className={`flex items-center gap-1.5 rounded-xl border px-3.5 py-2 text-xs font-black shadow-sm transition-all disabled:cursor-wait disabled:opacity-60 xl:py-1.5 ${language === item ? 'border-[#4b397c] bg-[linear-gradient(135deg,#57478e,#332760)] text-white shadow-[#4b397c]/20' : 'border-[#e5e0f0] bg-white text-[#706783] hover:border-[#cbbfe5] hover:bg-[#faf8ff]'}`}><Globe2 size={15}/>{item === 'english' ? 'English' : 'Hindi'}</button>)}</div></section>
@@ -250,7 +250,7 @@ function Progress({ level, progress }: any) {
             <span className="text-[10px] font-black text-[#6653a7]">{current.passed}/{current.total} tests passed</span>
         </div>
         <div className="mt-2 h-2.5 overflow-hidden rounded-full bg-[#e7e3f0] shadow-inner" role="progressbar" aria-label={`${level} progress`} aria-valuenow={percent} aria-valuemin={0} aria-valuemax={100}><div className="h-full rounded-full bg-gradient-to-r from-[#6554d9] via-[#8b78e6] to-emerald-500 transition-[width] duration-500" style={{ width: `${percent}%` }}/></div>
-        <p className="mt-2 flex items-center gap-1.5 rounded-lg bg-amber-50 px-2 py-1.5 text-[10px] font-black text-amber-800 ring-1 ring-inset ring-amber-200"><Trophy size={12} className="shrink-0 text-amber-600"/>Pass all tests to unlock the next level.</p>
+        <p className="mt-2 flex min-h-7 w-full min-w-0 items-center gap-1.5 whitespace-normal rounded-lg bg-amber-50 px-2 py-1.5 text-[10px] font-black leading-snug text-amber-800 ring-1 ring-inset ring-amber-200 sm:text-[11px] lg:text-[10px]"><Trophy size={12} className="shrink-0 text-amber-600"/><span className="min-w-0">Pass all tests to unlock the next level.</span></p>
     </section>
 }
 
