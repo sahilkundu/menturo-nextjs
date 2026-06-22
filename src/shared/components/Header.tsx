@@ -9,25 +9,15 @@ import Image from "next/image"
 import { useWSChatStore } from "../store/wsChat"
 import { showRouteLoader } from "../utils/routeLoader"
 
-import Swal from 'sweetalert2'
 import { LogIn } from 'lucide-react'
 
 
 export default function Header() {
     const router = useRouter()
     const pathname = usePathname()
-    const handlePopup = () => {
-
-
-
-        Swal.fire({
-            icon: 'warning',
-            title: 'Typing Test Coming soon...',
-            text: "Live on 22 june 2026",
-            confirmButtonColor: '#2575fc'
-        })
-
-
+    const handleTypingProClick = () => {
+        showRouteLoader()
+        router.push('/typingPro')
     }
     const user =
         useUserStore(
@@ -432,11 +422,17 @@ export default function Header() {
                     </div>
 
                     {/* <!-- CARD --> */}
-                    <div onClick={handlePopup} className="cursor-pointer bg-gradient-to-r from-[#ebf46d]/90 to-[#dff53f]/90 rounded-2xl p-2.5 text-black h-fit border border-white/20 shadow-lg shadow-lime-500/20">
+                    <div onClick={handleTypingProClick} className="cursor-pointer bg-gradient-to-r from-[#ebf46d]/90 to-[#dff53f]/90 rounded-2xl p-2.5 text-black h-fit border border-white/20 shadow-lg shadow-lime-500/20">
 
-                        <p className="text-[11px] text-black/60 mb-1 font-medium">
-                            Typing Test
-                        </p>
+                        <div className="mb-1 flex items-center justify-between gap-2">
+                            <p className="text-[11px] text-black/60 font-medium">
+                                Typing Test
+                            </p>
+                            <span className="flex items-center gap-1 text-[10px] font-semibold text-green-700">
+                                <span className="h-1.5 w-1.5 rounded-full bg-green-600 animate-pulse" />
+                                Live now
+                            </span>
+                        </div>
 
                         <div className="flex items-center justify-between">
 
