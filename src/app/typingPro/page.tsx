@@ -196,23 +196,37 @@ function TestCard({ test, requirements, onOpen }: { test: TypingTest; requiremen
 }
 
 function Setup({ duration, setDuration, backspace, highlight, spelling, setSetting }: any) {
+    const [durationMenuOpen, setDurationMenuOpen] = useState(false)
+    const durationMenuRef = useRef<HTMLDivElement>(null)
     const settings = [
         ['backspaceEnabled', 'Backspace', backspace],
         ['highlightEnabled', 'Highlight & Auto Scroll', highlight],
         ['liveSpellingEnabled', 'Live Spelling Check', spelling]
     ] as const
 
-    return <section className="h-full overflow-hidden rounded-[16px] bg-white p-3.5 shadow-[0_5px_18px_rgba(36,29,83,.09)] xl:p-3">
+    useEffect(() => {
+        if (!durationMenuOpen) return
+        const closeMenu = (event: MouseEvent) => {
+            if (!durationMenuRef.current?.contains(event.target as Node)) setDurationMenuOpen(false)
+        }
+        document.addEventListener('mousedown', closeMenu)
+        return () => document.removeEventListener('mousedown', closeMenu)
+    }, [durationMenuOpen])
+
+    return <section className="relative z-30 h-full overflow-visible rounded-[16px] bg-white p-3.5 shadow-[0_5px_18px_rgba(36,29,83,.09)] xl:p-3">
         <h2 className="flex items-center gap-2 text-sm font-black"><Settings size={17} className="text-[#4b39cf]"/>Test Setup</h2>
         <div className="mt-3 xl:mt-2">
             <div>
-                <label htmlFor="typing-test-duration" className="mb-1.5 block text-[10px] font-black">Choose time</label>
-                <div className="relative">
+                <span className="mb-1.5 block text-[10px] font-black">Choose time</span>
+                <div ref={durationMenuRef} className="relative">
                     <Clock3 size={14} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#4f36ff]"/>
-                    <select id="typing-test-duration" value={duration} onChange={(event) => setDuration(Number(event.target.value))} className="w-full appearance-none rounded-xl border border-[#d8cff3] bg-[#f8f6ff] py-2.5 pl-9 pr-8 text-xs font-black text-[#38296b] outline-none transition focus:border-[#4f36ff] focus:ring-2 focus:ring-[#4f36ff]/15 xl:py-2">
-                        {Array.from({ length: 60 }, (_, index) => index + 1).map((value) => <option key={value} value={value}>{value} {value === 1 ? 'minute' : 'minutes'}</option>)}
-                    </select>
-                    <span aria-hidden="true" className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-[#6653a7]">▼</span>
+                    <button type="button" id="typing-test-duration" aria-haspopup="listbox" aria-expanded={durationMenuOpen} onClick={() => setDurationMenuOpen((open) => !open)} className="flex w-full items-center justify-between rounded-xl border border-[#d8cff3] bg-[#f8f6ff] py-2.5 pl-9 pr-3 text-left text-xs font-black text-[#38296b] outline-none transition focus:border-[#4f36ff] focus:ring-2 focus:ring-[#4f36ff]/15 xl:py-2">
+                        <span>{duration} {duration === 1 ? 'minute' : 'minutes'}</span>
+                        <span aria-hidden="true" className="text-[10px] text-[#6653a7]">▼</span>
+                    </button>
+                    {durationMenuOpen && <div role="listbox" aria-label="Typing test duration" className="absolute left-0 right-0 z-50 mt-1 max-h-[300px] overflow-y-auto rounded-[9px] border border-[#d8cff3] bg-[#f8f6ff] py-1 shadow-xl [scrollbar-width:thin] [&::-webkit-scrollbar]:w-[6px] [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-[#8c8991]">
+                        {Array.from({ length: 60 }, (_, index) => index + 1).map((value) => <button type="button" role="option" aria-selected={duration === value} key={value} onClick={() => { setDuration(value); setDurationMenuOpen(false) }} className={`block w-full px-3 py-2 text-left text-xs font-bold ${duration === value ? 'bg-[#58418f] text-white' : 'text-[#4b397c] hover:bg-[#eee9fb]'}`}>{value} {value === 1 ? 'minute' : 'minutes'}</button>)}
+                    </div>}
                 </div>
             </div>
         </div>
