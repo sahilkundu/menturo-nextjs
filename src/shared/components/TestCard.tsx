@@ -54,7 +54,7 @@ export default function TestCard({
 }: TestCardProps) {
     const router = useRouter()
     const isAvailable =
-        av !== false
+        av === true
     const isTrue = (
         value: unknown
     ) =>
@@ -119,6 +119,62 @@ export default function TestCard({
             access.message.trim()
             ? access.message
             : null
+    const paidPlan =
+        Array.isArray(access?.paidPlan) &&
+            access.paidPlan.length > 0
+            ? access.paidPlan[0]
+            : Array.isArray(access?.plans) &&
+                access.plans.length > 0
+                ? access.plans[0]
+                : null
+    const paidPlanId =
+        paidPlan?.planID ??
+        paidPlan?.id ??
+        null
+    const paidPlanName =
+        typeof paidPlan?.name === "string" &&
+            paidPlan.name.trim()
+            ? paidPlan.name.trim()
+            : "Paid Plan"
+    const paidPlanAttempts =
+        paidPlan?.allowedAttempt ??
+        paidPlan?.attempts ??
+        null
+    const paidPlanDuration =
+        typeof paidPlan?.duration === "string" &&
+            paidPlan.duration.trim()
+            ? paidPlan.duration.trim()
+            : ""
+    const paidBasePrice =
+        Number(paidPlan?.price) || 0
+    const paidOfferDiscount =
+        Number(paidPlan?.offerPrice) || 0
+    const paidPlanPrice =
+        paidBasePrice > 0
+            ? paidOfferDiscount > 0 &&
+                paidOfferDiscount < paidBasePrice
+                ? paidBasePrice - paidOfferDiscount
+                : paidBasePrice
+            : null
+    const parsePrice =
+        (value?: string) =>
+            Number(
+                String(value || "")
+                    .replace(/[^\d.]/g, "")
+            ) || 0
+    const baseCardPrice =
+        parsePrice(totalPrice)
+    const cardOfferDiscount =
+        parsePrice(offerPrice)
+    const payableCardPrice =
+        baseCardPrice > 0
+            ? cardOfferDiscount > 0 &&
+                cardOfferDiscount < baseCardPrice
+                ? baseCardPrice - cardOfferDiscount
+                : baseCardPrice
+            : cardOfferDiscount
+    const displayOfferPrice =
+        `₹${payableCardPrice}`
     let actionBtnName =
         btnName
 
@@ -316,7 +372,7 @@ export default function TestCard({
                     >
                         {name}
                     </h3>
-                    {/* PRICE */}
+                    {/* PRICE / PAID PLAN */}
                     {
                         !hasFullAccess
                             ? (
@@ -359,7 +415,7 @@ export default function TestCard({
                                                     text-[#059669]
                                                 `}
                                             >
-                                                {offerPrice}
+                                                {displayOfferPrice}
                                             </h4>
                                         </div>
 
@@ -367,7 +423,67 @@ export default function TestCard({
 
                                 </div>
                             )
-                            : null
+                            : (
+                                <div className="mb-3 rounded-[18px] border border-[#D8F3E8] bg-[linear-gradient(135deg,#F0FDF4_0%,#FFFFFF_58%,#F8F6FF_100%)] px-3 py-2.5 shadow-[0_8px_20px_rgba(16,185,129,0.10),inset_0_1px_0_rgba(255,255,255,0.95)]">
+
+                                    <div className="mb-2 flex items-center justify-between gap-2">
+
+                                        <p className="min-w-0 truncate text-[11px] font-black text-[#166534]">
+                                            {paidPlanName}
+                                        </p>
+
+                                        {
+                                            paidPlanId !== null
+                                                ? (
+                                                    <span className="flex-shrink-0 rounded-full bg-[#DCFCE7] px-2 py-1 text-[9px] font-black uppercase text-[#047857]">
+                                                        Plan #{paidPlanId}
+                                                    </span>
+                                                )
+                                                : null
+                                        }
+
+                                    </div>
+
+                                    <div className="grid grid-cols-3 gap-2 text-[9px] font-black uppercase text-[#6B7280]">
+
+                                        <div>
+                                            <p className="mb-0.5 text-[#A1A1AA]">
+                                                Attempts
+                                            </p>
+
+                                            <p className="truncate text-[12px] text-[#4A3F77]">
+                                                {paidPlanAttempts ?? "-"}
+                                            </p>
+                                        </div>
+
+                                        <div>
+                                            <p className="mb-0.5 text-[#A1A1AA]">
+                                                Validity
+                                            </p>
+
+                                            <p className="truncate text-[12px] normal-case text-[#4A3F77]">
+                                                {paidPlanDuration || "-"}
+                                            </p>
+                                        </div>
+
+                                        <div className="text-right">
+                                            <p className="mb-0.5 text-[#A1A1AA]">
+                                                Paid
+                                            </p>
+
+                                            <p className="truncate text-[13px] text-[#059669]">
+                                                {
+                                                    paidPlanPrice !== null
+                                                        ? `₹${paidPlanPrice}`
+                                                        : "-"
+                                                }
+                                            </p>
+                                        </div>
+
+                                    </div>
+
+                                </div>
+                            )
                     }
 
                     {/* DEMO */}

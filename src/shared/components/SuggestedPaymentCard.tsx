@@ -316,14 +316,27 @@ export default function SuggestedPaymentCard({
 
                     (series.plans || []).map((plan: any) => {
 
+                        const basePrice =
+                            Number(plan.price) || 0
+
+                        const offerDiscount =
+                            Number(plan.offerPrice) || 0
+
+                        const hasOffer =
+                            offerDiscount > 0 &&
+                            offerDiscount < basePrice
+
+                        const payableAmount =
+                            basePrice > 0
+                                ? hasOffer
+                                    ? basePrice - offerDiscount
+                                    : basePrice
+                                : 0
+
                         const discountPercent = Math.round(
-                            (
-                                (
-                                    plan.price -
-                                    plan.offerPrice
-                                ) /
-                                plan.price
-                            ) * 100
+                            basePrice > 0
+                                ? (offerDiscount / basePrice) * 100
+                                : 0
                         )
 
                         return (
@@ -417,7 +430,7 @@ export default function SuggestedPaymentCard({
 
                                         <span className="text-3xl font-black text-indigo-700">
 
-                                            ₹{plan.offerPrice}
+                                            ₹{payableAmount}
 
                                         </span>
 

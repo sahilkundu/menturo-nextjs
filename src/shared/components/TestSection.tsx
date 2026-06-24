@@ -196,6 +196,8 @@ export default function TestSection({ series }: Props) {
         hasSeriesAccess(
             series?.access
         )
+    const seriesAvailable =
+        series?.av === true
     const seriesAccessMessage =
         getSeriesAccessMessage(
             series?.access
@@ -378,7 +380,21 @@ export default function TestSection({ series }: Props) {
 
             return
         }
-        if (!seriesCanAccess) {
+        if (mode !== 'solution' && !seriesAvailable) {
+            showPopupMessage(
+                'Series Disabled',
+                false
+            )
+            return
+        }
+        if (mode !== 'solution' && test?.av !== true) {
+            showPopupMessage(
+                'Test Disabled',
+                false
+            )
+            return
+        }
+        if (mode !== 'solution' && !seriesCanAccess) {
             showPopupMessage(
                 seriesAccessMessage,
                 false
@@ -1025,7 +1041,9 @@ export default function TestSection({ series }: Props) {
 
                                     const test =
                                         tests[virtualRow.index]
-                                    const isAvailable = test?.av
+                                    const isAvailable =
+                                        seriesAvailable &&
+                                        test?.av === true
                                     if (!test) return null
                                     const hasHistory =
                                         test?.history?.length > 0

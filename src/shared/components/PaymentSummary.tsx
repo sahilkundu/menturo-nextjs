@@ -13,10 +13,28 @@ export default function PaymentSummary({ series }: FullSeries) {
 
     const router =
         useRouter()
-    const savedAmount = series?.plans?.[0]?.price || 0 - series?.plans?.[0]?.offerPrice || 0
+    const basePrice =
+        Number(series?.plans?.[0]?.price) || 0
+    const offerDiscount =
+        Number(series?.plans?.[0]?.offerPrice) || 0
+    const hasOffer =
+        offerDiscount > 0 &&
+        offerDiscount < basePrice
+    const payableAmount =
+        basePrice > 0
+            ? hasOffer
+                ? basePrice - offerDiscount
+                : basePrice
+            : 0
+    const savedAmount =
+        hasOffer
+            ? offerDiscount
+            : 0
 
     const discountPercent = Math.round(
-        ((savedAmount / (series?.plans?.[0]?.price || 0)) * 100)
+        basePrice > 0
+            ? ((savedAmount / basePrice) * 100)
+            : 0
     )
     const authenticated =
         useUserStore(
@@ -82,7 +100,7 @@ export default function PaymentSummary({ series }: FullSeries) {
 
                     <div className="text-right">
                         <span className="font-bold text-gray-900 text-lg sm:text-xl">
-                            ₹{series?.plans?.[0]?.offerPrice || 0}
+                            ₹{payableAmount}
                         </span>
 
                         <span className="text-green-600 text-[10px] ml-2 bg-green-50 px-1.5 py-0.5 rounded">
@@ -122,7 +140,7 @@ export default function PaymentSummary({ series }: FullSeries) {
                     </span>
 
                     <span className="text-xl sm:text-2xl font-black text-indigo-700">
-                        ₹{series?.plans?.[0]?.offerPrice || 0}
+                        ₹{payableAmount}
                     </span>
                 </div>
             </div>
