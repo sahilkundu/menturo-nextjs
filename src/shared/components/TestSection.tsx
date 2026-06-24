@@ -1550,19 +1550,19 @@ export default function TestSection({ series }: Props) {
                                                                     onClick={() => {
 
                                                                         if (
-                                                                            !test.access ||
                                                                             isActionLocked ||
-                                                                            hasRunningTest
+                                                                            hasRunningTest ||
+                                                                            (authenticated && !test.access)
                                                                         ) return
 
                                                                         handleTestAction(test)
                                                                     }}
                                                                     disabled={
-                                                                        isActionLocked || hasRunningTest || !test.access
+                                                                        isActionLocked || hasRunningTest || (authenticated && !test.access)
                                                                     }
                                                                     className={`
                                                                     
-                    ${isActionLocked || hasRunningTest || !test.access
+                    ${isActionLocked || hasRunningTest || (authenticated && !test.access)
                                                                             ? 'cursor-not-allowed'
                                                                             : 'cursor-pointer'
                                                                         }
@@ -1582,7 +1582,7 @@ export default function TestSection({ series }: Props) {
         disabled:cursor-not-allowed
         disabled:pointer-events-none
 
-                    ${test.access && !isActionLocked && !hasRunningTest
+                    ${(!authenticated || test.access) && !isActionLocked && !hasRunningTest
                                                                             ? premiumButtonClass
                                                                             : disabledButtonClass
                                                                         }
@@ -1615,8 +1615,7 @@ export default function TestSection({ series }: Props) {
                                                                                                     ? "Test running..."
                                                                                                     : "Resume Test"
                                                                                             )
-                                                                                            :
-                                                                                            <Lock size={15} />
+                                                                                            : "Login to Resume"
                                                                                         }
                                                                                     </span>
                                                                                 </>
@@ -1851,20 +1850,20 @@ export default function TestSection({ series }: Props) {
 
                                                                 <button
                                                                     onClick={() =>
-                                                                        test.access &&
+                                                                        (!authenticated || test.access) &&
                                                                         !isActionLocked &&
                                                                         !isAttemptLimitReached &&
                                                                         handleTestAction(test)
                                                                     }
                                                                     disabled={
                                                                         isActionLocked ||
-                                                                        !test.access ||
+                                                                        (authenticated && !test.access) ||
                                                                         isAttemptLimitReached
                                                                     }
                                                                     className={`
 
         
-                   ${isActionLocked || hasRunningTest || !test.access || isAttemptLimitReached
+                   ${isActionLocked || hasRunningTest || (authenticated && !test.access) || isAttemptLimitReached
                                                                             ? 'cursor-not-allowed'
                                                                             : 'cursor-pointer'
                                                                         }
@@ -1878,7 +1877,7 @@ export default function TestSection({ series }: Props) {
                     flex
                     justify-center
                     text-center
-                    ${!isActionLocked && !hasRunningTest && test.access && !isAttemptLimitReached
+                    ${!isActionLocked && !hasRunningTest && (!authenticated || test.access) && !isAttemptLimitReached
                                                                             ? premiumButtonClass
                                                                             : disabledButtonClass
                                                                         }
@@ -1902,13 +1901,13 @@ export default function TestSection({ series }: Props) {
                                                                                         }
 
                                                                                     </span>
-                                                                                    {test.access &&
+                                                                                    {(!authenticated || test.access) &&
                                                                                         <span>
                                                                                             {authenticated
                                                                                                 ? isAttemptLimitReached
                                                                                                     ? "Limit Reached"
                                                                                                     : "Test Again"
-                                                                                                : <Lock size={15} />}
+                                                                                                : "Login to Retry"}
                                                                                         </span>
                                                                                     }
                                                                                 </>
@@ -2132,16 +2131,16 @@ export default function TestSection({ series }: Props) {
 
                                                             <button
                                                                 disabled={
-                                                                    isActionLocked || !test.access
+                                                                    isActionLocked || (authenticated && !test.access)
                                                                 }
                                                                 onClick={() =>
-                                                                    test.access &&
+                                                                    (!authenticated || test.access) &&
                                                                     !isActionLocked &&
                                                                     handleTestAction(test)
                                                                 }
                                                                 className={`
                                                             
-                ${isActionLocked || hasRunningTest || !test.access
+                ${isActionLocked || hasRunningTest || (authenticated && !test.access)
                                                                         ? 'cursor-not-allowed'
                                                                         : 'cursor-pointer'
                                                                     }
@@ -2154,7 +2153,7 @@ export default function TestSection({ series }: Props) {
                 gap-2
                 justify-center
                 text-center
-                ${!isActionLocked && !hasRunningTest && test.access
+                ${!isActionLocked && !hasRunningTest && (!authenticated || test.access)
                                                                         ? premiumButtonClass
                                                                         : disabledButtonClass
                                                                     }
@@ -2179,11 +2178,11 @@ export default function TestSection({ series }: Props) {
                                                                                         }
 
                                                                                     </span>}
-                                                                                {test.access &&
+                                                                                {(!authenticated || test.access) &&
                                                                                     <span>
                                                                                         {authenticated ?
                                                                                             "Start Test" :
-                                                                                            <Lock size={15} />
+                                                                                            "Login to Start"
                                                                                         }
 
 
