@@ -1,5 +1,6 @@
 'use client'
 
+import { useRouter } from 'next/navigation'
 import { useRef, useEffect, useCallback, useMemo } from 'react'
 
 import { useTestSeriesStore }
@@ -7,6 +8,7 @@ import { useTestSeriesStore }
 
 import SuggestedPaymentCardSkeleton
     from "./Skeleton/SuggestedPaymentCardSkeleton"
+import { createSeriesSlug } from '../seo'
 
 interface SuggestedPaymentCardProps {
     excludeSeriesId?: string
@@ -15,6 +17,8 @@ interface SuggestedPaymentCardProps {
 export default function SuggestedPaymentCard({
     excludeSeriesId
 }: SuggestedPaymentCardProps) {
+    const router =
+        useRouter()
 
     // ======================================================
     // REFS
@@ -315,6 +319,8 @@ export default function SuggestedPaymentCard({
                 {cards.flatMap((series: any) =>
 
                     (series.plans || []).map((plan: any) => {
+                        const isSeriesAvailable =
+                            series?.av !== false
 
                         const basePrice =
                             Number(plan.price) || 0
@@ -491,9 +497,47 @@ export default function SuggestedPaymentCard({
                                     </div>
 
                                     {/* BUTTON */}
-                                    <button className="w-full mt-6 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-2xl text-sm shadow-md transition">
+                                    <button
+                                        type="button"
+                                        disabled={!isSeriesAvailable}
+                                        onClick={() => {
+                                            if (!isSeriesAvailable) {
+                                                return
+                                            }
 
-                                        Enroll Now
+                                            const slug =
+                                                createSeriesSlug(
+                                                    series.n,
+                                                    series._id
+                                                )
+
+                                            if (!slug) {
+                                                return
+                                            }
+
+                                            router.push(
+                                                `/series/${slug}`
+                                            )
+                                        }}
+                                        className={`
+                                            w-full
+                                            mt-6
+                                            font-bold
+                                            py-3
+                                            rounded-2xl
+                                            text-sm
+                                            shadow-md
+                                            transition
+                                            ${isSeriesAvailable
+                                                ? 'bg-indigo-600 hover:bg-indigo-700 text-white cursor-pointer'
+                                                : 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                                            }
+                                        `}
+                                    >
+
+                                        {isSeriesAvailable
+                                            ? 'Enroll Now'
+                                            : 'Unavailable'}
 
                                     </button>
 
