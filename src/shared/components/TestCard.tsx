@@ -80,17 +80,30 @@ export default function TestCard({
         typeof access?.message?.demoMessage === "string"
             ? access.message.demoMessage.trim()
             : ""
+    const expiredMessage =
+        typeof access?.message?.expiredMessage === "string"
+            ? access.message.expiredMessage.trim()
+            : ""
     const displayMessage =
         typeof access?.message?.displayMessage === "string"
             ? access.message.displayMessage.trim()
             : ""
+    const hasExpiredAccess =
+        isTrue(access?.isExpired) ||
+        expiredMessage.length > 0 ||
+        displayMessage.toLowerCase().includes(
+            "expired"
+        )
     const isPaidAccess =
-        paidMessage.length > 0 ||
-        displayMessage.toLowerCase().includes(
-            "full access"
-        ) ||
-        displayMessage.toLowerCase().includes(
-            "paid access"
+        !hasExpiredAccess &&
+        (
+            paidMessage.length > 0 ||
+            displayMessage.toLowerCase().includes(
+                "full access"
+            ) ||
+            displayMessage.toLowerCase().includes(
+                "paid access"
+            )
         )
     const isFreeAccess =
         freeMessage.length > 0 ||
@@ -113,7 +126,11 @@ export default function TestCard({
         hasDemoAccess &&
         !hasFullAccess
     const accessMessage =
-        displayMessage
+        hasExpiredAccess
+            ? expiredMessage ||
+            displayMessage ||
+            "Your test series access has expired"
+            : displayMessage
             ? displayMessage
             : typeof access?.message === "string" &&
             access.message.trim()
@@ -183,7 +200,9 @@ export default function TestCard({
         !actionBtnName
     ) {
         actionBtnName =
-            hasFullAccess
+            hasExpiredAccess
+                ? "Buy Now"
+                : hasFullAccess
                 ? "Attempt Tests"
                 : hasDemoOnlyAccess ||
                     hasDemoAccess ||
@@ -212,7 +231,9 @@ export default function TestCard({
     ) {
 
         actionBtnName =
-            `Attempt Tests`;
+            hasExpiredAccess
+                ? `Buy Now`
+                : `Attempt Tests`;
     }
 
     return (
