@@ -17,6 +17,7 @@ export const LOAD_ONE_SERIES = `${BASE_URL}/api/test-series/loadone`
 export const LOAD_TESTS = `${BASE_URL}/api/tests/load`
 export const LOAD_TESTS_BY_SUB = `${BASE_URL}/api/tests/loadsub`
 export const START_TEST = `${BASE_URL}/api/test/start`
+export const DELETE_TEST_ATTEMPT = `${BASE_URL}/api/test/attempt/delete`
 export const RESUME_TEST = `${BASE_URL}/api/test/resume`
 export const SAVE_TEST = `${BASE_URL}/api/test/save`
 export const FETCH_SOLUTION = `${BASE_URL}/api/test/solution`

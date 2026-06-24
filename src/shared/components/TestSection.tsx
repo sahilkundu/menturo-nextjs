@@ -6,6 +6,9 @@ import {
     ChevronLeft,
     ChevronRight,
     Book,
+    History,
+    RotateCcw,
+    Trash2,
     X
 } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
@@ -26,8 +29,16 @@ import {
 } from '../utils/routeLoader'
 import TestSeriesInfo from './TestSeriesInfo'
 import PaymentSummary from './PaymentSummary'
+import { DELETE_TEST_ATTEMPT } from '../../../api'
 type Props = {
     series: any
+}
+
+type AttemptDeletionRequest = {
+    attempt: number
+    deleteAll: boolean
+    key: string
+    test: any
 }
 
 const getSelectedSubjectKey = (
@@ -106,6 +117,10 @@ export default function TestSection({ series }: Props) {
         useState<string | null>(null)
     const [loadingTestId, setLoadingTestId] =
         useState<string | null>(null)
+    const [deletingAttemptKey, setDeletingAttemptKey] =
+        useState<string | null>(null)
+    const [pendingAttemptDeletion, setPendingAttemptDeletion] =
+        useState<AttemptDeletionRequest | null>(null)
     const actionLoadingRef =
         useRef(false)
     const authenticated =
@@ -344,6 +359,122 @@ export default function TestSection({ series }: Props) {
 
 
     const includedFeatures = series?.info || []
+
+    const refreshCurrentTests =
+        async () => {
+            await fetchTestsBySubject(
+                series._id,
+                normalizedSelectedSubject,
+                {
+                    page: 1,
+                    limit: Math.max(
+                        pagination?.loaded || 3,
+                        3
+                    )
+                }
+            )
+        }
+
+    const handleDeleteAttempt = (
+        test: any,
+        deleteAll = false
+    ) => {
+        if (!authenticated) {
+            showPopupMessage(
+                'Please login to delete attempts',
+                false
+            )
+            return
+        }
+
+        const attempt =
+            Number(test?.attemptUsed || 0)
+
+        if (!deleteAll && attempt <= 0) {
+            showPopupMessage(
+                'No attempt available to delete',
+                false
+            )
+            return
+        }
+
+        const key =
+            `${test.testId}-${deleteAll ? 'all' : attempt}`
+
+        if (deletingAttemptKey) {
+            return
+        }
+
+        setPendingAttemptDeletion({
+            attempt,
+            deleteAll,
+            key,
+            test
+        })
+    }
+
+    const confirmDeleteAttempt = async () => {
+        if (!pendingAttemptDeletion) {
+            return
+        }
+
+        const {
+            attempt,
+            deleteAll,
+            key,
+            test
+        } = pendingAttemptDeletion
+
+        try {
+            setDeletingAttemptKey(key)
+
+            const response =
+                await fetch(
+                    DELETE_TEST_ATTEMPT,
+                    {
+                        method: 'POST',
+                        credentials: 'include',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            testId: test.testId,
+                            ts: test.ts,
+                            deleteAll,
+                            attempt
+                        })
+                    }
+                )
+
+            const data =
+                await response.json()
+
+            if (!data?.success) {
+                showPopupMessage(
+                    data?.message ||
+                    'Unable to delete attempt',
+                    false
+                )
+                return
+            }
+
+            showPopupMessage(
+                data?.message ||
+                'Attempt deleted',
+                true
+            )
+
+            await refreshCurrentTests()
+        } catch (_) {
+            showPopupMessage(
+                'Unable to delete attempt',
+                false
+            )
+        } finally {
+            setDeletingAttemptKey(null)
+            setPendingAttemptDeletion(null)
+        }
+    }
 
 
 
@@ -703,6 +834,109 @@ export default function TestSection({ series }: Props) {
         // <div className="m-2 bg-white rounded-2xl border border-gray-100 overflow-hidden">
         <div className="m-2 bg-white rounded-2xl border border-gray-100 overflow-hidden">
 
+            {pendingAttemptDeletion ? (
+                <div
+                    className="fixed inset-0 z-[100] flex items-center justify-center p-4"
+                    role="dialog"
+                    aria-modal="true"
+                    aria-labelledby="attempt-delete-title"
+                >
+                    <button
+                        type="button"
+                        aria-label="Close delete confirmation"
+                        disabled={Boolean(deletingAttemptKey)}
+                        onClick={() => setPendingAttemptDeletion(null)}
+                        className="absolute inset-0 cursor-default bg-[#1F1B2D]/55 backdrop-blur-sm"
+                    />
+
+                    <div className="relative w-full max-w-[430px] overflow-hidden rounded-lg border border-[#E8DDE0] bg-white shadow-[0_24px_70px_rgba(31,27,45,0.30)]">
+                        <div className="h-1 bg-red-600" />
+
+                        <div className="p-5 sm:p-6">
+                            <div className="flex items-start justify-between gap-4">
+                                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-red-200 bg-red-50 text-red-600">
+                                    {pendingAttemptDeletion.deleteAll ? (
+                                        <RotateCcw size={21} aria-hidden="true" />
+                                    ) : (
+                                        <Trash2 size={21} aria-hidden="true" />
+                                    )}
+                                </div>
+
+                                <button
+                                    type="button"
+                                    title="Close"
+                                    aria-label="Close delete confirmation"
+                                    disabled={Boolean(deletingAttemptKey)}
+                                    onClick={() => setPendingAttemptDeletion(null)}
+                                    className="inline-flex h-8 w-8 items-center justify-center rounded-md text-[#777085] transition-colors hover:bg-[#F3F0F7] hover:text-[#312A49] disabled:opacity-50"
+                                >
+                                    <X size={17} aria-hidden="true" />
+                                </button>
+                            </div>
+
+                            <h2
+                                id="attempt-delete-title"
+                                className="mt-4 text-lg font-bold text-[#2B2638]"
+                            >
+                                {pendingAttemptDeletion.deleteAll
+                                    ? 'Reset all attempts?'
+                                    : `Delete attempt ${pendingAttemptDeletion.attempt}?`}
+                            </h2>
+
+                            <p className="mt-2 text-sm leading-6 text-[#6B647D]">
+                                {pendingAttemptDeletion.deleteAll
+                                    ? 'This permanently removes every attempt for this test. Your next start will be Attempt 1.'
+                                    : 'This permanently removes your latest attempt. Earlier attempts remain available.'}
+                            </p>
+
+                            <div className="mt-5 flex items-center justify-between border-y border-[#EEEAF5] py-3 text-xs">
+                                <span className="font-medium text-[#777085]">
+                                    {pendingAttemptDeletion.deleteAll
+                                        ? 'Attempts to remove'
+                                        : 'Attempt to remove'}
+                                </span>
+                                <span className="font-bold text-[#332C48]">
+                                    {pendingAttemptDeletion.deleteAll
+                                        ? `${pendingAttemptDeletion.attempt} attempts`
+                                        : `Attempt ${pendingAttemptDeletion.attempt}`}
+                                </span>
+                            </div>
+
+                            <div className="mt-5 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+                                <button
+                                    type="button"
+                                    disabled={Boolean(deletingAttemptKey)}
+                                    onClick={() => setPendingAttemptDeletion(null)}
+                                    className="inline-flex h-10 items-center justify-center rounded-md border border-[#D9D3E7] bg-white px-4 text-sm font-semibold text-[#4D465E] transition-colors hover:bg-[#F6F3FA] disabled:cursor-not-allowed disabled:opacity-60"
+                                >
+                                    Keep attempts
+                                </button>
+
+                                <button
+                                    type="button"
+                                    disabled={Boolean(deletingAttemptKey)}
+                                    onClick={() => void confirmDeleteAttempt()}
+                                    className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-red-600 px-4 text-sm font-semibold text-white shadow-[0_8px_18px_rgba(220,38,38,0.22)] transition-colors hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60"
+                                >
+                                    {deletingAttemptKey === pendingAttemptDeletion.key ? (
+                                        <Spinner size={15} />
+                                    ) : pendingAttemptDeletion.deleteAll ? (
+                                        <RotateCcw size={15} aria-hidden="true" />
+                                    ) : (
+                                        <Trash2 size={15} aria-hidden="true" />
+                                    )}
+                                    {deletingAttemptKey === pendingAttemptDeletion.key
+                                        ? 'Deleting...'
+                                        : pendingAttemptDeletion.deleteAll
+                                            ? 'Reset all attempts'
+                                            : 'Delete attempt'}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            ) : null}
+
 
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">
 
@@ -1051,6 +1285,29 @@ export default function TestSection({ series }: Props) {
                                     if (!test) return null
                                     const isDemoTest =
                                         isTrue(test?.demo)
+                                    const attemptUsed =
+                                        Number(test?.attemptUsed || 0)
+                                    const attemptLimit =
+                                        Number(test?.attemptLimit || 12)
+                                    const attemptsRemaining =
+                                        Math.max(
+                                            attemptLimit - attemptUsed,
+                                            0
+                                        )
+                                    const attemptProgress =
+                                        attemptLimit > 0
+                                            ? Math.min(
+                                                (attemptUsed / attemptLimit) * 100,
+                                                100
+                                            )
+                                            : 0
+                                    const isAttemptLimitReached =
+                                        attemptLimit > 0 &&
+                                        attemptUsed >= attemptLimit
+                                    const deleteLatestKey =
+                                        `${test.testId}-${attemptUsed}`
+                                    const deleteAllKey =
+                                        `${test.testId}-all`
                                     const hasHistory =
                                         test?.history?.length > 0
 
@@ -1141,7 +1398,7 @@ export default function TestSection({ series }: Props) {
                                             >
 
                                                 {/* LEFT */}
-                                                <div className="space-y-1.5 min-w-0 w-full sm:w-auto">
+                                                <div className="min-w-0 w-full space-y-1.5 sm:flex-1">
 
                                                     <div className="flex items-center gap-2 flex-wrap">
 
@@ -1185,6 +1442,83 @@ export default function TestSection({ series }: Props) {
 
                                                         🌐 {(test.lan || []).join(', ')}
 
+                                                    </div>
+
+                                                    <div className="flex w-full max-w-[560px] flex-col gap-2 border-l-2 border-[#DDD6F1] pl-3 pt-0.5">
+                                                        <div className="min-w-0 flex-1">
+                                                            <div className="flex items-center gap-2 text-[10px] font-bold">
+                                                                <History
+                                                                    size={14}
+                                                                    className={isAttemptLimitReached
+                                                                        ? 'text-red-600'
+                                                                        : 'text-[#4A3F77]'}
+                                                                />
+                                                                <span className="text-[#49425D]">
+                                                                    Attempt tracking
+                                                                </span>
+                                                                <span className={isAttemptLimitReached
+                                                                    ? 'text-red-700'
+                                                                    : 'text-emerald-700'}>
+                                                                    {attemptUsed} of {attemptLimit} used
+                                                                </span>
+                                                            </div>
+
+                                                            <div
+                                                                className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-[#E9E5F3]"
+                                                                aria-label={`${attemptUsed} of ${attemptLimit} attempts used`}
+                                                            >
+                                                                <div
+                                                                    className={`h-full rounded-full transition-[width] duration-300 ${isAttemptLimitReached
+                                                                        ? 'bg-red-500'
+                                                                        : 'bg-emerald-500'}`}
+                                                                    style={{ width: `${attemptProgress}%` }}
+                                                                />
+                                                            </div>
+
+                                                            <p className="mt-1 text-[10px] font-medium text-[#837C96]">
+                                                                {isAttemptLimitReached
+                                                                    ? 'Attempt limit reached. Remove an attempt to continue.'
+                                                                    : `${attemptsRemaining} attempt${attemptsRemaining === 1 ? '' : 's'} remaining`}
+                                                            </p>
+                                                        </div>
+
+                                                        {attemptUsed > 0 ? (
+                                                            <div
+                                                                className="flex shrink-0 items-center gap-1.5"
+                                                                role="group"
+                                                                aria-label="Attempt deletion actions"
+                                                            >
+                                                                <button
+                                                                    type="button"
+                                                                    title={`Delete latest attempt ${attemptUsed}`}
+                                                                    disabled={Boolean(deletingAttemptKey)}
+                                                                    onClick={() =>
+                                                                        handleDeleteAttempt(test)
+                                                                    }
+                                                                    className="inline-flex h-8 items-center justify-center gap-1.5 rounded-md border border-red-200 bg-white px-2.5 text-[10px] font-bold text-red-700 transition-colors hover:bg-red-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-500 disabled:cursor-not-allowed disabled:opacity-60"
+                                                                >
+                                                                    <Trash2 size={13} aria-hidden="true" />
+                                                                    {deletingAttemptKey === deleteLatestKey
+                                                                        ? 'Deleting...'
+                                                                        : 'Delete latest'}
+                                                                </button>
+
+                                                                <button
+                                                                    type="button"
+                                                                    title="Delete all attempts and reset this test"
+                                                                    disabled={Boolean(deletingAttemptKey)}
+                                                                    onClick={() =>
+                                                                        handleDeleteAttempt(test, true)
+                                                                    }
+                                                                    className="inline-flex h-8 items-center justify-center gap-1.5 rounded-md border border-red-700 bg-red-600 px-2.5 text-[10px] font-bold text-white transition-colors hover:bg-red-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-500 disabled:cursor-not-allowed disabled:opacity-60"
+                                                                >
+                                                                    <RotateCcw size={13} aria-hidden="true" />
+                                                                    {deletingAttemptKey === deleteAllKey
+                                                                        ? 'Deleting...'
+                                                                        : 'Reset all'}
+                                                                </button>
+                                                            </div>
+                                                        ) : null}
                                                     </div>
 
                                                 </div>
@@ -1519,15 +1853,18 @@ export default function TestSection({ series }: Props) {
                                                                     onClick={() =>
                                                                         test.access &&
                                                                         !isActionLocked &&
+                                                                        !isAttemptLimitReached &&
                                                                         handleTestAction(test)
                                                                     }
                                                                     disabled={
-                                                                        isActionLocked || !test.access
+                                                                        isActionLocked ||
+                                                                        !test.access ||
+                                                                        isAttemptLimitReached
                                                                     }
                                                                     className={`
 
         
-                   ${isActionLocked || hasRunningTest || !test.access
+                   ${isActionLocked || hasRunningTest || !test.access || isAttemptLimitReached
                                                                             ? 'cursor-not-allowed'
                                                                             : 'cursor-pointer'
                                                                         }
@@ -1541,7 +1878,7 @@ export default function TestSection({ series }: Props) {
                     flex
                     justify-center
                     text-center
-                    ${!isActionLocked && !hasRunningTest && test.access
+                    ${!isActionLocked && !hasRunningTest && test.access && !isAttemptLimitReached
                                                                             ? premiumButtonClass
                                                                             : disabledButtonClass
                                                                         }
@@ -1567,7 +1904,11 @@ export default function TestSection({ series }: Props) {
                                                                                     </span>
                                                                                     {test.access &&
                                                                                         <span>
-                                                                                            {authenticated ? "Test Again" : <Lock size={15} />}
+                                                                                            {authenticated
+                                                                                                ? isAttemptLimitReached
+                                                                                                    ? "Limit Reached"
+                                                                                                    : "Test Again"
+                                                                                                : <Lock size={15} />}
                                                                                         </span>
                                                                                     }
                                                                                 </>
