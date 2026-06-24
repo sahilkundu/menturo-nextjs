@@ -9,6 +9,12 @@ export async function POST(
 
     const body =
         await request.json()
+    const path =
+        typeof body.path === "string" &&
+            body.path.startsWith("/") &&
+            !body.path.startsWith("/login")
+            ? body.path
+            : "/"
 
     const response =
         NextResponse.json({
@@ -17,7 +23,7 @@ export async function POST(
 
     response.cookies.set(
         "redirect_after_login",
-        body.path,
+        path,
         {
             httpOnly: true,
             secure: true,

@@ -27,6 +27,7 @@ import {
     hideRouteLoader,
     showRouteLoader
 } from '../utils/routeLoader'
+import { goToLoginAfterRememberingPage } from '../utils/loginRedirect'
 import TestSeriesInfo from './TestSeriesInfo'
 import PaymentSummary from './PaymentSummary'
 import { DELETE_TEST_ATTEMPT } from '../../../api'
@@ -484,30 +485,8 @@ export default function TestSection({ series }: Props) {
         historyId?: string
     ) => {
         if (!authenticated) {
-
-            showRouteLoader()
-
-            await fetch(
-                "/redirect",
-                {
-                    method: "POST",
-
-                    credentials: "include",
-
-                    headers: {
-                        "Content-Type":
-                            "application/json",
-                    },
-
-                    body: JSON.stringify({
-                        path:
-                            window.location.pathname,
-                    }),
-                }
-            )
             clearStore()
-
-            router.push("/login")
+            await goToLoginAfterRememberingPage(router)
 
             return
         }

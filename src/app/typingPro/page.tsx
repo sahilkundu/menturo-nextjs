@@ -10,6 +10,7 @@ import { useTypingStore } from '../../shared/store/typingStore'
 import type { TypingAction, TypingTest } from '../../shared/store/typingStore'
 import { showPopupMessage } from '../../shared/utils/popup'
 import { showRouteLoader } from '../../shared/utils/routeLoader'
+import { goToLoginAfterRememberingPage } from '../../shared/utils/loginRedirect'
 import AdSenseAd from '../../shared/components/AdSenseAd'
 
 const levels = ['Easy', 'Medium', 'Hard', 'Expert', 'Master']
@@ -93,7 +94,7 @@ export default function TypingProPage() {
         return () => window.removeEventListener('menturo-typing-test-updated', handleTypingTestUpdate)
     }, [applyTypingTestUpdate, loadHistory])
 
-    const login = async () => { await fetch('/redirect', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ path: '/typingPro' }) }); router.push('/login') }
+    const login = async () => { await goToLoginAfterRememberingPage(router) }
     const open = async (test: TypingTest, action: TypingAction = 'start', historyId = '') => {
         if (!authenticated) { showPopupMessage('Please sign in to start typing test', false); await login(); return }
         if (test.available === false || test.access === false) { showPopupMessage('This test is locked', false); return }

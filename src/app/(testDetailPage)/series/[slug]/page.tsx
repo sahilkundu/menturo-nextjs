@@ -8,6 +8,7 @@ import { useUserStore } from '../../../../shared/store/user'
 import { SAVE_TEST } from '../../../../../api'
 import SeriesPaymentPage from '../../../../shared/components/SeriesPaymentPage'
 import { showRouteLoader } from '../../../../shared/utils/routeLoader'
+import { goToLoginAfterRememberingPage } from '../../../../shared/utils/loginRedirect'
 import {
     createSeriesSlug,
     extractSeriesIdFromSlug,
@@ -217,25 +218,7 @@ export default function TestPage() {
     }
 
     const goLogin = async () => {
-        showRouteLoader()
-
-        await fetch(
-            "/redirect",
-            {
-                method: "POST",
-                credentials: "include",
-                headers: {
-                    "Content-Type":
-                        "application/json",
-                },
-                body: JSON.stringify({
-                    path:
-                        window.location.pathname,
-                }),
-            }
-        )
-
-        router.push("/login")
+        await goToLoginAfterRememberingPage(router)
     }
 
     // ======================================================

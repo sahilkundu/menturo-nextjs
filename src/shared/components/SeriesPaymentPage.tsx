@@ -4,7 +4,7 @@ import { useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { CHECK_COUPON, CREATE_ORDER } from '../../../api'
 import { useUserStore } from '../store/user'
-import { showRouteLoader } from '../utils/routeLoader'
+import { goToLoginAfterRememberingPage } from '../utils/loginRedirect'
 
 interface FullSeries {
     series?: any
@@ -165,25 +165,7 @@ export default function SeriesPaymentPage({ series }: FullSeries) {
     }
 
     const redirectToLogin = async () => {
-        showRouteLoader()
-
-        await fetch(
-            "/redirect",
-            {
-                method: "POST",
-                credentials: "include",
-                headers: {
-                    "Content-Type":
-                        "application/json",
-                },
-                body: JSON.stringify({
-                    path:
-                        window.location.pathname,
-                }),
-            }
-        )
-
-        router.push("/login")
+        await goToLoginAfterRememberingPage(router)
     }
 
     const applyCoupon = async (plan: any) => {

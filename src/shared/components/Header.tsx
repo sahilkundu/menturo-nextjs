@@ -8,6 +8,7 @@ import { usePathname, useRouter } from "next/navigation"
 import Image from "next/image"
 import { useWSChatStore } from "../store/wsChat"
 import { showRouteLoader } from "../utils/routeLoader"
+import { goToLoginAfterRememberingPage } from "../utils/loginRedirect"
 
 import { LogIn } from 'lucide-react'
 
@@ -334,14 +335,13 @@ export default function Header() {
 
                             ) : (
 
-                                <Link href="/login">
-
-                                    <button className="inline-flex h-9 items-center gap-1.5 rounded-xl bg-[#4A3F77] px-3 text-xs font-bold text-white shadow-[0_3px_8px_rgba(42,31,92,.25)] transition hover:bg-[#3D3466]">
+                                <button
+                                    onClick={() => void goToLoginAfterRememberingPage(router)}
+                                    className="inline-flex h-9 items-center gap-1.5 rounded-xl bg-[#4A3F77] px-3 text-xs font-bold text-white shadow-[0_3px_8px_rgba(42,31,92,.25)] transition hover:bg-[#3D3466]"
+                                >
                                         <LogIn size={15} strokeWidth={2.5} />
                                         <span>Sign In</span>
-                                    </button>
-
-                                </Link>
+                                </button>
                             )
                         }
 

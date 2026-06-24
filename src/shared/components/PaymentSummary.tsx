@@ -2,7 +2,7 @@
 
 import { useUserStore } from "../store/user"
 import { useRouter } from "next/navigation"
-import { showRouteLoader } from "../utils/routeLoader"
+import { goToLoginAfterRememberingPage } from "../utils/loginRedirect"
 
 
 interface FullSeries {
@@ -46,29 +46,7 @@ export default function PaymentSummary({ series }: FullSeries) {
 
             // not logged in
             if (!authenticated) {
-
-                showRouteLoader()
-
-                await fetch(
-                    "/redirect",
-                    {
-                        method: "POST",
-
-                        credentials: "include",
-
-                        headers: {
-                            "Content-Type":
-                                "application/json",
-                        },
-
-                        body: JSON.stringify({
-                            path:
-                                window.location.pathname,
-                        }),
-                    }
-                )
-
-                router.push("/login")
+                await goToLoginAfterRememberingPage(router)
 
                 return
             }

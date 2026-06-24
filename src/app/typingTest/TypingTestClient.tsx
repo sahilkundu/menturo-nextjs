@@ -53,6 +53,7 @@ import { useUserStore } from '../../shared/store/user'
 import { useTypingStore } from '../../shared/store/typingStore'
 import { showPopupMessage } from '../../shared/utils/popup'
 import { showRouteLoader } from '../../shared/utils/routeLoader'
+import { goToLoginAfterRememberingPage } from '../../shared/utils/loginRedirect'
 import {
     hideTestActionLoader,
     showTestActionLoader
@@ -1506,23 +1507,7 @@ export default function TypingProPage() {
     }
 
     const goLogin = async () => {
-        showRouteLoader()
-
-        await fetch(
-            '/redirect',
-            {
-                method: 'POST',
-                credentials: 'include',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    path: window.location.pathname
-                })
-            }
-        )
-
-        router.push('/login')
+        await goToLoginAfterRememberingPage(router)
     }
 
     const focusTypingArea = (

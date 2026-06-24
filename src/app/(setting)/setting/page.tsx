@@ -9,6 +9,7 @@ import { useSessionStore } from '../../../shared/store/sessionStore'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { showRouteLoader } from '../../../shared/utils/routeLoader'
+import { goToLoginAfterRememberingPage } from '../../../shared/utils/loginRedirect'
 
 
 // TypeScript Interfaces
@@ -622,8 +623,7 @@ export default function SettingPage() {
         );
 
       if (currentSession) {
-        showRouteLoader();
-        router.push("/login");
+        await goToLoginAfterRememberingPage(router);
         return;
       }
     } catch {

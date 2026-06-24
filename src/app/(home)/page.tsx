@@ -7,6 +7,7 @@ import { useEffect } from "react"
 import { useLayoutStore } from "../../shared/store/uiResStore"
 import { useUserStore } from "../../shared/store/user"
 import { showRouteLoader } from "../../shared/utils/routeLoader"
+import { goToLoginAfterRememberingPage } from "../../shared/utils/loginRedirect"
 import FooterSkeleton from "../../shared/components/Skeleton/FooterSkeleton"
 import HomeCenterSkeleton from "../../shared/components/Skeleton/HomeCenterSkeleton"
 import HomePageSkeleton from "../../shared/components/Skeleton/HomePageSkeleton"
@@ -275,8 +276,7 @@ export default function HomePage() {
                                     return
                                 }
 
-                                showRouteLoader()
-                                router.push("/login")
+                                void goToLoginAfterRememberingPage(router)
                             }}
                         >
                             <LiveBubbleBtn />

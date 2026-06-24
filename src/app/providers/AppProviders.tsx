@@ -12,6 +12,7 @@ import { useRouter, usePathname } from "next/navigation"
 import RouteTransitionProvider from "./RouteTransitionProvider"
 import { showRouteLoader } from "../../shared/utils/routeLoader"
 import { installEncryptedFetch } from "../../shared/utils/encryptedTransport"
+import { rememberRedirectAfterLogin } from "../../shared/utils/loginRedirect"
 
 interface Props {
     children: ReactNode
@@ -123,6 +124,9 @@ export default function AppProviders({
                     }
 
                     showRouteLoader()
+                    if (data.redirect === "/login") {
+                        await rememberRedirectAfterLogin()
+                    }
 
                     router.push(
                         data.redirect
