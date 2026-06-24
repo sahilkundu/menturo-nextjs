@@ -1049,6 +1049,8 @@ export default function TestSection({ series }: Props) {
                                         seriesAvailable &&
                                         test?.av !== false
                                     if (!test) return null
+                                    const isDemoTest =
+                                        isTrue(test?.demo)
                                     const hasHistory =
                                         test?.history?.length > 0
 
@@ -1154,6 +1156,12 @@ export default function TestSection({ series }: Props) {
                                                             ⚡ {(test.totalAttempt || 0)} Users
 
                                                         </span>
+
+                                                        {isDemoTest ? (
+                                                            <span className="rounded border border-emerald-200 bg-emerald-50 px-1.5 py-0.5 text-[10px] font-black uppercase text-emerald-700">
+                                                                Demo Test
+                                                            </span>
+                                                        ) : null}
 
                                                     </div>
 

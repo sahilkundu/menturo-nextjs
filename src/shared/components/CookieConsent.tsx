@@ -1,6 +1,7 @@
 'use client'
 
 import Script from 'next/script'
+import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
 type ConsentChoice = 'accepted' | 'essential'
@@ -9,8 +10,13 @@ const STORAGE_KEY = 'menturo-cookie-consent-v1'
 const adsenseClient = process.env.NEXT_PUBLIC_ADSENSE_CLIENT
 
 export default function CookieConsent() {
+    const pathname =
+        usePathname()
     const [choice, setChoice] = useState<ConsentChoice | null>(null)
     const [ready, setReady] = useState(false)
+    const isRunningTestPage =
+        pathname === '/test' ||
+        pathname === '/typingTest'
 
     useEffect(() => {
         const saved =
@@ -91,7 +97,7 @@ export default function CookieConsent() {
                 />
             ) : null}
 
-            {ready && !choice ? (
+            {ready && !choice && !isRunningTestPage ? (
                 <div className="fixed inset-x-3 bottom-3 z-[9999] mx-auto max-w-4xl rounded-3xl border border-violet-200 bg-white p-5 text-slate-800 shadow-2xl">
                     <div className="grid gap-4 md:grid-cols-[1fr_auto] md:items-center">
                         <div>
@@ -127,7 +133,7 @@ export default function CookieConsent() {
                 </div>
             ) : null}
 
-            {ready && choice ? (
+            {ready && choice && !isRunningTestPage ? (
                 <button
                     type="button"
                     onClick={reopenChoices}
