@@ -197,7 +197,7 @@ export default function TestSection({ series }: Props) {
             series?.access
         )
     const seriesAvailable =
-        series?.av === true
+        series?.av !== false
     const seriesAccessMessage =
         getSeriesAccessMessage(
             series?.access
@@ -387,14 +387,18 @@ export default function TestSection({ series }: Props) {
             )
             return
         }
-        if (mode !== 'solution' && test?.av !== true) {
+        if (mode !== 'solution' && test?.av === false) {
             showPopupMessage(
                 'Test Disabled',
                 false
             )
             return
         }
-        if (mode !== 'solution' && !seriesCanAccess) {
+        if (
+            mode !== 'solution' &&
+            !seriesCanAccess &&
+            !test?.access
+        ) {
             showPopupMessage(
                 seriesAccessMessage,
                 false
@@ -1043,7 +1047,7 @@ export default function TestSection({ series }: Props) {
                                         tests[virtualRow.index]
                                     const isAvailable =
                                         seriesAvailable &&
-                                        test?.av === true
+                                        test?.av !== false
                                     if (!test) return null
                                     const hasHistory =
                                         test?.history?.length > 0
@@ -1547,13 +1551,13 @@ export default function TestSection({ series }: Props) {
                                                                                 <>
                                                                                     <span className="p-1 rounded-md text-[10px]">
 
-                                                                                        {test.access && authenticated && seriesCanAccess
+                                                                                        {test.access && authenticated
                                                                                             ? <Unlock size={15} />
                                                                                             : <Lock size={15} />
                                                                                         }
 
                                                                                     </span>
-                                                                                    {seriesCanAccess &&
+                                                                                    {test.access &&
                                                                                         <span>
                                                                                             {authenticated ? "Test Again" : <Lock size={15} />}
                                                                                         </span>
@@ -1820,13 +1824,13 @@ export default function TestSection({ series }: Props) {
                                                                                 {authenticated &&
                                                                                     <span className=" p-1 rounded-md text-[10px]">
 
-                                                                                        {test.access && seriesCanAccess
+                                                                                        {test.access
                                                                                             ? <Unlock size={15} />
                                                                                             : <Lock size={15} />
                                                                                         }
 
                                                                                     </span>}
-                                                                                {seriesCanAccess &&
+                                                                                {test.access &&
                                                                                     <span>
                                                                                         {authenticated ?
                                                                                             "Start Test" :

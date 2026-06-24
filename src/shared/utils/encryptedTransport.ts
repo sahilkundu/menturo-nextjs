@@ -14,6 +14,9 @@ const decoder = new TextDecoder()
 let sessionPromise: Promise<CryptoSession> | null = null
 let currentSession: CryptoSession | null = null
 const REFRESH_EARLY_MS = 15 * 60 * 1000
+const INVALID_ENCRYPTED_REQUEST_MESSAGE = 'invalid encrypted request'
+const INVALID_ENCRYPTED_RELOAD_KEY = 'menturo_invalid_encrypted_reload_at'
+const INVALID_ENCRYPTED_RELOAD_WINDOW_MS = 10 * 1000
 const activeSockets = new Set<WebSocket>()
 const restartSockets = () => {
     for (const socket of activeSockets) {
@@ -32,6 +35,61 @@ const fromBase64 = (value: string) => Uint8Array.from(atob(value), c => c.charCo
 const isPublicPath = (url: URL) => url.pathname === '/api/encryption/session' ||
     url.pathname === '/health' || url.pathname.startsWith('/api/seo/') ||
     url.pathname.startsWith('/payment/webhook') || url.pathname.startsWith('/webhook')
+
+const shouldRefreshForInvalidEncryptedRequest = (value: unknown) => {
+    if (!value || typeof value !== 'object') return false
+
+    const message =
+        typeof (value as { message?: unknown }).message === 'string'
+            ? (value as { message: string }).message
+            : ''
+
+    return message.trim().toLowerCase() === INVALID_ENCRYPTED_REQUEST_MESSAGE
+}
+
+const refreshCurrentPageForInvalidEncryptedRequest = () => {
+    try {
+        const lastReload =
+            Number(sessionStorage.getItem(INVALID_ENCRYPTED_RELOAD_KEY)) || 0
+
+        if (Date.now() - lastReload < INVALID_ENCRYPTED_RELOAD_WINDOW_MS) {
+            return
+        }
+
+        sessionStorage.setItem(
+            INVALID_ENCRYPTED_RELOAD_KEY,
+            String(Date.now())
+        )
+
+        resetEncryptionSession()
+        window.location.reload()
+    } catch (_) {
+        resetEncryptionSession()
+        window.location.reload()
+    }
+}
+
+const refreshIfInvalidEncryptedRequest = async (response: Response) => {
+    try {
+        const data =
+            await response.clone().json()
+
+        if (shouldRefreshForInvalidEncryptedRequest(data)) {
+            refreshCurrentPageForInvalidEncryptedRequest()
+        }
+    } catch (_) { }
+}
+
+const refreshIfInvalidEncryptedRequestText = (text: string) => {
+    try {
+        const data =
+            JSON.parse(text)
+
+        if (shouldRefreshForInvalidEncryptedRequest(data)) {
+            refreshCurrentPageForInvalidEncryptedRequest()
+        }
+    } catch (_) { }
+}
 
 async function createSession(nativeFetch: typeof window.fetch): Promise<CryptoSession> {
     const clientKeys = await crypto.subtle.generateKey(
@@ -121,6 +179,7 @@ export function installEncryptedFetch() {
                 resetEncryptionSession()
                 return window.fetch(input, init)
             }
+            await refreshIfInvalidEncryptedRequest(response)
             return response
         }
         const request = input instanceof Request ? input : null
@@ -154,8 +213,12 @@ export function installEncryptedFetch() {
                     typeof candidate.tag === 'string'
             } catch (_) { }
         }
-        if (!encryptedResponse) return response
+        if (!encryptedResponse) {
+            await refreshIfInvalidEncryptedRequest(response)
+            return response
+        }
         const plaintext = await decrypt(session, 'http-s2c', await response.text())
+        refreshIfInvalidEncryptedRequestText(plaintext)
         if (response.headers.get('X-Menturo-Mode') === 'off') {
             resetEncryptionSession()
         }

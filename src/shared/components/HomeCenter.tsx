@@ -436,7 +436,7 @@ export default function HomeCenter() {
                                                     >
                                                         <TestCard
                                                             access={item?.access}
-                                                            av={item?.av === true}
+                                                            av={item?.av !== false}
                                                             key={item._id}
                                                             slug={item._id}
                                                             board={item.tags?.[0] || "TEST"}

@@ -54,7 +54,7 @@ export default function TestCard({
 }: TestCardProps) {
     const router = useRouter()
     const isAvailable =
-        av === true
+        av !== false
     const isTrue = (
         value: unknown
     ) =>
