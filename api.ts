@@ -2,7 +2,7 @@
 
 export const BASE_URL =
     process.env.NEXT_PUBLIC_API_BASE_URL ||
-    "https://betaws.menturo.in"
+    "https://api.menturo.in"
 
 export const LOGIN = `${BASE_URL}/login`
 
@@ -41,4 +41,4 @@ export const CHECK_COUPON = `${BASE_URL}/checkCoupon`
 export const CREATE_ORDER = `${BASE_URL}/create-order`
 export const WEBSOCKET =
     process.env.NEXT_PUBLIC_WEBSOCKET_URL ||
-    `wss://betaws.menturo.in/ws`
+    `wss://api.menturo.in/ws`
