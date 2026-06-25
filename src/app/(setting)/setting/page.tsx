@@ -571,8 +571,7 @@ export default function SettingPage() {
             b.createdAt - a.createdAt
         )
       );
-    } catch (err) {
-      console.log(err);
+    } catch {
     }
   };
   useEffect(() => {

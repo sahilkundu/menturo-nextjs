@@ -145,10 +145,6 @@ export const useWSStore =
                         current.close()
                     }
 
-                    console.log(
-                        'WS CONNECTING...'
-                    )
-
                     set({
 
                         status:
@@ -174,10 +170,6 @@ export const useWSStore =
 
                     ws.onopen =
                         () => {
-
-                            console.log(
-                                'WS CONNECTED'
-                            )
 
                             set({
 
@@ -318,7 +310,6 @@ export const useWSStore =
                                 }
 
                                 if (data.event === "session-updated") {
-                                    console.log("event arrived ")
                                     useSessionStore
                                         .getState()
                                         .refreshSessions();
@@ -478,12 +469,7 @@ export const useWSStore =
                                     return
                                 }
 
-                            } catch (err) {
-
-                                console.log(
-                                    'WS PARSE ERROR',
-                                    err
-                                )
+                            } catch {
                             }
                         }
 
@@ -493,10 +479,6 @@ export const useWSStore =
 
                     ws.onclose =
                         () => {
-
-                            console.log(
-                                'WS CLOSED'
-                            )
 
                             set({
 
@@ -544,10 +526,6 @@ export const useWSStore =
 
                                         if (uid) {
 
-                                            console.log(
-                                                'WS RECONNECTING...'
-                                            )
-
                                             get()
                                                 .connect(
                                                     uid
@@ -567,11 +545,6 @@ export const useWSStore =
                         (
                             err
                         ) => {
-
-                            console.log(
-                                'WS ERROR',
-                                err
-                            )
 
                             set({
 

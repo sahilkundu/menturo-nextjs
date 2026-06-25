@@ -133,9 +133,7 @@ export const useUserStore =
                     })
                 }
             }
-            catch (error) {
-
-                console.log(error)
+            catch {
 
                 set({
                     user: null,

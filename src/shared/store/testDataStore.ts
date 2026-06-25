@@ -1082,10 +1082,6 @@ export const useTestDataStore =
 
                         startTestError: null
                     })
-                    console.log(
-                        "AFTER UPDATE",
-                        useTestSeriesStore.getState().testsMap
-                    )
                     return data
 
                 } catch (error: any) {

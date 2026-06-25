@@ -113,9 +113,7 @@ export default function RightSidebar() {
 
             // router.replace("/login")
 
-        } catch (error) {
-
-            console.log(error)
+        } catch {
         }
     }, [logout])
 

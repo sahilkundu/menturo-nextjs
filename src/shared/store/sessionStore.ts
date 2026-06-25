@@ -77,11 +77,7 @@ export const useSessionStore =
                             ),
                     });
 
-                } catch (err) {
-
-                    console.log(
-                        err
-                    );
+                } catch {
                 }
             },
 
