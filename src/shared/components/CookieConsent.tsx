@@ -82,7 +82,6 @@ export default function CookieConsent() {
     }
 
     const shouldLoadAds =
-        Boolean(choice) &&
         Boolean(adsenseClient)
 
     return (

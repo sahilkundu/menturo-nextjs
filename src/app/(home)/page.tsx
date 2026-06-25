@@ -245,7 +245,6 @@ export default function HomePage() {
             </div>
 
             <AdSenseAd
-                slot={process.env.NEXT_PUBLIC_ADSENSE_HOME_SLOT}
                 className="mx-auto mt-6 w-[calc(100%-24px)] max-w-6xl"
             />
 

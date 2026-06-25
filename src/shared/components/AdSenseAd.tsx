@@ -11,13 +11,17 @@ type AdSenseAdProps = {
 
 const STORAGE_KEY = 'menturo-cookie-consent-v1'
 const adsenseClient = process.env.NEXT_PUBLIC_ADSENSE_CLIENT
+const defaultAdsenseSlot = process.env.NEXT_PUBLIC_ADSENSE_SLOT
 
 export default function AdSenseAd({
     slot,
     className = '',
 }: AdSenseAdProps) {
-    const [choice, setChoice] = useState<ConsentChoice | null>(null)
+    const [, setChoice] = useState<ConsentChoice | null>(null)
     const requestedRef = useRef(false)
+    const adSlot =
+        slot ||
+        defaultAdsenseSlot
 
     useEffect(() => {
         const readChoice = () => {
@@ -40,14 +44,9 @@ export default function AdSenseAd({
     }, [])
 
     useEffect(() => {
-        if (!choice) {
-            requestedRef.current = false
-            return
-        }
-
         if (
             !adsenseClient ||
-            !slot ||
+            !adSlot ||
             requestedRef.current
         ) {
             return
@@ -63,9 +62,9 @@ export default function AdSenseAd({
         } catch {
             requestedRef.current = false
         }
-    }, [choice, slot])
+    }, [adSlot])
 
-    if (!choice || !adsenseClient || !slot) {
+    if (!adsenseClient || !adSlot) {
         return null
     }
 
@@ -81,7 +80,7 @@ export default function AdSenseAd({
                 className="adsbygoogle block"
                 style={{ display: 'block' }}
                 data-ad-client={adsenseClient}
-                data-ad-slot={slot}
+                data-ad-slot={adSlot}
                 data-ad-format="auto"
                 data-full-width-responsive="true"
             />

@@ -130,7 +130,6 @@ export default function TypingProPage() {
             <aside className="mt-3 space-y-3 xl:contents"><div className="hidden min-h-0 xl:col-start-2 xl:row-start-1 xl:block"><Setup duration={duration} setDuration={setDuration} backspace={backspace} highlight={highlight} spelling={spelling} setSetting={setSetting}/></div><div className="min-h-0 xl:col-start-2 xl:row-start-2"><History history={history} loading={loadingHistory} more={historyHasMore} onMore={() => void loadHistory(historyPage + 1, false)}/></div></aside>
         </div>
         <AdSenseAd
-            slot={process.env.NEXT_PUBLIC_ADSENSE_TYPING_SLOT}
             className="mx-auto mt-6 max-w-[1180px] xl:hidden"
         />
     </main>

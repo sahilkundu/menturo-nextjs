@@ -362,9 +362,7 @@ export default function TestPage() {
                 </div>
             </div>
 
-            <AdSenseAd
-                slot={process.env.NEXT_PUBLIC_ADSENSE_SERIES_SLOT}
-            />
+            <AdSenseAd />
         </div>
     )
 }
