@@ -341,7 +341,8 @@ export const useWSStore =
                                     useTestSeriesStore
                                         .getState()
                                         .updateTestHistory(
-                                            data.history
+                                            data.history,
+                                            data
                                         )
 
                                     showPopupMessage(
@@ -360,7 +361,8 @@ export const useWSStore =
                                     useTestSeriesStore
                                         .getState()
                                         .updateTestHistory(
-                                            data.history
+                                            data.history,
+                                            data
                                         )
 
                                     useTestDataStore

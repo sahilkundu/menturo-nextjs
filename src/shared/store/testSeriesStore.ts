@@ -241,7 +241,8 @@ interface Store {
         test: any
     ) => Promise<void>
     updateTestHistory: (
-        history: any
+        history: any,
+        update?: any
     ) => void
     // CLEAR
     clearStore: () => void
@@ -295,10 +296,95 @@ export const useTestSeriesStore =
             })
         },
         updateTestHistory: (
-            history
+            history,
+            update = {}
         ) => {
 
             set((state) => {
+                const updatedTestId =
+                    update?.testId ||
+                    history?.testId
+
+                const explicitAttemptUsed =
+                    Number(
+                        update?.attemptUsed ??
+                        history?.attemptUsed
+                    )
+
+                const explicitAttemptLimit =
+                    Number(
+                        update?.attemptLimit ??
+                        history?.attemptLimit
+                    )
+
+                const historyAttempt =
+                    Number(
+                        history?.attempt ??
+                        history?.an ??
+                        0
+                    )
+
+                const applyLiveTestUpdate = (
+                    test: any
+                ) => {
+                    if (
+                        !updatedTestId ||
+                        test.testId !==
+                        updatedTestId
+                    ) {
+                        return test
+                    }
+
+                    const currentAttemptUsed =
+                        Number(test?.attemptUsed || 0)
+
+                    const nextAttemptUsed =
+                        Number.isFinite(explicitAttemptUsed)
+                            ? explicitAttemptUsed
+                            : historyAttempt > 0
+                                ? Math.max(
+                                    currentAttemptUsed,
+                                    historyAttempt
+                                )
+                                : currentAttemptUsed
+
+                    const nextAttemptLimit =
+                        Number.isFinite(explicitAttemptLimit)
+                            ? explicitAttemptLimit
+                            : test?.attemptLimit
+
+                    const filteredHistory =
+                        history?._id
+                            ? (
+                                test.history || []
+                            ).filter(
+                                (h: any) =>
+                                    h._id !==
+                                    history._id
+                            )
+                            : test.history || []
+
+                    return {
+
+                        ...test,
+
+                        attemptUsed:
+                            nextAttemptUsed,
+
+                        attemptLimit:
+                            nextAttemptLimit,
+
+                        history:
+                            history?._id
+                                ? [
+
+                                    history,
+
+                                    ...filteredHistory
+                                ]
+                                : filteredHistory
+                    }
+                }
 
                 // =====================================
                 // UPDATE testsMap
@@ -317,40 +403,7 @@ export const useTestSeriesStore =
                     ] =
                         updatedTestsMap[
                             seriesId
-                        ].map((test: any) => {
-
-                            if (
-                                test.testId !==
-                                history.testId
-                            ) {
-                                return test
-                            }
-
-                            // =================================
-                            // REMOVE OLD RUNNING HISTORY
-                            // =================================
-
-                            const filteredHistory =
-                                (
-                                    test.history || []
-                                ).filter(
-                                    (h: any) =>
-                                        h._id !==
-                                        history._id
-                                )
-
-                            return {
-
-                                ...test,
-
-                                history: [
-
-                                    history,
-
-                                    ...filteredHistory
-                                ]
-                            }
-                        })
+                        ].map(applyLiveTestUpdate)
                 })
 
                 // =====================================
@@ -377,36 +430,7 @@ export const useTestSeriesStore =
                             updatedSubjectMap[
                                 seriesId
                             ][subject].map(
-                                (test: any) => {
-
-                                    if (
-                                        test.testId !==
-                                        history.testId
-                                    ) {
-                                        return test
-                                    }
-
-                                    const filteredHistory =
-                                        (
-                                            test.history || []
-                                        ).filter(
-                                            (h: any) =>
-                                                h._id !==
-                                                history._id
-                                        )
-
-                                    return {
-
-                                        ...test,
-
-                                        history: [
-
-                                            history,
-
-                                            ...filteredHistory
-                                        ]
-                                    }
-                                }
+                                applyLiveTestUpdate
                             )
                     })
                 })
