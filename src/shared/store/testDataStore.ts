@@ -55,6 +55,34 @@ type ResultPayload = {
     data: any
 }
 
+const readJsonResponse = async (
+    response: Response
+) => {
+
+    const text =
+        await response.text()
+
+    if (!text) {
+
+        return {}
+    }
+
+    try {
+
+        return JSON.parse(text)
+
+    } catch {
+
+        return {
+            success: false,
+            message:
+                response.ok
+                    ? 'Invalid server response'
+                    : 'Server returned a non-JSON error response'
+        }
+    }
+}
+
 // =====================================
 // STORE TYPE
 // =====================================
@@ -743,7 +771,9 @@ export const useTestDataStore =
                         )
 
                     const data =
-                        await response.json()
+                        await readJsonResponse(
+                            response
+                        )
 
                     // =====================================
                     // FAILED
@@ -835,7 +865,9 @@ export const useTestDataStore =
                         )
 
                     const data =
-                        await response.json()
+                        await readJsonResponse(
+                            response
+                        )
 
                     // =====================================
                     // FAILED
@@ -990,7 +1022,9 @@ export const useTestDataStore =
                         )
 
                     const data =
-                        await response.json()
+                        await readJsonResponse(
+                            response
+                        )
 
                     // =====================================
                     // FAILED
