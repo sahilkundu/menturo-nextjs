@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 
 export const siteUrl = 'https://www.menturo.in'
 export const siteName = 'Menturo'
-export const defaultImage = `${siteUrl}/M3.png`
+export const defaultImage = `${siteUrl}/logo-512.png`
 
 export const priorityExamSlugs = [
     'haryana-cet',

@@ -36,7 +36,7 @@ interface UserStore {
 
     logout: () => void
 
-    fetchUser: () => Promise<void>
+    fetchUser: () => Promise<boolean>
 }
 
 export const useUserStore =
@@ -89,7 +89,7 @@ export const useUserStore =
                 get()
 
             if (state.loading) {
-                return
+                return state.authenticated
             }
 
             try {
@@ -122,6 +122,8 @@ export const useUserStore =
                         authChecked: true,
                         loading: false,
                     })
+
+                    return true
                 }
                 else {
                     set({
@@ -131,6 +133,8 @@ export const useUserStore =
                         authChecked: true,
                         loading: false,
                     })
+
+                    return false
                 }
             }
             catch {
@@ -142,6 +146,8 @@ export const useUserStore =
                     authChecked: true,
                     loading: false,
                 })
+
+                return false
             }
         },
     }))

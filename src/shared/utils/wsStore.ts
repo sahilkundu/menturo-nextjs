@@ -314,11 +314,30 @@ export const useWSStore =
                                         .getState()
                                         .refreshSessions();
 
+                                    return;
+                                }
+                                if (
+                                    data.event === 'session-revoked' ||
+                                    data.event === 'auth-revoked'
+                                ) {
                                     useUserStore
                                         .getState()
-                                        .fetchUser();
+                                        .logout()
 
-                                    return;
+                                    useSessionStore
+                                        .getState()
+                                        .clearSessions()
+
+                                    showPopupMessage(
+                                        data.message ||
+                                        'Your session was ended. Please sign in again.',
+                                        false
+                                    )
+
+                                    get()
+                                        .disconnect()
+
+                                    return
                                 }
                                 // =========================
                                 // TEST UPDATED
@@ -446,6 +465,13 @@ export const useWSStore =
                                     data.event ===
                                     'force-logout'
                                 ) {
+                                    useUserStore
+                                        .getState()
+                                        .logout()
+
+                                    useSessionStore
+                                        .getState()
+                                        .clearSessions()
 
                                     showPopupMessage(
                                         'Logged in from another device',

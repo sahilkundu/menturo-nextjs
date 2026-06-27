@@ -7,6 +7,7 @@ import TestCard from "./TestCard"
 import { useRef, useEffect, useCallback, useMemo, useState } from "react"
 import TestCardSkeleton from "./Skeleton/TestCardSkeleton"
 import { useUserStore } from "../store/user"
+import Link from "next/link"
 
 
 export default function HomeCenter() {
@@ -338,9 +339,18 @@ export default function HomeCenter() {
                                 {/* <!-- SLIDER TOP --> */}
                                 <div className="flex items-center justify-between mb-5">
 
-                                    <h3 className="p-4 font-semibold dark-text">
-                                        Popular Courses
-                                    </h3>
+                                    <div className="flex items-center gap-3 p-4">
+                                        <h3 className="font-semibold dark-text">
+                                            Popular Courses
+                                        </h3>
+
+                                        <Link
+                                            href="/series"
+                                            className="rounded-full border border-[#4A3F77]/20 bg-[#F8F6FF] px-3 py-1.5 text-xs font-black text-[#4A3F77] transition hover:bg-[#4A3F77] hover:text-white"
+                                        >
+                                            View All
+                                        </Link>
+                                    </div>
 
                                     <div className="p-4 flex gap-2">
 

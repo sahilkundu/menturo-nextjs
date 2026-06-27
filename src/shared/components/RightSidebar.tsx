@@ -369,9 +369,9 @@ export default function RightSidebar() {
                                     <span className="h-3 w-3 shrink-0 rounded-full bg-green-500 animate-pulse"></span>
 
                                     <h2 className="min-w-0 truncate text-2xl md:text-3xl font-black text-green-600">
-                                        {!authenticated
-                                            ? site?.totalOnline ?? 0
-                                            : onlineUsers?.length}
+                                        {onlineUsers?.length ||
+                                            Number(site?.totalOnline) ||
+                                            0}
                                     </h2>
 
                                 </div>

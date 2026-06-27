@@ -29,8 +29,13 @@ function LiveBubbleBtn({
             (state) =>
                 state.users
         )
+    const site =
+        useWSChatStore(
+            (state) =>
+                state.site
+        )
 
-    const onlineCount =
+    const onlineUsersCount =
         useMemo(
             () =>
                 Object.values(wsUsers)
@@ -42,6 +47,10 @@ function LiveBubbleBtn({
                     ).length,
             [wsUsers]
         )
+    const onlineCount =
+        onlineUsersCount ||
+        Number(site?.totalOnline) ||
+        0
 
     const bubbleRef = useRef<HTMLButtonElement | null>(null)
 

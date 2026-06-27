@@ -13,6 +13,7 @@ import RouteTransitionProvider from "./RouteTransitionProvider"
 import { showRouteLoader } from "../../shared/utils/routeLoader"
 import { installEncryptedFetch } from "../../shared/utils/encryptedTransport"
 import { rememberRedirectAfterLogin } from "../../shared/utils/loginRedirect"
+import { AUTH } from "../../../api"
 
 interface Props {
     children: ReactNode
@@ -110,12 +111,23 @@ export default function AppProviders({
                 // GLOBAL REDIRECT
                 // =====================================
 
+                const requestUrl =
+                    typeof input === "string"
+                        ? input
+                        : input instanceof URL
+                            ? input.toString()
+                            : input.url
+
                 if (
                     data &&
                     typeof data === "object" &&
                     "redirect" in data &&
                     typeof data.redirect === "string"
                 ) {
+                    if (requestUrl === AUTH) {
+                        return response
+                    }
+
                     // Ignore redirects on test detail pages
                     if (
                         pathname.startsWith("/series/")
@@ -145,6 +157,7 @@ export default function AppProviders({
         }
 
     }, [router, pathname])
+
     // =====================================
     // CONNECT WS
     // =====================================
@@ -169,6 +182,17 @@ export default function AppProviders({
         user?.id,
         wsSessionId
     ])
+
+    useEffect(() => {
+        const ws =
+            useWSStore
+                .getState()
+
+        ws.routeChange(pathname)
+        ws.send({
+            event: "site-stats"
+        })
+    }, [pathname])
 
     return (
 

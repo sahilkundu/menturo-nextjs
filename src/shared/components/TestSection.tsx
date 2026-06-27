@@ -1461,7 +1461,7 @@ export default function TestSection({ series }: Props) {
                                                             </p>
                                                         </div>
 
-                                                        {attemptUsed > 0 ? (
+                                                        {authenticated && attemptUsed > 0 ? (
                                                             <div
                                                                 className="flex shrink-0 items-center gap-1.5"
                                                                 role="group"

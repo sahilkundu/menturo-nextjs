@@ -10,10 +10,15 @@ import { useWSChatStore } from "../store/wsChat"
 import { showRouteLoader } from "../utils/routeLoader"
 import { goToLoginAfterRememberingPage } from "../utils/loginRedirect"
 
-import { LogIn } from 'lucide-react'
+import { Home, LogIn } from 'lucide-react'
 
+type HeaderProps = {
+    variant?: "hero" | "topbar"
+}
 
-export default function Header() {
+export default function Header({
+    variant = "hero"
+}: HeaderProps) {
     const router = useRouter()
     const pathname = usePathname()
     const handleTypingProClick = () => {
@@ -80,7 +85,7 @@ export default function Header() {
                 authenticated
             } = useUserStore.getState()
 
-            if (authenticated) {
+            if (authenticated && variant === "hero") {
 
                 if (pathname !== "/") {
                     showRouteLoader()
@@ -96,8 +101,76 @@ export default function Header() {
         fetchUser,
         loading,
         pathname,
-        router
+        router,
+        variant
     ])
+
+    if (variant === "topbar") {
+        return (
+            <div className="w-full border-b border-[#E2E8F0] bg-white px-3 py-3 shadow-[0_1px_0_rgba(15,23,42,0.04)] sm:px-5">
+                <div className="mx-auto flex max-w-[1240px] items-center justify-between gap-3">
+                    <div className="flex min-w-0 items-center gap-3">
+                        <div className="grid h-11 w-11 flex-shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-[#7C3AED] to-[#4F46E5] text-white shadow-[0_8px_18px_rgba(79,70,229,0.28)]">
+                            <Image
+                                src="https://cdn.menturo.in/avatar/avatar.png"
+                                alt=""
+                                width={32}
+                                height={32}
+                                className="h-8 w-8 rounded-full object-cover"
+                            />
+                        </div>
+
+                        <div className="min-w-0">
+                            <h2 className="truncate text-base font-black text-[#1F2937] sm:text-lg">
+                                {authenticated
+                                    ? `Welcome ${user?.username || "Student"}`
+                                    : "Sign in to continue"}
+                            </h2>
+                            <p className="truncate text-xs font-semibold text-[#64748B] sm:text-sm">
+                                {authenticated
+                                    ? `Rolling ID: ${user?.id || "guest"} · Prepare Like a Topper`
+                                    : "Access your test series and attempts"}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div className="flex flex-shrink-0 items-center gap-2 sm:gap-4">
+                        <Link
+                            href="/typingPro"
+                            className="hidden text-sm font-black text-[#4F46E5] transition hover:text-[#312E81] sm:inline-flex"
+                        >
+                            🎯 Rank Booster
+                        </Link>
+
+                        {authenticated && (
+                            <span className="hidden rounded-full bg-[#EEF2FF] px-3 py-1.5 text-xs font-black text-[#475569] md:inline-flex">
+                                Active Plan: Premium
+                            </span>
+                        )}
+
+                        {authenticated ? (
+                            <Link
+                                href="/"
+                                aria-label="Home"
+                                className="grid h-9 w-9 place-items-center rounded-xl border border-[#E2E8F0] bg-white text-[#475569] shadow-sm transition hover:bg-[#F8FAFC]"
+                            >
+                                <Home size={17} strokeWidth={2.4} />
+                            </Link>
+                        ) : (
+                            <button
+                                onClick={() => void goToLoginAfterRememberingPage(router)}
+                                className="inline-flex h-9 items-center gap-1.5 rounded-xl bg-[#4A3F77] px-3 text-xs font-bold text-white shadow-[0_3px_8px_rgba(42,31,92,.25)] transition hover:bg-[#3D3466]"
+                            >
+                                <LogIn size={15} strokeWidth={2.5} />
+                                <span>Sign In</span>
+                            </button>
+                        )}
+                    </div>
+                </div>
+            </div>
+        )
+    }
+
     return (
         <>
             <div className="absolute inset-0 overflow-hidden pointer-events-none">

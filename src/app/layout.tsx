@@ -26,11 +26,28 @@ export const metadata: Metadata = {
     publisher: siteName,
     category: 'education',
     icons: {
+        shortcut: '/favicon.ico',
         icon: [
+            {
+                url: '/favicon.ico',
+                sizes: '48x48',
+            },
+            {
+                url: '/icon-192.png',
+                type: 'image/png',
+                sizes: '192x192',
+            },
             {
                 url: '/icon.svg',
                 type: 'image/svg+xml',
                 sizes: '48x48',
+            },
+        ],
+        apple: [
+            {
+                url: '/icon-192.png',
+                type: 'image/png',
+                sizes: '192x192',
             },
         ],
     },
@@ -109,7 +126,12 @@ export default function RootLayout({
                                 '@type': 'Organization',
                                 name: siteName,
                                 url: siteUrl,
-                                logo: defaultImage,
+                                logo: {
+                                    '@type': 'ImageObject',
+                                    url: defaultImage,
+                                    width: 512,
+                                    height: 512,
+                                },
                                 sameAs: [
                                     siteUrl,
                                 ],

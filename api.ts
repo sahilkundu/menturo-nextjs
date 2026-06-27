@@ -30,6 +30,7 @@ export const EXIT_TYPING_TEST = `${BASE_URL}/api/typing/exit`
 export const TYPING_SOLUTION = `${BASE_URL}/api/typing/solution`
 export const TYPING_RESULT = `${BASE_URL}/api/typing-result`
 export const TYPING_HISTORY = `${BASE_URL}/api/typing-history`
+export const DELETE_TYPING_HISTORY = `${BASE_URL}/api/typing-history/delete`
 export const SITE_STATUS = `${BASE_URL}/api/site`
 export const UPDATE_PROFILE = `${BASE_URL}/update-profile`
 export const UPDATE_PASS = `${BASE_URL}/update-pass`

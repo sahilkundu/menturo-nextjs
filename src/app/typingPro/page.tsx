@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { BarChart3, CalendarDays, Check, ChevronLeft, ChevronRight, Clock3, FileText, Globe2, Lock, Play, Settings, Trophy } from 'lucide-react'
+import { BarChart3, CalendarDays, Check, ChevronLeft, ChevronRight, Clock3, FileText, Globe2, Lock, Play, RotateCcw, Settings, Trash2, Trophy } from 'lucide-react'
 import TestSectionHead from '../../shared/components/TestSectionHead'
 import TypingProTestCardSkeleton from '../../shared/components/Skeleton/TypingProTestCardSkeleton'
 import { useUserStore } from '../../shared/store/user'
@@ -12,6 +12,7 @@ import { showPopupMessage } from '../../shared/utils/popup'
 import { showRouteLoader } from '../../shared/utils/routeLoader'
 import { goToLoginAfterRememberingPage } from '../../shared/utils/loginRedirect'
 import AdSenseAd from '../../shared/components/AdSenseAd'
+import { DELETE_TYPING_HISTORY } from '../../../api'
 
 const levels = ['Easy', 'Medium', 'Hard', 'Expert', 'Master']
 const historyDate = (value: number) => value ? new Intl.DateTimeFormat('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }).format(new Date(value)) : 'Recent attempt'
@@ -31,11 +32,13 @@ export default function TypingProPage() {
     const setLanguage = useTypingStore((state) => state.setLanguage); const setLevel = useTypingStore((state) => state.setSelectedLevel); const setDuration = useTypingStore((state) => state.setDuration); const setSetting = useTypingStore((state) => state.setSetting)
     const setPendingTest = useTypingStore((state) => state.setPendingTest)
     const loadTests = useTypingStore((state) => state.loadTests); const loadHistory = useTypingStore((state) => state.loadHistory)
+    const clearTestsCache = useTypingStore((state) => state.clearTestsCache)
     const applyTypingTestUpdate = useTypingStore((state) => state.applyTypingTestUpdate)
     const controlsLocked = loadingTests
     const [selectedTestId, setSelectedTestId] = useState('')
     const [testMenuOpen, setTestMenuOpen] = useState(false)
     const [canScrollLevelsLeft, setCanScrollLevelsLeft] = useState(false)
+    const [deletingHistoryKey, setDeletingHistoryKey] = useState('')
     const testMenuRef = useRef<HTMLDivElement>(null)
     const levelTabsRef = useRef<HTMLDivElement>(null)
     const testsScrollRef = useRef<HTMLDivElement>(null)
@@ -101,6 +104,55 @@ export default function TypingProPage() {
         setPendingTest(test.testId, action, historyId, duration)
         showRouteLoader(); router.push('/typingTest')
     }
+    const deleteTypingHistory = async (resultId = '', deleteAll = false) => {
+        if (!authenticated) {
+            showPopupMessage('Please sign in to delete typing attempts', false)
+            await login()
+            return
+        }
+
+        if (!deleteAll && !resultId) {
+            showPopupMessage('No typing attempt available to delete', false)
+            return
+        }
+
+        const key = deleteAll ? 'all' : resultId
+
+        if (deletingHistoryKey) return
+
+        try {
+            setDeletingHistoryKey(key)
+
+            const response = await fetch(DELETE_TYPING_HISTORY, {
+                method: 'POST',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    resultId,
+                    deleteAll,
+                    level,
+                    lan: language === 'hindi' ? 'hn' : 'en',
+                    testId: selectedTestId
+                })
+            })
+
+            const data = await response.json()
+
+            if (!response.ok || !data?.success) {
+                showPopupMessage(data?.message || 'Unable to delete typing attempt', false)
+                return
+            }
+
+            showPopupMessage(data?.message || 'Typing attempt deleted', true)
+            clearTestsCache()
+            await loadHistory(1, true)
+            await loadTests(level, 1, true, language)
+        } catch {
+            showPopupMessage('Unable to delete typing attempt', false)
+        } finally {
+            setDeletingHistoryKey('')
+        }
+    }
 
     return <main className="typing-font min-h-[100dvh] bg-[#f6f7fb] px-2 py-2 pb-24 text-[#121735] sm:px-3 xl:h-[100dvh] xl:min-h-0 xl:overflow-hidden xl:pb-2">
         <TestSectionHead userName="" rollingId="" activePlan={authenticated ? 'Typing Pro' : 'Guest'} badgeText="Typing Master Pro" onHome={() => router.push('/')} onLogin={login} showSignIn={!authenticated} />
@@ -127,7 +179,7 @@ export default function TypingProPage() {
                 <section className="flex h-full min-h-0 flex-col overflow-hidden rounded-[20px] border border-[#ddd5f1] bg-[linear-gradient(180deg,#FFFFFF_0%,#FCFBFF_58%,#F6F3FF_100%)] p-3 shadow-[0_16px_38px_rgba(67,48,117,.12)] sm:p-4"><div className="mb-4 flex shrink-0 flex-wrap items-center justify-between gap-3 xl:mb-2"><div><h1 className="text-base font-black tracking-[-0.01em] text-[#251b49]">{level} {language === 'english' ? 'English' : 'Hindi'} Typing Tests</h1><p className="mt-1 text-xs font-bold text-[#7b7297]">Smooth practice, instant progress, and focused typing.</p></div><div ref={testMenuRef} className="relative w-full sm:w-64"><button type="button" disabled={!activeTests.length} onClick={() => setTestMenuOpen((open) => !open)} aria-label="Filter loaded typing tests" aria-haspopup="listbox" aria-expanded={testMenuOpen} className="flex w-full items-center justify-between gap-2 rounded-[9px] border border-[#d8cff3] bg-[#f8f6ff] px-3 py-2 text-left text-xs font-black text-[#4b397c] outline-none disabled:opacity-50"><span className="min-w-0 truncate">{selectedTestLabel}</span><span aria-hidden="true" className="shrink-0">▾</span></button>{testMenuOpen && <div role="listbox" aria-label="Loaded typing tests" className="absolute right-0 z-20 mt-1 max-h-[320px] w-full overflow-y-auto rounded-[9px] border border-[#d8cff3] bg-[#f8f6ff] py-1 shadow-lg"><button type="button" role="option" aria-selected={!selectedTestId} onClick={() => { setSelectedTestId(''); setTestMenuOpen(false) }} className={`block w-full truncate px-3 py-2 text-left text-xs font-black ${!selectedTestId ? 'bg-[#4b397c] text-white' : 'bg-[#f8f6ff] text-[#4b397c] hover:bg-[#eee9fb]'}`}>All loaded tests ({activeTests.length})</button>{activeTests.map((test, index) => <button key={test.testId} type="button" role="option" aria-selected={selectedTestId === test.testId} title={`${index + 1}. ${test.title}`} onClick={() => { setSelectedTestId(test.testId); setTestMenuOpen(false) }} className={`block w-full truncate px-3 py-2 text-left text-xs font-black ${selectedTestId === test.testId ? 'bg-[#4b397c] text-white' : 'bg-[#f8f6ff] text-[#4b397c] hover:bg-[#eee9fb]'}`}>{index + 1}. {test.title}</button>)}</div>}</div></div><div ref={testsScrollRef} className="h-[480px] overflow-y-auto rounded-[16px] sm:h-[420px] lg:h-[52dvh] lg:max-h-[540px] xl:h-auto xl:min-h-0 xl:max-h-none xl:flex-1 border border-[#e9e3f7] bg-white/75 p-2 pr-1 shadow-[inset_0_1px_0_rgba(255,255,255,.9)] sm:max-h-[470px] sm:p-3 [scrollbar-width:thin] [&::-webkit-scrollbar]:w-[5px] [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-[#eeeafb] [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-[#9b8bd4] [&::-webkit-scrollbar-thumb]:hover:bg-[#7661b5]"><div className="space-y-2.5">{visibleTests.map((test) => <TestCard key={test.testId} test={test} requirements={progress[test.levelName]} onOpen={open}/>)}</div>{loadingTests && <p className="py-8 text-center text-sm font-bold text-slate-500">Loading typing tests…</p>}{!loadingTests && !activeTests.length && <p className="rounded-xl border border-dashed p-8 text-center text-sm font-bold text-slate-500">No tests found for this level.</p>}{!loadingTests && activeTests.length > 0 && !visibleTests.length && <p className="rounded-xl border border-dashed p-8 text-center text-sm font-bold text-slate-500">Select a loaded test from the menu above.</p>}<div ref={loadMoreRef} className="mt-3 min-h-9 rounded-xl border border-[#e4def5] bg-[#f4f1fc] px-3 py-2 text-center text-[11px] font-black tracking-wide text-[#6653a7]" aria-live="polite">{selectedTestId ? null : loadingTests ? 'Loading more tests...' : testsHasMore ? 'Scroll to load more tests' : 'All tests loaded'}</div></div></section>
             </div>
             </div>
-            <aside className="mt-3 space-y-3 xl:contents"><div className="hidden min-h-0 xl:col-start-2 xl:row-start-1 xl:block"><Setup duration={duration} setDuration={setDuration} backspace={backspace} highlight={highlight} spelling={spelling} setSetting={setSetting}/></div><div className="min-h-0 xl:col-start-2 xl:row-start-2"><History history={history} loading={loadingHistory} more={historyHasMore} onMore={() => void loadHistory(historyPage + 1, false)}/></div></aside>
+            <aside className="mt-3 space-y-3 xl:contents"><div className="hidden min-h-0 xl:col-start-2 xl:row-start-1 xl:block"><Setup duration={duration} setDuration={setDuration} backspace={backspace} highlight={highlight} spelling={spelling} setSetting={setSetting}/></div><div className="min-h-0 xl:col-start-2 xl:row-start-2"><History history={history} loading={loadingHistory} more={historyHasMore} authenticated={authenticated} deletingKey={deletingHistoryKey} onDeleteLatest={() => void deleteTypingHistory(history[0]?.resultId || '', false)} onResetAll={() => void deleteTypingHistory('', true)} onMore={() => void loadHistory(historyPage + 1, false)}/></div></aside>
         </div>
         <AdSenseAd
             className="mx-auto mt-6 max-w-[1180px] xl:hidden"
@@ -254,7 +306,7 @@ function Progress({ level, progress }: any) {
     </section>
 }
 
-function History({ history, loading, more, onMore }: any) {
+function History({ history, loading, more, authenticated, deletingKey, onDeleteLatest, onResetAll, onMore }: any) {
     const scrollRef = useRef<HTMLDivElement>(null)
     const loadMoreRef = useRef<HTMLDivElement>(null)
 
@@ -273,9 +325,23 @@ function History({ history, loading, more, onMore }: any) {
     }, [history.length, loading, more, onMore])
 
     return <section className="flex h-full min-h-0 flex-col overflow-hidden rounded-[16px] bg-white p-3.5 shadow-[0_5px_18px_rgba(36,29,83,.09)]">
-        <div className="mb-3 flex items-center justify-between gap-2">
-            <h2 className="flex items-center gap-2 text-sm font-black"><Clock3 size={17} className="text-[#4b39cf]"/>Your Test History</h2>
-            <span className="rounded-full bg-[#f2effa] px-2 py-1 text-[9px] font-black text-[#6653a7]">{history.length} loaded</span>
+        <div className="mb-3 flex items-start justify-between gap-2">
+            <div>
+                <h2 className="flex items-center gap-2 text-sm font-black"><Clock3 size={17} className="text-[#4b39cf]"/>Your Test History</h2>
+                {authenticated && history.length > 0 ? (
+                    <div className="mt-2 flex flex-wrap gap-1.5">
+                        <button type="button" disabled={Boolean(deletingKey)} onClick={onDeleteLatest} className="inline-flex h-8 items-center justify-center gap-1.5 rounded-md border border-red-200 bg-white px-2.5 text-[10px] font-bold text-red-700 transition-colors hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60">
+                            <Trash2 size={13} aria-hidden="true" />
+                            {deletingKey && deletingKey !== 'all' ? 'Deleting...' : 'Delete latest'}
+                        </button>
+                        <button type="button" disabled={Boolean(deletingKey)} onClick={onResetAll} className="inline-flex h-8 items-center justify-center gap-1.5 rounded-md border border-red-700 bg-red-600 px-2.5 text-[10px] font-bold text-white transition-colors hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60">
+                            <RotateCcw size={13} aria-hidden="true" />
+                            {deletingKey === 'all' ? 'Resetting...' : 'Reset all'}
+                        </button>
+                    </div>
+                ) : null}
+            </div>
+            <span className="shrink-0 rounded-full bg-[#f2effa] px-2 py-1 text-[9px] font-black text-[#6653a7]">{history.length} loaded</span>
         </div>
         <div ref={scrollRef} className="h-[230px] space-y-2 overflow-y-auto pr-1 sm:h-[280px] xl:h-auto xl:min-h-0 xl:flex-1 [scrollbar-width:thin] [&::-webkit-scrollbar]:w-[4px] [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-[#eeeafb] [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-[#9b8bd4]">
             {history.map((item: any, index: number) => <div key={item.resultId || index} className={`rounded-xl border p-2.5 ${index === 0 ? 'border-emerald-200 bg-emerald-50/60' : 'border-[#ebe7f4] bg-[#fdfcff]'}`}><div className="flex justify-between gap-2"><div className="min-w-0"><p className="truncate text-[11px] font-black">{item.title || 'Typing Test'}</p><p className="mt-1 flex items-center gap-1 text-[9px] text-slate-500"><CalendarDays size={10}/>{historyDate(item.attemptedAt)}</p><p className="mt-1 text-[9px] font-black text-[#4b39cf]">Level {item.level}: {item.levelName}</p></div><div className="text-right"><p className="text-[11px] font-black text-emerald-600">{Number(item.netWpm || 0).toFixed(2)} WPM</p><p className="mt-1 text-[10px] font-black">{Number(item.accuracy || 0).toFixed(2)}%</p></div></div></div>)}

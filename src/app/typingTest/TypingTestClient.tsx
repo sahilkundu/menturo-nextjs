@@ -4433,8 +4433,11 @@ function computeLiveResult({
     const charsTyped =
         actualChars.length
 
+    const wordEntries =
+        wordCount(actual)
+
     const grossWpm =
-        charsTyped / 5 / minutes
+        wordEntries / minutes
 
     const totalErrors =
         Math.max(
@@ -4448,8 +4451,7 @@ function computeLiveResult({
     return {
         elapsed,
         minutes,
-        wordEntries:
-            wordCount(actual),
+        wordEntries,
         charsTyped,
         grossWpm,
         accuracy:
@@ -4497,7 +4499,7 @@ function computeResult({
         wordCount(actual)
 
     const grossWpm =
-        charsTyped / 5 / minutes
+        wordEntries / minutes
 
     const analysis =
         analyzeText(
@@ -4517,7 +4519,7 @@ function computeResult({
         )
 
     const errorRate =
-        totalErrors / 5 / minutes
+        analysis.totalMistakes / minutes
 
     const net1 =
         Math.max(
