@@ -244,24 +244,24 @@ export default function SeriesPageClient() {
             <div className="min-h-0 flex-1 px-1.5 py-2 min-[360px]:px-2 sm:px-3 sm:py-3 lg:px-4">
                 <main className="mx-auto flex h-full max-w-7xl flex-col overflow-hidden rounded-[20px] bg-white p-2.5 shadow-[0_8px_30px_rgba(0,0,0,.05)] min-[360px]:rounded-[24px] min-[360px]:p-3 sm:rounded-[30px] sm:p-5">
                     <div className="flex-shrink-0 bg-white">
-                        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-                            <div>
-                                <h2 className="text-2xl font-black leading-none text-[#5B21B6] sm:text-[28px]">
+                        <div className="flex flex-row items-start justify-between gap-2 sm:items-center sm:gap-4">
+                            <div className="shrink-0">
+                                <h2 className="text-xl font-black leading-none text-[#5B21B6] min-[360px]:text-2xl sm:text-[28px]">
                                     All Test Series
                                 </h2>
-                                <p className="mt-1 text-xs font-bold text-gray-500 sm:text-sm">
+                                <p className="mt-1 text-[11px] font-bold text-gray-500 min-[360px]:text-xs sm:text-sm">
                                     {resultText}
                                 </p>
                             </div>
 
-                            <div className="relative w-full lg:max-w-md">
+                            <div className="relative min-w-0 flex-1 sm:max-w-md">
                                 <input
                                     value={search}
                                     onChange={(event) => setSearch(event.target.value)}
                                     placeholder="Search series..."
-                                    className="h-10 w-full rounded-2xl border border-[#6D28D9] bg-white px-4 pr-11 text-sm font-semibold text-[#171426] outline-none transition placeholder:text-[#8B85A7] focus:ring-4 focus:ring-[#6D28D9]/10 sm:h-12"
+                                    className="h-9 w-full rounded-2xl border border-[#6D28D9] bg-white px-3 pr-9 text-xs font-semibold text-[#171426] outline-none transition placeholder:text-[#8B85A7] focus:ring-4 focus:ring-[#6D28D9]/10 min-[360px]:h-10 min-[360px]:px-4 min-[360px]:pr-11 sm:h-12 sm:text-sm"
                                 />
-                                <Search className="absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6D28D9] sm:h-5 sm:w-5" />
+                                <Search className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6D28D9] min-[360px]:right-4 sm:h-5 sm:w-5" />
                             </div>
                         </div>
 
@@ -333,7 +333,11 @@ export default function SeriesPageClient() {
                             })}
 
                             {loading && (
-                                <TestCardSkeleton count={8} />
+                                Array.from({ length: 8 }).map((_, index) => (
+                                    <div key={`series-skeleton-${index}`} className="w-full min-w-0 max-w-[300px] max-[799px]:max-w-[360px] max-[525px]:max-w-[320px]">
+                                        <TestCardSkeleton responsive />
+                                    </div>
+                                ))
                             )}
                         </div>
 
@@ -349,7 +353,11 @@ export default function SeriesPageClient() {
 
                         {loadingMore && (
                             <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,230px),1fr))] justify-items-center gap-x-4 gap-y-5 max-[799px]:grid-cols-2 max-[525px]:grid-cols-1">
-                                <TestCardSkeleton count={4} />
+                                {Array.from({ length: 4 }).map((_, index) => (
+                                    <div key={`series-more-skeleton-${index}`} className="w-full min-w-0 max-w-[300px] max-[799px]:max-w-[360px] max-[525px]:max-w-[320px]">
+                                        <TestCardSkeleton responsive />
+                                    </div>
+                                ))}
                             </div>
                         )}
 

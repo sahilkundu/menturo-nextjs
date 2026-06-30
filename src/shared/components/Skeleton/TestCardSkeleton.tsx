@@ -2,10 +2,12 @@
 
 interface TestCardSkeletonProps {
     count?: number
+    responsive?: boolean
 }
 
 export default function TestCardSkeleton({
-    count = 1
+    count = 1,
+    responsive = false
 }: TestCardSkeletonProps) {
 
     return (
@@ -16,9 +18,9 @@ export default function TestCardSkeleton({
 
                 <div
                     key={index}
-                    className="
+                    className={`
                         relative
-                        w-[240px]
+                        ${responsive ? 'w-full' : 'w-[240px]'}
                         flex-shrink-0
                         rounded-[24px]
                         overflow-hidden
@@ -27,7 +29,7 @@ export default function TestCardSkeleton({
                         bg-[linear-gradient(180deg,#FFFFFF_0%,#FBFAFF_54%,#FFFFFF_100%)]
                         shadow-[0_18px_44px_rgba(74,63,119,0.10)]
                         animate-pulse
-                    "
+                    `}
                 >
 
                     <div className="relative p-3 pb-0">
