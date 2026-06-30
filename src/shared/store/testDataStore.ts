@@ -229,6 +229,14 @@ const buildSelectedOptions = (
 const SAVE_DEBOUNCE_MS = 1000
 let pendingSaveTimer: ReturnType<typeof setTimeout> | null = null
 const lastSavedProgress = new Map<string, string>()
+const submitInFlightByHistory = new Map<string, Promise<any>>()
+const submitIdempotencyKeyByHistory = new Map<string, string>()
+
+const createIdempotencyKey = () =>
+    globalThis.crypto
+        .randomUUID()
+        .replace(/-/g, '')
+        .slice(0, 24)
 
 const normalizeForSignature = (value: any): any => {
     if (Array.isArray(value)) {
@@ -1027,158 +1035,221 @@ export const useTestDataStore =
             fetchResult: async (
                 payload
             ) => {
+                const historyId =
+                    payload?.historyId || ''
 
-                try {
+                if (
+                    historyId &&
+                    submitInFlightByHistory.has(historyId)
+                ) {
+                    return submitInFlightByHistory.get(historyId)
+                }
 
-                    set({
+                const request = (async () => {
+                    try {
 
-                        loadingResult: true,
+                        const idempotencyKey =
+                            historyId
+                                ? submitIdempotencyKeyByHistory.get(historyId) ||
+                                createIdempotencyKey()
+                                : createIdempotencyKey()
 
-                        resultError: null
-                    })
+                        if (historyId) {
+                            submitIdempotencyKeyByHistory.set(
+                                historyId,
+                                idempotencyKey
+                            )
+                        }
 
-                    // =====================================
-                    // API CALL
-                    // =====================================
+                        set({
 
-                    const response =
-                        await fetch(
+                            loadingResult: true,
 
-                            SUBMIT_TEST,
+                            resultError: null
+                        })
 
-                            {
-                                method: 'POST',
+                        // =====================================
+                        // API CALL
+                        // =====================================
 
-                                credentials: 'include',
+                        const response =
+                            await fetch(
 
-                                headers: {
+                                SUBMIT_TEST,
 
-                                    'Content-Type':
-                                        'application/json'
-                                },
+                                {
+                                    method: 'POST',
 
-                                body: JSON.stringify(
-                                    payload
+                                    credentials: 'include',
+
+                                    headers: {
+
+                                        'Content-Type':
+                                            'application/json',
+                                        'Idempotency-Key':
+                                            idempotencyKey
+                                    },
+
+                                    body: JSON.stringify(
+                                        {
+                                            ...payload,
+                                            idempotencyKey
+                                        }
+                                    )
+                                }
+                            )
+
+                        const data =
+                            await readJsonResponse(
+                                response
+                            )
+
+                        // =====================================
+                        // FAILED
+                        // =====================================
+
+                        if (!data.success) {
+
+                            const retryableProcessing =
+                                data.retryable === true &&
+                                String(data.message || '')
+                                    .toLowerCase()
+                                    .includes('processing')
+
+                            set({
+
+                                loadingResult: false,
+
+                                resultError:
+                                    retryableProcessing
+                                        ? null
+                                        : data.message ||
+                                        'Failed to get result'
+                            })
+
+                            if (retryableProcessing) {
+                                showPopupMessage(
+                                    'Submission is already processing. Please wait...',
+                                    true
+                                )
+                            } else {
+                                showPopupMessage(
+                                    data.message,
+                                    false
                                 )
                             }
-                        )
 
-                    const data =
-                        await readJsonResponse(
-                            response
-                        )
+                            return data
+                        }
 
-                    // =====================================
-                    // FAILED
-                    // =====================================
+                        // =====================================
+                        // RESULT DATA
+                        // =====================================
+                        useQHistoryStore
+                            .getState()
+                            .setQHistory(data?.qHistory || {});
+                        const result =
+                            data?.result || {}
+                        const historyObj =
+                            result?.activeQuestionHistoryObj || {}
 
-                    if (!data.success) {
+                        const selectedOptions =
+                            buildSelectedOptions(historyObj)
+
+                        // =====================================
+                        // SUCCESS
+                        // =====================================
+
+                        set({
+                            isSubmitted: true,
+                            selectedOptions,
+
+                            activeQuestionIndex: 0,
+                            activeSubject:
+                                result?.allSubj?.[0] || '',
+
+                            activeLan: "en",
+                            activeTest: {
+
+                                questions:
+                                    result?.questions || {},
+
+                                activeQuestionHistoryObj:
+                                    historyObj,
+                                deviceInfo:
+                                    result?.deviceInfo ||
+                                    data?.deviceInfo ||
+                                    {},
+
+                                allSubj:
+                                    result?.allSubj || [],
+
+                                count:
+                                    result?.count || 0,
+
+                                duration:
+                                    result?.duration || 0,
+
+                                maxMarks:
+                                    result?.maxMarks || 0,
+
+                                obtainedMarks:
+                                    result?.obtainedMarks || 0,
+
+                                totalMarks:
+                                    result?.totalMarks || 0,
+
+                                time:
+                                    result?.time || 0,
+
+                                solution:
+                                    result?.solution || {}
+                            },
+
+                            loadingResult: false,
+
+                            resultError: null
+                        })
+
+                        if (historyId) {
+                            submitIdempotencyKeyByHistory.delete(historyId)
+                        }
+
+                        return data
+
+                    } catch (error: any) {
 
                         set({
 
                             loadingResult: false,
 
                             resultError:
-                                data.message ||
-                                'Failed to get result'
+                                error?.message ||
+                                'Something went wrong'
                         })
-                        showPopupMessage(
-                            data.message,
-                            false
-                        )
-                        return data
+
+                        return {
+
+                            success: false,
+
+                            message:
+                                error?.message
+                        }
+                    } finally {
+                        if (historyId) {
+                            submitInFlightByHistory.delete(historyId)
+                        }
                     }
+                })()
 
-                    // =====================================
-                    // RESULT DATA
-                    // =====================================
-                    useQHistoryStore
-                        .getState()
-                        .setQHistory(data?.qHistory || {});
-                    const result =
-                        data?.result || {}
-                    const historyObj =
-                        result?.activeQuestionHistoryObj || {}
-
-                    const selectedOptions =
-                        buildSelectedOptions(historyObj)
-
-                    // =====================================
-                    // SUCCESS
-                    // =====================================
-
-                    set({
-                        isSubmitted: true,
-                        selectedOptions,
-
-                        activeQuestionIndex: 0,
-                        activeSubject:
-                            result?.allSubj?.[0] || '',
-
-                        activeLan: "en",
-                        activeTest: {
-
-                            questions:
-                                result?.questions || {},
-
-                            activeQuestionHistoryObj:
-                                historyObj,
-                            deviceInfo:
-                                result?.deviceInfo ||
-                                data?.deviceInfo ||
-                                {},
-
-                            allSubj:
-                                result?.allSubj || [],
-
-                            count:
-                                result?.count || 0,
-
-                            duration:
-                                result?.duration || 0,
-
-                            maxMarks:
-                                result?.maxMarks || 0,
-
-                            obtainedMarks:
-                                result?.obtainedMarks || 0,
-
-                            totalMarks:
-                                result?.totalMarks || 0,
-
-                            time:
-                                result?.time || 0,
-
-                            solution:
-                                result?.solution || {}
-                        },
-
-                        loadingResult: false,
-
-                        resultError: null
-                    })
-
-                    return data
-
-                } catch (error: any) {
-
-                    set({
-
-                        loadingResult: false,
-
-                        resultError:
-                            error?.message ||
-                            'Something went wrong'
-                    })
-
-                    return {
-
-                        success: false,
-
-                        message:
-                            error?.message
-                    }
+                if (historyId) {
+                    submitInFlightByHistory.set(
+                        historyId,
+                        request
+                    )
                 }
+
+                return request
             },
             fetchStartTest: async (
                 payload

@@ -164,9 +164,9 @@ export default function TestMasterQuestionChooser({
     }
 
     return (
-        <div className="relative flex min-h-0 flex-1 w-full max-w-md mx-auto flex-col">
+        <div className="relative flex h-full min-h-0 flex-1 w-full max-w-md mx-auto flex-col">
             {/* HEADER */}
-            <div className="mt-4 bg-[#4A3F77]/95 backdrop-blur-md text-white font-bold text-[11px] px-4 py-3 rounded-t-2xl tracking-wider uppercase shadow-md border-b border-white/10">
+            <div className="mt-2 shrink-0 bg-[#4A3F77]/95 backdrop-blur-md text-white font-bold text-[11px] px-4 py-3 rounded-t-2xl tracking-wider uppercase shadow-md border-b border-white/10">
                 <h4 className="text-[11px] font-bold text-white flex items-center gap-2">
                     <span className="w-1.5 h-3 bg-white rounded-full inline-block"></span>
                     Choose a Question:
@@ -174,8 +174,8 @@ export default function TestMasterQuestionChooser({
             </div>
 
             {/* BODY */}
-            <div className="border border-t-0 border-slate-200/60 rounded-b-2xl p-2 bg-gradient-to-b from-slate-50/80 to-white/90 shadow-xl backdrop-blur-md">
-                <div className="overflow-y-auto max-h-[290px] pr-1.5 scrollbar-thin scrollbar-thumb-slate-200">
+            <div className="min-h-0 flex-1 border border-t-0 border-slate-200/60 rounded-b-2xl p-2 bg-gradient-to-b from-slate-50/80 to-white/90 shadow-xl backdrop-blur-md">
+                <div className="h-full overflow-y-auto pr-1.5 scrollbar-thin scrollbar-thumb-slate-200">
                     <div className="grid grid-cols-5 xs:grid-cols-6 gap-1.5 text-center py-1">
                         {qIDs?.map((qId: any, index: number) => {
 
@@ -396,16 +396,13 @@ export default function TestMasterQuestionChooser({
             {/* BOTTOM ACTION BAR */}
             <div
                 className="
-                    sticky
-                    bottom-0
-                    left-0
-                    right-0
-                    mt-auto
+                    shrink-0
+                    mt-2
                     bg-white/80
                     backdrop-blur-lg
                     border-t
                     border-slate-200/80
-                    p-3.5
+                    p-2.5
                     flex
                     gap-2.5
                     z-30

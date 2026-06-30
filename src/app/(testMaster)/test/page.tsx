@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import TestMasterHeader from '../../../shared/components/TestMasterHeader';
 import TestMasterBody from '../../../shared/components/TestMasterBody';
 import TestMasterUserInfo from '../../../shared/components/TestMasterUserInfo';
@@ -31,8 +31,76 @@ export default function MockTestPage() {
     }, [])
 
     const [isSideBarOpen, setIsSideBarOpen] = useState(false)
+    const [chooserButtonPosition, setChooserButtonPosition] =
+        useState<{ x: number; y: number } | null>(null)
+    const chooserDragRef =
+        useRef({
+            dragging: false,
+            moved: false,
+            offsetX: 0,
+            offsetY: 0
+        })
     const handleSidebarOpen = () => {
         setIsSideBarOpen(true)
+    }
+    const clampChooserPosition = (
+        x: number,
+        y: number
+    ) => {
+        const buttonSize = 64
+        const padding = 8
+
+        return {
+            x: Math.min(
+                Math.max(padding, x),
+                window.innerWidth - buttonSize - padding
+            ),
+            y: Math.min(
+                Math.max(padding, y),
+                window.innerHeight - buttonSize - padding
+            )
+        }
+    }
+    const handleChooserPointerDown = (
+        event: React.PointerEvent<HTMLDivElement>
+    ) => {
+        const rect =
+            event.currentTarget.getBoundingClientRect()
+
+        chooserDragRef.current = {
+            dragging: true,
+            moved: false,
+            offsetX: event.clientX - rect.left,
+            offsetY: event.clientY - rect.top
+        }
+
+        event.currentTarget.setPointerCapture(event.pointerId)
+    }
+    const handleChooserPointerMove = (
+        event: React.PointerEvent<HTMLDivElement>
+    ) => {
+        if (!chooserDragRef.current.dragging) {
+            return
+        }
+
+        chooserDragRef.current.moved = true
+
+        setChooserButtonPosition(
+            clampChooserPosition(
+                event.clientX - chooserDragRef.current.offsetX,
+                event.clientY - chooserDragRef.current.offsetY
+            )
+        )
+    }
+    const handleChooserPointerUp = (
+        event: React.PointerEvent<HTMLDivElement>
+    ) => {
+        chooserDragRef.current.dragging = false
+
+        try {
+            event.currentTarget.releasePointerCapture(event.pointerId)
+        } catch {
+        }
     }
     // In any component using useTestDataStore
 
@@ -304,12 +372,32 @@ overflow-hidden
             {!isSideBarOpen &&
                 <div
                     id="statusIconBtn"
-                    className="z-[9999] fixed bottom-36 right-5 flex flex-col items-center gap-1 xl:hidden select-none outline-none group cursor-pointer sm:bottom-32"
+                    className="z-[9999] fixed flex flex-col items-center gap-1 xl:hidden select-none outline-none group cursor-grab active:cursor-grabbing"
                     style={{
                         WebkitTapHighlightColor: 'transparent',
                         perspective: '1000px',
+                        touchAction: 'none',
+                        ...(chooserButtonPosition
+                            ? {
+                                left: chooserButtonPosition.x,
+                                top: chooserButtonPosition.y
+                            }
+                            : {
+                                right: 20,
+                                bottom: 144
+                            })
                     }}
-                    onClick={handleSidebarOpen}
+                    onPointerDown={handleChooserPointerDown}
+                    onPointerMove={handleChooserPointerMove}
+                    onPointerUp={handleChooserPointerUp}
+                    onClick={() => {
+                        if (chooserDragRef.current.moved) {
+                            chooserDragRef.current.moved = false
+                            return
+                        }
+
+                        handleSidebarOpen()
+                    }}
                 >
 
                     <div className="relative w-12 h-12 flex items-center justify-center" style={{ transformStyle: 'preserve-3d' }}>
@@ -364,21 +452,19 @@ top-0
 right-0
 w-[88%]
 max-w-[330px]
-h-screen
+h-[100dvh]
 bg-white
 z-[1000]
-overflow-y-auto
 shadow-[-10px_0_40px_rgba(0,0,0,.22)]
 xl:hidden
 flex
 flex-col
-justify-between
 overflow-hidden"
             >
-                <div className="flex min-h-0 grow flex-col overflow-y-auto p-2 palette-scroll">
+                <div className="flex h-full min-h-0 flex-col overflow-hidden p-2">
                     <TestMasterUserInfo onClose={() => setIsSideBarOpen(false)} />
                     <TestMasterReviewInfo />
-                    <div className="mt-4 flex min-h-0 flex-1 flex-col">
+                    <div className="mt-3 flex min-h-0 flex-1 flex-col overflow-hidden">
                         <TestMasterQuestionChooser onAction={() => setIsSideBarOpen(false)} />
                     </div>
                 </div>

@@ -92,14 +92,31 @@ export default function TestMasterButtons({
 
                 }
                 <div className="flex w-full flex-wrap items-center justify-between gap-2 md:ml-auto md:w-auto md:justify-end">
-                    {!isFirstQuestion && (
-                        <button
-                            onClick={prevQuestion}
-                            className="min-h-9 rounded-xl bg-slate-700 px-4 py-2 text-white hover:bg-slate-800"
-                        >
-                            Previous
-                        </button>
-                    )}
+                    <button
+                        onClick={() => {
+                            if (isFirstQuestion) {
+                                return
+                            }
+
+                            prevQuestion()
+                        }}
+                        disabled={isFirstQuestion}
+                        aria-disabled={isFirstQuestion}
+                        className={`
+                            min-h-9
+                            rounded-xl
+                            px-4
+                            py-2
+                            text-white
+                            transition-all
+                            ${isFirstQuestion
+                                ? 'cursor-not-allowed bg-slate-400/70 opacity-55 blur-[0.35px] saturate-50'
+                                : 'bg-slate-700 hover:bg-slate-800 active:scale-[0.98]'
+                            }
+                        `}
+                    >
+                        Previous
+                    </button>
 
                     <button
                         onClick={() => {

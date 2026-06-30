@@ -41,6 +41,7 @@ type AttemptDeletionRequest = {
     deleteAll: boolean
     key: string
     test: any
+    historyId?: string
 }
 
 const getSelectedSubjectKey = (
@@ -391,8 +392,19 @@ export default function TestSection({ series }: Props) {
 
         const attempt =
             Number(test?.attemptUsed || 0)
+        const latestHistory =
+            Array.isArray(test?.history)
+                ? [...test.history]
+                    .sort(
+                        (a: any, b: any) =>
+                            Number(b?.attempt || b?.an || 0) -
+                            Number(a?.attempt || a?.an || 0)
+                    )[0]
+                : null
+        const historyId =
+            latestHistory?._id
 
-        if (!deleteAll && attempt <= 0) {
+        if (!deleteAll && attempt <= 0 && !historyId) {
             showPopupMessage(
                 'No attempt available to delete',
                 false
@@ -401,7 +413,7 @@ export default function TestSection({ series }: Props) {
         }
 
         const key =
-            `${test.testId}-${deleteAll ? 'all' : attempt}`
+            `${test.testId}-${deleteAll ? 'all' : historyId || attempt}`
 
         if (deletingAttemptKey) {
             return
@@ -411,7 +423,8 @@ export default function TestSection({ series }: Props) {
             attempt,
             deleteAll,
             key,
-            test
+            test,
+            historyId
         })
     }
 
@@ -424,7 +437,8 @@ export default function TestSection({ series }: Props) {
             attempt,
             deleteAll,
             key,
-            test
+            test,
+            historyId
         } = pendingAttemptDeletion
 
         try {
@@ -443,7 +457,8 @@ export default function TestSection({ series }: Props) {
                             testId: test.testId,
                             ts: test.ts,
                             deleteAll,
-                            attempt
+                            attempt,
+                            historyId
                         })
                     }
                 )
