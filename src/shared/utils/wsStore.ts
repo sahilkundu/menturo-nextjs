@@ -14,6 +14,7 @@ import { showPopupMessage } from './popup'
 import { useWSChatStore } from '../store/wsChat'
 import { useTestDataStore } from '../store/testDataStore'
 import { useUserStore } from '../store/user'
+import { useTestCardMetadataStore } from '../store/testCardMetadataStore'
 import {
     encryptedWebSocketUrl,
     readEncryptedWebSocket,
@@ -306,6 +307,52 @@ export const useWSStore =
                                             { detail: data }
                                         )
                                     )
+                                    return
+                                }
+
+                                if (
+                                    data.event ===
+                                    'test-lifetime-stats-updated'
+                                ) {
+                                    useTestCardMetadataStore
+                                        .getState()
+                                        .applyLifetimeStats(
+                                            String(data.seriesId || ''),
+                                            String(data.testId || ''),
+                                            Number(data.totalAttempts || 0),
+                                            Number(data.totalUsers || 0)
+                                        )
+
+                                    return
+                                }
+
+                                if (
+                                    data.event ===
+                                    'test-ranking-updated'
+                                ) {
+                                    useTestCardMetadataStore
+                                        .getState()
+                                        .refreshRanking(
+                                            String(data.seriesId || ''),
+                                            String(data.testId || ''),
+                                            Number(data.averageScore || 0),
+                                            Number(data.rankedUsers || 0)
+                                        )
+
+                                    return
+                                }
+
+                                if (
+                                    data.event ===
+                                    'test-card-metadata-ready'
+                                ) {
+                                    useTestCardMetadataStore
+                                        .getState()
+                                        .refreshMetadata(
+                                            String(data.seriesId || ''),
+                                            String(data.testId || '')
+                                        )
+
                                     return
                                 }
 

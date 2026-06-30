@@ -7,6 +7,7 @@ import TestMasterUserInfo from '../../../shared/components/TestMasterUserInfo';
 import TestMasterReviewInfo from '../../../shared/components/TestMasterReviewInfo';
 import TestMasterQuestionChooser from '../../../shared/components/TestMasterQuestionChooser';
 import TestActionLoader from '../../../shared/components/TestActionLoader';
+import { TestTimerController } from '../../../shared/components/TestTimer';
 import { useTestDataStore } from '../../../shared/store/testDataStore';
 // Mock Test Data for dynamic rendering
 import { SAVE_TEST } from '../../../../api';
@@ -19,8 +20,6 @@ export default function MockTestPage() {
         useTestDataStore((state) => state.activeSubject)
     const setActiveSubject =
         useTestDataStore((state) => state.setActiveSubject)
-    const timeLeft =
-        useTestDataStore((state) => state.timeLeft)
     const router = useRouter()
     useEffect(() => {
         if (!activeTest || Object.keys(activeTest).length === 0) {
@@ -83,7 +82,7 @@ export default function MockTestPage() {
                 body: JSON.stringify({
                     historyId:
                         runningHistory._id,
-                    time: timeLeft,
+                    time: store.timeLeft,
 
                     data: {
 
@@ -135,6 +134,7 @@ export default function MockTestPage() {
     return (
         <>
             <TestActionLoader />
+            <TestTimerController />
 
             <div className="w-full h-[100dvh]  p-2 md:p-3 overflow-hidden flex flex-col">
 
@@ -151,7 +151,7 @@ flex
 flex-col
 ">
                     <div className="  px-4 py-3.5 border-b border-slate-200 bg-gradient-to-r from-white to-slate-50/50">
-                        <TestMasterHeader />
+                        <TestMasterHeader isQuestionChooserOpen={isSideBarOpen} />
                     </div>
 
 
@@ -304,7 +304,7 @@ overflow-hidden
             {!isSideBarOpen &&
                 <div
                     id="statusIconBtn"
-                    className="z-[9999] fixed bottom-5 right-5 flex flex-col items-center gap-1 xl:hidden select-none outline-none group cursor-pointer"
+                    className="z-[9999] fixed bottom-36 right-5 flex flex-col items-center gap-1 xl:hidden select-none outline-none group cursor-pointer sm:bottom-32"
                     style={{
                         WebkitTapHighlightColor: 'transparent',
                         perspective: '1000px',
@@ -375,26 +375,12 @@ flex-col
 justify-between
 overflow-hidden"
             >
-                <div className="p-2 overflow-y-auto grow palette-scroll space-y-4">
-
-                    <div className="flex items-center justify-between pb-3 border-b border-slate-200">
-                        <div>
-                            <h2 className="font-black text-slate-900 text-xs uppercase tracking-wider flex items-center gap-1.5">
-                                <span>📊</span> Question Palette
-                            </h2>
-
-                        </div>
-                        <button
-                            id="closeSliderBtn"
-                            onClick={() => setIsSideBarOpen(false)}
-                            className="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center font-bold text-xs hover:bg-slate-200 transition-colors shadow-2xs"
-                        >
-                            ✕
-                        </button>
-                    </div>
-                    <TestMasterUserInfo />
+                <div className="flex min-h-0 grow flex-col overflow-y-auto p-2 palette-scroll">
+                    <TestMasterUserInfo onClose={() => setIsSideBarOpen(false)} />
                     <TestMasterReviewInfo />
-                    <TestMasterQuestionChooser />
+                    <div className="mt-4 flex min-h-0 flex-1 flex-col">
+                        <TestMasterQuestionChooser onAction={() => setIsSideBarOpen(false)} />
+                    </div>
                 </div>
 
 

@@ -55,6 +55,8 @@ type ResultPayload = {
     data: any
 }
 
+type SelectedOptionValue = string | number | Array<string | number>
+
 const readJsonResponse = async (
     response: Response
 ) => {
@@ -92,11 +94,11 @@ type TestDataStore = {
     isSubmitted: boolean
 
     selectedOptions: {
-        [qId: string]: string | number
+        [qId: string]: SelectedOptionValue
     }
     selectOption: (
         qId: string,
-        prompt: number
+        prompt: string | number
     ) => void
 
     visitQuestion: (
@@ -171,6 +173,7 @@ type TestDataStore = {
     fetchSave: (
         payload: SaveTestPayload
     ) => Promise<any>
+    scheduleProgressSave: () => void
     fetchResult: (
         payload: ResultPayload
     ) => Promise<any>
@@ -194,7 +197,7 @@ const buildSelectedOptions = (
 
     const selectedOptions: Record<
         string,
-        string | number
+        SelectedOptionValue
     > = {}
 
     Object.values(historyObj || {}).forEach(
@@ -206,7 +209,7 @@ const buildSelectedOptions = (
             ).forEach(([qId, value]) => {
 
                 selectedOptions[qId] =
-                    value as string | number
+                    value as SelectedOptionValue
             })
 
             // answered + review
@@ -215,12 +218,72 @@ const buildSelectedOptions = (
             ).forEach(([qId, value]) => {
 
                 selectedOptions[qId] =
-                    value as string | number
+                    value as SelectedOptionValue
             })
         }
     )
 
     return selectedOptions
+}
+
+const SAVE_DEBOUNCE_MS = 1000
+let pendingSaveTimer: ReturnType<typeof setTimeout> | null = null
+const lastSavedProgress = new Map<string, string>()
+
+const normalizeForSignature = (value: any): any => {
+    if (Array.isArray(value)) {
+        return value
+            .map(normalizeForSignature)
+            .sort((left, right) =>
+                JSON.stringify(left).localeCompare(JSON.stringify(right))
+            )
+    }
+
+    if (value && typeof value === 'object') {
+        return Object.keys(value)
+            .sort()
+            .reduce((result: Record<string, any>, key) => {
+                result[key] = normalizeForSignature(value[key])
+                return result
+            }, {})
+    }
+
+    return value
+}
+
+const getProgressSignature = (history: any) =>
+    JSON.stringify(normalizeForSignature({
+        answered: history?.answered || {},
+        answeredAndMarkedForReview:
+            history?.answeredAndMarkedForReview || {},
+        markedForReview: history?.markedForReview || [],
+        notAnswered: history?.notAnswered || [],
+        visited: history?.visited || [],
+        notVisited: history?.notVisited || [],
+        clearResponse: history?.clearResponse || []
+    }))
+
+const getProgressKey = (
+    historyId: string,
+    subject: string
+) => `${historyId}:${subject}`
+
+const rememberServerProgress = (
+    historyId: string | undefined,
+    historyObj: any
+) => {
+    if (!historyId) {
+        return
+    }
+
+    Object.entries(historyObj || {}).forEach(
+        ([subject, history]) => {
+            lastSavedProgress.set(
+                getProgressKey(historyId, subject),
+                getProgressSignature(history)
+            )
+        }
+    )
 }
 export const useTestDataStore =
     create<TestDataStore>()(
@@ -249,15 +312,75 @@ export const useTestDataStore =
                 if (get().isSubmitted) {
                     return
                 }
-                set((state: any) => ({
+                set((state: any) => {
+                    const historyObj =
+                        state.activeTest
+                            ?.activeQuestionHistoryObj?.[
+                        state.activeSubject
+                        ]
 
-                    selectedOptions: {
+                    const question =
+                        state.activeTest?.questions?.[
+                        qId
+                        ]
 
+                    const isMultiAnswer =
+                        Boolean(question?.isMultiAnsweres)
+
+                    const currentValue =
+                        state.selectedOptions?.[qId]
+
+                    const nextValue =
+                        isMultiAnswer
+                            ? Array.isArray(currentValue)
+                                ? currentValue.some((value) => String(value) === String(prompt))
+                                    ? currentValue.filter((value) => String(value) !== String(prompt))
+                                    : [...currentValue, prompt]
+                                : currentValue === undefined
+                                    ? [prompt]
+                                    : String(currentValue) === String(prompt)
+                                        ? []
+                                        : [currentValue, prompt]
+                            : prompt
+
+                    const nextSelectedOptions = {
                         ...state.selectedOptions,
-
-                        [qId]: prompt
                     }
-                }))
+
+                    if (Array.isArray(nextValue) && nextValue.length === 0) {
+                        delete nextSelectedOptions[qId]
+                    } else {
+                        nextSelectedOptions[qId] = nextValue
+                    }
+
+                    return {
+
+                        selectedOptions: nextSelectedOptions,
+
+                        activeTest: historyObj
+                            ? {
+                                ...state.activeTest,
+                                activeQuestionHistoryObj: {
+                                    ...state.activeTest.activeQuestionHistoryObj,
+                                    [state.activeSubject]: {
+                                        ...historyObj,
+                                        visited: [
+                                            ...new Set([
+                                                ...(historyObj.visited || []),
+                                                qId
+                                            ])
+                                        ],
+                                        notVisited:
+                                            (historyObj.notVisited || []).filter(
+                                                (id: string | number) =>
+                                                    String(id) !== String(qId)
+                                            )
+                                    }
+                                }
+                            }
+                            : state.activeTest
+                    }
+                })
             },
             visitQuestion: (qId) => {
                 if (get().isSubmitted) {
@@ -457,15 +580,16 @@ export const useTestDataStore =
                         ).length
 
                     if (
-                        state.activeQuestionIndex >=
-                        total - 1
+                        total <= 0
                     ) {
                         return {}
                     }
 
                     return {
                         activeQuestionIndex:
-                            state.activeQuestionIndex + 1
+                            state.activeQuestionIndex >= total - 1
+                                ? 0
+                                : state.activeQuestionIndex + 1
                     }
                 })
             },
@@ -720,6 +844,34 @@ export const useTestDataStore =
                 payload
             ) => {
 
+                const subject =
+                    Object.keys(payload?.data || {})[0]
+                const history = subject
+                    ? payload.data[subject]
+                    : null
+                const progressKey = subject
+                    ? getProgressKey(payload.historyId, subject)
+                    : ''
+                const progressSignature = history
+                    ? getProgressSignature(history)
+                    : ''
+
+                if (
+                    !payload?.e &&
+                    progressKey &&
+                    lastSavedProgress.get(progressKey) === progressSignature
+                ) {
+                    return {
+                        success: true,
+                        skipped: true
+                    }
+                }
+
+                if (payload?.e && pendingSaveTimer) {
+                    clearTimeout(pendingSaveTimer)
+                    pendingSaveTimer = null
+                }
+
                 try {
 
                     set({
@@ -789,19 +941,19 @@ export const useTestDataStore =
                                 data.message ||
                                 'Failed to save test'
                         })
+                    } else {
+                        set({
+                            loadingSave: false,
+                            saveError: null
+                        })
 
+                        if (progressKey) {
+                            lastSavedProgress.set(
+                                progressKey,
+                                progressSignature
+                            )
+                        }
                     }
-
-                    // =====================================
-                    // SUCCESS
-                    // =====================================
-
-                    set({
-
-                        loadingSave: false,
-
-                        saveError: null
-                    })
 
                     return data
 
@@ -824,6 +976,53 @@ export const useTestDataStore =
                             error?.message
                     }
                 }
+            },
+            scheduleProgressSave: () => {
+                if (pendingSaveTimer) {
+                    clearTimeout(pendingSaveTimer)
+                }
+
+                const scheduledState = get()
+                const scheduledSubject =
+                    scheduledState.activeSubject
+                const scheduledHistoryId =
+                    scheduledState.activeTest?.history?._id
+
+                pendingSaveTimer = setTimeout(async () => {
+                    pendingSaveTimer = null
+
+                    const state = get()
+                    const history =
+                        state.activeTest
+                            ?.activeQuestionHistoryObj?.[
+                            scheduledSubject
+                        ]
+
+                    if (
+                        state.isSubmitted ||
+                        state.loadingResult ||
+                        !scheduledHistoryId ||
+                        state.activeTest?.history?._id !==
+                            scheduledHistoryId ||
+                        !history
+                    ) {
+                        return
+                    }
+
+                    await state.fetchSave({
+                        historyId: scheduledHistoryId,
+                        time: state.timeLeft,
+                        data: {
+                            [scheduledSubject]: {
+                                ...history,
+                                activeIndex:
+                                    state.activeQuestionIndex,
+                                language: state.activeLan,
+                                timeLeft: state.timeLeft
+                            }
+                        }
+                    })
+                }, SAVE_DEBOUNCE_MS)
             },
             fetchResult: async (
                 payload
@@ -986,6 +1185,11 @@ export const useTestDataStore =
             ) => {
 
                 try {
+                    const idempotencyKey =
+                        globalThis.crypto
+                            .randomUUID()
+                            .replace(/-/g, '')
+                            .slice(0, 24)
 
                     set({
                         isSubmitted: false,
@@ -1012,11 +1216,16 @@ export const useTestDataStore =
                                 headers: {
 
                                     'Content-Type':
-                                        'application/json'
+                                        'application/json',
+                                    'Idempotency-Key':
+                                        idempotencyKey
                                 },
 
                                 body: JSON.stringify(
-                                    payload
+                                    {
+                                        ...payload,
+                                        idempotencyKey
+                                    }
                                 )
                             }
                         )
@@ -1072,6 +1281,12 @@ export const useTestDataStore =
 
                     const selectedOptions =
                         buildSelectedOptions(historyObj)
+
+                    lastSavedProgress.clear()
+                    rememberServerProgress(
+                        data?.history?._id,
+                        historyObj
+                    )
 
                     set({
 
@@ -1224,6 +1439,12 @@ export const useTestDataStore =
 
                     const savedTimeLeft =
                         historyObj?.[firstSubject]?.timeLeft || 0
+
+                    lastSavedProgress.clear()
+                    rememberServerProgress(
+                        data?.history?._id,
+                        historyObj
+                    )
 
                     set({
                         activeSubject: firstSubject,
@@ -1514,6 +1735,12 @@ export const useTestDataStore =
             // =====================================
 
             clearActiveTest: () => {
+
+                if (pendingSaveTimer) {
+                    clearTimeout(pendingSaveTimer)
+                    pendingSaveTimer = null
+                }
+                lastSavedProgress.clear()
 
                 set({
                     isSubmitted: false,

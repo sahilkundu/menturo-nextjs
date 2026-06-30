@@ -6,7 +6,11 @@ import { useUserStore } from "../store/user"
 import { useTestDataStore } from "../store/testDataStore"
 import TestTimer from "./TestTimer"
 
-export default function TestMasterUserInfo() {
+export default function TestMasterUserInfo({
+    onClose,
+}: {
+    onClose?: () => void
+}) {
 
     // =====================================
     // HYDRATION FIX
@@ -25,20 +29,17 @@ export default function TestMasterUserInfo() {
     // STORES
     // =====================================
 
-    const { user } =
-        useUserStore()
+    const user =
+        useUserStore((state) => state.user)
 
-    const { activeTest } =
-        useTestDataStore()
+    const deviceInfo =
+        useTestDataStore((state) => state.activeTest?.deviceInfo || {})
 
 
 
     // =====================================
     // DEVICE INFO
     // =====================================
-
-    const deviceInfo =
-        activeTest?.deviceInfo || {}
 
     // =====================================
     // USER INFO
@@ -211,37 +212,49 @@ export default function TestMasterUserInfo() {
 
                 {/* TIMER */}
 
-                <div className="
-                    shrink-0
-                    bg-rose-50
-                    border
-                    border-rose-100
-                    rounded-xl
-                    px-2.5
-                    py-1.5
-                    text-center
-                ">
-
+                <div className="flex shrink-0 items-center gap-1.5">
                     <div className="
-                        text-[9px]
-                        text-rose-400
-                        font-bold
-                        uppercase
-                    ">
-                        Time Left
-                    </div>
-
-                    <div className="
-                        text-[12px]
-                        font-black
-                        text-rose-600
-                        tracking-wide
+                        shrink-0
+                        bg-rose-50
+                        border
+                        border-rose-100
+                        rounded-xl
+                        px-2.5
+                        py-1.5
+                        text-center
                     ">
 
-                        <TestTimer />
+                        <div className="
+                            text-[9px]
+                            text-rose-400
+                            font-bold
+                            uppercase
+                        ">
+                            Time Left
+                        </div>
+
+                        <div className="
+                            text-[12px]
+                            font-black
+                            text-rose-600
+                            tracking-wide
+                        ">
+
+                            <TestTimer />
+
+                        </div>
 
                     </div>
-
+                    {onClose && (
+                        <button
+                            type="button"
+                            onClick={onClose}
+                            className="flex h-7 w-7 items-center justify-center rounded-full bg-slate-100 text-xs font-bold text-slate-500 shadow-sm transition-colors hover:bg-slate-200"
+                            aria-label="Close question palette"
+                        >
+                            ✕
+                        </button>
+                    )}
                 </div>
 
             </div>

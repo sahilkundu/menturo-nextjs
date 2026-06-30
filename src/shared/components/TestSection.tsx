@@ -31,6 +31,7 @@ import { goToLoginAfterRememberingPage } from '../utils/loginRedirect'
 import TestSeriesInfo from './TestSeriesInfo'
 import PaymentSummary from './PaymentSummary'
 import { DELETE_TEST_ATTEMPT } from '../../../api'
+import TestCardMetadata from './TestCardMetadata'
 type Props = {
     series: any
 }
@@ -1379,49 +1380,11 @@ export default function TestSection({ series }: Props) {
                                                 {/* LEFT */}
                                                 <div className="min-w-0 w-full space-y-1.5 sm:flex-1">
 
-                                                    <div className="flex items-center gap-2 flex-wrap">
-
-                                                        <h4 className="font-bold text-gray-900 text-xs sm:text-sm leading-snug">
-
-                                                            {test.n}
-
-                                                        </h4>
-
-                                                        <span className="text-[#9A4A00] text-[10px] font-bold bg-[#FFF7D6] border border-[#F59E0B]/20 px-1.5 py-0.5 rounded shrink-0">
-
-                                                            ⚡ {(test.totalAttempt || 0)} Users
-
-                                                        </span>
-
-                                                        {isDemoTest ? (
-                                                            <span className="rounded border border-emerald-200 bg-emerald-50 px-1.5 py-0.5 text-[10px] font-black uppercase text-emerald-700">
-                                                                Demo Test
-                                                            </span>
-                                                        ) : null}
-
-                                                    </div>
-
-                                                    <div className="flex gap-3 text-[11px] text-[#6B647D] font-medium flex-wrap">
-
-                                                        <span>
-                                                            📄 {test.totalQuestions || 0} Questions
-                                                        </span>
-
-                                                        <span>
-                                                            📊 {test.totalMarks || 0} Marks
-                                                        </span>
-
-                                                        <span>
-                                                            ⏱️ {test.duration || '0 Min'}
-                                                        </span>
-
-                                                    </div>
-
-                                                    <div className="text-[11px] text-[#4A3F77] font-semibold flex items-center gap-1">
-
-                                                        🌐 {(test.lan || []).join(', ')}
-
-                                                    </div>
+                                                    <TestCardMetadata
+                                                        seriesId={series._id}
+                                                        test={test}
+                                                        isDemoTest={isDemoTest}
+                                                    />
 
                                                     <div className="flex w-full max-w-[560px] flex-col gap-2 border-l-2 border-[#DDD6F1] pl-3 pt-0.5">
                                                         <div className="min-w-0 flex-1">

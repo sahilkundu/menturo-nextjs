@@ -71,7 +71,7 @@ const nextConfig = {
                             https://*.googlesyndication.com
                             https://*.doubleclick.net;
 
-                            script-src 'self' 'unsafe-inline' 'unsafe-eval'
+                            script-src 'self' 'unsafe-inline'
                             https://pagead2.googlesyndication.com
                             https://www.googletagservices.com
                             https://www.google.com

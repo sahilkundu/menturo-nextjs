@@ -17,7 +17,11 @@ type QuestionStatus =
     | "answered"
     | "answeredAndMarked"
 
-export default function TestMasterQuestionChooser() {
+export default function TestMasterQuestionChooser({
+    onAction,
+}: {
+    onAction?: () => void
+}) {
     const router = useRouter()
 
     const activeTest =
@@ -40,8 +44,6 @@ export default function TestMasterQuestionChooser() {
         useTestDataStore((state) => state.loadingSave)
     const isSubmitted =
         useTestDataStore((state) => state.isSubmitted)
-    const timeLeft =
-        useTestDataStore((state) => state.timeLeft)
 
     const historyObj =
         activeTest?.activeQuestionHistoryObj?.[
@@ -162,7 +164,7 @@ export default function TestMasterQuestionChooser() {
     }
 
     return (
-        <div className="relative pb-19 md:pb-19 w-full max-w-md mx-auto">
+        <div className="relative flex min-h-0 flex-1 w-full max-w-md mx-auto flex-col">
             {/* HEADER */}
             <div className="mt-4 bg-[#4A3F77]/95 backdrop-blur-md text-white font-bold text-[11px] px-4 py-3 rounded-t-2xl tracking-wider uppercase shadow-md border-b border-white/10">
                 <h4 className="text-[11px] font-bold text-white flex items-center gap-2">
@@ -279,9 +281,10 @@ export default function TestMasterQuestionChooser() {
 
                                     <button
                                         key={qId}
-                                        onClick={() =>
+                                        onClick={() => {
                                             setActiveQuestionIndex(index)
-                                        }
+                                            onAction?.()
+                                        }}
                                         className={`
                                             relative
                                             w-8 
@@ -393,10 +396,11 @@ export default function TestMasterQuestionChooser() {
             {/* BOTTOM ACTION BAR */}
             <div
                 className="
-                    absolute
+                    sticky
                     bottom-0
                     left-0
                     right-0
+                    mt-auto
                     bg-white/80
                     backdrop-blur-lg
                     border-t
@@ -414,6 +418,7 @@ export default function TestMasterQuestionChooser() {
                 <button
                     disabled={loadingSave || loadingResult}
                     onClick={async () => {
+                        onAction?.()
 
                         if (isSubmitted) {
 
@@ -450,7 +455,7 @@ export default function TestMasterQuestionChooser() {
                                 historyId:
                                     runningHistory._id,
 
-                                time: timeLeft,
+                                time: store.timeLeft,
 
                                 data: {
 
@@ -464,8 +469,8 @@ export default function TestMasterQuestionChooser() {
                                         language:
                                             store.activeLan,
 
-                                        timeLeft:
-                                            timeLeft
+                                            timeLeft:
+                                            store.timeLeft
                                     }
                                 },
 
@@ -512,6 +517,7 @@ export default function TestMasterQuestionChooser() {
                     <button
                         disabled={loadingResult || loadingSave}
                         onClick={async () => {
+                            onAction?.()
 
                             const store =
                                 useTestDataStore.getState()
@@ -534,7 +540,7 @@ export default function TestMasterQuestionChooser() {
                             }
 
                             const payload = {
-                                time: timeLeft,
+                                time: store.timeLeft,
 
                                 historyId:
                                     activeHistory._id,
@@ -559,7 +565,8 @@ export default function TestMasterQuestionChooser() {
                                         language:
                                             store.activeLan,
 
-                                        timeLeft
+                                                timeLeft:
+                                                store.timeLeft
                                     }
                                 }
                             }

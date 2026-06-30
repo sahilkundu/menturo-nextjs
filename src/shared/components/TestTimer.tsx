@@ -8,7 +8,7 @@ import {
     showTestActionLoader,
 } from "../utils/testActionLoader"
 
-export default function TestTimer() {
+export function TestTimerController() {
 
     const activeTest =
         useTestDataStore((state) => state.activeTest)
@@ -139,7 +139,12 @@ export default function TestTimer() {
             setTimeLeft(activeTest.duration)
         }
 
-    }, [activeTest])
+    }, [
+        activeTest?.duration,
+        timeLeft,
+        isSubmitted,
+        setTimeLeft
+    ])
 
     // START TIMER
     useEffect(() => {
@@ -147,18 +152,20 @@ export default function TestTimer() {
         // STOP TIMER AFTER SUBMIT
         if (isSubmitted) return
 
-        if (timeLeft <= 0) return
-
         const timer =
             setInterval(() => {
 
                 useTestDataStore.setState(
-                    (state: any) => ({
+                    (state: any) => {
+                        if (state.timeLeft <= 0) {
+                            return state
+                        }
 
-                        timeLeft:
-                            state.timeLeft - 1
-
-                    })
+                        return {
+                            timeLeft:
+                                state.timeLeft - 1
+                        }
+                    }
                 )
 
             }, 1000)
@@ -167,9 +174,16 @@ export default function TestTimer() {
             clearInterval(timer)
 
     }, [
-        timeLeft,
         isSubmitted
     ])
+
+    return null
+}
+
+export default function TestTimer() {
+
+    const timeLeft =
+        useTestDataStore((state) => state.timeLeft)
 
     // FORMAT
     const formatTime = (

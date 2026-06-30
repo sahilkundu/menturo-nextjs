@@ -1016,6 +1016,12 @@ export const useTestSeriesStore =
                     .seriesIdKey
                 ]
 
+            const idempotencyKey =
+                globalThis.crypto
+                    .randomUUID()
+                    .replace(/-/g, '')
+                    .slice(0, 24)
+
             await fetch(
                 START_TEST,
                 {
@@ -1025,15 +1031,17 @@ export const useTestSeriesStore =
                     headers:
                     {
                         'Content-Type':
-                            'application/json'
+                            'application/json',
+                        'Idempotency-Key':
+                            idempotencyKey
                     },
 
                     body:
                         JSON.stringify({
 
                             testId,
-
-                            seriesId
+                            seriesId,
+                            idempotencyKey
                         })
                 }
             )

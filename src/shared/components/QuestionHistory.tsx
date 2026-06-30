@@ -27,66 +27,64 @@ export default function QuestionHistory() {
         qHistory?.[qIDs?.[activeQuestionIndex]];
 
     return (
-        <div className="bg-sky-50/70 border border-slate-200 rounded-xl px-3 py-2">
+        <div className="w-full rounded-xl border border-slate-200 bg-sky-50/70 px-3 py-2">
 
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
 
-                {/* STATS */}
-                <div className="flex flex-wrap items-center gap-2">
+                <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-2">
 
                     <div
                         title="Total Attempts"
-                        className="flex items-center gap-1"
+                        className="flex items-center gap-1.5"
                     >
-                        <span className="text-slate-600 text-xs font-semibold">
-                            Attemp:
+                        <span className="text-xs font-semibold text-slate-600">
+                            Attempt:
                         </span>
 
-                        <span className="min-w-[28px] px-2 py-0.5 rounded-full bg-amber-500 text-white text-[11px] sm:text-xs font-bold text-center">
+                        <span className="min-w-7 rounded-full bg-amber-500 px-2 py-0.5 text-center text-[11px] font-bold text-white sm:text-xs">
                             {currentHistory?.ta ?? 0}
                         </span>
                     </div>
 
                     <div
                         title="Correct Answers"
-                        className="flex items-center gap-1"
+                        className="flex items-center gap-1.5"
                     >
-                        <span className="text-slate-600 text-xs font-semibold">
+                        <span className="text-xs font-semibold text-slate-600">
                             Correct:
                         </span>
 
-                        <span className="min-w-[28px] px-2 py-0.5 rounded-full bg-emerald-500 text-white text-[11px] sm:text-xs font-bold text-center">
+                        <span className="min-w-7 rounded-full bg-emerald-500 px-2 py-0.5 text-center text-[11px] font-bold text-white sm:text-xs">
                             {currentHistory?.c ?? 0}
                         </span>
                     </div>
 
                     <div
                         title="Wrong Answers"
-                        className="flex items-center gap-1"
+                        className="flex items-center gap-1.5"
                     >
-                        <span className="text-slate-600 text-xs font-semibold">
+                        <span className="text-xs font-semibold text-slate-600">
                             Wrong:
                         </span>
 
-                        <span className="min-w-[28px] px-2 py-0.5 rounded-full bg-rose-500 text-white text-[11px] sm:text-xs font-bold text-center">
+                        <span className="min-w-7 rounded-full bg-rose-500 px-2 py-0.5 text-center text-[11px] font-bold text-white sm:text-xs">
                             {currentHistory?.w ?? 0}
                         </span>
                     </div>
 
                     <div
                         title="Accuracy Percentage"
-                        className="px-2 py-0.5 rounded-full bg-sky-100 text-sky-700 text-[11px] sm:text-xs font-bold"
+                        className="rounded-full bg-sky-100 px-2 py-0.5 text-[11px] font-bold text-sky-700 sm:text-xs"
                     >
                         {currentHistory?.pr ?? 0}%
                     </div>
 
                 </div>
 
-                {/* RESULT */}
                 {(activeTest?.totalMarks !== undefined &&
                     activeTest?.obtainedMarks !== undefined) && (
 
-                        <div className="flex items-center flex-wrap gap-2 text-sm sm:text-base font-bold">
+                        <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 border-slate-200 text-sm font-bold sm:border-l sm:pl-4 sm:text-base">
 
                             <span className="text-slate-600">
                                 Total:
@@ -96,7 +94,7 @@ export default function QuestionHistory() {
                                 {activeTest.totalMarks}
                             </span>
 
-                            <span className="text-slate-300">
+                            <span className="text-slate-300 max-sm:hidden">
                                 |
                             </span>
 
