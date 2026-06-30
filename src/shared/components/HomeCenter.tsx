@@ -9,6 +9,9 @@ import TestCardSkeleton from "./Skeleton/TestCardSkeleton"
 import { useUserStore } from "../store/user"
 import Link from "next/link"
 
+const SERIES_PAGE_LIMIT = 8
+const LOAD_MORE_SCROLL_BUFFER = 160
+const MIN_SCROLLABLE_OVERFLOW = 180
 
 export default function HomeCenter() {
     const authType =
@@ -24,6 +27,8 @@ export default function HomeCenter() {
         useState(false)
     const fetchedRef =
         useRef(false)
+    const fetchedIdentityRef =
+        useRef('')
     // MOVE STORE HERE
     const seriesMap =
         useTestSeriesStore(
@@ -69,13 +74,48 @@ export default function HomeCenter() {
             behavior: "smooth"
         })
     }, [])
+    const isFetchingRef = useRef(false)
+
+    // =====================================================
+    // LOAD MORE
+    // =====================================================
+
+    const loadMore =
+        useCallback(async () => {
+
+            if (loadingSeries) return
+
+            if (isFetchingRef.current) return
+
+            if (!pagination) return
+
+            if (!pagination.hasMore) return
+
+            isFetchingRef.current = true
+
+            try {
+
+                await fetchSeries({
+                    page: pagination.currentPage + 1,
+                    limit: SERIES_PAGE_LIMIT
+                })
+
+            } finally {
+
+                isFetchingRef.current = false
+            }
+
+        }, [
+            pagination,
+            loadingSeries,
+            fetchSeries
+        ])
+
     // =====================================================
     // AUTO LOAD ON SCROLL END
     // =====================================================
 
-    const isFetchingRef = useRef(false)
-
-    const handleSliderScroll = () => {
+    const handleSliderScroll = useCallback(() => {
 
         if (!sliderRef.current) return
 
@@ -85,21 +125,22 @@ export default function HomeCenter() {
 
         const el = sliderRef.current
 
-        // USER HAS NOT SCROLLED YET
-        if (el.scrollLeft <= 0) return
-
         const remainingScroll =
             el.scrollWidth -
             el.scrollLeft -
             el.clientWidth
 
-        if (remainingScroll <= 20) {
+        if (remainingScroll <= LOAD_MORE_SCROLL_BUFFER) {
 
             if (!pagination?.hasMore) return
 
             void loadMore()
         }
-    }
+    }, [
+        loadingSeries,
+        pagination?.hasMore,
+        loadMore
+    ])
 
     useEffect(() => {
 
@@ -165,72 +206,41 @@ export default function HomeCenter() {
     // =====================================================
 
     useEffect(() => {
-        // =====================================
-        // LOAD ONLY ONCE
-        // =====================================
+        const identityKey =
+            `${authType || 'unknown'}:${userId || guestId || status || 'public'}`
 
         if (
-            fetchedRef.current
+            loadingUser &&
+            visibleSeries.length > 0
         ) {
             return
         }
 
         if (
-            visibleSeries.length === 0
+            fetchedRef.current &&
+            fetchedIdentityRef.current === identityKey &&
+            visibleSeries.length > 0
         ) {
-
-            fetchedRef.current = true
-
-            fetchSeries({
-
-                page: 1,
-
-                limit: 5
-            })
+            return
         }
+
+        fetchedRef.current = true
+        fetchedIdentityRef.current = identityKey
+
+        fetchSeries({
+            page: 1,
+            limit: SERIES_PAGE_LIMIT
+        })
 
     }, [
         status,
         authType,
         guestId,
         userId,
+        loadingUser,
         visibleSeries.length,
         fetchSeries
     ])
-    // =====================================================
-    // LOAD MORE
-    // =====================================================
-
-    const loadMore =
-        useCallback(async () => {
-
-            if (loadingSeries) return
-
-            if (isFetchingRef.current) return
-
-            if (!pagination) return
-
-            if (!pagination.hasMore) return
-
-            isFetchingRef.current = true
-
-            try {
-
-                await fetchSeries({
-                    page: pagination.currentPage + 1,
-                    limit: 5
-                })
-
-            } finally {
-
-                isFetchingRef.current = false
-            }
-
-        }, [
-            pagination,
-            loadingSeries,
-            fetchSeries
-        ])
 
     // =====================================================
     // AUTO LOAD IF NO SCROLLBAR
@@ -276,11 +286,11 @@ export default function HomeCenter() {
 
                 if (cardCount === 0) return
 
-                const hasHorizontalScrollbar =
-                    element.scrollWidth >
-                    element.clientWidth + 1
+                const needsMoreScrollableContent =
+                    element.scrollWidth <=
+                    element.clientWidth + MIN_SCROLLABLE_OVERFLOW
 
-                if (!hasHorizontalScrollbar) {
+                if (needsMoreScrollableContent) {
 
                     void loadMore()
                 }
@@ -428,11 +438,18 @@ export default function HomeCenter() {
     gap-4
     overflow-x-auto
     overflow-y-hidden
-    pb-1
+    pb-4
+    pr-3
     scroll-smooth
-    [scrollbar-width:none]
-    [-ms-overflow-style:none]
-    [&::-webkit-scrollbar]:hidden
+    overscroll-x-contain
+    [scrollbar-width:thin]
+    [scrollbar-color:#8B7BC9_#EEEAFB]
+    [&::-webkit-scrollbar]:h-[8px]
+    [&::-webkit-scrollbar-track]:rounded-full
+    [&::-webkit-scrollbar-track]:bg-[#EEEAFB]
+    [&::-webkit-scrollbar-thumb]:rounded-full
+    [&::-webkit-scrollbar-thumb]:bg-[#8B7BC9]
+    [&::-webkit-scrollbar-thumb:hover]:bg-[#6D5CAF]
 "
                                     >
 
