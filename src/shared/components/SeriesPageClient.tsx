@@ -241,15 +241,15 @@ export default function SeriesPageClient() {
                 <Header variant="topbar" />
             </div>
 
-            <div className="min-h-0 flex-1 px-2 py-2 sm:px-3 sm:py-3 lg:px-4">
-                <main className="mx-auto flex h-full max-w-7xl flex-col overflow-hidden rounded-[24px] bg-white p-3 shadow-[0_8px_30px_rgba(0,0,0,.05)] sm:rounded-[30px] sm:p-5">
+            <div className="min-h-0 flex-1 px-1.5 py-2 min-[360px]:px-2 sm:px-3 sm:py-3 lg:px-4">
+                <main className="mx-auto flex h-full max-w-7xl flex-col overflow-hidden rounded-[20px] bg-white p-2.5 shadow-[0_8px_30px_rgba(0,0,0,.05)] min-[360px]:rounded-[24px] min-[360px]:p-3 sm:rounded-[30px] sm:p-5">
                     <div className="flex-shrink-0 bg-white">
-                        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                             <div>
-                                <h2 className="text-2xl font-black text-[#5B21B6] sm:text-3xl">
+                                <h2 className="text-2xl font-black leading-none text-[#5B21B6] sm:text-[28px]">
                                     All Test Series
                                 </h2>
-                                <p className="mt-1 text-sm font-semibold text-gray-500">
+                                <p className="mt-1 text-xs font-bold text-gray-500 sm:text-sm">
                                     {resultText}
                                 </p>
                             </div>
@@ -259,13 +259,13 @@ export default function SeriesPageClient() {
                                     value={search}
                                     onChange={(event) => setSearch(event.target.value)}
                                     placeholder="Search series..."
-                                    className="h-12 w-full rounded-[18px] border border-[#6D28D9] bg-white px-4 pr-12 text-sm font-semibold text-[#171426] outline-none transition placeholder:text-[#8B85A7] focus:ring-4 focus:ring-[#6D28D9]/10"
+                                    className="h-10 w-full rounded-2xl border border-[#6D28D9] bg-white px-4 pr-11 text-sm font-semibold text-[#171426] outline-none transition placeholder:text-[#8B85A7] focus:ring-4 focus:ring-[#6D28D9]/10 sm:h-12"
                                 />
-                                <Search className="absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#6D28D9]" />
+                                <Search className="absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6D28D9] sm:h-5 sm:w-5" />
                             </div>
                         </div>
 
-                        <div className="mt-5 flex gap-2.5 overflow-x-auto pb-2 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+                        <div className="mt-3 flex gap-2.5 overflow-x-auto pb-2 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden sm:mt-4">
                             <button
                                 onClick={() => setSelectedTag("")}
                                 className={`h-10 flex-shrink-0 rounded-full border px-4 text-xs font-black uppercase transition ${activeTag === ""
@@ -299,13 +299,13 @@ export default function SeriesPageClient() {
                         )}
                     </div>
 
-                    <div className="mt-4 min-h-0 flex-1 overflow-y-auto overscroll-contain pr-1 [scrollbar-gutter:stable]">
-                        <div className="mx-auto grid max-w-[1080px] grid-cols-1 justify-items-center gap-4 pb-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                    <div className="mt-4 min-h-0 flex-1 overflow-y-auto overscroll-contain pr-1 [scrollbar-gutter:stable] [scrollbar-width:thin] [scrollbar-color:#8B7BC9_#EEEAFB] [&::-webkit-scrollbar]:w-[8px] [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-[#EEEAFB] [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-[#8B7BC9] [&::-webkit-scrollbar-thumb:hover]:bg-[#6D5CAF]">
+                        <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,230px),1fr))] justify-items-center gap-x-4 gap-y-5 pb-4 max-[799px]:grid-cols-2 max-[525px]:grid-cols-1 max-[525px]:gap-y-4">
                             {series.map((item) => {
                                 const plan = getPlan(item)
 
                                 return (
-                                    <div key={item._id} className="w-[240px] min-w-0">
+                                    <div key={item._id} className="w-full min-w-0 max-w-[300px] max-[799px]:max-w-[360px] max-[525px]:max-w-[320px]">
                                         <TestCard
                                             access={item?.access}
                                             av={item?.av !== false}
@@ -348,7 +348,7 @@ export default function SeriesPageClient() {
                         <div ref={loadMoreRef} className="h-10" />
 
                         {loadingMore && (
-                            <div className="mx-auto grid max-w-[1080px] grid-cols-1 justify-items-center gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                            <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,230px),1fr))] justify-items-center gap-x-4 gap-y-5 max-[799px]:grid-cols-2 max-[525px]:grid-cols-1">
                                 <TestCardSkeleton count={4} />
                             </div>
                         )}

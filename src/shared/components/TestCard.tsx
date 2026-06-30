@@ -32,6 +32,7 @@ interface TestCardProps {
     img?: string
     btnBgColor?: string
     btnTxtColor?: string
+    imageFit?: "cover" | "contain"
 }
 
 export default function TestCard({
@@ -49,7 +50,8 @@ export default function TestCard({
     btnName,
     img,
     btnBgColor = "bg-violet-50",
-    btnTxtColor = "text-violet-700"
+    btnTxtColor = "text-violet-700",
+    imageFit = "cover"
 
 }: TestCardProps) {
     const router = useRouter()
@@ -289,12 +291,15 @@ export default function TestCard({
                             width={240}
                             height={180}
                             loading="lazy"
-                            className="
+                            className={`
                                 h-[142px]
                                 w-full
                                 rounded-[19px]
-                                object-cover
-                            "
+                                ${imageFit === "contain"
+                                    ? "bg-white object-contain"
+                                    : "object-cover"
+                                }
+                            `}
                         />
 
                         <div className="absolute inset-[1px] rounded-[19px] bg-[linear-gradient(180deg,rgba(255,255,255,0.08)_0%,rgba(74,63,119,0)_48%,rgba(20,16,39,0.36)_100%)]"></div>
