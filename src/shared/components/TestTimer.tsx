@@ -2,7 +2,6 @@
 
 import { useEffect } from "react"
 import { useTestDataStore } from "../store/testDataStore"
-import { useTestSeriesStore } from "../store/testSeriesStore"
 import {
     hideTestActionLoader,
     showTestActionLoader,
@@ -22,11 +21,17 @@ export function TestTimerController() {
         useTestDataStore((state) => state.fetchResult)
     const activeSubject =
         useTestDataStore((state) => state.activeSubject)
+    const loadingResult =
+        useTestDataStore((state) => state.loadingResult)
+    const loadingSave =
+        useTestDataStore((state) => state.loadingSave)
     useEffect(() => {
 
         if (
             timeLeft !== 0 ||
-            isSubmitted
+            isSubmitted ||
+            loadingResult ||
+            loadingSave
         ) {
             return
         }
@@ -37,6 +42,7 @@ export function TestTimerController() {
                 useTestDataStore.getState()
 
             if (
+                store.isSubmitted ||
                 store.loadingResult ||
                 store.loadingSave
             ) {
@@ -47,66 +53,53 @@ export function TestTimerController() {
                 store.activeTest
                     ?.activeQuestionHistoryObj
 
-            const testsMap =
-                useTestSeriesStore
-                    .getState()
-                    .testsMap
+            const runningHistory =
+                store.activeTest?.history
 
-            let payload: any = null
+            const currentSubject =
+                store.activeSubject ||
+                activeSubject
 
-            Object.values(testsMap).forEach(
-                (tests: any) => {
+            const subjectHistory =
+                history?.[currentSubject]
 
-                    tests.forEach((test: any) => {
-
-                        const runningHistory =
-                            test?.history?.find(
-                                (h: any) =>
-                                    h.status === "running"
-                            )
-
-                        if (runningHistory) {
-
-                            payload = {
-
-                                historyId:
-                                    runningHistory._id,
-
-                                relationId:
-                                    test.relationId,
-
-                                testId:
-                                    test.testId,
-
-                                ts:
-                                    test.ts,
-
-                                data: {
-
-                                    [activeSubject]: {
-
-                                        ...history[
-                                        activeSubject
-                                        ],
-
-                                        activeIndex:
-                                            store.activeQuestionIndex,
-
-                                        language:
-                                            store.activeLan,
-
-                                        timeLeft:
-                                            timeLeft
-                                    }
-                                }
-                            }
-                        }
-                    })
-                }
-            )
-
-            if (!payload) {
+            if (
+                !runningHistory?._id ||
+                !runningHistory?.relationId ||
+                !runningHistory?.testId ||
+                !runningHistory?.ts ||
+                !currentSubject ||
+                !subjectHistory
+            ) {
                 return
+            }
+
+            const payload = {
+                historyId:
+                    runningHistory._id,
+
+                relationId:
+                    runningHistory.relationId,
+
+                testId:
+                    runningHistory.testId,
+
+                ts:
+                    runningHistory.ts,
+
+                data: {
+                    [currentSubject]: {
+                        ...subjectHistory,
+
+                        activeIndex:
+                            store.activeQuestionIndex,
+
+                        language:
+                            store.activeLan,
+
+                        timeLeft: 0
+                    }
+                }
             }
 
             showTestActionLoader("Loading Solution")
@@ -124,7 +117,9 @@ export function TestTimerController() {
         timeLeft,
         isSubmitted,
         activeSubject,
-        fetchResult
+        fetchResult,
+        loadingResult,
+        loadingSave
     ])
 
     // INITIALIZE TIMER

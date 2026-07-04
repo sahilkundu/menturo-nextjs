@@ -290,6 +290,11 @@ const answerEquals = (left: any, right: any) => {
     return String(left) === String(right)
 }
 
+const formatScore = (value: number) =>
+    Number.isInteger(value)
+        ? String(value)
+        : value.toFixed(2).replace(/0+$/, '').replace(/\.$/, '')
+
 const normalizeOptions = (options: any) => {
     if (Array.isArray(options)) return options
     if (options && typeof options === "object") {
@@ -386,6 +391,11 @@ export default function TestMasterBody() {
     const isCorrect =
         obtainedMarks > 0
 
+    const marksLabel =
+        obtainedMarks > 0
+            ? `+${formatScore(obtainedMarks)}`
+            : formatScore(obtainedMarks)
+
     const solutionText =
         findSolutionText(
             solution,
@@ -456,9 +466,7 @@ export default function TestMasterBody() {
                 `}
                                     >
                                         {
-                                            isCorrect
-                                                ? `+${question?.qPosMarks}`
-                                                : `-${question?.qNegMarks}`
+                                            marksLabel
                                         }
                                     </div>
                                 )

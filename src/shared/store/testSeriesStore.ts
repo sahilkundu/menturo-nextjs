@@ -525,12 +525,13 @@ export const useTestSeriesStore =
                         normalizedSubject
                         ] || []
 
-                    const mergedTests = [
-
-                        ...oldTests,
-
-                        ...data.tests
-                    ]
+                    const mergedTests =
+                        page === 1
+                            ? data.tests
+                            : [
+                                ...oldTests,
+                                ...data.tests
+                            ]
 
                     // REMOVE DUPLICATES
                     const uniqueTests =
@@ -921,12 +922,13 @@ export const useTestSeriesStore =
                         seriesId
                         ] || []
 
-                    const mergedTests = [
-
-                        ...oldTests,
-
-                        ...data.tests
-                    ]
+                    const mergedTests =
+                        page === 1
+                            ? data.tests
+                            : [
+                                ...oldTests,
+                                ...data.tests
+                            ]
 
                     const uniqueTests =
                         Array.from(

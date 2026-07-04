@@ -1,6 +1,18 @@
 import { useQHistoryStore } from "../store/qHisStore";
 import { useTestDataStore } from "../store/testDataStore";
 
+const formatScore = (value: any) => {
+    const numberValue =
+        Number(value || 0)
+
+    return Number.isInteger(numberValue)
+        ? String(numberValue)
+        : numberValue
+            .toFixed(2)
+            .replace(/0+$/, '')
+            .replace(/\.$/, '')
+}
+
 export default function QuestionHistory() {
     const activeTest =
         useTestDataStore((state) => state.activeTest);
@@ -91,7 +103,7 @@ export default function QuestionHistory() {
                             </span>
 
                             <span className="text-slate-900">
-                                {activeTest.totalMarks}
+                                {formatScore(activeTest.totalMarks)}
                             </span>
 
                             <span className="text-slate-300 max-sm:hidden">
@@ -103,7 +115,7 @@ export default function QuestionHistory() {
                             </span>
 
                             <span className="text-emerald-600">
-                                {activeTest.obtainedMarks}
+                                {formatScore(activeTest.obtainedMarks)}
                             </span>
 
                         </div>

@@ -185,9 +185,6 @@ export default function TestMasterQuestionChooser({
                             const solution =
                                 activeTest?.solution?.[qId]
 
-                            const obtainedMarks =
-                                Number(solution?.ob || 0)
-
                             const selectedAnswer =
                                 solution?.selected
 
@@ -314,39 +311,6 @@ export default function TestMasterQuestionChooser({
                                         <span className="text-[14px] font-black tracking-tighter">
                                             {index + 1}
                                         </span>
-
-                                        {/* MARKS BADGE */}
-                                        {
-                                            isSubmitted &&
-                                            obtainedMarks !== 0 && (
-                                                <div
-                                                    className={`
-                                                        absolute
-                                                        -top-1.5
-                                                        -right-1.5
-                                                        min-w-[18px]
-                                                        h-[18px]
-                                                        px-1
-                                                        rounded-full
-                                                        flex
-                                                        items-center
-                                                        justify-center
-                                                        text-[9px]
-                                                        font-black
-                                                        shadow-md
-                                                        border
-                                                        border-white
-
-                                                        ${obtainedMarks > 0
-                                                            ? "bg-green-500 text-white"
-                                                            : "bg-red-500 text-white"
-                                                        }
-                                                    `}
-                                                >
-                                                    {obtainedMarks}
-                                                </div>
-                                            )
-                                        }
 
                                         {/* ANSWERED + MARKED ONLY */}
                                         {/* ANSWERED + MARKED FOR REVIEW */}
