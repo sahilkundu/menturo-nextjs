@@ -73,13 +73,13 @@ function RichValue({
 
     if (Array.isArray(value)) {
         return (
-            <div className={`space-y-1.5 ${className}`}>
+            <div className={`divide-y divide-slate-200/70 ${className}`}>
                 {value.map((item, index) => (
                     <div
                         key={index}
-                        className="flex gap-2 rounded-md border border-slate-200/70 bg-white/80 px-2.5 py-2 text-[12px] leading-relaxed text-slate-700 shadow-sm shadow-slate-200/40"
+                        className="flex gap-2 px-0.5 py-2 text-[12px] leading-relaxed text-slate-700 first:pt-0 last:pb-0"
                     >
-                        <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[#4A3F77]" />
+                        <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[#4A3F77]/75" />
                         <RichValue value={item} />
                     </div>
                 ))}
@@ -100,7 +100,7 @@ function RichValue({
                         className={
                             key.toLowerCase().includes("important points")
                                 ? "space-y-2"
-                                : `rounded-lg border p-2.5 shadow-sm shadow-slate-200/50 ${solutionTone(key).wrapper}`
+                                : `rounded-lg border-l-4 px-3 py-2.5 ${solutionTone(key).wrapper}`
                         }
                     >
                         <div
@@ -684,7 +684,7 @@ export default function TestMasterBody() {
 
                                         {
                                             hasValue(solutionText) && (
-                                                <div className="mt-3 rounded-lg border border-slate-200 bg-gradient-to-b from-white to-slate-50/80 p-3 leading-relaxed text-slate-800 shadow-inner shadow-slate-200/60">
+                                                <div className="mt-3 rounded-lg bg-slate-50/70 p-3 font-serif text-[15px] leading-8 text-slate-800">
                                                     <RichValue value={solutionText} />
                                                 </div>
                                             )
