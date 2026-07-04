@@ -19,6 +19,49 @@ const isImageSource = (value: string) =>
 const hasHtml = (value: string) =>
     /<\/?[a-z][\s\S]*>/i.test(value)
 
+const solutionTone = (label: string) => {
+    const normalized =
+        label.trim().toLowerCase()
+
+    if (
+        normalized.startsWith("✓") ||
+        normalized.includes("correct")
+    ) {
+        return {
+            wrapper:
+                "border-emerald-100 bg-emerald-50/55",
+            label:
+                "text-emerald-700",
+            marker:
+                "bg-emerald-500 shadow-[0_0_0_3px_rgba(16,185,129,0.12)]",
+        }
+    }
+
+    if (
+        normalized.startsWith("✗") ||
+        normalized.includes("wrong") ||
+        normalized.includes("incorrect")
+    ) {
+        return {
+            wrapper:
+                "border-rose-100 bg-rose-50/45",
+            label:
+                "text-rose-700",
+            marker:
+                "bg-rose-500 shadow-[0_0_0_3px_rgba(244,63,94,0.12)]",
+        }
+    }
+
+    return {
+        wrapper:
+            "border-slate-200 bg-white",
+        label:
+            "text-[#4A3F77]",
+        marker:
+            "bg-[#4A3F77] shadow-[0_0_0_3px_rgba(74,63,119,0.10)]",
+    }
+}
+
 function RichValue({
     value,
     className = "",
@@ -30,12 +73,15 @@ function RichValue({
 
     if (Array.isArray(value)) {
         return (
-            <div className={`space-y-1 ${className}`}>
+            <div className={`space-y-1.5 ${className}`}>
                 {value.map((item, index) => (
-                    <RichValue
+                    <div
                         key={index}
-                        value={item}
-                    />
+                        className="flex gap-2 rounded-md border border-slate-200/70 bg-white/80 px-2.5 py-2 text-[12px] leading-relaxed text-slate-700 shadow-sm shadow-slate-200/40"
+                    >
+                        <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[#4A3F77]" />
+                        <RichValue value={item} />
+                    </div>
                 ))}
             </div>
         )
@@ -47,13 +93,25 @@ function RichValue({
         }
 
         return (
-            <div className={`space-y-2 ${className}`}>
+            <div className={`space-y-3 ${className}`}>
                 {Object.entries(value).map(([key, item]) => (
-                    <div key={key} className="space-y-1">
-                        <div className="text-[11px] font-black text-slate-700">
-                            {key}
+                    <div
+                        key={key}
+                        className={
+                            key.toLowerCase().includes("important points")
+                                ? "space-y-2"
+                                : `rounded-lg border p-2.5 shadow-sm shadow-slate-200/50 ${solutionTone(key).wrapper}`
+                        }
+                    >
+                        <div
+                            className={`flex items-center gap-2 text-[11px] font-black tracking-wide ${solutionTone(key).label}`}
+                        >
+                            <span className={`h-2 w-2 shrink-0 rounded-full ${solutionTone(key).marker}`} />
+                            <span>{key}</span>
                         </div>
-                        <RichValue value={item} />
+                        <div className={key.toLowerCase().includes("important points") ? "" : "mt-2"}>
+                            <RichValue value={item} />
+                        </div>
                     </div>
                 ))}
             </div>
@@ -341,7 +399,7 @@ export default function TestMasterBody() {
 
     useEffect(() => {
         setShowSolution(isSubmitted)
-    }, [isSubmitted, qId])
+    }, [isSubmitted])
 
     useEffect(() => {
 
@@ -626,7 +684,7 @@ export default function TestMasterBody() {
 
                                         {
                                             hasValue(solutionText) && (
-                                                <div className="mt-3 rounded-lg bg-slate-50 p-2 leading-relaxed text-slate-800">
+                                                <div className="mt-3 rounded-lg border border-slate-200 bg-gradient-to-b from-white to-slate-50/80 p-3 leading-relaxed text-slate-800 shadow-inner shadow-slate-200/60">
                                                     <RichValue value={solutionText} />
                                                 </div>
                                             )
