@@ -3,6 +3,7 @@
 import { useTestSeriesStore } from "../../shared/store/testSeriesStore"
 import { useWSStore } from "../utils/wsStore"
 import Header from "./Header"
+import TypingTestSpotlight from "./TypingTestSpotlight"
 import TestCard from "./TestCard"
 import { useRef, useEffect, useCallback, useMemo, useState } from "react"
 import TestCardSkeleton from "./Skeleton/TestCardSkeleton"
@@ -29,6 +30,8 @@ export default function HomeCenter() {
         useRef(false)
     const fetchedIdentityRef =
         useRef('')
+    const sliderResetRef =
+        useRef(false)
     // MOVE STORE HERE
     const seriesMap =
         useTestSeriesStore(
@@ -308,6 +311,32 @@ export default function HomeCenter() {
         pagination?.hasMore,
         loadMore
     ])
+
+    useEffect(() => {
+        if (
+            sliderResetRef.current ||
+            visibleSeries.length === 0
+        ) {
+            return
+        }
+
+        sliderResetRef.current = true
+
+        const resetSlider = () => {
+            sliderRef.current?.scrollTo({
+                left: 0,
+                behavior: 'auto'
+            })
+        }
+
+        resetSlider()
+        const frame =
+            requestAnimationFrame(resetSlider)
+
+        return () => {
+            cancelAnimationFrame(frame)
+        }
+    }, [visibleSeries.length])
     return (
         <>
             {/* <!-- MAIN --> */}
@@ -338,6 +367,8 @@ export default function HomeCenter() {
                                 </h1>
                                 <Header />
                             </div>
+
+                            <TypingTestSpotlight />
 
                             {/* <!-- COURSE SECTION --> */}
                             <div className="mt-5 bg-white dark-card rounded-[30px] p-1 shadow-[0_8px_30px_rgba(0,0,0,.05)] overflow-hidden">
@@ -411,10 +442,6 @@ export default function HomeCenter() {
                                                     className="text-2xl font-black dark-text bg-gradient-to-r from-purple-700 via-violet-700 to-indigo-700 bg-clip-text text-transparent">
                                                     Popular Govt Exam Test Series
                                                 </h2>
-                                                <span
-                                                    className="text-[11px] font-bold bg-amber-100 text-amber-700 px-3 py-1 rounded-full flex items-center gap-1">
-                                                    <i className="fas fa-gift text-[10px]"></i> Buy 1 Get 1 Demo Free
-                                                </span>
                                             </div>
                                             <p className="text-sm text-gray-500 mt-1 dark-sub flex items-center gap-1">
                                                 <i className="fas fa-trophy text-amber-500 text-[12px]"></i> SSC, HSSC, HPSC, UPSC,
@@ -450,6 +477,7 @@ export default function HomeCenter() {
     [&::-webkit-scrollbar-thumb]:rounded-full
     [&::-webkit-scrollbar-thumb]:bg-[#8B7BC9]
     [&::-webkit-scrollbar-thumb:hover]:bg-[#6D5CAF]
+    scrollbar-hidden
 "
                                     >
 

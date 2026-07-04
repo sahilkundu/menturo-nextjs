@@ -151,6 +151,7 @@ export default function RightSidebar() {
                 className={`
         bg-white
         overflow-y-auto
+        scrollbar-hidden
         transform-gpu
 
         ${head
@@ -296,6 +297,7 @@ export default function RightSidebar() {
                                 Continue Your Journey And Achieve Target
                             </p>
 
+                            {/* Pro Member and Rank badges hidden for now, keeping the code here for later reuse.
                             <div className="mt-5 p-4 rounded-2xl bg-gradient-to-br from-white to-gray-50 border border-gray-100 shadow-sm">
 
                                 <div className="bg-violet-100 rounded-full px-3 py-1.5 text-xs md:text-sm font-semibold text-violet-700 inline-block mr-2">
@@ -307,6 +309,7 @@ export default function RightSidebar() {
                                 </div>
 
                             </div>
+                            */}
 
                         </div>}
 

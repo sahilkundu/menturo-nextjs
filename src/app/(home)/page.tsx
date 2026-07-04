@@ -86,6 +86,38 @@ export default function HomePage() {
         }
     }, [])
 
+    useEffect(() => {
+        const previousScrollRestoration =
+            window.history.scrollRestoration
+
+        window.history.scrollRestoration = 'manual'
+
+        const resetScroll = () => {
+            window.scrollTo({
+                top: 0,
+                left: 0,
+                behavior: 'auto'
+            })
+            document.documentElement.scrollTop = 0
+            document.body.scrollTop = 0
+        }
+
+        resetScroll()
+        const frame =
+            requestAnimationFrame(() => {
+                resetScroll()
+            })
+        const timer =
+            window.setTimeout(resetScroll, 250)
+
+        return () => {
+            cancelAnimationFrame(frame)
+            window.clearTimeout(timer)
+            window.history.scrollRestoration =
+                previousScrollRestoration
+        }
+    }, [])
+
 
 
 
@@ -189,6 +221,7 @@ export default function HomePage() {
                                 top-0
                                 h-screen
                                 overflow-y-auto
+                                scrollbar-hidden
                             "
                         >
                             <LeftSidebar />

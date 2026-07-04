@@ -9,14 +9,21 @@ type ConsentChoice = 'accepted' | 'essential'
 const STORAGE_KEY = 'menturo-cookie-consent-v1'
 const adsenseClient = process.env.NEXT_PUBLIC_ADSENSE_CLIENT
 
+const shouldShowOnPath = (
+    pathname: string
+) =>
+    pathname === '/' ||
+    pathname === '/series' ||
+    pathname.startsWith('/series/') ||
+    pathname === '/typingPro'
+
 export default function CookieConsent() {
     const pathname =
         usePathname()
     const [choice, setChoice] = useState<ConsentChoice | null>(null)
     const [ready, setReady] = useState(false)
-    const isRunningTestPage =
-        pathname === '/test' ||
-        pathname === '/typingTest'
+    const isAllowedPage =
+        shouldShowOnPath(pathname)
 
     useEffect(() => {
         const saved =
@@ -73,14 +80,6 @@ export default function CookieConsent() {
         )
     }
 
-    const reopenChoices = () => {
-        window.localStorage.removeItem(STORAGE_KEY)
-        setChoice(null)
-        window.dispatchEvent(
-            new Event('menturo-consent-changed')
-        )
-    }
-
     const shouldLoadAds =
         Boolean(adsenseClient)
 
@@ -96,7 +95,7 @@ export default function CookieConsent() {
                 />
             ) : null}
 
-            {ready && !choice && !isRunningTestPage ? (
+            {ready && !choice && isAllowedPage ? (
                 <div className="fixed inset-x-3 bottom-3 z-[9999] mx-auto max-w-4xl rounded-3xl border border-violet-200 bg-white p-5 text-slate-800 shadow-2xl">
                     <div className="grid gap-4 md:grid-cols-[1fr_auto] md:items-center">
                         <div>
@@ -130,16 +129,6 @@ export default function CookieConsent() {
                         </div>
                     </div>
                 </div>
-            ) : null}
-
-            {ready && choice && !isRunningTestPage ? (
-                <button
-                    type="button"
-                    onClick={reopenChoices}
-                    className="fixed bottom-3 left-3 z-[9998] rounded-full border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-600 shadow-lg"
-                >
-                    Privacy choices
-                </button>
             ) : null}
         </>
     )
