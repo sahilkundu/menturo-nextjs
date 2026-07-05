@@ -485,7 +485,7 @@ export default function SeriesPaymentPage({ series }: FullSeries) {
         <div className="m-3 lg:col-span-2 space-y-5 overflow-hidden">
             {isVerifyingPayment ? (
                 <div
-                    className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/40 backdrop-blur-sm px-5"
+                    className="fixed inset-0 z-[1100] flex items-center justify-center bg-slate-950/40 backdrop-blur-sm px-5"
                     role="status"
                     aria-live="assertive"
                 >
