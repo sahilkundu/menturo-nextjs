@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { Search } from "lucide-react"
-import Header from "./Header"
 import TestCard from "./TestCard"
 import TestCardSkeleton from "./Skeleton/TestCardSkeleton"
 import AdSenseAd from "./AdSenseAd"
@@ -236,11 +235,7 @@ export default function SeriesPageClient() {
     }, [loading, pagination?.total, series.length])
 
     return (
-        <div className="flex h-screen min-h-0 flex-col overflow-hidden bg-gray-100">
-            <div className="flex-shrink-0">
-                <Header variant="topbar" />
-            </div>
-
+        <div className="flex h-screen min-h-0 flex-col overflow-hidden bg-gray-100 pb-16">
             <div className="min-h-0 flex-1 px-1.5 py-2 min-[360px]:px-2 sm:px-3 sm:py-3 lg:px-4">
                 <main className="mx-auto flex h-full max-w-7xl flex-col overflow-hidden rounded-[20px] bg-white p-2.5 shadow-[0_8px_30px_rgba(0,0,0,.05)] min-[360px]:rounded-[24px] min-[360px]:p-3 sm:rounded-[30px] sm:p-5">
                     <div className="flex-shrink-0 bg-white">
@@ -300,12 +295,12 @@ export default function SeriesPageClient() {
                     </div>
 
                     <div className="mt-4 min-h-0 flex-1 overflow-y-auto overscroll-contain pr-1 [scrollbar-gutter:stable] [scrollbar-width:thin] [scrollbar-color:#8B7BC9_#EEEAFB] [&::-webkit-scrollbar]:w-[8px] [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-[#EEEAFB] [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-[#8B7BC9] [&::-webkit-scrollbar-thumb:hover]:bg-[#6D5CAF]">
-                        <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,230px),1fr))] justify-items-center gap-x-4 gap-y-5 pb-4 max-[799px]:grid-cols-2 max-[525px]:grid-cols-1 max-[525px]:gap-y-4">
+                        <div className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,260px),1fr))] gap-x-4 gap-y-5 pb-4 max-[799px]:grid-cols-2 max-[525px]:grid-cols-1 max-[525px]:gap-y-4">
                             {series.map((item) => {
                                 const plan = getPlan(item)
 
                                 return (
-                                    <div key={item._id} className="w-full min-w-0 max-w-[300px] max-[799px]:max-w-[360px] max-[525px]:max-w-[320px]">
+                                    <div key={item._id} className="w-full min-w-0">
                                         <TestCard
                                             access={item?.access}
                                             av={item?.av !== false}
@@ -334,7 +329,7 @@ export default function SeriesPageClient() {
 
                             {loading && (
                                 Array.from({ length: 8 }).map((_, index) => (
-                                    <div key={`series-skeleton-${index}`} className="w-full min-w-0 max-w-[300px] max-[799px]:max-w-[360px] max-[525px]:max-w-[320px]">
+                                    <div key={`series-skeleton-${index}`} className="w-full min-w-0">
                                         <TestCardSkeleton responsive />
                                     </div>
                                 ))
@@ -352,9 +347,9 @@ export default function SeriesPageClient() {
                         <div ref={loadMoreRef} className="h-10" />
 
                         {loadingMore && (
-                            <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,230px),1fr))] justify-items-center gap-x-4 gap-y-5 max-[799px]:grid-cols-2 max-[525px]:grid-cols-1">
+                            <div className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,260px),1fr))] gap-x-4 gap-y-5 max-[799px]:grid-cols-2 max-[525px]:grid-cols-1">
                                 {Array.from({ length: 4 }).map((_, index) => (
-                                    <div key={`series-more-skeleton-${index}`} className="w-full min-w-0 max-w-[300px] max-[799px]:max-w-[360px] max-[525px]:max-w-[320px]">
+                                    <div key={`series-more-skeleton-${index}`} className="w-full min-w-0">
                                         <TestCardSkeleton responsive />
                                     </div>
                                 ))}

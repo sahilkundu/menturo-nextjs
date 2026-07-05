@@ -4,6 +4,7 @@ import { memo, useCallback, useEffect, useMemo, useRef } from "react"
 
 import { useLayoutStore } from "../store/uiResStore"
 import { useWSChatStore } from "../store/wsChat"
+import { useUserStore } from "../store/user"
 
 interface LiveBubbleProps {
     count?: number
@@ -24,6 +25,10 @@ const isUserOnline = (
 function LiveBubbleBtn({
     count = 3
 }: LiveBubbleProps) {
+    const authenticated =
+        useUserStore(
+            (state) => state.authenticated
+        )
     const wsUsers =
         useWSChatStore(
             (state) =>
@@ -61,6 +66,7 @@ function LiveBubbleBtn({
     const setRightSidebarOpen = useLayoutStore(
         (state) => state.setRightSidebarOpen
     )
+
     const openLive =
         useCallback(() => {
             setLiveBubbleOpen(true)
@@ -93,6 +99,10 @@ function LiveBubbleBtn({
         }
 
     }, [])
+
+    if (!authenticated) {
+        return null
+    }
 
     return (
         <button

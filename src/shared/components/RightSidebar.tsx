@@ -346,7 +346,7 @@ export default function RightSidebar() {
                         </div>}
 
                     {/* STATS */}
-                    {!liveBubbleOpen &&
+                    {authenticated && !liveBubbleOpen &&
                         <div className="grid grid-cols-2 gap-2 mt-6">
 
                             <div className="min-w-0 rounded-2xl bg-violet-50 p-3">
@@ -384,6 +384,7 @@ export default function RightSidebar() {
                         </div>}
 
                     {/* ACTIVE USERS */}
+                    {authenticated && (
                     <div
                         className={`
         mt-7
@@ -400,21 +401,11 @@ export default function RightSidebar() {
     `}
                     >
                         {!liveBubbleOpen &&
-                            <div className="flex items-center justify-between mb-5">
+                            <div className="mb-5">
 
                                 <h3 className="text-base md:text-lg font-semibold">
                                     Active Users
                                 </h3>
-
-                                <button
-                                    type="button"
-                                    onClick={() =>
-                                        setLiveBubbleOpen(true)
-                                    }
-                                    className="text-sm md:text-base text-violet-600 font-medium"
-                                >
-                                    View All
-                                </button>
 
                             </div>
                         }
@@ -432,6 +423,7 @@ export default function RightSidebar() {
                             />
                         }
                     </div>
+                    )}
 
                 </div>
 

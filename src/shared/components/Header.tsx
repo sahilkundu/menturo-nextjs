@@ -9,8 +9,9 @@ import Image from "next/image"
 import { useWSChatStore } from "../store/wsChat"
 import { showRouteLoader } from "../utils/routeLoader"
 import { goToLoginAfterRememberingPage } from "../utils/loginRedirect"
+import { LOGOUT } from "../../../api"
 
-import { Home, LogIn } from 'lucide-react'
+import { Home, LogIn, LogOut } from 'lucide-react'
 
 type HeaderProps = {
     variant?: "hero" | "topbar"
@@ -44,6 +45,10 @@ export default function Header({
     const fetchUser =
         useUserStore(
             (state) => state.fetchUser
+        )
+    const logout =
+        useUserStore(
+            (state) => state.logout
         )
     const site =
         useWSChatStore(
@@ -106,60 +111,57 @@ export default function Header({
     ])
 
     if (variant === "topbar") {
+        const displayName =
+            authenticated
+                ? (user?.username || user?.firstName || "User")
+                : "Guest"
+
+        const handleLogout = async () => {
+            try {
+                await fetch(
+                    LOGOUT,
+                    {
+                        method: "POST",
+                        credentials: "include",
+                    }
+                )
+            } catch {
+            } finally {
+                logout()
+            }
+        }
+
         return (
-            <div className="w-full border-b border-[#E2E8F0] bg-white px-3 py-3 shadow-[0_1px_0_rgba(15,23,42,0.04)] sm:px-5">
-                <div className="mx-auto flex max-w-[1240px] items-center justify-between gap-3">
-                    <div className="flex min-w-0 items-center gap-3">
-                        <div className="grid h-11 w-11 flex-shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-[#7C3AED] to-[#4F46E5] text-white shadow-[0_8px_18px_rgba(79,70,229,0.28)]">
-                            <Image
-                                src="https://cdn.menturo.in/avatar/avatar.png"
-                                alt=""
-                                width={32}
-                                height={32}
-                                className="h-8 w-8 rounded-full object-cover"
-                            />
-                        </div>
-
-                        <div className="min-w-0">
-                            <h2 className="truncate text-base font-black text-[#1F2937] sm:text-lg">
-                                {authenticated
-                                    ? `Welcome ${user?.username || "Student"}`
-                                    : "Sign in to continue"}
-                            </h2>
-                            <p className="truncate text-xs font-semibold text-[#64748B] sm:text-sm">
-                                {authenticated
-                                    ? `Rolling ID: ${user?.id || "guest"} · Prepare Like a Topper`
-                                    : "Access your test series and attempts"}
-                            </p>
-                        </div>
-                    </div>
-
-                    <div className="flex flex-shrink-0 items-center gap-2 sm:gap-4">
-                        <Link
-                            href="/typingPro"
-                            className="hidden text-sm font-black text-[#4F46E5] transition hover:text-[#312E81] sm:inline-flex"
+            <div className="fixed inset-x-0 bottom-0 z-[1000] border-t border-[#E2E8F0] bg-white/95 px-3 py-2 shadow-[0_-8px_24px_rgba(15,23,42,0.08)] backdrop-blur sm:px-5">
+                <div className="mx-auto flex max-w-[1240px] items-center justify-end">
+                    <div className="flex min-w-0 items-center justify-end gap-2">
+                        <span
+                            title={displayName}
+                            className="min-w-0 max-w-[34vw] truncate rounded-full bg-[#F8F6FF] px-3 py-2 text-xs font-black text-[#4A3F77] sm:max-w-none"
                         >
-                            🎯 Rank Booster
+                            {displayName}
+                        </span>
+
+                        <Link
+                            href="/"
+                            aria-label="Home"
+                            className="grid h-10 w-10 flex-shrink-0 place-items-center rounded-xl border border-[#E2E8F0] bg-white text-[#4A3F77] shadow-sm transition hover:bg-[#F8FAFC]"
+                        >
+                            <Home size={18} strokeWidth={2.5} />
                         </Link>
 
-                        {authenticated && (
-                            <span className="hidden rounded-full bg-[#EEF2FF] px-3 py-1.5 text-xs font-black text-[#475569] md:inline-flex">
-                                Active Plan: Premium
-                            </span>
-                        )}
-
                         {authenticated ? (
-                            <Link
-                                href="/"
-                                aria-label="Home"
-                                className="grid h-9 w-9 place-items-center rounded-xl border border-[#E2E8F0] bg-white text-[#475569] shadow-sm transition hover:bg-[#F8FAFC]"
+                            <button
+                                onClick={handleLogout}
+                                className="inline-flex h-10 items-center gap-1.5 rounded-xl bg-[#4A3F77] px-3 text-xs font-bold text-white shadow-[0_3px_8px_rgba(42,31,92,.25)] transition hover:bg-[#3D3466]"
                             >
-                                <Home size={17} strokeWidth={2.4} />
-                            </Link>
+                                <LogOut size={15} strokeWidth={2.5} />
+                                <span>Sign Out</span>
+                            </button>
                         ) : (
                             <button
                                 onClick={() => void goToLoginAfterRememberingPage(router)}
-                                className="inline-flex h-9 items-center gap-1.5 rounded-xl bg-[#4A3F77] px-3 text-xs font-bold text-white shadow-[0_3px_8px_rgba(42,31,92,.25)] transition hover:bg-[#3D3466]"
+                                className="inline-flex h-10 items-center gap-1.5 rounded-xl bg-[#4A3F77] px-3 text-xs font-bold text-white shadow-[0_3px_8px_rgba(42,31,92,.25)] transition hover:bg-[#3D3466]"
                             >
                                 <LogIn size={15} strokeWidth={2.5} />
                                 <span>Sign In</span>

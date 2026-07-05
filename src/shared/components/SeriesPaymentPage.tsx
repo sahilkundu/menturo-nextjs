@@ -2,7 +2,7 @@
 
 import { useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { CHECK_COUPON, CREATE_ORDER } from '../../../api'
+import { CHECK_COUPON, CREATE_ORDER, VERIFY_RAZORPAY_PAYMENT } from '../../../api'
 import { useUserStore } from '../store/user'
 import { goToLoginAfterRememberingPage } from '../utils/loginRedirect'
 
@@ -346,7 +346,7 @@ export default function SeriesPaymentPage({ series }: FullSeries) {
                         order.orderId,
                     // This is only a UX signal. Access is granted solely by
                     // Razorpay's signed server-to-server webhook.
-                    handler: async () => {
+                    handler: async (paymentResponse: any) => {
                         // The browser checkout is finished at this point.
                         // Close it before our independent webhook-verification
                         // state starts, so Razorpay cannot keep its modal open.
@@ -354,6 +354,37 @@ export default function SeriesPaymentPage({ series }: FullSeries) {
                         setIsVerifyingPayment(true)
 
                         try {
+                            let verifyErrorMessage = ''
+                            const verifyResponse =
+                                await fetch(
+                                    VERIFY_RAZORPAY_PAYMENT,
+                                    {
+                                        method: 'POST',
+                                        credentials: 'include',
+                                        headers: {
+                                            'Content-Type':
+                                                'application/json',
+                                        },
+                                        body: JSON.stringify({
+                                            razorpay_order_id:
+                                                paymentResponse?.razorpay_order_id,
+                                            razorpay_payment_id:
+                                                paymentResponse?.razorpay_payment_id,
+                                            razorpay_signature:
+                                                paymentResponse?.razorpay_signature,
+                                        }),
+                                    }
+                                )
+
+                            const verifyData =
+                                await verifyResponse.json().catch(() => ({}))
+
+                            if (!verifyResponse.ok || verifyData?.success === false) {
+                                verifyErrorMessage =
+                                    verifyData?.message ||
+                                    'Payment verification is waiting for Razorpay confirmation'
+                            }
+
                             for (let attempt = 0; attempt < 12; attempt++) {
                                 await new Promise((resolve) =>
                                     window.setTimeout(resolve, 1500)
@@ -384,7 +415,14 @@ export default function SeriesPaymentPage({ series }: FullSeries) {
                             }
 
                             setPaymentMessage(
+                                verifyErrorMessage ||
                                 'Payment received. Access will unlock automatically after Razorpay confirms it.'
+                            )
+                        }
+                        catch (error: any) {
+                            setPaymentMessage(
+                                error?.message ||
+                                'Payment was received but verification failed. Please contact support.'
                             )
                         }
                         finally {

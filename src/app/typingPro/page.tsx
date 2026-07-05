@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { BarChart3, CalendarDays, Check, ChevronLeft, ChevronRight, Clock3, FileText, Globe2, Lock, Play, RotateCcw, Settings, Trash2, Trophy } from 'lucide-react'
-import TestSectionHead from '../../shared/components/TestSectionHead'
 import TypingProTestCardSkeleton from '../../shared/components/Skeleton/TypingProTestCardSkeleton'
 import { useUserStore } from '../../shared/store/user'
 import { useTypingStore } from '../../shared/store/typingStore'
@@ -154,9 +153,8 @@ export default function TypingProPage() {
         }
     }
 
-    return <main className="typing-font min-h-[100dvh] bg-[#f6f7fb] px-2 py-2 pb-24 text-[#121735] sm:px-3 xl:h-[100dvh] xl:min-h-0 xl:overflow-hidden xl:pb-2">
-        <TestSectionHead userName="" rollingId="" activePlan={authenticated ? 'Typing Pro' : 'Guest'} badgeText="Typing Master Pro" onHome={() => router.push('/')} onLogin={login} showSignIn={!authenticated} />
-        <div className="mx-auto mt-3 max-w-[1240px] xl:grid xl:h-[calc(100dvh-84px)] xl:min-h-0 xl:grid-cols-[minmax(0,1fr)_292px] xl:grid-rows-[260px_minmax(0,1fr)] xl:items-stretch xl:gap-x-5 xl:gap-y-3">
+    return <main className="typing-font min-h-[100dvh] bg-[#f6f7fb] px-2 py-2 pb-24 text-[#121735] sm:px-3 xl:h-[100dvh] xl:min-h-0 xl:overflow-hidden xl:pb-16">
+        <div className="mx-auto max-w-[1240px] xl:grid xl:h-[calc(100dvh-76px)] xl:min-h-0 xl:grid-cols-[minmax(0,1fr)_292px] xl:grid-rows-[260px_minmax(0,1fr)] xl:items-stretch xl:gap-x-5 xl:gap-y-3">
             <div className="space-y-3 xl:contents">
             <div className="space-y-3 xl:col-start-1 xl:row-start-1 xl:flex xl:h-full xl:flex-col xl:gap-3 xl:space-y-0">
             <section className="xl:col-start-1 rounded-[14px] bg-[#f8f9fc] p-2 shadow-[0_5px_18px_rgba(36,29,83,.13)] xl:p-1.5"><div className="flex flex-wrap gap-2">{(['english','hindi'] as const).map((item) => <button key={item} disabled={controlsLocked} onClick={() => setLanguage(item)} className={`flex items-center gap-1.5 rounded-xl border px-3.5 py-2 text-xs font-black shadow-sm transition-all disabled:cursor-wait disabled:opacity-60 xl:py-1.5 ${language === item ? 'border-[#4b397c] bg-[linear-gradient(135deg,#57478e,#332760)] text-white shadow-[#4b397c]/20' : 'border-[#e5e0f0] bg-white text-[#706783] hover:border-[#cbbfe5] hover:bg-[#faf8ff]'}`}><Globe2 size={15}/>{item === 'english' ? 'English' : 'Hindi'}</button>)}</div></section>

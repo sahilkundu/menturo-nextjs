@@ -1,15 +1,11 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
 import { CREATE_GRIEVANCE } from '../../../api'
 import Spinner from '../../shared/components/Spinner'
-import TestSectionHead from '../../shared/components/TestSectionHead'
 import { useUserStore } from '../../shared/store/user'
-import { goToLoginAfterRememberingPage } from '../../shared/utils/loginRedirect'
 
 export default function ContactPage() {
-    const router = useRouter()
     const user = useUserStore((state) => state.user)
     const authenticated = useUserStore((state) => state.authenticated)
     const [email, setEmail] = useState(authenticated ? user?.email || '' : '')
@@ -82,8 +78,7 @@ export default function ContactPage() {
     }
 
     return <main className="min-h-[100dvh] bg-slate-50 px-2 py-2 text-slate-800 sm:px-3">
-        <TestSectionHead userName={user?.username || ''} rollingId="" activePlan={authenticated ? 'Menturo User' : 'Guest'} badgeText="Menturo Support" onHome={() => router.push('/')} onLogin={() => void goToLoginAfterRememberingPage(router)} showSignIn={!authenticated} />
-        <div className="mx-auto mt-4 grid max-w-5xl gap-6 md:grid-cols-[.8fr_1.2fr]">
+        <div className="mx-auto grid max-w-5xl gap-6 md:grid-cols-[.8fr_1.2fr]">
             <section className="rounded-3xl bg-[#4b397c] p-7 text-white">
                 <p className="text-sm font-bold text-violet-200">MENTURO SUPPORT / सहायता</p>
                 <h1 className="mt-2 text-3xl font-black">How can we help?<br/><span className="text-xl text-violet-200">हम आपकी कैसे सहायता कर सकते हैं?</span></h1>

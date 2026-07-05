@@ -1,6 +1,7 @@
 'use client'
 import { memo, useMemo } from "react"
 import { OnlineUser, useWSChatStore } from "../store/wsChat"
+import { useUserStore } from "../store/user"
 interface LiveProps {
     activeDot?: boolean
     users?: OnlineUser[]
@@ -22,6 +23,10 @@ function Live({
     activeDot = false,
     users: providedUsers
 }: LiveProps) {
+    const authenticated =
+        useUserStore(
+            (state) => state.authenticated
+        )
     const wsUsers =
         useWSChatStore(
             (state) =>
@@ -61,6 +66,11 @@ function Live({
                 users
             ]
         )
+
+    if (!authenticated) {
+        return null
+    }
+
     return (
         <>
 

@@ -7,8 +7,6 @@ import { useTestDataStore } from '../../../../shared/store/testDataStore'
 import { useUserStore } from '../../../../shared/store/user'
 import { SAVE_TEST } from '../../../../../api'
 import SeriesPaymentPage from '../../../../shared/components/SeriesPaymentPage'
-import { showRouteLoader } from '../../../../shared/utils/routeLoader'
-import { goToLoginAfterRememberingPage } from '../../../../shared/utils/loginRedirect'
 import {
     createSeriesSlug,
     extractSeriesIdFromSlug,
@@ -33,12 +31,6 @@ const SuggestedPaymentCard = dynamic(
 const TestSection = dynamic(
     () => import(
         "../../../../shared/components/TestSection"
-    )
-)
-
-const TestSectionHead = dynamic(
-    () => import(
-        "../../../../shared/components/TestSectionHead"
     )
 )
 
@@ -212,15 +204,6 @@ export default function TestPage() {
     const canAccessSeries =
         hasActiveSeriesAccess(series?.access)
 
-    const goHome = () => {
-        showRouteLoader()
-        router.push("/")
-    }
-
-    const goLogin = async () => {
-        await goToLoginAfterRememberingPage(router)
-    }
-
     // ======================================================
     // FETCH SERIES IF NOT IN STORE
     // ======================================================
@@ -315,22 +298,6 @@ export default function TestPage() {
     // ======================================================
     return (
         <div className="max-w-7xl mx-auto px-2 sm:px-3 lg:px-4 py-2 sm:py-3 space-y-3">
-            <TestSectionHead
-                userName=""
-                rollingId=""
-                activePlan={
-                    authenticated
-                        ? canAccessSeries
-                            ? "Premium"
-                            : "No Access"
-                        : "Guest"
-                }
-                badgeText="🎯 Rank Booster"
-                onHome={goHome}
-                onLogin={goLogin}
-                showSignIn={!authenticated}
-            />
-
             <TestSection series={series} />
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-5 items-start">

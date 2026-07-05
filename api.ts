@@ -41,6 +41,9 @@ export const GET_GRIEVANCES = `${BASE_URL}/grievances`
 export const FORGOT_PASS = `${BASE_URL}/update-pass`
 export const CHECK_COUPON = `${BASE_URL}/checkCoupon`
 export const CREATE_ORDER = `${BASE_URL}/create-order`
+export const VERIFY_RAZORPAY_PAYMENT = `${BASE_URL}/payments/razorpay/verify`
+export const USER_MY_COURSES = `${BASE_URL}/api/user/my-courses`
+export const USER_SUBSCRIPTIONS = `${BASE_URL}/api/user/subscriptions`
 export const WEBSOCKET =
     process.env.NEXT_PUBLIC_WEBSOCKET_URL ||
     `wss://api.menturo.in/ws`

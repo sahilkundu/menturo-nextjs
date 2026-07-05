@@ -7,7 +7,6 @@ import { FORGOT_PASS, GET_GRIEVANCES, GET_SESSIONS, LOGOUT, UPDATE_PASS, UPDATE_
 import Spinner from '../../../shared/components/Spinner'
 import { useSessionStore } from '../../../shared/store/sessionStore'
 import { useRouter } from 'next/navigation'
-import Image from 'next/image'
 import { showRouteLoader } from '../../../shared/utils/routeLoader'
 import { goToLoginAfterRememberingPage } from '../../../shared/utils/loginRedirect'
 
@@ -869,79 +868,6 @@ export default function SettingPage() {
 
 
       <main className="flex-1 flex flex-col h-screen overflow-hidden" style={{ background: 'linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%)', fontFamily: "'Inter', sans-serif" }}>
-
-        {/* Header */}
-        <header className="h-16 bg-white/90 backdrop-blur-sm border-b border-slate-100 flex items-center justify-between px-4 sm:px-8 shrink-0 shadow-sm">
-          <div className="flex items-center justify-center gap-3">
-
-            <div
-              className="
-      w-12
-      h-12
-      rounded-2xl
-      bg-white/15
-      backdrop-blur-xl
-      border
-      border-white/15
-      flex
-      items-center
-      justify-center
-      shrink-0
-      p-1
-    "
-            >
-              <Image
-                src="https://cdn.menturo.in/img/M3.png"
-                alt="Menturo Logo"
-                width={40}
-                height={40}
-                className="object-contain"
-                priority
-              />
-            </div>
-
-            <div className="flex flex-col">
-              <h1 className="text-xl font-extrabold tracking-tight text-slate-800">
-                Menturo
-              </h1>
-
-              <span className="text-[16px]  text-slate-500 font-medium">
-                Learn • Practice • Succeed
-              </span>
-            </div>
-
-          </div>
-          <div className="flex items-center gap-4 sm:gap-6">
-            <div className="flex items-center">
-              <button
-                onClick={() => {
-                  showRouteLoader();
-                  router.push("/");
-                }}
-                className="
-                flex
-                justify-center
-                text-center
-                cursor-pointer
-      flex items-center gap-2
-      px-4 py-2
-      rounded-xl
-      border border-slate-200
-      bg-white
-      text-slate-700
-      text-sm
-      font-medium
-      hover:bg-slate-50
-      hover:border-slate-300
-      transition-all
-    "
-              >
-                <i className="fa-solid fa-house text-blue-600"></i>
-                <b>Home</b>
-              </button>
-            </div>
-          </div>
-        </header>
 
         <div className="flex-1 overflow-y-auto p-4 lg:p-6">
           <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6">
