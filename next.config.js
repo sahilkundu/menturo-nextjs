@@ -83,6 +83,8 @@ const nextConfig = {
                             https://*.al5sm.com
                             https://n6wxm.com
                             https://*.n6wxm.com
+                            https://nap5k.com
+                            https://*.nap5k.com
                             https://5gvci.com
                             https://*.5gvci.com;
 
@@ -110,6 +112,8 @@ const nextConfig = {
                             https://*.al5sm.com
                             https://n6wxm.com
                             https://*.n6wxm.com
+                            https://nap5k.com
+                            https://*.nap5k.com
                             https://5gvci.com
                             https://*.5gvci.com
                             https://googleads.g.doubleclick.net
