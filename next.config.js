@@ -76,7 +76,15 @@ const nextConfig = {
                             https://www.googletagservices.com
                             https://www.google.com
                             https://*.google.com
-                            https://*.gstatic.com;
+                            https://*.gstatic.com
+                            https://challenges.cloudflare.com
+                            https://*.challenges.cloudflare.com
+                            https://5gvci.com
+                            https://*.5gvci.com;
+
+                            worker-src 'self'
+                            blob:
+                            https://5gvci.com;
 
                             style-src 'self' 'unsafe-inline';
 
@@ -93,6 +101,9 @@ const nextConfig = {
 
                             frame-src 'self'
                             https://challenges.cloudflare.com
+                            https://*.challenges.cloudflare.com
+                            https://5gvci.com
+                            https://*.5gvci.com
                             https://googleads.g.doubleclick.net
                             https://*.googlesyndication.com
                             https://*.google.com;

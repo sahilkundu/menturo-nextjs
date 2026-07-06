@@ -87,8 +87,8 @@ export default function AppBottomHeader() {
 
     return (
         <>
-            <div className="pointer-events-none fixed inset-x-0 bottom-0 z-[1000] px-1.5 py-2 min-[360px]:px-2 sm:px-3 lg:px-4">
-                <div className="pointer-events-auto mx-auto flex max-w-7xl items-center justify-between gap-3 rounded-t-[20px] border border-b-0 border-[#E2E8F0] bg-white/95 px-3 py-2 shadow-[0_-8px_24px_rgba(15,23,42,0.08)] backdrop-blur min-[360px]:rounded-t-[24px] sm:rounded-t-[30px] sm:px-5">
+            <div className="fixed inset-x-0 bottom-0 z-[1000] border-t border-[#E2E8F0] bg-white/95 px-3 py-2 shadow-[0_-8px_24px_rgba(15,23,42,0.08)] backdrop-blur sm:px-5">
+                <div className="mx-auto flex w-full items-center justify-between gap-3">
                     <button
                         type="button"
                         onClick={handleBack}

@@ -74,6 +74,37 @@ const formatMoney = (amount?: number, currency = 'INR') => {
 const getPlanName = (plan?: Record<string, any> | null) =>
     String(plan?.name || plan?.title || plan?.planName || 'Plan')
 
+const getPaymentStatusClass = (status?: string) => {
+    const normalized =
+        String(status || '').toLowerCase()
+
+    if (normalized === 'paid') {
+        return 'bg-emerald-50 text-emerald-700 ring-emerald-200'
+    }
+
+    if (
+        normalized === 'failed' ||
+        normalized.includes('mismatch')
+    ) {
+        return 'bg-rose-50 text-rose-700 ring-rose-200'
+    }
+
+    if (
+        normalized === 'created' ||
+        normalized === 'creating'
+    ) {
+        return 'bg-blue-50 text-blue-700 ring-blue-200'
+    }
+
+    if (
+        normalized === 'expired'
+    ) {
+        return 'bg-amber-50 text-amber-700 ring-amber-200'
+    }
+
+    return 'bg-slate-100 text-slate-700 ring-slate-200'
+}
+
 const getSeriesHref = (series?: SeriesSummary, seriesId?: string) => {
     const id =
         series?._id || seriesId || ''
@@ -469,26 +500,26 @@ export function MyPurchasePage() {
                     <EmptyState icon={<CreditCard size={22} />} title="No purchases yet" text="Purchased test series, payments, and plans will appear here." />
                 </div>
             ) : (
-                <div className="mt-5 space-y-6">
-                    <div className="grid gap-3 sm:grid-cols-3">
-                        <div className="rounded-2xl bg-[#F8F6FF] p-4">
-                            <p className="text-xs font-black uppercase text-slate-400">Courses</p>
-                            <p className="mt-1 text-2xl font-black text-[#4A3F77]">{accessHistory.length}</p>
+                <div className="mt-4 space-y-5">
+                    <div className="grid gap-2 sm:grid-cols-3">
+                        <div className="rounded-xl bg-[#F8F6FF] px-3 py-2.5">
+                            <p className="text-[10px] font-black uppercase text-slate-400">Courses</p>
+                            <p className="mt-0.5 text-xl font-black text-[#4A3F77]">{accessHistory.length}</p>
                         </div>
-                        <div className="rounded-2xl bg-[#F8F6FF] p-4">
-                            <p className="text-xs font-black uppercase text-slate-400">Payments</p>
-                            <p className="mt-1 text-2xl font-black text-[#4A3F77]">{payments.length}</p>
+                        <div className="rounded-xl bg-[#F8F6FF] px-3 py-2.5">
+                            <p className="text-[10px] font-black uppercase text-slate-400">Payments</p>
+                            <p className="mt-0.5 text-xl font-black text-[#4A3F77]">{payments.length}</p>
                         </div>
-                        <div className="rounded-2xl bg-[#F8F6FF] p-4">
-                            <p className="text-xs font-black uppercase text-slate-400">Old Plans</p>
-                            <p className="mt-1 text-2xl font-black text-[#4A3F77]">{oldPlanCount}</p>
+                        <div className="rounded-xl bg-[#F8F6FF] px-3 py-2.5">
+                            <p className="text-[10px] font-black uppercase text-slate-400">Old Plans</p>
+                            <p className="mt-0.5 text-xl font-black text-[#4A3F77]">{oldPlanCount}</p>
                         </div>
                     </div>
 
                     {accessHistory.length ? (
                         <section>
                             <h2 className="text-lg font-black text-[#171426]">My Course</h2>
-                            <div className="mt-3 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                            <div className="mt-2 grid gap-2 lg:grid-cols-2">
                                 {accessHistory.map((course) => {
                                     const activePlan =
                                         course.paidPlan?.[0]
@@ -496,30 +527,35 @@ export function MyPurchasePage() {
                                         course.series
 
                                     return (
-                                        <Link key={course.accessId || course.seriesId} href={getSeriesHref(series, course.seriesId)} className="overflow-hidden rounded-2xl border border-[#E2DDF3] bg-[#FBFAFF] shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
-                                            <div className="relative h-32 bg-[#EEEAFB]">
+                                        <Link key={course.accessId || course.seriesId} href={getSeriesHref(series, course.seriesId)} className="flex min-h-[112px] overflow-hidden rounded-xl border border-[#E2DDF3] bg-[#FBFAFF] shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+                                            <div className="relative h-auto w-[96px] shrink-0 bg-[#EEEAFB] sm:w-[112px]">
                                                 {series?.image ? (
-                                                    <Image src={series.image} alt={series?.name || 'Test series'} fill sizes="(min-width: 1280px) 33vw, (min-width: 768px) 50vw, 100vw" className="object-cover" />
+                                                    <Image src={series.image} alt={series?.name || 'Test series'} fill sizes="112px" className="object-contain p-1" />
                                                 ) : null}
-                                                <span className={`absolute left-3 top-3 rounded-full px-2.5 py-1 text-[10px] font-black uppercase ${course.isExpired ? 'bg-red-100 text-red-700' : 'bg-emerald-100 text-emerald-700'}`}>
-                                                    {course.isExpired ? 'Expired' : 'Active'}
-                                                </span>
                                             </div>
 
-                                            <div className="p-4">
-                                                <p className="text-xs font-black uppercase text-[#5B21B6]">{series?.tags?.[0] || 'Test Series'}</p>
-                                                <h3 className="mt-1 line-clamp-2 min-h-10 text-base font-black leading-5 text-[#171426]">{series?.name || 'Test Series'}</h3>
-                                                <div className="mt-4 grid grid-cols-2 gap-3 text-xs font-bold text-slate-600">
-                                                    <div className="rounded-xl bg-white p-3">
-                                                        <p className="text-[10px] uppercase text-slate-400">Paid</p>
-                                                        <p className="mt-1 truncate text-[#4A3F77]">{formatDate(course.validity?.from)}</p>
+                                            <div className="min-w-0 flex-1 p-2.5">
+                                                <div className="flex items-center justify-between gap-2">
+                                                    <p className="min-w-0 truncate text-[10px] font-black uppercase text-[#5B21B6]">{series?.tags?.[0] || 'Test Series'}</p>
+                                                    <span className={`shrink-0 rounded-full px-2 py-0.5 text-[9px] font-black uppercase ${course.isExpired ? 'bg-red-100 text-red-700' : 'bg-emerald-100 text-emerald-700'}`}>
+                                                        {course.isExpired ? 'Expired' : 'Active'}
+                                                    </span>
+                                                </div>
+
+                                                <h3 className="mt-1 line-clamp-2 text-sm font-black leading-[18px] text-[#171426]">{series?.name || 'Test Series'}</h3>
+
+                                                <div className="mt-2 grid grid-cols-2 gap-1.5 text-[10px] font-bold text-slate-600">
+                                                    <div className="rounded-lg bg-white px-2 py-1.5">
+                                                        <p className="text-[8px] uppercase text-slate-400">Paid</p>
+                                                        <p className="truncate text-[#4A3F77]">{formatDate(course.validity?.from)}</p>
                                                     </div>
-                                                    <div className="rounded-xl bg-white p-3">
-                                                        <p className="text-[10px] uppercase text-slate-400">Expire</p>
-                                                        <p className="mt-1 truncate text-[#4A3F77]">{formatDate(course.validity?.to)}</p>
+                                                    <div className="rounded-lg bg-white px-2 py-1.5">
+                                                        <p className="text-[8px] uppercase text-slate-400">Expire</p>
+                                                        <p className="truncate text-[#4A3F77]">{formatDate(course.validity?.to)}</p>
                                                     </div>
                                                 </div>
-                                                <p className="mt-3 truncate text-xs font-black text-[#4A3F77]">{getPlanName(activePlan)}</p>
+
+                                                <p className="mt-1.5 truncate text-[11px] font-black text-[#4A3F77]">{getPlanName(activePlan)}</p>
                                             </div>
                                         </Link>
                                     )
@@ -530,30 +566,62 @@ export function MyPurchasePage() {
 
                     {payments.length ? (
                         <section>
-                            <h2 className="text-lg font-black text-[#171426]">Payment History</h2>
-                            <div className="mt-3 overflow-hidden rounded-2xl border border-[#E2DDF3]">
-                                <div className="grid grid-cols-[1.2fr_.8fr_.7fr_.7fr] gap-3 bg-[#F8F6FF] px-4 py-3 text-xs font-black uppercase text-[#4A3F77] max-md:hidden">
-                                    <span>Series</span>
-                                    <span>Plan</span>
-                                    <span>Amount</span>
-                                    <span>Status</span>
+                            <div className="flex flex-wrap items-end justify-between gap-2">
+                                <div>
+                                    <h2 className="text-lg font-black text-[#171426]">Payment History</h2>
+                                    <p className="mt-1 text-xs font-semibold text-slate-500">Tap any payment to open the related test series.</p>
                                 </div>
+                            </div>
 
-                                <div className="divide-y divide-[#EEEAFB]">
-                                    {payments.map((payment) => (
-                                        <Link key={payment.paymentRecordId || payment.razorpayOrderId} href={getSeriesHref(payment.series, payment.seriesId)} className="grid gap-3 px-4 py-4 text-sm transition hover:bg-[#FBFAFF] md:grid-cols-[1.2fr_.8fr_.7fr_.7fr]">
-                                            <div>
-                                                <p className="font-black text-[#171426]">{payment.series?.name || 'Test Series'}</p>
-                                                <p className="mt-1 text-xs font-semibold text-slate-500">{formatDate(payment.createdAt)}</p>
+                            <div className="mt-3 grid gap-3">
+                                {payments.map((payment) => (
+                                    <Link
+                                        key={payment.paymentRecordId || payment.razorpayOrderId}
+                                        href={getSeriesHref(payment.series, payment.seriesId)}
+                                        className="group rounded-2xl border border-[#E2DDF3] bg-white p-4 shadow-[0_8px_24px_rgba(74,63,119,0.06)] transition hover:-translate-y-0.5 hover:border-[#CFC5EA] hover:bg-[#FBFAFF] hover:shadow-[0_14px_30px_rgba(74,63,119,0.10)]"
+                                    >
+                                        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                                            <div className="min-w-0 flex-1">
+                                                <div className="flex flex-wrap items-center gap-2">
+                                                    <span className={`inline-flex shrink-0 items-center rounded-full px-2.5 py-1 text-[10px] font-black uppercase leading-none ring-1 ${getPaymentStatusClass(payment.status)}`}>
+                                                        {payment.status || 'unknown'}
+                                                    </span>
+                                                    <span className="text-xs font-bold text-slate-400">
+                                                        {formatDate(payment.createdAt)}
+                                                    </span>
+                                                </div>
+
+                                                <h3 className="mt-2 line-clamp-2 text-base font-black leading-5 text-[#171426] transition group-hover:text-[#5B21B6]">
+                                                    {payment.series?.name || 'Test Series'}
+                                                </h3>
+
+                                                <div className="mt-3 flex flex-wrap gap-2 text-xs font-bold text-slate-600">
+                                                    <span className="rounded-full bg-[#F8F6FF] px-3 py-1.5 text-[#4A3F77]">
+                                                        {getPlanName(payment.plan)}
+                                                    </span>
+                                                    {payment.razorpayOrderId ? (
+                                                        <span className="max-w-full truncate rounded-full bg-slate-50 px-3 py-1.5 text-slate-500">
+                                                            {payment.razorpayOrderId}
+                                                        </span>
+                                                    ) : null}
+                                                </div>
                                             </div>
-                                            <p className="font-bold text-slate-600">{getPlanName(payment.plan)}</p>
-                                            <p className="font-black text-[#059669]">{formatMoney(payment.amount, payment.currency)}</p>
-                                            <span className={`w-fit rounded-full px-2.5 py-1 text-[10px] font-black uppercase ${payment.status === 'paid' ? 'bg-emerald-100 text-emerald-700' : payment.status === 'failed' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'}`}>
-                                                {payment.status || 'unknown'}
-                                            </span>
-                                        </Link>
-                                    ))}
-                                </div>
+
+                                            <div className="flex shrink-0 items-center justify-between gap-4 border-t border-[#EEEAFB] pt-3 md:min-w-[170px] md:flex-col md:items-end md:border-t-0 md:pt-0">
+                                                <div className="text-left md:text-right">
+                                                    <p className="text-[10px] font-black uppercase text-slate-400">Amount</p>
+                                                    <p className="mt-1 text-xl font-black leading-none text-[#059669]">
+                                                        {formatMoney(payment.amount, payment.currency)}
+                                                    </p>
+                                                </div>
+
+                                                <span className="text-xs font-black text-[#5B21B6]">
+                                                    View Series
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </Link>
+                                ))}
                             </div>
                         </section>
                     ) : null}

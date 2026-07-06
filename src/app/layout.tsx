@@ -39,16 +39,16 @@ export const metadata: Metadata = {
                 sizes: '192x192',
             },
             {
-                url: '/icon.svg',
-                type: 'image/svg+xml',
-                sizes: '48x48',
+                url: '/icon-512.png',
+                type: 'image/png',
+                sizes: '512x512',
             },
         ],
         apple: [
             {
-                url: '/icon-192.png',
+                url: '/apple-touch-icon.png',
                 type: 'image/png',
-                sizes: '192x192',
+                sizes: '180x180',
             },
         ],
     },
