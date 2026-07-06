@@ -79,6 +79,8 @@ const nextConfig = {
                             https://*.gstatic.com
                             https://challenges.cloudflare.com
                             https://*.challenges.cloudflare.com
+                            https://al5sm.com
+                            https://*.al5sm.com
                             https://5gvci.com
                             https://*.5gvci.com;
 
@@ -102,6 +104,8 @@ const nextConfig = {
                             frame-src 'self'
                             https://challenges.cloudflare.com
                             https://*.challenges.cloudflare.com
+                            https://al5sm.com
+                            https://*.al5sm.com
                             https://5gvci.com
                             https://*.5gvci.com
                             https://googleads.g.doubleclick.net
