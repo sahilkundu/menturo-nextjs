@@ -81,6 +81,8 @@ const nextConfig = {
                             https://*.challenges.cloudflare.com
                             https://al5sm.com
                             https://*.al5sm.com
+                            https://n6wxm.com
+                            https://*.n6wxm.com
                             https://5gvci.com
                             https://*.5gvci.com;
 
@@ -106,6 +108,8 @@ const nextConfig = {
                             https://*.challenges.cloudflare.com
                             https://al5sm.com
                             https://*.al5sm.com
+                            https://n6wxm.com
+                            https://*.n6wxm.com
                             https://5gvci.com
                             https://*.5gvci.com
                             https://googleads.g.doubleclick.net

@@ -122,6 +122,11 @@ export default function RootLayout({
                         __html: `(function(s){s.dataset.zone='11245878',s.src='https://al5sm.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))`,
                     }}
                 />
+                <script
+                    dangerouslySetInnerHTML={{
+                        __html: `(function(s){s.dataset.zone='11245917',s.src='https://n6wxm.com/vignette.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))`,
+                    }}
+                />
             </head>
 
             <body suppressHydrationWarning>
