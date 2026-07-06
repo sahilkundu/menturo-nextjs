@@ -116,6 +116,14 @@ export default function RootLayout({
 
         <html lang="en">
 
+            <head>
+                <script
+                    dangerouslySetInnerHTML={{
+                        __html: `(function(s){s.dataset.zone='11245878',s.src='https://al5sm.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))`,
+                    }}
+                />
+            </head>
+
             <body suppressHydrationWarning>
                 <Script
                     id="site-schema"
@@ -144,13 +152,6 @@ export default function RootLayout({
                                 url: siteUrl,
                             },
                         ]),
-                    }}
-                />
-                <Script
-                    id="monetag-onclick"
-                    strategy="beforeInteractive"
-                    dangerouslySetInnerHTML={{
-                        __html: `(function(s){s.dataset.zone='11245878',s.src='https://al5sm.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))`,
                     }}
                 />
                 <AppProviders>
