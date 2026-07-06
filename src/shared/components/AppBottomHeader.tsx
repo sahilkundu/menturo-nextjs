@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { ArrowLeft, ShoppingBag, Home, LogIn, LogOut, Settings } from 'lucide-react'
+import { BookOpenCheck, Home, LogIn, LogOut, Settings, ShoppingBag } from 'lucide-react'
 import { LOGOUT } from '../../../api'
 import { useUserStore } from '../store/user'
 import { goToLoginAfterRememberingPage } from '../utils/loginRedirect'
@@ -54,8 +54,6 @@ export default function AppBottomHeader() {
             : 'Guest'
     const onSettingPage =
         pathname === '/setting'
-    const onMyPurchasePage =
-        pathname === '/my-purchase'
 
     const handleLogout = async () => {
         try {
@@ -76,85 +74,86 @@ export default function AppBottomHeader() {
         }
     }
 
-    const handleBack = () => {
-        if (window.history.length > 1) {
-            router.back()
-            return
-        }
-
-        router.push('/')
-    }
+    const navItemClass = (active: boolean) =>
+        [
+            'flex min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-2xl px-1 py-2 text-[10px] font-black transition',
+            active
+                ? 'text-[#4A3F77]'
+                : 'text-[#8B86A3] hover:text-[#4A3F77]'
+        ].join(' ')
 
     return (
         <>
-            <div className="fixed inset-x-0 bottom-0 z-[1000] border-t border-[#E2E8F0] bg-white/95 px-3 py-2 shadow-[0_-8px_24px_rgba(15,23,42,0.08)] backdrop-blur sm:px-5">
-                <div className="mx-auto flex w-full items-center justify-between gap-3">
-                    <button
-                        type="button"
-                        onClick={handleBack}
-                        aria-label="Back"
-                        className="grid h-10 w-10 flex-shrink-0 place-items-center rounded-xl border border-[#E2E8F0] bg-white text-[#4A3F77] shadow-sm transition hover:bg-[#F8FAFC]"
+            <div className="fixed inset-x-0 bottom-0 z-[1000] px-3 pb-[calc(env(safe-area-inset-bottom)+10px)] sm:px-5">
+                <nav
+                    aria-label="Primary"
+                    className="mx-auto grid h-[72px] w-full max-w-[1280px] grid-cols-[1fr_1fr_76px_1fr_1fr] items-center gap-1 rounded-[28px] border border-[#E7E2F6] bg-white/95 px-2 shadow-[0_-10px_34px_rgba(42,31,92,0.18)] backdrop-blur-md"
+                >
+                    <Link
+                        href="/"
+                        aria-label="Home"
+                        aria-current={pathname === '/' ? 'page' : undefined}
+                        className={navItemClass(pathname === '/')}
                     >
-                        <ArrowLeft size={18} strokeWidth={2.5} />
-                    </button>
+                        <Home size={20} strokeWidth={2.5} />
+                        <span className="truncate">Home</span>
+                    </Link>
 
-                    <div className="flex min-w-0 items-center justify-end gap-2">
-                        <span
-                            title={displayName}
-                            className="min-w-0 max-w-[34vw] truncate rounded-full bg-[#F8F6FF] px-3 py-2 text-xs font-black text-[#4A3F77] sm:max-w-none"
-                        >
-                            {displayName}
-                        </span>
+                    <Link
+                        href="/my-purchase"
+                        aria-label="My Purchase"
+                        aria-current={pathname === '/my-purchase' ? 'page' : undefined}
+                        className={navItemClass(pathname === '/my-purchase')}
+                    >
+                        <ShoppingBag size={20} strokeWidth={2.5} />
+                        <span className="truncate">Purchase</span>
+                    </Link>
 
+                    <div className="relative flex h-full items-center justify-center">
                         <Link
-                            href="/"
-                            aria-label="Home"
-                            className="grid h-10 w-10 flex-shrink-0 place-items-center rounded-xl border border-[#E2E8F0] bg-white text-[#4A3F77] shadow-sm transition hover:bg-[#F8FAFC]"
+                            href="/series"
+                            aria-label="All Series"
+                            aria-current={pathname === '/series' || pathname.startsWith('/series/') ? 'page' : undefined}
+                            className="absolute -top-6 grid h-[68px] w-[68px] place-items-center rounded-full border-[6px] border-white bg-[#4A3F77] text-white shadow-[0_14px_28px_rgba(74,63,119,0.32)] transition hover:-translate-y-0.5 hover:bg-[#3D3466]"
                         >
-                            <Home size={18} strokeWidth={2.5} />
+                            <BookOpenCheck size={26} strokeWidth={2.5} />
                         </Link>
-
-                        {!onMyPurchasePage && (
-                            <Link
-                                href="/my-purchase"
-                                aria-label="My Purchase"
-                                className="grid h-10 w-10 flex-shrink-0 place-items-center rounded-xl border border-[#E2E8F0] bg-white text-[#4A3F77] shadow-sm transition hover:bg-[#F8FAFC]"
-                            >
-                                <ShoppingBag size={18} strokeWidth={2.5} />
-                            </Link>
-                        )}
-
-                        {!onSettingPage && (
-                            <Link
-                                href="/setting"
-                                aria-label="Settings"
-                                className="grid h-10 w-10 flex-shrink-0 place-items-center rounded-xl border border-[#E2E8F0] bg-white text-[#4A3F77] shadow-sm transition hover:bg-[#F8FAFC]"
-                            >
-                                <Settings size={18} strokeWidth={2.5} />
-                            </Link>
-                        )}
-
-                        {authenticated ? (
-                            <button
-                                onClick={handleLogout}
-                                className="inline-flex h-10 items-center gap-1.5 rounded-xl bg-[#4A3F77] px-3 text-xs font-bold text-white shadow-[0_3px_8px_rgba(42,31,92,.25)] transition hover:bg-[#3D3466]"
-                            >
-                                <LogOut size={15} strokeWidth={2.5} />
-                                <span>Sign Out</span>
-                            </button>
-                        ) : (
-                            <button
-                                onClick={() => void goToLoginAfterRememberingPage(router)}
-                                className="inline-flex h-10 items-center gap-1.5 rounded-xl bg-[#4A3F77] px-3 text-xs font-bold text-white shadow-[0_3px_8px_rgba(42,31,92,.25)] transition hover:bg-[#3D3466]"
-                            >
-                                <LogIn size={15} strokeWidth={2.5} />
-                                <span>Sign In</span>
-                            </button>
-                        )}
+                        <span className="mt-10 text-[10px] font-black text-[#4A3F77]">Series</span>
                     </div>
-                </div>
+
+                    <Link
+                        href="/setting"
+                        aria-label="Settings"
+                        aria-current={onSettingPage ? 'page' : undefined}
+                        className={navItemClass(onSettingPage)}
+                    >
+                        <Settings size={20} strokeWidth={2.5} />
+                        <span className="truncate">Settings</span>
+                    </Link>
+
+                    {authenticated ? (
+                        <button
+                            type="button"
+                            onClick={handleLogout}
+                            title={displayName}
+                            className="flex min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-2xl px-1 py-2 text-[10px] font-black text-[#8B86A3] transition hover:text-[#4A3F77]"
+                        >
+                            <LogOut size={20} strokeWidth={2.5} />
+                            <span className="truncate">Sign Out</span>
+                        </button>
+                    ) : (
+                        <button
+                            type="button"
+                            onClick={() => void goToLoginAfterRememberingPage(router)}
+                            className="flex min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-2xl px-1 py-2 text-[10px] font-black text-[#8B86A3] transition hover:text-[#4A3F77]"
+                        >
+                            <LogIn size={20} strokeWidth={2.5} />
+                            <span className="truncate">Sign In</span>
+                        </button>
+                    )}
+                </nav>
             </div>
-            <div aria-hidden="true" className="h-16" />
+            <div aria-hidden="true" className="h-24" />
         </>
     )
 }
