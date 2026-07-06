@@ -119,7 +119,7 @@ export default function RootLayout({
             <head>
                 <script
                     dangerouslySetInnerHTML={{
-                        __html: `!function(){var p=location.pathname.replace(/\\/$/,'')||'/';var ok=p==='/'||p==='/series'||p.indexOf('/series/')===0||p==='/typingPro';if(!ok)return;function l(z,u){var s=document.createElement('script');s.dataset.zone=z;s.src=u;[document.documentElement,document.body].filter(Boolean).pop().appendChild(s)}l('11245878','https://al5sm.com/tag.min.js');l('11245917','https://n6wxm.com/vignette.min.js');l('11245992','https://nap5k.com/tag.min.js')}();`,
+                        __html: `!function(){var p=location.pathname.replace(/\\/$/,'')||'/';var ok=p==='/'||p==='/series'||p.indexOf('/series/')===0||p==='/typingPro';if(!ok)return;function l(z,u){var s=document.createElement('script');s.dataset.zone=z;s.src=u;[document.documentElement,document.body].filter(Boolean).pop().appendChild(s)}l('11245917','https://n6wxm.com/vignette.min.js');l('11245992','https://nap5k.com/tag.min.js')}();`,
                     }}
                 />
             </head>

@@ -79,8 +79,6 @@ const nextConfig = {
                             https://*.gstatic.com
                             https://challenges.cloudflare.com
                             https://*.challenges.cloudflare.com
-                            https://al5sm.com
-                            https://*.al5sm.com
                             https://n6wxm.com
                             https://*.n6wxm.com
                             https://nap5k.com
@@ -108,8 +106,6 @@ const nextConfig = {
                             frame-src 'self'
                             https://challenges.cloudflare.com
                             https://*.challenges.cloudflare.com
-                            https://al5sm.com
-                            https://*.al5sm.com
                             https://n6wxm.com
                             https://*.n6wxm.com
                             https://nap5k.com
