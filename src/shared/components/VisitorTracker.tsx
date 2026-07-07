@@ -167,9 +167,9 @@ export default function VisitorTracker() {
 
     useEffect(() => {
         const sendPayload = (payload: TrackingPayload) => {
-            if (!shouldTrack()) {
-                return
-            }
+            // if (!shouldTrack()) {
+            //     return
+            // }
 
             const dedupeKey =
                 `${payload.event}:${payload.page}:${payload.seriesId || ''}:${payload.search || ''}`
