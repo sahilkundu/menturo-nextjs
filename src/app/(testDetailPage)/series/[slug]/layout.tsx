@@ -3,17 +3,98 @@ import type { Metadata } from 'next'
 import Script from 'next/script'
 import {
     createPageMetadata,
+    extractSeriesIdFromSlug,
     formatSlugTitle,
     isSeriesIdOnlySlug,
     siteName,
     siteUrl
 } from '../../../../shared/seo'
+import {
+    LOAD_ONE_SERIES
+} from '../../../../../api'
 
 type SeriesLayoutProps = {
     children: ReactNode
     params: Promise<{
         slug: string
     }>
+}
+
+type SeriesMetadata = {
+    name?: string
+    image?: string
+}
+
+const toAbsoluteImageUrl = (
+    image?: string
+) => {
+    if (!image?.trim()) {
+        return undefined
+    }
+
+    try {
+        return new URL(
+            image,
+            siteUrl
+        ).toString()
+    } catch (_) {
+        return undefined
+    }
+}
+
+const loadSeriesMetadata = async (
+    slug: string
+): Promise<SeriesMetadata> => {
+    const seriesId =
+        extractSeriesIdFromSlug(slug)
+
+    if (
+        !seriesId ||
+        !/^[a-f0-9]{24}$/i.test(seriesId)
+    ) {
+        return {}
+    }
+
+    try {
+        const response =
+            await fetch(
+                LOAD_ONE_SERIES,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        seriesId,
+                    }),
+                    next: {
+                        revalidate: 3600,
+                    },
+                }
+            )
+
+        if (!response.ok) {
+            return {}
+        }
+
+        const data =
+            await response.json()
+        const series =
+            data?.series || {}
+
+        return {
+            name:
+                typeof series.n === 'string'
+                    ? series.n
+                    : undefined,
+            image:
+                typeof series.i === 'string'
+                    ? toAbsoluteImageUrl(series.i)
+                    : undefined,
+        }
+    } catch (_) {
+        return {}
+    }
 }
 
 export async function generateMetadata({
@@ -24,10 +105,15 @@ export async function generateMetadata({
     } = await params
     const idOnlySlug =
         isSeriesIdOnlySlug(slug)
+    const seriesMetadata =
+        await loadSeriesMetadata(slug)
     const examName =
-        idOnlySlug
-            ? 'Mock Test'
-            : formatSlugTitle(slug)
+        seriesMetadata.name ||
+        (
+            idOnlySlug
+                ? 'Mock Test'
+                : formatSlugTitle(slug)
+        )
 
     return createPageMetadata({
         title: idOnlySlug
@@ -46,6 +132,7 @@ export async function generateMetadata({
             `${examName} practice set`,
             `${examName} syllabus`,
         ],
+        image: seriesMetadata.image,
     })
 }
 
