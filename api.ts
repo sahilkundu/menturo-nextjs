@@ -14,6 +14,7 @@ export const HEALTH = `${BASE_URL}/health`
 export const AUTH = `${BASE_URL}/auth`
 export const LOAD_SERIES = `${BASE_URL}/api/test-series/load`
 export const LOAD_ONE_SERIES = `${BASE_URL}/api/test-series/loadone`
+export const LOAD_SERIES_SEO = `${BASE_URL}/api/seo/series`
 export const LOAD_TESTS = `${BASE_URL}/api/tests/load`
 export const LOAD_TESTS_BY_SUB = `${BASE_URL}/api/tests/loadsub`
 export const LOAD_TEST_CARD_METADATA = `${BASE_URL}/api/tests/card-meta`

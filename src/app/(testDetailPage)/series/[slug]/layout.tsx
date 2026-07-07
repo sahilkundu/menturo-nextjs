@@ -10,7 +10,7 @@ import {
     siteUrl
 } from '../../../../shared/seo'
 import {
-    LOAD_ONE_SERIES
+    LOAD_SERIES_SEO
 } from '../../../../../api'
 
 type SeriesLayoutProps = {
@@ -58,15 +58,8 @@ const loadSeriesMetadata = async (
     try {
         const response =
             await fetch(
-                LOAD_ONE_SERIES,
+                `${LOAD_SERIES_SEO}/${seriesId}`,
                 {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        seriesId,
-                    }),
                     next: {
                         revalidate: 3600,
                     },
