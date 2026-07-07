@@ -105,10 +105,10 @@ export default function CookieConsent() {
                             <p className="mt-2 text-sm leading-6 text-slate-600">
                                 Menturo uses essential cookies for login, security, and site
                                 features. With your permission, we may also use cookies or
-                                similar technology for analytics and personalized ads. If you
-                                decline personalization, eligible contextual or limited ads may
-                                still appear without personalized ad storage. Visitors in the
-                                EEA/UK should choose before personalized ads are served.
+                                similar technology to understand page visits, improve test-series
+                                recommendations, measure ads, and personalize advertising. If you
+                                decline optional cookies, eligible contextual or limited ads may
+                                still appear without personalized ad storage.
                             </p>
                         </div>
                         <div className="flex flex-col gap-2 sm:flex-row md:flex-col">
@@ -117,14 +117,14 @@ export default function CookieConsent() {
                                 onClick={() => saveChoice('accepted')}
                                 className="rounded-xl bg-[#4b397c] px-5 py-3 text-sm font-black text-white"
                             >
-                                Accept personalized ads
+                                Accept analytics and ads
                             </button>
                             <button
                                 type="button"
                                 onClick={() => saveChoice('essential')}
                                 className="rounded-xl border border-slate-200 px-5 py-3 text-sm font-black text-slate-700"
                             >
-                                Decline personalized ads
+                                Essential only
                             </button>
                         </div>
                     </div>

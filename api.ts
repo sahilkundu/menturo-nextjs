@@ -33,6 +33,7 @@ export const TYPING_RESULT = `${BASE_URL}/api/typing-result`
 export const TYPING_HISTORY = `${BASE_URL}/api/typing-history`
 export const DELETE_TYPING_HISTORY = `${BASE_URL}/api/typing-history/delete`
 export const SITE_STATUS = `${BASE_URL}/api/site`
+export const TRACK_VISITOR = `${BASE_URL}/api/track`
 export const UPDATE_PROFILE = `${BASE_URL}/update-profile`
 export const UPDATE_PASS = `${BASE_URL}/update-pass`
 export const GET_SESSIONS = `${BASE_URL}/get-sessions`

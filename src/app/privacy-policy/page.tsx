@@ -15,7 +15,7 @@ export default function PrivacyPolicyPage() {
                 </div>
 
                 <p className="text-sm text-gray-500 mb-6">
-                    Last updated on June 12, 2026
+                    Last updated on July 6, 2026
                 </p>
 
                 <ul className="list-disc pl-6 space-y-3 text-gray-700">
@@ -48,25 +48,18 @@ export default function PrivacyPolicyPage() {
                         Contact information including email address and mobile number.
                     </li>
 
-                    {/* <li>
-                        Behavioral information such as typing speed, mouse/scroll
-                        movements, interaction timing, and similar activity data.
-                    </li> */}
-
-                    {/* <li>
-                        This is collected only for fraud detection, account security, and
-                        improving the safety of our services.
+                    <li>
+                        Website usage information such as page views, test series viewed,
+                        search terms used on Menturo, purchase status, and typing-practice
+                        interactions.
                     </li>
 
                     <li>
-                        This information is retained for a maximum of 7 days, after which
-                        it is permanently deleted.
-                    </li> */}
-
-                    {/* <li>
-                        We will never use behavioral data for marketing, advertising, or
-                        profiling.
-                    </li> */}
+                        A first-party visitor identifier may be stored on your device to
+                        recognize repeat visits, measure site usage, and improve content
+                        recommendations. If you log in, this visitor identifier may be
+                        associated with your account.
+                    </li>
                 </ul>
 
                 <h2 className="text-xl font-semibold text-teal-500 mt-8 mb-4">
@@ -93,6 +86,12 @@ export default function PrivacyPolicyPage() {
                     <li>
                         We may contact you by email or phone. We may use the information to
                         customize the website according to your interests.
+                    </li>
+
+                    <li>
+                        With your consent, we may use limited website activity to measure
+                        advertising, improve recommendations, and create advertising
+                        audiences through approved advertising partners.
                     </li>
                 </ul>
 
@@ -136,12 +135,15 @@ export default function PrivacyPolicyPage() {
 
                 <ul className="list-disc pl-6 space-y-3 text-gray-700">
                     <li>
-                        We use secure cookies solely for authentication, session management, and account security. User activity and account data are maintained securely on our servers, while network information may be collected to help identify users, prevent abuse, and maintain account history.
+                        We use secure cookies for authentication, session management, fraud
+                        prevention, and account security. Optional analytics and advertising
+                        cookies are used only when you choose to allow them.
                     </li>
 
                     <li>
-                        We assure our users that this policy will remain unchanged to uphold
-                        strict privacy standards.
+                        To avoid unnecessary storage growth, Menturo stores summarized
+                        visitor profiles instead of retaining an unlimited raw log of every
+                        interaction.
                     </li>
 
                     <li>
@@ -150,6 +152,35 @@ export default function PrivacyPolicyPage() {
                         where consent is required, personalize advertising. Users will be
                         offered the required consent choices before such advertising cookies
                         are used.
+                    </li>
+
+                    <li>
+                        You may change browser cookie settings or contact support to request
+                        deletion of account-linked personal data, subject to legal and
+                        operational retention requirements.
+                    </li>
+                </ul>
+
+                <h2 className="text-xl font-semibold text-teal-500 mt-8 mb-4">
+                    Advertising and remarketing
+                </h2>
+
+                <ul className="list-disc pl-6 space-y-3 text-gray-700">
+                    <li>
+                        Menturo may show advertising on its website and may use advertising
+                        partners to measure performance or show Menturo ads on other
+                        platforms.
+                    </li>
+
+                    <li>
+                        Advertising partners may process limited technical and usage signals
+                        such as page visits, device/browser information, and ad interaction
+                        data according to their own policies.
+                    </li>
+
+                    <li>
+                        Menturo does not sell account passwords, payment credentials, test
+                        answers, or private account security data to advertising partners.
                     </li>
                 </ul>
 
