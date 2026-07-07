@@ -6,6 +6,7 @@ import Script from 'next/script'
 import AppProviders from './providers/AppProviders'
 import CookieConsent from '../shared/components/CookieConsent'
 import AppBottomHeader from '../shared/components/AppBottomHeader'
+import WhatsAppJoinButton from '../shared/components/WhatsAppJoinButton'
 import {
     defaultImage,
     seoKeywords,
@@ -157,6 +158,7 @@ export default function RootLayout({
                 <AppProviders>
                     {children}
                     <AppBottomHeader />
+                    <WhatsAppJoinButton />
                 </AppProviders>
                 <CookieConsent />
 

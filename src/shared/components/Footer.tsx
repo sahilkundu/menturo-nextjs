@@ -2,6 +2,10 @@
 
 import Image from "next/image"
 import Link from "next/link"
+import {
+    WHATSAPP_GROUP_URL,
+    WhatsAppIcon
+} from "./WhatsAppJoinButton"
 
 
 export default function Footer() {
@@ -139,6 +143,17 @@ export default function Footer() {
                                     <li><Link href="/typingPro"
                                         className="text-sm text-purple-200/70 hover:text-white hover:translate-x-1 transition-all inline-block">Typing
                                         Practice</Link></li>
+                                    <li>
+                                        <a
+                                            href={WHATSAPP_GROUP_URL}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="inline-flex items-center gap-2 text-sm text-purple-200/70 transition-all hover:translate-x-1 hover:text-white"
+                                        >
+                                            <WhatsAppIcon className="h-4 w-4 text-[#25D366]" />
+                                            WhatsApp Group
+                                        </a>
+                                    </li>
                                 </ul>
                             </div>
 
@@ -191,6 +206,15 @@ export default function Footer() {
                                 </p>
                                 <div className="flex flex-wrap justify-center gap-4">
                                     <Link href="/sitemap.xml" className="text-xs text-purple-300/60 hover:text-purple-300 transition">Sitemap</Link>
+                                    <a
+                                        href={WHATSAPP_GROUP_URL}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="inline-flex items-center gap-1.5 text-xs text-purple-300/60 transition hover:text-purple-300"
+                                    >
+                                        <WhatsAppIcon className="h-3.5 w-3.5 text-[#25D366]" />
+                                        WhatsApp
+                                    </a>
                                 </div>
                             </div>
                         </div>
