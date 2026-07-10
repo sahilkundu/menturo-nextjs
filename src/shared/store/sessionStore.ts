@@ -15,6 +15,11 @@ export interface Session {
         os: string;
         device: string;
         userAgent: string;
+        deviceId?: string;
+        screen?: string;
+        timezone?: string;
+        language?: string;
+        platform?: string;
     };
 }
 

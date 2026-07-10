@@ -15,6 +15,7 @@ import { installEncryptedFetch } from "../../shared/utils/encryptedTransport"
 import { rememberRedirectAfterLogin } from "../../shared/utils/loginRedirect"
 import { AUTH } from "../../../api"
 import VisitorTracker from "../../shared/components/VisitorTracker"
+import { showPopupMessage } from "../../shared/utils/popup"
 
 interface Props {
     children: ReactNode
@@ -118,6 +119,20 @@ export default function AppProviders({
                         : input instanceof URL
                             ? input.toString()
                             : input.url
+
+                if (
+                    data &&
+                    typeof data === "object" &&
+                    "code" in data &&
+                    data.code === "ACCOUNT_SECURITY_BLOCKED"
+                ) {
+                    showPopupMessage(
+                        typeof data.message === "string"
+                            ? data.message
+                            : "Account actions are temporarily blocked.",
+                        false
+                    )
+                }
 
                 if (
                     data &&

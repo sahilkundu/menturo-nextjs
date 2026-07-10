@@ -2,6 +2,7 @@
 
 import { create } from "zustand"
 import { AUTH } from "../../../api"
+import { getClientDeviceInfo } from "../utils/deviceIdentity"
 
 interface UserData {
     id: string
@@ -105,6 +106,14 @@ export const useUserStore =
                             method: "POST",
 
                             credentials: "include",
+
+                            headers: {
+                                "Content-Type": "application/json",
+                            },
+
+                            body: JSON.stringify(
+                                getClientDeviceInfo()
+                            ),
                         }
                     )
 

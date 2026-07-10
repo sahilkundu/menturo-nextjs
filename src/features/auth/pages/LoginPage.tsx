@@ -13,6 +13,8 @@ import {
 import { LOGIN } from '../../../../api'
 import { useUserStore } from '../../../shared/store/user'
 import { showRouteLoader } from '../../../shared/utils/routeLoader'
+import { getClientDeviceInfo } from '../../../shared/utils/deviceIdentity'
+import { showPopupMessage } from '../../../shared/utils/popup'
 
 export default function Login() {
     const router = useRouter()
@@ -141,6 +143,7 @@ export default function Login() {
                         email,
 
                         password,
+                        ...getClientDeviceInfo(),
                     }),
                 })
 
@@ -229,6 +232,14 @@ export default function Login() {
         setLoading(false)
 
         if (!result.success) {
+            if (result.code === 'ACCOUNT_LOGIN_BLOCKED') {
+                showPopupMessage(
+                    result.message ||
+                    'Unusual login activity detected. Please try again later.',
+                    false
+                )
+            }
+
             setError(
                 result.message ||
                 'Login failed'

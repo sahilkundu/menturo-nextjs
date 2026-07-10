@@ -20,6 +20,7 @@ import {
     readEncryptedWebSocket,
     sendEncryptedWebSocket
 } from './encryptedTransport'
+import { getClientDeviceInfo } from './deviceIdentity'
 // =====================================================
 // GLOBAL SESSION
 // =====================================================
@@ -186,6 +187,9 @@ export const useWSStore =
                             // SEND USER CONNECT
                             // =============================
 
+                            const clientDeviceInfo =
+                                getClientDeviceInfo()
+
                             sendEncryptedWebSocket(ws, {
 
                                     event:
@@ -221,7 +225,9 @@ export const useWSStore =
                                                 : 'desktop',
 
                                         userAgent:
-                                            navigator.userAgent
+                                            navigator.userAgent,
+
+                                        ...clientDeviceInfo
                                     }
                                 })
 
