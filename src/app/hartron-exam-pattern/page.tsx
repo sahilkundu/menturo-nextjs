@@ -6,7 +6,7 @@ import { createPageMetadata } from '../../shared/seo'
 const page = hartronSupportMap['hartron-exam-pattern']
 
 export const metadata: Metadata = createPageMetadata({
-    title: 'HARTRON Exam Pattern 2026 | Mock Test Practice Plan',
+    title: 'HARTRON Exam Pattern | Mock Test Practice Plan',
     description: page.description,
     path: '/hartron-exam-pattern',
     keywords: [
@@ -21,4 +21,3 @@ export const metadata: Metadata = createPageMetadata({
 export default function HartronExamPatternPage() {
     return <HartronSeoPage page={page} />
 }
-

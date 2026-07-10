@@ -3,6 +3,7 @@ export type HartronPageSlug =
     | 'hartron-syllabus'
     | 'hartron-exam-pattern'
     | 'hartron-previous-year-papers'
+    | 'hartron-cut-off'
 
 export type HartronSupportPage = {
     slug: HartronPageSlug
@@ -48,7 +49,7 @@ export const hartronSeriesLinks = [
 export const hartronSupportPages: HartronSupportPage[] = [
     {
         slug: 'hartron-test-series',
-        title: 'HARTRON Test Series 2026',
+        title: 'HARTRON Test Series',
         description:
             'Prepare for HARTRON Programmer, Junior Programmer, Software Developer, System Analyst, Networking posts, and DEO practice with online mock tests, PYQs, syllabus, and exam-pattern practice on Menturo.',
         intro:
@@ -56,7 +57,7 @@ export const hartronSupportPages: HartronSupportPage[] = [
     },
     {
         slug: 'hartron-syllabus',
-        title: 'HARTRON Syllabus 2026',
+        title: 'HARTRON Syllabus',
         description:
             'Check HARTRON syllabus topics for Programmer, Junior Programmer, Software Developer, System Analyst, Networking Engineer, and Networking Assistant preparation with practice links.',
         intro:
@@ -64,7 +65,7 @@ export const hartronSupportPages: HartronSupportPage[] = [
     },
     {
         slug: 'hartron-exam-pattern',
-        title: 'HARTRON Exam Pattern 2026',
+        title: 'HARTRON Exam Pattern',
         description:
             'Understand HARTRON exam pattern, question types, computer knowledge areas, practice strategy, and mock-test planning for HARTRON posts.',
         intro:
@@ -77,6 +78,14 @@ export const hartronSupportPages: HartronSupportPage[] = [
             'Practice HARTRON previous year paper style questions, computer PYQs, mock tests, and repeated topics for HARTRON Programmer, technical posts, and DEO preparation.',
         intro:
             'HARTRON previous-year style practice helps you understand repeated computer topics, question difficulty, and the kind of revision needed before the exam.',
+    },
+    {
+        slug: 'hartron-cut-off',
+        title: 'HARTRON Cut Off',
+        description:
+            'Check HARTRON cut off marks, result details, category-wise posts, and Data Entry Operator cutoff for Kurukshetra University, Kurukshetra.',
+        intro:
+            'Use this HARTRON cut off page to track result notices, category-wise cutoff marks, post counts, and district or deployment-specific cutoff details as they are added.',
     },
 ]
 

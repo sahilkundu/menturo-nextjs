@@ -125,6 +125,25 @@ const pageInsights: Record<HartronPageSlug, {
             },
         ],
     },
+    'hartron-cut-off': {
+        label: 'Cut off tracker',
+        title: 'Track HARTRON cut off marks by result notice',
+        text: 'Use this page for HARTRON cutoff tables, category-wise post counts, result dates, advertisement numbers, and deployment-specific cutoff details.',
+        cards: [
+            {
+                title: 'Category-wise marks',
+                text: 'Cutoff tables show category, available posts, and cutoff marks in a clear format.',
+            },
+            {
+                title: 'Result notice context',
+                text: 'Each cutoff entry includes result date, advertisement number, exam/scrutiny dates, and deployment details.',
+            },
+            {
+                title: 'Preparation signal',
+                text: 'Use previous cutoff marks to understand score targets before attempting HARTRON mock tests.',
+            },
+        ],
+    },
 }
 
 const practicalCards = [
@@ -184,6 +203,269 @@ const examPatternRows = [
         nextStep: 'May include programming, networking, software, website, database, or project-making skills',
     },
 ]
+
+const deoCutoffRows = [
+    {
+        category: 'PWD (General)',
+        posts: '02 posts',
+        cutoff: '46.00',
+    },
+    {
+        category: 'General',
+        posts: '12 posts (total 14 posts including 02 PWD posts)',
+        cutoff: '57.46',
+    },
+    {
+        category: 'General-ESM',
+        posts: '02 posts',
+        cutoff: '46.06',
+    },
+    {
+        category: 'EWS',
+        posts: '03 posts',
+        cutoff: '55.64',
+    },
+    {
+        category: 'SC',
+        posts: '05 posts',
+        cutoff: '50.32',
+    },
+    {
+        category: 'SC-ESM',
+        posts: '01 post',
+        cutoff: '50.30',
+    },
+    {
+        category: 'BCA',
+        posts: '05 posts',
+        cutoff: '55.00',
+    },
+    {
+        category: 'BCA-ESM',
+        posts: '02 posts',
+        cutoff: '54.52',
+    },
+    {
+        category: 'BCB',
+        posts: '02 posts',
+        cutoff: '48.34',
+    },
+    {
+        category: 'BCB-ESM',
+        posts: '01 post',
+        cutoff: '48.32',
+    },
+]
+
+const resultPdfLinks = {
+    kuk2026: 'https://cdn.menturo.in/hartron-deo-result/ResultDeoKUK032026.pdf',
+    district2025: 'https://cdn.menturo.in/hartron-deo-result/result_scan_12_dec2025.pdf',
+    district2024: 'https://cdn.menturo.in/hartron-deo-result/deo-result-final-3.pdf',
+}
+
+type DistrictCutoffRow = {
+    district: string
+    category: string
+    posts: string
+    cutoff: string
+}
+
+const groupDistrictCutoffRows = (rows: DistrictCutoffRow[]) =>
+    rows.reduce((groups, row) => {
+        const group =
+            groups.find((item) => item.district === row.district)
+
+        if (group) {
+            group.rows.push(row)
+            return groups
+        }
+
+        return [
+            ...groups,
+            {
+                district: row.district,
+                rows: [row],
+            },
+        ]
+    }, [] as Array<{
+        district: string
+        rows: DistrictCutoffRow[]
+    }>)
+
+const deoDistrictCutoffRows: DistrictCutoffRow[] = [
+    { district: 'Ambala', category: 'General', posts: '03 posts', cutoff: '54.98' },
+    { district: 'Ambala', category: 'General-ESM', posts: '01 post', cutoff: '53.44' },
+    { district: 'Ambala', category: 'SC', posts: '02 posts', cutoff: '48.58' },
+    { district: 'Ambala', category: 'SC-ESM', posts: '01 post', cutoff: '48.50' },
+    { district: 'Ambala', category: 'BCB', posts: '02 posts', cutoff: '52.32' },
+    { district: 'Bhiwani', category: 'PWD (EWS)', posts: '01 post', cutoff: '44.38' },
+    { district: 'Bhiwani', category: 'EWS', posts: '01 post (total 02 posts including 01 PWD post)', cutoff: '55.40' },
+    { district: 'Bhiwani', category: 'SC', posts: '02 posts', cutoff: '48.36' },
+    { district: 'Bhiwani', category: 'BCA', posts: '01 post', cutoff: '57.20' },
+    { district: 'Bhiwani', category: 'BCA-ESM', posts: '01 post', cutoff: '54.88' },
+    { district: 'Bhiwani', category: 'BCB', posts: '02 posts', cutoff: '48.26' },
+    { district: 'Faridabad', category: 'General', posts: '08 posts', cutoff: '52.40' },
+    { district: 'Faridabad', category: 'EWS', posts: '01 post', cutoff: '52.12' },
+    { district: 'Faridabad', category: 'BCA', posts: '01 post', cutoff: '52.38' },
+    { district: 'Fatehabad', category: 'General', posts: '01 post', cutoff: '59.00' },
+    { district: 'Fatehabad', category: 'General-ESM', posts: '02 posts', cutoff: '54.60' },
+    { district: 'Fatehabad', category: 'EWS', posts: '01 post', cutoff: '56.64' },
+    { district: 'Fatehabad', category: 'BCA', posts: '02 posts', cutoff: '54.96' },
+    { district: 'Fatehabad', category: 'BCA-ESM', posts: '01 post', cutoff: '53.86' },
+    { district: 'Fatehabad', category: 'BCB', posts: '02 posts', cutoff: '54.22' },
+    { district: 'Jind', category: 'General', posts: '01 post', cutoff: '53.72' },
+    { district: 'Jind', category: 'EWS', posts: '01 post', cutoff: '53.06' },
+    { district: 'Jind', category: 'SC', posts: '04 posts', cutoff: '48.66' },
+    { district: 'Jind', category: 'SC-ESM', posts: '01 post', cutoff: '47.74' },
+    { district: 'Jind', category: 'BCB', posts: '01 post', cutoff: '53.42' },
+    { district: 'Jind', category: 'BCB-ESM', posts: '01 post', cutoff: '47.42' },
+    { district: 'Kurukshetra', category: 'General', posts: '03 posts', cutoff: '55.36' },
+    { district: 'Kurukshetra', category: 'General-ESM', posts: '01 post', cutoff: '54.70' },
+    { district: 'Kurukshetra', category: 'EWS', posts: '01 post', cutoff: '53.10' },
+    { district: 'Kurukshetra', category: 'SC', posts: '02 posts', cutoff: '49.00' },
+    { district: 'Kurukshetra', category: 'SC-ESM', posts: '01 post', cutoff: '46.50' },
+    { district: 'Kurukshetra', category: 'BCB', posts: '01 post', cutoff: '45.06' },
+    { district: 'Nuh', category: 'General', posts: '02 posts', cutoff: '54.02' },
+    { district: 'Nuh', category: 'EWS', posts: '03 posts', cutoff: '51.16' },
+    { district: 'Nuh', category: 'SC', posts: '02 posts', cutoff: '45.86' },
+    { district: 'Nuh', category: 'SC-ESM', posts: '01 post', cutoff: '44.68' },
+    { district: 'Nuh', category: 'BCA', posts: '01 post', cutoff: '52.70' },
+    { district: 'Palwal', category: 'General', posts: '04 posts', cutoff: '55.42' },
+    { district: 'Palwal', category: 'EWS', posts: '01 post', cutoff: '54.42' },
+    { district: 'Palwal', category: 'BCA', posts: '02 posts', cutoff: '51.40' },
+    { district: 'Palwal', category: 'BCA-ESM', posts: '01 post', cutoff: '51.14' },
+    { district: 'Palwal', category: 'BCB', posts: '01 post', cutoff: '54.22' },
+    { district: 'Palwal', category: 'BCB-ESM', posts: '01 post', cutoff: '37.36' },
+    { district: 'Panipat', category: 'General', posts: '02 posts', cutoff: '56.52' },
+    { district: 'Panipat', category: 'General-ESM', posts: '02 posts', cutoff: '44.60' },
+    { district: 'Panipat', category: 'EWS', posts: '01 post', cutoff: '53.66' },
+    { district: 'Panipat', category: 'SC', posts: '02 posts', cutoff: '54.08' },
+    { district: 'Panipat', category: 'BCA', posts: '01 post', cutoff: '50.98' },
+    { district: 'Panipat', category: 'BCA-ESM', posts: '01 post', cutoff: '46.36' },
+    { district: 'Panipat', category: 'BCB', posts: '01 post', cutoff: '50.58' },
+    { district: 'Rohtak', category: 'PWD (General)', posts: '01 post', cutoff: '57.00' },
+    { district: 'Rohtak', category: 'General', posts: '01 post (02 posts including 01 PWD post)', cutoff: '59.00' },
+    { district: 'Rohtak', category: 'General-ESM', posts: '01 post', cutoff: '31.44' },
+    { district: 'Rohtak', category: 'EWS', posts: '01 post', cutoff: '54.00' },
+    { district: 'Rohtak', category: 'SC', posts: '01 post', cutoff: '49.00' },
+    { district: 'Rohtak', category: 'SC-ESM', posts: '01 post', cutoff: '45.06' },
+    { district: 'Rohtak', category: 'BCA', posts: '02 posts', cutoff: '57.60' },
+    { district: 'Rohtak', category: 'BCB', posts: '01 post', cutoff: '51.18' },
+    { district: 'Rohtak', category: 'BCB-ESM', posts: '01 post', cutoff: '48.40' },
+    { district: 'Sirsa', category: 'General', posts: '02 posts', cutoff: '56.26' },
+    { district: 'Sirsa', category: 'EWS', posts: '02 posts', cutoff: '54.92' },
+    { district: 'Sirsa', category: 'SC', posts: '01 post', cutoff: '46.18' },
+    { district: 'Sirsa', category: 'SC-ESM', posts: '01 post', cutoff: '45.20' },
+    { district: 'Sirsa', category: 'BCA', posts: '01 post', cutoff: '50.34' },
+    { district: 'Sirsa', category: 'BCA-ESM', posts: '01 post', cutoff: '49.42' },
+    { district: 'Sirsa', category: 'BCB', posts: '01 post', cutoff: '53.70' },
+    { district: 'Sirsa', category: 'BCB-ESM', posts: '01 post', cutoff: '52.90' },
+    { district: 'Sonepat', category: 'PWD (SC)', posts: '01 post', cutoff: '50.00' },
+    { district: 'Sonepat', category: 'EWS', posts: '01 post', cutoff: '52.00' },
+    { district: 'Sonepat', category: 'SC-ESM', posts: '01 post', cutoff: '52.02' },
+    { district: 'Sonepat', category: 'BCB', posts: '03 posts', cutoff: '48.02' },
+    { district: 'Sonepat', category: 'BCB-ESM', posts: '01 post', cutoff: '47.82' },
+    { district: 'Yamuna Nagar', category: 'General', posts: '03 posts', cutoff: '59.00' },
+    { district: 'Yamuna Nagar', category: 'General-ESM', posts: '02 posts', cutoff: '53.54' },
+    { district: 'Yamuna Nagar', category: 'EWS', posts: '02 posts', cutoff: '58.04' },
+    { district: 'Yamuna Nagar', category: 'SC', posts: '01 post', cutoff: '48.26' },
+    { district: 'Yamuna Nagar', category: 'BCB', posts: '02 posts', cutoff: '54.34' },
+]
+
+const deoDistrictCutoffGroups =
+    groupDistrictCutoffRows(deoDistrictCutoffRows)
+
+const deoResult2024CutoffRows: DistrictCutoffRow[] = [
+    { district: 'Panchkula/Chandigarh', category: 'PWD (General)', posts: '01 post', cutoff: '48.74' },
+    { district: 'Panchkula/Chandigarh', category: 'General', posts: '27 posts (28 posts including 01 PWD post)', cutoff: '54.00' },
+    { district: 'Panchkula/Chandigarh', category: 'General-ESM', posts: '10 posts', cutoff: '39.10' },
+    { district: 'Panchkula/Chandigarh', category: 'EWS', posts: '06 posts', cutoff: '51.16' },
+    { district: 'Panchkula/Chandigarh', category: 'SC', posts: '17 posts', cutoff: '45.74' },
+    { district: 'Panchkula/Chandigarh', category: 'SC-ESM', posts: '03 posts', cutoff: '44.36' },
+    { district: 'Panchkula/Chandigarh', category: 'BCA', posts: '19 posts', cutoff: '48.30' },
+    { district: 'Panchkula/Chandigarh', category: 'BCB', posts: '11 posts', cutoff: '44.60' },
+    { district: 'Panchkula/Chandigarh', category: 'BCB-ESM', posts: '06 posts', cutoff: '40.62' },
+    { district: 'Ambala', category: 'General', posts: '06 posts', cutoff: '53.56' },
+    { district: 'Ambala', category: 'General-ESM', posts: '02 posts', cutoff: '45.38' },
+    { district: 'Ambala', category: 'EWS', posts: '02 posts', cutoff: '48.96' },
+    { district: 'Ambala', category: 'SC', posts: '02 posts', cutoff: '50.10' },
+    { district: 'Ambala', category: 'BCA', posts: '02 posts', cutoff: '52.38' },
+    { district: 'Ambala', category: 'BCB', posts: '01 post', cutoff: '44.56' },
+    { district: 'Faridabad', category: 'PWD (BCA)', posts: '01 post', cutoff: '40.04' },
+    { district: 'Faridabad', category: 'General', posts: '05 posts', cutoff: '48.20' },
+    { district: 'Faridabad', category: 'General-ESM', posts: '01 post', cutoff: '45.32' },
+    { district: 'Faridabad', category: 'EWS', posts: '01 post', cutoff: '42.08' },
+    { district: 'Faridabad', category: 'SC', posts: '02 posts', cutoff: '39.12' },
+    { district: 'Faridabad', category: 'SC-ESM', posts: '01 post', cutoff: '29.22' },
+    { district: 'Faridabad', category: 'BCA-ESM', posts: '01 post', cutoff: '41.62' },
+    { district: 'Faridabad', category: 'BCB', posts: '02 posts', cutoff: '39.16' },
+    { district: 'Faridabad', category: 'BCB-ESM', posts: '01 post', cutoff: '38.84' },
+    { district: 'Gurugram', category: 'PWD (General)', posts: '01 post', cutoff: '40.44' },
+    { district: 'Gurugram', category: 'General', posts: '07 posts (08 posts including 01 PWD post)', cutoff: '46.76' },
+    { district: 'Gurugram', category: 'General-ESM', posts: '01 post', cutoff: '46.74' },
+    { district: 'Gurugram', category: 'EWS', posts: '03 posts', cutoff: '43.74' },
+    { district: 'Gurugram', category: 'SC', posts: '04 posts', cutoff: '36.94' },
+    { district: 'Gurugram', category: 'BCA', posts: '02 posts', cutoff: '45.02' },
+    { district: 'Gurugram', category: 'BCA-ESM', posts: '01 post', cutoff: '43.88' },
+    { district: 'Gurugram', category: 'BCB', posts: '01 post', cutoff: '46.58' },
+    { district: 'Hisar', category: 'General', posts: '03 posts', cutoff: '52.00' },
+    { district: 'Hisar', category: 'General-ESM', posts: '01 post', cutoff: '50.48' },
+    { district: 'Hisar', category: 'EWS', posts: '02 posts', cutoff: '46.52' },
+    { district: 'Hisar', category: 'SC', posts: '03 posts', cutoff: '43.08' },
+    { district: 'Hisar', category: 'SC-ESM', posts: '01 post', cutoff: '43.04' },
+    { district: 'Hisar', category: 'BCA', posts: '02 posts', cutoff: '50.56' },
+    { district: 'Hisar', category: 'BCA-ESM', posts: '01 post', cutoff: '50.32' },
+    { district: 'Hisar', category: 'BCB', posts: '02 posts', cutoff: '46.64' },
+    { district: 'Jhajjar', category: 'General', posts: '06 posts', cutoff: '53.00' },
+    { district: 'Jhajjar', category: 'General-ESM', posts: '02 posts', cutoff: '46.80' },
+    { district: 'Jhajjar', category: 'EWS', posts: '01 post', cutoff: '46.58' },
+    { district: 'Jhajjar', category: 'SC', posts: '02 posts', cutoff: '46.86' },
+    { district: 'Jhajjar', category: 'SC-ESM', posts: '01 post', cutoff: '44.90' },
+    { district: 'Jhajjar', category: 'BCA', posts: '01 post', cutoff: '52.00' },
+    { district: 'Jhajjar', category: 'BCA-ESM', posts: '01 post', cutoff: '48.84' },
+    { district: 'Jhajjar', category: 'BCB', posts: '01 post', cutoff: '35.14' },
+    { district: 'Karnal', category: 'PWD (BCA)', posts: '01 post', cutoff: '54.16' },
+    { district: 'Karnal', category: 'General', posts: '06 posts', cutoff: '49.26' },
+    { district: 'Karnal', category: 'General-ESM', posts: '01 post', cutoff: '34.10' },
+    { district: 'Karnal', category: 'EWS', posts: '02 posts', cutoff: '47.16' },
+    { district: 'Karnal', category: 'SC', posts: '03 posts', cutoff: '45.08' },
+    { district: 'Karnal', category: 'BCA', posts: '01 post (02 posts including 01 PWD post)', cutoff: '48.30' },
+    { district: 'Karnal', category: 'BCB', posts: '01 post', cutoff: '41.98' },
+    { district: 'Kurukshetra', category: 'PWD (SC)', posts: '01 post', cutoff: '48.00' },
+    { district: 'Kurukshetra', category: 'General', posts: '06 posts', cutoff: '53.84' },
+    { district: 'Kurukshetra', category: 'General-ESM', posts: '01 post', cutoff: '53.80' },
+    { district: 'Kurukshetra', category: 'EWS', posts: '02 posts', cutoff: '51.08' },
+    { district: 'Kurukshetra', category: 'SC', posts: '02 posts (03 posts including 01 PWD post)', cutoff: '49.26' },
+    { district: 'Kurukshetra', category: 'BCA', posts: '02 posts', cutoff: '52.22' },
+    { district: 'Kurukshetra', category: 'BCB', posts: '01 post', cutoff: '48.54' },
+    { district: 'Palwal', category: 'PWD (SC)', posts: '01 post', cutoff: '34.06' },
+    { district: 'Palwal', category: 'General', posts: '06 posts', cutoff: '47.86' },
+    { district: 'Palwal', category: 'General-ESM', posts: '02 posts', cutoff: '43.50' },
+    { district: 'Palwal', category: 'EWS', posts: '02 posts', cutoff: '41.96' },
+    { district: 'Palwal', category: 'SC', posts: '01 post (02 posts including 01 PWD post)', cutoff: '46.00' },
+    { district: 'Palwal', category: 'SC-ESM', posts: '01 post', cutoff: '39.20' },
+    { district: 'Palwal', category: 'BCB', posts: '01 post', cutoff: '32.48' },
+    { district: 'Rewari', category: 'General', posts: '06 posts', cutoff: '49.60' },
+    { district: 'Rewari', category: 'General-ESM', posts: '02 posts', cutoff: '45.22' },
+    { district: 'Rewari', category: 'EWS', posts: '02 posts', cutoff: '43.26' },
+    { district: 'Rewari', category: 'SC', posts: '03 posts', cutoff: '39.64' },
+    { district: 'Rewari', category: 'BCA', posts: '02 posts', cutoff: '48.14' },
+    { district: 'Sirsa', category: 'PWD (BCA)', posts: '01 post', cutoff: '47.00' },
+    { district: 'Sirsa', category: 'General', posts: '07 posts', cutoff: '52.00' },
+    { district: 'Sirsa', category: 'General-ESM', posts: '02 posts', cutoff: '50.64' },
+    { district: 'Sirsa', category: 'EWS', posts: '01 post', cutoff: '51.10' },
+    { district: 'Sirsa', category: 'SC', posts: '02 posts', cutoff: '47.30' },
+    { district: 'Sirsa', category: 'BCA', posts: '01 post (02 posts including 01 PWD post)', cutoff: '48.66' },
+    { district: 'Sirsa', category: 'BCB', posts: '01 post', cutoff: '49.88' },
+    { district: 'Sonipat', category: 'General', posts: '05 posts', cutoff: '47.38' },
+    { district: 'Sonipat', category: 'EWS', posts: '01 post', cutoff: '40.92' },
+    { district: 'Sonipat', category: 'SC', posts: '01 post', cutoff: '41.88' },
+    { district: 'Sonipat', category: 'SC-ESM', posts: '01 post', cutoff: '40.44' },
+    { district: 'Sonipat', category: 'BCB', posts: '01 post', cutoff: '31.00' },
+]
+
+const deoResult2024CutoffGroups =
+    groupDistrictCutoffRows(deoResult2024CutoffRows)
 
 const syllabusCardThemes = [
     {
@@ -343,6 +625,8 @@ export default async function HartronSeoPage({ page }: Props) {
         page.slug === 'hartron-exam-pattern'
     const showPractical =
         page.slug === 'hartron-exam-pattern'
+    const showCutoff =
+        page.slug === 'hartron-cut-off'
     const showSeriesLinks =
         page.slug === 'hartron-test-series' ||
         page.slug === 'hartron-previous-year-papers'
@@ -594,6 +878,228 @@ export default async function HartronSeoPage({ page }: Props) {
                         </section>
                     )}
                 </section>
+
+                {showCutoff && (
+                    <section className="mt-6 grid gap-6">
+                        <div className="rounded-[24px] border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+                            <p className="text-xs font-black uppercase tracking-[0.16em] text-violet-700">
+                                Result 1 - Kurukshetra University cutoff
+                            </p>
+                            <h2 className="mt-2 text-2xl font-black text-slate-950">
+                                HARTRON DEO Kurukshetra University, Kurukshetra Cutoff
+                            </h2>
+                            <p className="mt-3 text-sm font-semibold leading-6 text-slate-600">
+                                Declaration of result dated 06.04.2026 for advertisement no. HARTRON/ICTET/2025-26/06 dated 25.12.2025. Test/exam and document scrutiny were conducted from 17.02.2026 to 17.03.2026 at IDDC HARTRON, G.T. Road, Ambala Cantt for Data Entry Operator panel updation at Kurukshetra District on job-work basis for deployment in Kurukshetra University, Kurukshetra.
+                            </p>
+                            <a
+                                className="mt-4 inline-flex rounded-2xl bg-violet-700 px-5 py-3 text-sm font-black text-white shadow-sm transition hover:bg-violet-700"
+                                href={resultPdfLinks.kuk2026}
+                                rel="noopener noreferrer"
+                                target="_blank"
+                            >
+                                Download official result PDF
+                            </a>
+                            <div className="mt-5 grid gap-3 md:grid-cols-4">
+                                {[
+                                    ['Result date', '06.04.2026'],
+                                    ['Advertisement', 'HARTRON/ICTET/2025-26/06'],
+                                    ['Post', 'Data Entry Operator'],
+                                    ['Deployment', 'Kurukshetra University, Kurukshetra'],
+                                ].map(([label, value]) => (
+                                    <div key={label} className="rounded-2xl border border-violet-100 bg-violet-50/60 p-4">
+                                        <p className="text-[11px] font-black uppercase tracking-[0.12em] text-violet-700">
+                                            {label}
+                                        </p>
+                                        <p className="mt-2 text-sm font-black leading-5 text-slate-950">
+                                            {value}
+                                        </p>
+                                    </div>
+                                ))}
+                            </div>
+                            <div className="mt-5 overflow-hidden rounded-2xl border border-slate-200 bg-white">
+                                <div className="grid grid-cols-[1fr_1.35fr_0.65fr] bg-slate-950 text-xs font-black uppercase tracking-[0.08em] text-white max-md:hidden">
+                                    <div className="px-4 py-3">
+                                        Category
+                                    </div>
+                                    <div className="px-4 py-3">
+                                        Posts
+                                    </div>
+                                    <div className="px-4 py-3">
+                                        Cutoff
+                                    </div>
+                                </div>
+                                <div className="divide-y divide-slate-200">
+                                    {deoCutoffRows.map((item) => (
+                                        <div key={item.category} className="grid gap-2 bg-white px-4 py-4 text-sm font-semibold leading-6 text-slate-700 md:grid-cols-[1fr_1.35fr_0.65fr] md:items-center">
+                                            <div>
+                                                <span className="mb-1 block text-[11px] font-black uppercase text-violet-700 md:hidden">
+                                                    Category
+                                                </span>
+                                                <span className="font-black text-slate-950">
+                                                    {item.category}
+                                                </span>
+                                            </div>
+                                            <div>
+                                                <span className="mb-1 block text-[11px] font-black uppercase text-violet-700 md:hidden">
+                                                    Posts
+                                                </span>
+                                                {item.posts}
+                                            </div>
+                                            <div>
+                                                <span className="mb-1 block text-[11px] font-black uppercase text-violet-700 md:hidden">
+                                                    Cutoff
+                                                </span>
+                                                <span className="inline-flex rounded-full bg-emerald-50 px-3 py-1 text-sm font-black text-emerald-700">
+                                                    {item.cutoff}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="rounded-[24px] border border-violet-100 bg-violet-50/50 p-6 shadow-sm sm:p-8">
+                            <p className="text-xs font-black uppercase tracking-[0.16em] text-violet-700">
+                                Result 2 - District-wise cutoff
+                            </p>
+                            <h3 className="mt-2 text-lg font-black text-slate-950">
+                                HARTRON DEO District-wise Cutoff
+                            </h3>
+                            <p className="mt-2 text-sm font-semibold leading-6 text-slate-600">
+                                Declaration of result dated 11.12.2025 for advertisement no. HARTRON/ICTET/2025/02 dated 02.08.2025. The test/exam and document scrutiny were conducted from 15.09.2025 to 12.11.2025 at HMSDC Gurugram and IDDC Ambala Cantt for Data Entry Operator panel updation.
+                            </p>
+                            <a
+                                className="mt-4 inline-flex rounded-2xl bg-violet-700 px-5 py-3 text-sm font-black text-white shadow-sm transition hover:bg-violet-700"
+                                href={resultPdfLinks.district2025}
+                                rel="noopener noreferrer"
+                                target="_blank"
+                            >
+                                Download official result PDF
+                            </a>
+                            <div className="mt-4 grid gap-4">
+                                {deoDistrictCutoffGroups.map((group) => (
+                                    <div key={group.district} className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
+                                        <div className="bg-slate-950 px-4 py-3">
+                                            <h4 className="text-sm font-black uppercase tracking-[0.08em] text-white">
+                                                {group.district}
+                                            </h4>
+                                        </div>
+                                        <div className="grid grid-cols-[1fr_1.35fr_0.65fr] bg-slate-100 text-xs font-black uppercase tracking-[0.08em] text-slate-700 max-md:hidden">
+                                            <div className="px-4 py-3">
+                                                Category
+                                            </div>
+                                            <div className="px-4 py-3">
+                                                Posts
+                                            </div>
+                                            <div className="px-4 py-3">
+                                                Cutoff
+                                            </div>
+                                        </div>
+                                        <div className="divide-y divide-slate-200">
+                                            {group.rows.map((item) => (
+                                                <div key={`${group.district}-${item.category}`} className="grid gap-2 bg-white px-4 py-4 text-sm font-semibold leading-6 text-slate-700 md:grid-cols-[1fr_1.35fr_0.65fr] md:items-center">
+                                                    <div>
+                                                        <span className="mb-1 block text-[11px] font-black uppercase text-violet-700 md:hidden">
+                                                            Category
+                                                        </span>
+                                                        <span className="font-black text-slate-950">
+                                                            {item.category}
+                                                        </span>
+                                                    </div>
+                                                    <div>
+                                                        <span className="mb-1 block text-[11px] font-black uppercase text-violet-700 md:hidden">
+                                                            Posts
+                                                        </span>
+                                                        {item.posts}
+                                                    </div>
+                                                    <div>
+                                                        <span className="mb-1 block text-[11px] font-black uppercase text-violet-700 md:hidden">
+                                                            Cutoff
+                                                        </span>
+                                                        <span className="inline-flex rounded-full bg-emerald-50 px-3 py-1 text-sm font-black text-emerald-700">
+                                                            {item.cutoff}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="rounded-[24px] border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+                            <p className="text-xs font-black uppercase tracking-[0.16em] text-violet-700">
+                                Result 3 - District-wise cutoff
+                            </p>
+                            <h3 className="mt-2 text-lg font-black text-slate-950">
+                                HARTRON DEO District-wise Cutoff - 24.12.2024 Result
+                            </h3>
+                            <p className="mt-2 text-sm font-semibold leading-6 text-slate-600">
+                                Declaration of result dated 24.12.2024 for advertisement no. HARTRON/ICTET/2024-25/04 dated 15.08.2024. The test/exam and document scrutiny were conducted from 23.10.2024 to 28.11.2024 at HMSDC Gurugram and IDDC Ambala Cantt for Data Entry Operator posts across Panchkula/Chandigarh, Ambala, Faridabad, Gurugram, Hisar, Jhajjar, Karnal, Kurukshetra, Palwal, Rewari, Sirsa, and Sonipat.
+                            </p>
+                            <a
+                                className="mt-4 inline-flex rounded-2xl bg-violet-700 px-5 py-3 text-sm font-black text-white shadow-sm transition hover:bg-violet-700"
+                                href={resultPdfLinks.district2024}
+                                rel="noopener noreferrer"
+                                target="_blank"
+                            >
+                                Download official result PDF
+                            </a>
+                            <div className="mt-4 grid gap-4">
+                                {deoResult2024CutoffGroups.map((group) => (
+                                    <div key={group.district} className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
+                                        <div className="bg-slate-950 px-4 py-3">
+                                            <h4 className="text-sm font-black uppercase tracking-[0.08em] text-white">
+                                                {group.district}
+                                            </h4>
+                                        </div>
+                                        <div className="grid grid-cols-[1fr_1.35fr_0.65fr] bg-slate-100 text-xs font-black uppercase tracking-[0.08em] text-slate-700 max-md:hidden">
+                                            <div className="px-4 py-3">
+                                                Category
+                                            </div>
+                                            <div className="px-4 py-3">
+                                                Posts
+                                            </div>
+                                            <div className="px-4 py-3">
+                                                Cutoff
+                                            </div>
+                                        </div>
+                                        <div className="divide-y divide-slate-200">
+                                            {group.rows.map((item) => (
+                                                <div key={`${group.district}-${item.category}`} className="grid gap-2 bg-white px-4 py-4 text-sm font-semibold leading-6 text-slate-700 md:grid-cols-[1fr_1.35fr_0.65fr] md:items-center">
+                                                    <div>
+                                                        <span className="mb-1 block text-[11px] font-black uppercase text-violet-700 md:hidden">
+                                                            Category
+                                                        </span>
+                                                        <span className="font-black text-slate-950">
+                                                            {item.category}
+                                                        </span>
+                                                    </div>
+                                                    <div>
+                                                        <span className="mb-1 block text-[11px] font-black uppercase text-violet-700 md:hidden">
+                                                            Posts
+                                                        </span>
+                                                        {item.posts}
+                                                    </div>
+                                                    <div>
+                                                        <span className="mb-1 block text-[11px] font-black uppercase text-violet-700 md:hidden">
+                                                            Cutoff
+                                                        </span>
+                                                        <span className="inline-flex rounded-full bg-emerald-50 px-3 py-1 text-sm font-black text-emerald-700">
+                                                            {item.cutoff}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </section>
+                )}
 
                 {showSyllabus && (
                     <section className="mt-6 rounded-[24px] border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
