@@ -3,6 +3,10 @@ import {
     createSeriesSlug,
     siteUrl,
 } from '../shared/seo'
+import {
+    hartronPagePath,
+    hartronSupportPages,
+} from '../shared/hartronSeo'
 import { BASE_URL } from '../../api'
 
 export const dynamic = 'force-dynamic'
@@ -40,7 +44,7 @@ const getSeriesRoutes = async (
 
             for (const series of data.series) {
                 const slug =
-                    createSeriesSlug(series?.n, series?._id)
+                    createSeriesSlug(series?.n, series?.slug || series?._id)
 
                 if (!slug) {
                     continue
@@ -126,6 +130,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
             changeFrequency: 'yearly',
             priority: 0.3,
         },
+        ...hartronSupportPages.map((page) => ({
+            url: `${siteUrl}${hartronPagePath(page.slug)}`,
+            lastModified: now,
+            changeFrequency: 'weekly' as const,
+            priority: page.slug === 'hartron-test-series' ? 0.9 : 0.82,
+        })),
     ]
 
     const seriesRoutes =

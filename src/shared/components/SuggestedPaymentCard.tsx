@@ -508,7 +508,7 @@ export default function SuggestedPaymentCard({
                                             const slug =
                                                 createSeriesSlug(
                                                     series.n,
-                                                    series._id
+                                                    series.slug || series._id
                                                 )
 
                                             if (!slug) {

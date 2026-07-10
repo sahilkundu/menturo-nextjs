@@ -1,5 +1,6 @@
 'use client'
 import dynamic from 'next/dynamic'
+import Link from 'next/link'
 import { useEffect, useRef } from 'react'
 import { useParams, usePathname, useRouter } from 'next/navigation'
 import { useTestSeriesStore } from "../../../../shared/store/testSeriesStore"
@@ -10,8 +11,11 @@ import SeriesPaymentPage from '../../../../shared/components/SeriesPaymentPage'
 import {
     createSeriesSlug,
     extractSeriesIdFromSlug,
-    isSeriesIdOnlySlug
 } from '../../../../shared/seo'
+import {
+    hartronPagePath,
+    hartronSupportPages,
+} from '../../../../shared/hartronSeo'
 import AdSenseAd from '../../../../shared/components/AdSenseAd'
 const PaymentSummary = dynamic(
     () => import(
@@ -83,6 +87,10 @@ function SeriesSeoContent({ series }: { series: any }) {
     const testCount = Array.isArray(series.info)
         ? series.info.length
         : 0
+    const isHartronSeries =
+        `${examName} ${tags.join(' ')}`
+            .toLowerCase()
+            .includes('hartron')
 
     return (
         <section className="rounded-[24px] border border-[#E2DDF3] bg-white p-4 shadow-[0_8px_30px_rgba(0,0,0,.05)] sm:p-6 lg:p-8">
@@ -126,6 +134,25 @@ function SeriesSeoContent({ series }: { series: any }) {
                     </p>
                 </article>
             </div>
+
+            {isHartronSeries && (
+                <div className="mt-6 rounded-2xl border border-[#EEE9FB] bg-[#FBFAFF] p-4 sm:p-5">
+                    <h2 className="text-base font-black text-[#171426]">
+                        More HARTRON Preparation
+                    </h2>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                        {hartronSupportPages.map((item) => (
+                            <Link
+                                key={item.slug}
+                                href={hartronPagePath(item.slug)}
+                                className="rounded-full border border-[#E2DDF3] bg-white px-3 py-2 text-xs font-black text-[#5B21B6]"
+                            >
+                                {item.title}
+                            </Link>
+                        ))}
+                    </div>
+                </div>
+            )}
 
             <div className="mt-6 rounded-2xl border border-[#EEE9FB] bg-[#FCFBFF] p-4 sm:p-5">
                 <h2 className="text-base font-black text-[#171426]">
@@ -286,7 +313,10 @@ export default function TestPage() {
     // ======================================================
     // STORE
     // ======================================================
-    const series = useTestSeriesStore((state) => state.seriesMap[seriesId])
+    const series = useTestSeriesStore((state) =>
+        state.seriesMap[seriesId] ||
+        Object.values(state.seriesMap).find((item: any) => item?.slug === seriesId)
+    )
     const fetchSingleSeries = useTestSeriesStore((state) => state.fetchSingleSeries)
     // ======================================================
     // REFS FOR TRACKING
@@ -363,17 +393,14 @@ export default function TestPage() {
     ])
 
     useEffect(() => {
-        if (
-            !series ||
-            !isSeriesIdOnlySlug(slug)
-        ) {
+        if (!series) {
             return
         }
 
         const seoSlug =
             createSeriesSlug(
                 series.n,
-                seriesId
+                series.slug || series._id || seriesId
             )
 
         if (

@@ -45,20 +45,17 @@ const toAbsoluteImageUrl = (
 const loadSeriesMetadata = async (
     slug: string
 ): Promise<SeriesMetadata> => {
-    const seriesId =
+    const seriesKey =
         extractSeriesIdFromSlug(slug)
 
-    if (
-        !seriesId ||
-        !/^[a-f0-9]{24}$/i.test(seriesId)
-    ) {
+    if (!seriesKey) {
         return {}
     }
 
     try {
         const response =
             await fetch(
-                `${LOAD_SERIES_SEO}/${seriesId}`,
+                `${LOAD_SERIES_SEO}/${encodeURIComponent(seriesKey)}`,
                 {
                     next: {
                         revalidate: 3600,

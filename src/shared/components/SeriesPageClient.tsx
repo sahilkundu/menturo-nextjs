@@ -1,11 +1,16 @@
 'use client'
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import Link from "next/link"
 import { Search } from "lucide-react"
 import TestCard from "./TestCard"
 import TestCardSkeleton from "./Skeleton/TestCardSkeleton"
 import AdSenseAd from "./AdSenseAd"
 import { BASE_URL, LOAD_SERIES } from "../../../api"
+import {
+    hartronPagePath,
+    hartronSupportPages,
+} from "../hartronSeo"
 
 type Pagination = {
     currentPage: number
@@ -287,6 +292,23 @@ export default function SeriesPageClient() {
 
                         <AdSenseAd className="mt-4 border border-[#E2DDF3] shadow-[0_8px_20px_rgba(74,63,119,0.06)]" />
 
+                        <div className="mt-4 rounded-2xl border border-[#E2DDF3] bg-[#FBFAFF] p-3">
+                            <p className="text-xs font-black uppercase text-[#5B21B6]">
+                                HARTRON preparation
+                            </p>
+                            <div className="mt-2 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+                                {hartronSupportPages.map((item) => (
+                                    <Link
+                                        key={item.slug}
+                                        href={hartronPagePath(item.slug)}
+                                        className="flex-shrink-0 rounded-full border border-[#E2DDF3] bg-white px-3 py-2 text-xs font-black text-[#4A3F77]"
+                                    >
+                                        {item.title}
+                                    </Link>
+                                ))}
+                            </div>
+                        </div>
+
                         {error && (
                             <div className="mt-4 rounded-2xl border border-red-100 bg-red-50 px-4 py-3 text-sm font-bold text-red-700">
                                 {error}
@@ -304,7 +326,7 @@ export default function SeriesPageClient() {
                                         <TestCard
                                             access={item?.access}
                                             av={item?.av !== false}
-                                            slug={item._id}
+                                            slug={item.slug || item._id}
                                             board={item.tags?.[0] || "TEST"}
                                             liveName={item.demo ? "Demo" : "Live"}
                                             name={item.n}

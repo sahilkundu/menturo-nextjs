@@ -13,6 +13,7 @@ import { useRouter } from 'next/navigation'
 type SeriesSummary = {
     _id?: string
     name?: string
+    slug?: string
     image?: string
     tags?: string[]
 }
@@ -109,8 +110,8 @@ const getSeriesHref = (series?: SeriesSummary, seriesId?: string) => {
     const id =
         series?._id || seriesId || ''
 
-    return id
-        ? `/series/${createSeriesSlug(series?.name || 'test-series', id)}`
+    return id || series?.slug
+        ? `/series/${createSeriesSlug(series?.name || 'test-series', series?.slug || id)}`
         : '/series'
 }
 

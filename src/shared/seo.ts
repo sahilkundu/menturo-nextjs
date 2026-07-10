@@ -122,13 +122,35 @@ export const extractSeriesIdFromSlug = (slug: string) => {
 
 export const createSeriesSlug = (
     name?: string,
-    id?: string
+    id?: string,
+    slug?: string
 ) => {
+    const cleanSlug =
+        slug
+            ?.trim()
+            .toLowerCase()
+            .replace(/&/g, ' and ')
+            .replace(/[^a-z0-9]+/g, '-')
+            .replace(/^-+|-+$/g, '')
+
+    if (cleanSlug) {
+        return cleanSlug
+    }
+
     const normalizedId =
         extractSeriesIdFromSlug(id || '')
 
     if (!normalizedId) {
         return ''
+    }
+
+    if (!mongoIdPattern.test(normalizedId)) {
+        return normalizedId
+            .trim()
+            .toLowerCase()
+            .replace(/&/g, ' and ')
+            .replace(/[^a-z0-9]+/g, '-')
+            .replace(/^-+|-+$/g, '')
     }
 
     if (!name?.trim()) {

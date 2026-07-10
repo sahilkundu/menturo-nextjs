@@ -493,7 +493,7 @@ export default function HomeCenter() {
                                                             access={item?.access}
                                                             av={item?.av !== false}
                                                             key={item._id}
-                                                            slug={item._id}
+                                                            slug={item.slug || item._id}
                                                             board={item.tags?.[0] || "TEST"}
                                                             liveName={
                                                                 item.demo
