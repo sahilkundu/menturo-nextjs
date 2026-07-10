@@ -59,6 +59,102 @@ const hasActiveSeriesAccess = (access: any) => {
     )
 }
 
+const toTextList = (value: unknown) =>
+    Array.isArray(value)
+        ? value
+            .filter((item): item is string => typeof item === 'string' && item.trim().length > 0)
+            .map((item) => item.trim())
+        : []
+
+function SeriesSeoContent({ series }: { series: any }) {
+    if (!series?.n) {
+        return null
+    }
+
+    const examName = String(series.n).trim()
+    const subjects = toTextList(series.sub)
+    const tags = toTextList(series.tags)
+    const subjectText = subjects.length
+        ? subjects.slice(0, 5).join(', ')
+        : 'important exam subjects'
+    const tagText = tags.length
+        ? tags.slice(0, 4).join(', ')
+        : 'government exam preparation'
+    const testCount = Array.isArray(series.info)
+        ? series.info.length
+        : 0
+
+    return (
+        <section className="rounded-[24px] border border-[#E2DDF3] bg-white p-4 shadow-[0_8px_30px_rgba(0,0,0,.05)] sm:p-6 lg:p-8">
+            <div className="max-w-4xl">
+                <p className="text-xs font-black uppercase tracking-[0.18em] text-[#5B21B6]">
+                    Online test series
+                </p>
+                <h1 className="mt-2 text-2xl font-black leading-tight text-[#171426] sm:text-3xl">
+                    {examName} Mock Test Series 2026
+                </h1>
+                <p className="mt-3 text-sm font-semibold leading-7 text-slate-600 sm:text-base">
+                    Practice {examName} mock tests, previous year questions, online practice sets, and exam-level questions on Menturo. This test series is built for {tagText} and helps you improve speed, accuracy, and confidence before the exam.
+                </p>
+            </div>
+
+            <div className="mt-6 grid gap-4 md:grid-cols-3">
+                <article className="rounded-2xl border border-[#EEE9FB] bg-[#FBFAFF] p-4">
+                    <h2 className="text-sm font-black text-[#271F49]">
+                        {examName} Online Mock Tests
+                    </h2>
+                    <p className="mt-2 text-xs font-semibold leading-6 text-slate-600">
+                        Attempt structured online tests for {examName} with exam-style questions, timed practice, and result tracking.
+                    </p>
+                </article>
+
+                <article className="rounded-2xl border border-[#EEE9FB] bg-[#FBFAFF] p-4">
+                    <h2 className="text-sm font-black text-[#271F49]">
+                        {examName} Previous Year Questions
+                    </h2>
+                    <p className="mt-2 text-xs font-semibold leading-6 text-slate-600">
+                        Use PYQ-style practice to understand repeated topics, question difficulty, and the latest exam pattern.
+                    </p>
+                </article>
+
+                <article className="rounded-2xl border border-[#EEE9FB] bg-[#FBFAFF] p-4">
+                    <h2 className="text-sm font-black text-[#271F49]">
+                        Subjects Covered
+                    </h2>
+                    <p className="mt-2 text-xs font-semibold leading-6 text-slate-600">
+                        Focus areas include {subjectText}. {testCount > 0 ? `${testCount} practice items are listed in this pack.` : 'More tests and practice sets may be added over time.'}
+                    </p>
+                </article>
+            </div>
+
+            <div className="mt-6 rounded-2xl border border-[#EEE9FB] bg-[#FCFBFF] p-4 sm:p-5">
+                <h2 className="text-base font-black text-[#171426]">
+                    {examName} Test Series FAQs
+                </h2>
+                <div className="mt-3 grid gap-3 md:grid-cols-2">
+                    <details className="rounded-xl border border-[#E9E3F7] bg-white p-3">
+                        <summary className="cursor-pointer text-sm font-black text-[#4A3F77]">
+                            Is this {examName} mock test series useful for preparation?
+                        </summary>
+                        <p className="mt-2 text-xs font-semibold leading-6 text-slate-600">
+                            Yes. It is designed for {examName} preparation with online mock tests, practice questions, and performance-focused revision.
+                        </p>
+                    </details>
+
+                    <details className="rounded-xl border border-[#E9E3F7] bg-white p-3">
+                        <summary className="cursor-pointer text-sm font-black text-[#4A3F77]">
+                            Can I practice {examName} previous year questions?
+                        </summary>
+                        <p className="mt-2 text-xs font-semibold leading-6 text-slate-600">
+                            You can practice PYQ-style and exam-level questions where available, along with mock tests for revision and speed building.
+                        </p>
+                    </details>
+                </div>
+            </div>
+        </section>
+    )
+}
+
 
 export default function TestPage() {
     const router =
@@ -328,6 +424,8 @@ export default function TestPage() {
 
                 </div>
             </div>
+
+            <SeriesSeoContent series={series} />
 
             <AdSenseAd />
         </div>

@@ -135,11 +135,31 @@ export default async function SeriesLayout({
     const {
         slug,
     } = await params
-    const examName =
+    const idOnlySlug =
         isSeriesIdOnlySlug(slug)
-            ? 'Mock Test'
-            : formatSlugTitle(slug)
+    const seriesMetadata =
+        await loadSeriesMetadata(slug)
+    const examName =
+        seriesMetadata.name ||
+        (
+            idOnlySlug
+                ? 'Mock Test'
+                : formatSlugTitle(slug)
+        )
     const pageUrl = `${siteUrl}/series/${slug}`
+    const courseName = `${examName} Mock Test Series 2026`
+    const courseDescription =
+        `Practice ${examName} mock tests, previous year questions, online practice sets, and exam-level questions on Menturo.`
+    const faqItems = [
+        {
+            question: `Is this ${examName} mock test series useful for preparation?`,
+            answer: `Yes. It is designed for ${examName} preparation with online mock tests, practice questions, and performance-focused revision.`,
+        },
+        {
+            question: `Can I practice ${examName} previous year questions?`,
+            answer: `You can practice PYQ-style and exam-level questions where available, along with mock tests for revision and speed building.`,
+        },
+    ]
 
     return (
         <>
@@ -151,9 +171,8 @@ export default async function SeriesLayout({
                         {
                             '@context': 'https://schema.org',
                             '@type': 'Course',
-                            name: `${examName} Mock Test Series 2026`,
-                            description:
-                                `Online mock tests, PYQs, and practice sets for ${examName} exam preparation.`,
+                            name: courseName,
+                            description: courseDescription,
                             provider: {
                                 '@type': 'Organization',
                                 name: siteName,
@@ -180,15 +199,27 @@ export default async function SeriesLayout({
                                     '@type': 'ListItem',
                                     position: 2,
                                     name: 'Test Series',
-                                    item: `${siteUrl}/`,
+                                    item: `${siteUrl}/series`,
                                 },
                                 {
                                     '@type': 'ListItem',
                                     position: 3,
-                                    name: `${examName} Mock Test Series`,
+                                    name: courseName,
                                     item: pageUrl,
                                 },
                             ],
+                        },
+                        {
+                            '@context': 'https://schema.org',
+                            '@type': 'FAQPage',
+                            mainEntity: faqItems.map((item) => ({
+                                '@type': 'Question',
+                                name: item.question,
+                                acceptedAnswer: {
+                                    '@type': 'Answer',
+                                    text: item.answer,
+                                },
+                            })),
                         },
                     ]),
                 }}
