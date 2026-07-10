@@ -11,7 +11,6 @@ import {
     siteName,
     siteUrl,
 } from '../seo'
-import AdDownloadLink from './AdDownloadLink'
 import Footer from './Footer'
 import TestCard from './TestCard'
 import { LOAD_SERIES } from '../../../api'
@@ -259,12 +258,10 @@ const deoCutoffRows = [
 ]
 
 const resultPdfLinks = {
-    kuk2026: 'https://cdn.menturo.in/hartron-deo-result/ResultDeoKUK032026.pdf',
-    district2025: 'https://cdn.menturo.in/hartron-deo-result/result_scan_12_dec2025.pdf',
-    district2024: 'https://cdn.menturo.in/hartron-deo-result/deo-result-final-3.pdf',
+    kuk2026: 'https://gplinks.co/P0pjOJn',
+    district2025: 'https://gplinks.co/Gltd',
+    district2024: 'https://gplinks.co/3OyKDNi',
 }
-
-const resultDownloadAdUrl = 'https://omg10.com/4/11265393'
 
 type DistrictCutoffRow = {
     district: string
@@ -894,13 +891,14 @@ export default async function HartronSeoPage({ page }: Props) {
                             <p className="mt-3 text-sm font-semibold leading-6 text-slate-600">
                                 Declaration of result dated 06.04.2026 for advertisement no. HARTRON/ICTET/2025-26/06 dated 25.12.2025. Test/exam and document scrutiny were conducted from 17.02.2026 to 17.03.2026 at IDDC HARTRON, G.T. Road, Ambala Cantt for Data Entry Operator panel updation at Kurukshetra District on job-work basis for deployment in Kurukshetra University, Kurukshetra.
                             </p>
-                            <AdDownloadLink
-                                adUrl={resultDownloadAdUrl}
+                            <a
                                 className="mt-4 inline-flex rounded-2xl bg-violet-700 px-5 py-3 text-sm font-black text-white shadow-sm transition hover:bg-violet-700"
                                 href={resultPdfLinks.kuk2026}
+                                rel="noopener noreferrer"
+                                target="_blank"
                             >
                                 Download official result PDF
-                            </AdDownloadLink>
+                            </a>
                             <div className="mt-5 grid gap-3 md:grid-cols-4">
                                 {[
                                     ['Result date', '06.04.2026'],
@@ -971,13 +969,14 @@ export default async function HartronSeoPage({ page }: Props) {
                             <p className="mt-2 text-sm font-semibold leading-6 text-slate-600">
                                 Declaration of result dated 11.12.2025 for advertisement no. HARTRON/ICTET/2025/02 dated 02.08.2025. The test/exam and document scrutiny were conducted from 15.09.2025 to 12.11.2025 at HMSDC Gurugram and IDDC Ambala Cantt for Data Entry Operator panel updation.
                             </p>
-                            <AdDownloadLink
-                                adUrl={resultDownloadAdUrl}
+                            <a
                                 className="mt-4 inline-flex rounded-2xl bg-violet-700 px-5 py-3 text-sm font-black text-white shadow-sm transition hover:bg-violet-700"
                                 href={resultPdfLinks.district2025}
+                                rel="noopener noreferrer"
+                                target="_blank"
                             >
                                 Download official result PDF
-                            </AdDownloadLink>
+                            </a>
                             <div className="mt-4 grid gap-4">
                                 {deoDistrictCutoffGroups.map((group) => (
                                     <div key={group.district} className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
@@ -1040,13 +1039,14 @@ export default async function HartronSeoPage({ page }: Props) {
                             <p className="mt-2 text-sm font-semibold leading-6 text-slate-600">
                                 Declaration of result dated 24.12.2024 for advertisement no. HARTRON/ICTET/2024-25/04 dated 15.08.2024. The test/exam and document scrutiny were conducted from 23.10.2024 to 28.11.2024 at HMSDC Gurugram and IDDC Ambala Cantt for Data Entry Operator posts across Panchkula/Chandigarh, Ambala, Faridabad, Gurugram, Hisar, Jhajjar, Karnal, Kurukshetra, Palwal, Rewari, Sirsa, and Sonipat.
                             </p>
-                            <AdDownloadLink
-                                adUrl={resultDownloadAdUrl}
+                            <a
                                 className="mt-4 inline-flex rounded-2xl bg-violet-700 px-5 py-3 text-sm font-black text-white shadow-sm transition hover:bg-violet-700"
                                 href={resultPdfLinks.district2024}
+                                rel="noopener noreferrer"
+                                target="_blank"
                             >
                                 Download official result PDF
-                            </AdDownloadLink>
+                            </a>
                             <div className="mt-4 grid gap-4">
                                 {deoResult2024CutoffGroups.map((group) => (
                                     <div key={group.district} className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
