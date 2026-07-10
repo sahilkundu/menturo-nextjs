@@ -7,7 +7,6 @@ export const metadata: Metadata = createPageMetadata({
     description:
         'Login to Menturo to continue your mock tests, typing practice, results, and exam preparation.',
     path: '/login',
-    index: false,
 })
 
 export default function LoginLayout({

@@ -7,7 +7,6 @@ export const metadata: Metadata = createPageMetadata({
     description:
         'Create a Menturo account to start mock tests, typing practice, previous year questions, and exam preparation.',
     path: '/register',
-    index: false,
 })
 
 export default function RegisterLayout({
