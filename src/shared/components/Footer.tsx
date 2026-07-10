@@ -6,6 +6,10 @@ import {
     WHATSAPP_GROUP_URL,
     WhatsAppIcon
 } from "./WhatsAppJoinButton"
+import {
+    hartronPagePath,
+    hartronSupportPages,
+} from "../hartronSeo"
 
 
 export default function Footer() {
@@ -75,7 +79,7 @@ export default function Footer() {
                         </div>
 
                         {/* <!-- Links Grid --> */}
-                        <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-3 mt-10">
+                        <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-4 mt-10">
 
                             {/* <!-- Column 1 - Quick Links --> */}
                             <div className="text-left">
@@ -154,6 +158,26 @@ export default function Footer() {
                                             WhatsApp Group
                                         </a>
                                     </li>
+                                </ul>
+                            </div>
+
+                            {/* <!-- Column 4 - HARTRON --> */}
+                            <div className="text-left">
+                                <h3 className="font-bold text-white text-sm mb-4 flex items-center gap-2">
+                                    <span className="w-1 h-4 bg-purple-400 rounded-full"></span>
+                                    HARTRON
+                                </h3>
+                                <ul className="space-y-2">
+                                    {hartronSupportPages.map((item) => (
+                                        <li key={item.slug}>
+                                            <Link
+                                                href={hartronPagePath(item.slug)}
+                                                className="text-sm text-purple-200/70 hover:text-white hover:translate-x-1 transition-all inline-block"
+                                            >
+                                                {item.title}
+                                            </Link>
+                                        </li>
+                                    ))}
                                 </ul>
                             </div>
 

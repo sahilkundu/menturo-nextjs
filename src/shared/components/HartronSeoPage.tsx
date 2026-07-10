@@ -11,6 +11,7 @@ import {
     siteName,
     siteUrl,
 } from '../seo'
+import Footer from './Footer'
 import TestCard from './TestCard'
 import { LOAD_SERIES } from '../../../api'
 
@@ -129,25 +130,58 @@ const pageInsights: Record<HartronPageSlug, {
 const practicalCards = [
     {
         title: 'DEO online test and typing',
-        text: 'For Data Entry Operator preparation, plan for a 30-minute online test, a 15-minute attempt window, and a 5-minute typing test after the online test.',
+        text: 'For Data Entry Operator preparation, plan for 30 questions in 15 minutes, followed by typing practice where speed and accuracy matter.',
         href: '/typingPro',
         linkText: 'Open typing practice',
     },
     {
         title: 'Other HARTRON posts',
-        text: 'For posts other than DEO, prepare for 50 questions in 25 minutes, then post-selection training of around four weeks depending on the requirement.',
+        text: 'For posts other than DEO, prepare for 50 questions in 25 minutes, then a second paper focused on post-wise technical knowledge.',
     },
     {
-        title: 'Project and final test focus',
-        text: 'After training, the final test may check software or website-making skills, so practice project building, forms, validations, database flow, and reports.',
+        title: 'Training and final test focus',
+        text: 'For technical posts, training may run around four weeks or as required after the first test, then the second/final technical evaluation can include project-style tasks.',
     },
     {
-        title: 'Programmer practical focus',
-        text: 'Practice MVC-style applications, master/detail tables, commission calculation, dropdown selection, validations, and reports.',
+        title: 'Technical/project paper',
+        text: 'The second paper can differ by post. Software and programmer posts may check project-making skills, website/software flow, forms, validations, database work, and reports.',
     },
     {
         title: 'Networking practical focus',
         text: 'Revise assembling, hardware identification, LAN/WAN design, routers, switches, UTP/STP/fiber cables, patch panels, and fault detection.',
+    },
+]
+
+const examPatternRows = [
+    {
+        post: 'Data Entry Operator',
+        paper: 'Online objective test',
+        questions: '30 questions',
+        time: '15 minutes',
+        nextStep: 'Typing test after the online test',
+    },
+    {
+        post: 'Data Entry Operator',
+        paper: 'Typing test',
+        questions: 'Speed and accuracy based',
+        time: 'Practice with 5-minute typing sets',
+        nextStep: 'Use Menturo Typing Pro for preparation',
+        href: '/typingPro',
+        linkText: 'Typing Pro',
+    },
+    {
+        post: 'Programmer / Junior Programmer / Software Developer / Technical posts',
+        paper: 'Online objective test',
+        questions: '50 questions',
+        time: '25 minutes',
+        nextStep: 'Training around four weeks or as required before the second technical paper',
+    },
+    {
+        post: 'Programmer / Junior Programmer / Software Developer / Technical posts',
+        paper: 'Second technical paper / practical paper',
+        questions: 'Varies by post',
+        time: 'As per requirement',
+        nextStep: 'May include programming, networking, software, website, database, or project-making skills',
     },
 ]
 
@@ -459,8 +493,70 @@ export default async function HartronSeoPage({ page }: Props) {
                     {showPractical ? (
                         <section className="rounded-[24px] border border-slate-200 bg-white p-6 shadow-sm">
                             <h2 className="text-2xl font-black text-slate-950">
-                                Practical and Exam Pattern Focus
+                                HARTRON Exam Pattern
                             </h2>
+                            <div className="mt-4 overflow-hidden rounded-2xl border border-slate-200">
+                                <div className="grid grid-cols-[1.1fr_1fr_0.8fr_0.8fr_1.2fr] bg-slate-950 text-xs font-black uppercase tracking-[0.08em] text-white max-lg:hidden">
+                                    <div className="px-4 py-3">
+                                        Post
+                                    </div>
+                                    <div className="px-4 py-3">
+                                        Paper
+                                    </div>
+                                    <div className="px-4 py-3">
+                                        Questions
+                                    </div>
+                                    <div className="px-4 py-3">
+                                        Time
+                                    </div>
+                                    <div className="px-4 py-3">
+                                        Next step
+                                    </div>
+                                </div>
+                                <div className="divide-y divide-slate-200">
+                                    {examPatternRows.map((item) => (
+                                        <div key={`${item.post}-${item.paper}`} className="grid gap-3 bg-slate-50 px-4 py-4 text-sm font-semibold leading-6 text-slate-700 lg:grid-cols-[1.1fr_1fr_0.8fr_0.8fr_1.2fr] lg:items-center lg:bg-white">
+                                            <div>
+                                                <span className="mb-1 block text-[11px] font-black uppercase text-violet-700 lg:hidden">
+                                                    Post
+                                                </span>
+                                                <span className="font-black text-slate-950">
+                                                    {item.post}
+                                                </span>
+                                            </div>
+                                            <div>
+                                                <span className="mb-1 block text-[11px] font-black uppercase text-violet-700 lg:hidden">
+                                                    Paper
+                                                </span>
+                                                {item.paper}
+                                            </div>
+                                            <div>
+                                                <span className="mb-1 block text-[11px] font-black uppercase text-violet-700 lg:hidden">
+                                                    Questions
+                                                </span>
+                                                {item.questions}
+                                            </div>
+                                            <div>
+                                                <span className="mb-1 block text-[11px] font-black uppercase text-violet-700 lg:hidden">
+                                                    Time
+                                                </span>
+                                                {item.time}
+                                            </div>
+                                            <div>
+                                                <span className="mb-1 block text-[11px] font-black uppercase text-violet-700 lg:hidden">
+                                                    Next step
+                                                </span>
+                                                {item.nextStep}
+                                                {'href' in item && item.href && (
+                                                    <Link className="ml-0 mt-2 inline-flex rounded-xl bg-violet-700 px-3 py-2 text-xs font-black text-white lg:ml-2 lg:mt-0" href={item.href}>
+                                                        {item.linkText}
+                                                    </Link>
+                                                )}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
                             <div className="mt-4 grid gap-3">
                                 {practicalCards.map((item) => (
                                     <div key={item.title} className="rounded-2xl bg-slate-50 p-4">
@@ -598,6 +694,9 @@ export default async function HartronSeoPage({ page }: Props) {
                     </section>
                 )}
             </article>
+            <div className="mx-auto mt-8 max-w-6xl">
+                <Footer />
+            </div>
         </main>
     )
 }
