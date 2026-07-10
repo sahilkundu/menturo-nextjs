@@ -96,7 +96,7 @@ export default function CookieConsent() {
             ) : null}
 
             {ready && !choice && isAllowedPage ? (
-                <div className="fixed inset-x-3 bottom-3 z-[9999] mx-auto max-w-4xl rounded-3xl border border-violet-200 bg-white p-5 text-slate-800 shadow-2xl">
+                <div data-nosnippet className="fixed inset-x-3 bottom-3 z-[9999] mx-auto max-w-4xl rounded-3xl border border-violet-200 bg-white p-5 text-slate-800 shadow-2xl">
                     <div className="grid gap-4 md:grid-cols-[1fr_auto] md:items-center">
                         <div>
                             <p className="text-sm font-black uppercase tracking-[0.18em] text-violet-700">

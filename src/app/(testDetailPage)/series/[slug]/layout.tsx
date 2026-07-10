@@ -112,8 +112,7 @@ export async function generateMetadata({
         title: idOnlySlug
             ? 'Mock Test Series 2026'
             : `${examName} Mock Test Series 2026`,
-        description:
-            `Prepare for ${examName} with Menturo online mock tests, previous year questions, practice sets, exam-level questions, and performance analysis.`,
+        description: examName,
         path: `/series/${slug}`,
         index: !idOnlySlug,
         keywords: [

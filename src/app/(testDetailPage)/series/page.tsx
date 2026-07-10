@@ -4,8 +4,7 @@ import { createPageMetadata } from "../../../shared/seo"
 
 export const metadata: Metadata = createPageMetadata({
     title: "All Test Series",
-    description:
-        "Browse all Menturo government exam test series with search and category filters.",
+    description: "All Test Series",
     path: "/series",
     keywords: [
         "all test series",

@@ -28,14 +28,9 @@ export const metadata: Metadata = {
     publisher: siteName,
     category: 'education',
     icons: {
-        shortcut: '/favicon.ico',
         icon: [
             {
-                url: '/favicon.ico',
-                sizes: '48x48',
-            },
-            {
-                url: '/icon-192.png',
+                url: '/icon.png',
                 type: 'image/png',
                 sizes: '192x192',
             },
