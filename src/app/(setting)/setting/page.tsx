@@ -9,6 +9,7 @@ import { useSessionStore } from '../../../shared/store/sessionStore'
 import { useRouter } from 'next/navigation'
 import { showRouteLoader } from '../../../shared/utils/routeLoader'
 import { goToLoginAfterRememberingPage } from '../../../shared/utils/loginRedirect'
+import AdminVerifiedBadge from '../../../shared/components/AdminVerifiedBadge'
 
 
 // TypeScript Interfaces
@@ -912,9 +913,10 @@ export default function SettingPage() {
 
                 {/* Mentor Badge */}
                 <div className="mb-5 flex justify-center">
-                  <div className="px-4 py-2 rounded-full text-white text-[16px] font-semibold flex items-center gap-2 shadow-md" style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}>
+                  <div className="px-4 py-2 rounded-full text-white text-[16px] font-semibold flex items-center gap-2 whitespace-nowrap shadow-md" style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}>
                     <i className="fa-solid fa-user-graduate"></i>
                     <span>{user?.username}</span>
+                    <AdminVerifiedBadge show={user?.isAdmin} />
                   </div>
                 </div>
 

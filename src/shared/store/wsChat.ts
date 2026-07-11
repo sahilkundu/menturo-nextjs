@@ -10,6 +10,8 @@ export type OnlineUser = {
 
     username: string
 
+    isAdmin?: boolean
+
     online: boolean
 
     connections: number
@@ -19,6 +21,8 @@ export type SiteUser = {
     totalUsers: string | number
 
     totalOnline: string | number
+
+    onlineUsers?: string | number
 }
 
 const isOnlineValue = (
@@ -109,6 +113,7 @@ export const useWSChatStore =
 
                             totalOnline:
                                 data?.totalOnline ??
+                                data?.onlineUsers ??
                                 state.site.totalOnline ??
                                 0
                         }

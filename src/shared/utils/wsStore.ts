@@ -453,7 +453,8 @@ export const useWSStore =
                                                     data.totalUsers,
 
                                                 totalOnline:
-                                                    data.totalOnline
+                                                    data.totalOnline ??
+                                                    data.onlineUsers
                                             }
                                         )
                                 }
@@ -474,6 +475,9 @@ export const useWSStore =
                                             ).map((user: any) => ({
                                                 username:
                                                     user.username,
+
+                                                isAdmin:
+                                                    user.isAdmin === true,
 
                                                 online:
                                                     user.online ??
@@ -497,6 +501,9 @@ export const useWSStore =
 
                                             username:
                                                 data.username,
+
+                                            isAdmin:
+                                                data.isAdmin === true,
 
                                             online:
                                                 data.online,

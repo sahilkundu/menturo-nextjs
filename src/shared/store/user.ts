@@ -14,6 +14,7 @@ interface UserData {
     state: string
     status: string
     type: string
+    isAdmin: boolean
     mobileVerified: boolean
     emailVerified: boolean
     createdAt: number

@@ -2,6 +2,7 @@
 import { memo, useMemo } from "react"
 import { OnlineUser, useWSChatStore } from "../store/wsChat"
 import { useUserStore } from "../store/user"
+import AdminVerifiedBadge from "./AdminVerifiedBadge"
 interface LiveProps {
     activeDot?: boolean
     users?: OnlineUser[]
@@ -125,7 +126,6 @@ function Live({
                         className={`
                             flex
                             items-center
-                            justify-between
                             p-2
                             rounded-2xl
                             ${activeDot
@@ -156,11 +156,12 @@ function Live({
 
                             <div>
 
-                                <h4 className="text-sm md:text-base font-medium">
-                                    {user.username}
+                                <h4 className="flex min-w-0 items-center gap-1 whitespace-nowrap text-sm md:text-base font-medium">
+                                    <span className="min-w-0 truncate">{user.username}</span>
+                                    <AdminVerifiedBadge show={user.isAdmin} />
                                 </h4>
 
-                                <p className="text-xs md:text-sm text-gray-400">
+                                <p className={`text-xs md:text-sm ${userOnline ? "font-medium text-green-600" : "text-gray-400"}`}>
                                     {userOnline
                                         ? 'Online'
                                         : 'Offline'}
@@ -169,26 +170,6 @@ function Live({
                             </div>
 
                         </div>
-
-                        <button
-                            className={`text-xs md:text-sm px-3 py-2 rounded-full ${activeDot
-                                ? userOnline
-                                    ? "bg-green-100 text-green-700"
-                                    : "bg-gray-100 text-gray-500"
-                                : userOnline
-                                    ? "bg-violet-100 text-violet-700"
-                                    : "bg-gray-100 text-gray-500"
-                                }`}
-                        >
-                            {activeDot
-                                ? userOnline
-                                    ? "Active"
-                                    : "Offline"
-                                : userOnline
-                                    ? "Active"
-                                    : "Offline"
-                            }
-                        </button>
 
                     </div>
 

@@ -12,6 +12,7 @@ import { goToLoginAfterRememberingPage } from "../utils/loginRedirect"
 import { LOGOUT } from "../../../api"
 
 import { Home, LogIn, LogOut } from 'lucide-react'
+import AdminVerifiedBadge from "./AdminVerifiedBadge"
 
 type HeaderProps = {
     variant?: "hero" | "topbar"
@@ -147,9 +148,10 @@ export default function Header({
                     <div className="flex min-w-0 items-center justify-end gap-2">
                         <span
                             title={displayName}
-                            className="min-w-0 max-w-[34vw] truncate rounded-full bg-[#F8F6FF] px-3 py-2 text-xs font-black text-[#4A3F77] sm:max-w-none"
+                            className="inline-flex min-w-0 max-w-[34vw] items-center gap-1.5 whitespace-nowrap rounded-full bg-[#F8F6FF] px-3 py-2 text-xs font-black text-[#4A3F77] sm:max-w-none"
                         >
-                            {displayName}
+                            <span className="min-w-0 truncate">{displayName}</span>
+                            <AdminVerifiedBadge show={user?.isAdmin} />
                         </span>
 
                         <Link
@@ -451,8 +453,9 @@ export default function Header({
                         </h4>
                     </p>
                     {authenticated &&
-                        <h3 id="welcomeUser" className="text-white text-1xl lg:text-1xl font-black leading-tight">
-                            Welcome Back,  {user?.username}
+                        <h3 id="welcomeUser" className="flex min-w-0 items-center gap-1.5 text-white text-1xl lg:text-1xl font-black leading-tight">
+                            <span className="min-w-0 truncate whitespace-nowrap">Welcome Back, {user?.username}</span>
+                            <AdminVerifiedBadge show={user?.isAdmin} />
                         </h3>
                     }
                     {/* <p className="text-white/70 mt-2 leading-7 max-w-[650px]">

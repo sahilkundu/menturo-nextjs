@@ -49,6 +49,7 @@ import {
 } from '../../../api'
 import Spinner from '../../shared/components/Spinner'
 import TestActionLoader from '../../shared/components/TestActionLoader'
+import AdminVerifiedBadge from '../../shared/components/AdminVerifiedBadge'
 import { useUserStore } from '../../shared/store/user'
 import { useTypingStore } from '../../shared/store/typingStore'
 import { showPopupMessage } from '../../shared/utils/popup'
@@ -2850,6 +2851,7 @@ export default function TypingProPage() {
                                 icon={<User size={26} />}
                                 label="USER NAME"
                                 value={displayName}
+                                valueAccessory={<AdminVerifiedBadge show={user?.isAdmin} className="h-5 w-5" />}
                                 detail={user?.id ? `ID: ${user.id}` : 'Sign in required'}
                                 iconClass="bg-violet-100 text-violet-700"
                             />
@@ -3298,7 +3300,8 @@ function StatCard({
     iconClass,
     valueClass = '',
     accent = '',
-    meter
+    meter,
+    valueAccessory
 }: {
     icon: ReactNode
     label: string
@@ -3308,6 +3311,7 @@ function StatCard({
     valueClass?: string
     accent?: string
     meter?: number
+    valueAccessory?: ReactNode
 }) {
 
     return (
@@ -3319,9 +3323,10 @@ function StatCard({
 
                 <div className="min-w-0">
                     <p className="text-[10px] font-black text-slate-500">{label}</p>
-                    <p className={`mt-1 truncate text-lg font-black ${valueClass}`}>
-                        {value}
-                    </p>
+                    <div className={`mt-1 flex min-w-0 items-center gap-1.5 text-lg font-black ${valueClass}`}>
+                        <span className="min-w-0 truncate">{value}</span>
+                        {valueAccessory}
+                    </div>
                     <p className="mt-1 text-[11px] font-black text-slate-500">{detail}</p>
                 </div>
             </div>
