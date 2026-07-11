@@ -58,6 +58,8 @@ export default function SettingPage() {
     useUserStore((state) => state.authChecked)
   const fetchUser =
     useUserStore((state) => state.fetchUser)
+  const securityBlockedUntil =
+    useUserStore((state) => state.securityBlockedUntil)
   const {
     sessions,
     setSessions,
@@ -579,6 +581,14 @@ export default function SettingPage() {
   const logoutSession = async (
     sessionId: string
   ) => {
+    if (securityBlockedUntil > Math.floor(Date.now() / 1000)) {
+      showPopupMessage(
+        "Account actions are temporarily blocked.",
+        false
+      );
+      return;
+    }
+
     setLogoutSessionLoading(
       sessionId
     );
@@ -636,6 +646,14 @@ export default function SettingPage() {
     }
   };
   const logoutAllSessions = async () => {
+    if (securityBlockedUntil > Math.floor(Date.now() / 1000)) {
+      showPopupMessage(
+        "Account actions are temporarily blocked.",
+        false
+      );
+      return;
+    }
+
     try {
       setLogoutAllLoading(true);
 
@@ -1197,7 +1215,10 @@ export default function SettingPage() {
 
                   <button
                     onClick={logoutAllSessions}
-                    disabled={logoutAllLoading}
+                    disabled={
+                      logoutAllLoading ||
+                      securityBlockedUntil > Math.floor(Date.now() / 1000)
+                    }
                     className="
                     cursor-pointer 
       px-3 py-1.5
@@ -1341,7 +1362,8 @@ export default function SettingPage() {
                                 logoutSession(session._id)
                               }
                               disabled={
-                                logoutSessionLoading === session._id
+                                logoutSessionLoading === session._id ||
+                                securityBlockedUntil > Math.floor(Date.now() / 1000)
                               }
                               className="
                               cursor-pointer 

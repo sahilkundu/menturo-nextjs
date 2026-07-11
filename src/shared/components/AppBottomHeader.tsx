@@ -43,6 +43,10 @@ export default function AppBottomHeader() {
         useUserStore(
             (state) => state.logout
         )
+    const securityBlockedUntil =
+        useUserStore(
+            (state) => state.securityBlockedUntil
+        )
 
     if (shouldHideHeader(pathname)) {
         return null
@@ -54,8 +58,14 @@ export default function AppBottomHeader() {
             : 'Guest'
     const onSettingPage =
         pathname === '/setting'
+    const logoutDisabled =
+        securityBlockedUntil > Math.floor(Date.now() / 1000)
 
     const handleLogout = async () => {
+        if (logoutDisabled) {
+            return
+        }
+
         try {
             await fetch(
                 LOGOUT,
@@ -135,8 +145,9 @@ export default function AppBottomHeader() {
                         <button
                             type="button"
                             onClick={handleLogout}
+                            disabled={logoutDisabled}
                             title={displayName}
-                            className="flex min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-2xl px-1 py-2 text-[10px] font-black text-[#8B86A3] transition hover:text-[#4A3F77]"
+                            className="flex min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-2xl px-1 py-2 text-[10px] font-black text-[#8B86A3] transition hover:text-[#4A3F77] disabled:cursor-not-allowed disabled:opacity-50"
                         >
                             <LogOut size={20} strokeWidth={2.5} />
                             <span className="truncate">Sign Out</span>

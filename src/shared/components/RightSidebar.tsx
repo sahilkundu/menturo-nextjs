@@ -34,6 +34,10 @@ export default function RightSidebar() {
         useUserStore(
             (state) => state.logout
         )
+    const securityBlockedUntil =
+        useUserStore(
+            (state) => state.securityBlockedUntil
+        )
     const head = useLayoutStore(
         (state) => state.rightMobile
     )
@@ -84,7 +88,13 @@ export default function RightSidebar() {
     useEffect(() => {
         setMounted(true)
     }, [])
+    const logoutDisabled =
+        securityBlockedUntil > Math.floor(Date.now() / 1000)
+
     const handleLogout = useCallback(async () => {
+        if (logoutDisabled) {
+            return
+        }
 
         try {
 
@@ -115,7 +125,7 @@ export default function RightSidebar() {
 
         } catch {
         }
-    }, [logout])
+    }, [logout, logoutDisabled])
 
     return (
 
@@ -335,7 +345,10 @@ export default function RightSidebar() {
                                 duration-300
                                 hover:bg-red-100
                                 active:scale-[0.98]
+                                disabled:cursor-not-allowed
+                                disabled:opacity-50
                             "
+                                disabled={logoutDisabled}
                                 onClick={() => {
                                     handleLogout()
                                 }}

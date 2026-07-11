@@ -20,6 +20,18 @@ interface UserData {
     lastActive: number
 }
 
+interface NeedVerify {
+    required?: boolean
+    email?: boolean
+    mobile?: boolean
+    eOtp?: boolean
+    mOtp?: boolean
+    emailMasked?: string
+    mobileMasked?: string
+    hasEmail?: boolean
+    hasMobile?: boolean
+}
+
 interface UserStore {
     user: UserData | null
 
@@ -31,9 +43,17 @@ interface UserStore {
 
     authChecked: boolean
 
+    securityBlockedUntil: number
+
+    needVerify: NeedVerify
+
     setUser: (user: UserData | null) => void
 
     setAccess: (access: Record<string, any>) => void
+
+    setSecurityBlockedUntil: (value: number) => void
+
+    setNeedVerify: (value: NeedVerify) => void
 
     logout: () => void
 
@@ -53,6 +73,10 @@ export const useUserStore =
 
         authChecked: false,
 
+        securityBlockedUntil: 0,
+
+        needVerify: {},
+
         // =========================
         // Set User
         // =========================
@@ -69,6 +93,18 @@ export const useUserStore =
                     access || {},
             }),
 
+        setSecurityBlockedUntil: (value) =>
+            set({
+                securityBlockedUntil:
+                    Number(value || 0),
+            }),
+
+        setNeedVerify: (value) =>
+            set({
+                needVerify:
+                    value || {},
+            }),
+
         // =========================
         // Logout
         // =========================
@@ -79,6 +115,8 @@ export const useUserStore =
                 access: {},
                 authenticated: false,
                 authChecked: true,
+                securityBlockedUntil: 0,
+                needVerify: {},
             }),
 
         // =========================
@@ -130,6 +168,8 @@ export const useUserStore =
                         authenticated: true,
                         authChecked: true,
                         loading: false,
+                        securityBlockedUntil: 0,
+                        needVerify: data.needVerify || {},
                     })
 
                     return true
@@ -141,6 +181,8 @@ export const useUserStore =
                         authenticated: false,
                         authChecked: true,
                         loading: false,
+                        securityBlockedUntil: 0,
+                        needVerify: {},
                     })
 
                     return false
@@ -154,6 +196,8 @@ export const useUserStore =
                     authenticated: false,
                     authChecked: true,
                     loading: false,
+                    securityBlockedUntil: 0,
+                    needVerify: {},
                 })
 
                 return false

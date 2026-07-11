@@ -50,6 +50,10 @@ export default function Header({
         useUserStore(
             (state) => state.logout
         )
+    const securityBlockedUntil =
+        useUserStore(
+            (state) => state.securityBlockedUntil
+        )
     const site =
         useWSChatStore(
             s => s.site
@@ -115,8 +119,14 @@ export default function Header({
             authenticated
                 ? (user?.username || user?.firstName || "User")
                 : "Guest"
+        const logoutDisabled =
+            securityBlockedUntil > Math.floor(Date.now() / 1000)
 
         const handleLogout = async () => {
+            if (logoutDisabled) {
+                return
+            }
+
             try {
                 await fetch(
                     LOGOUT,
@@ -153,7 +163,8 @@ export default function Header({
                         {authenticated ? (
                             <button
                                 onClick={handleLogout}
-                                className="inline-flex h-10 items-center gap-1.5 rounded-xl bg-[#4A3F77] px-3 text-xs font-bold text-white shadow-[0_3px_8px_rgba(42,31,92,.25)] transition hover:bg-[#3D3466]"
+                                disabled={logoutDisabled}
+                                className="inline-flex h-10 items-center gap-1.5 rounded-xl bg-[#4A3F77] px-3 text-xs font-bold text-white shadow-[0_3px_8px_rgba(42,31,92,.25)] transition hover:bg-[#3D3466] disabled:cursor-not-allowed disabled:opacity-50"
                             >
                                 <LogOut size={15} strokeWidth={2.5} />
                                 <span>Sign Out</span>
