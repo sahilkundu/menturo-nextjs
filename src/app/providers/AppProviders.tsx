@@ -775,7 +775,7 @@ function AccountVerificationGate({
         value: string,
         setValue: (next: string) => void
     ) => (
-        <div className="mt-5 flex justify-center gap-2">
+        <div className="mt-5 flex w-full justify-center gap-1.5 sm:gap-2">
             {Array.from({ length: 6 }).map((_, index) => (
                 <input
                     key={index}
@@ -838,7 +838,7 @@ function AccountVerificationGate({
                             setMobileMessage("")
                         }
                     }}
-                    className="h-11 w-11 rounded-lg border border-slate-300 bg-white text-center text-lg font-semibold text-slate-950 outline-none transition focus:border-blue-600 focus:ring-2 focus:ring-blue-100 sm:h-12 sm:w-12"
+                    className="h-[clamp(2.25rem,11vw,2.75rem)] w-[clamp(2.25rem,11vw,2.75rem)] rounded-lg border border-slate-300 bg-white text-center text-base font-semibold text-slate-950 outline-none transition focus:border-blue-600 focus:ring-2 focus:ring-blue-100 sm:h-12 sm:w-12 sm:text-lg"
                 />
             ))}
         </div>
@@ -864,8 +864,8 @@ function AccountVerificationGate({
     }
 
     return (
-        <div className="fixed inset-0 z-[2147483647] grid place-items-center bg-slate-950/60 px-4 backdrop-blur-sm">
-            <div className="w-full max-w-md rounded-xl bg-white px-6 py-5 shadow-2xl">
+        <div className="fixed inset-0 z-[2147483647] grid place-items-center overflow-y-auto bg-slate-950/60 px-3 py-4 backdrop-blur-sm sm:px-4">
+            <div className="w-full max-w-md rounded-xl bg-white px-4 py-5 shadow-2xl sm:px-6">
                 <div className="min-h-7">
                     {((showEmailChange && !missingEmail) || (showMobileChange && !missingMobile)) && (
                         <button
@@ -955,7 +955,7 @@ function AccountVerificationGate({
 
                         <div className="mt-5 grid gap-4">
                             {requiresEmail && (
-                                <div className="rounded-lg border border-blue-200 bg-blue-50/60 px-4 py-4">
+                                <div className="rounded-lg border border-blue-200 bg-blue-50/60 px-3 py-4 sm:px-4">
                                     <p className="text-center text-xs font-bold uppercase tracking-wide text-blue-700">
                                         Email verification
                                     </p>
@@ -972,7 +972,7 @@ function AccountVerificationGate({
                                             {emailMessage}
                                         </p>
                                     )}
-                                    <div className="mt-4 text-center text-sm text-slate-500">
+                                    <div className="mt-4 text-center text-sm leading-6 text-slate-500">
                                         Not received yet?{" "}
                                         <button
                                             type="button"
@@ -983,7 +983,7 @@ function AccountVerificationGate({
                                             {busy === "resend-email" || busy === "request" ? "Sending..." : "Resend verification code"}
                                         </button>
                                     </div>
-                                    <div className="mt-2 text-center text-sm text-slate-500">
+                                    <div className="mt-2 text-center text-sm leading-6 text-slate-500">
                                         Not your email?{" "}
                                         <button
                                             type="button"
@@ -1002,7 +1002,7 @@ function AccountVerificationGate({
                             )}
 
                             {requiresMobile && (
-                                <div className="rounded-lg border border-emerald-200 bg-emerald-50/60 px-4 py-4">
+                                <div className="rounded-lg border border-emerald-200 bg-emerald-50/60 px-3 py-4 sm:px-4">
                                     <p className="text-center text-xs font-bold uppercase tracking-wide text-emerald-700">
                                         Mobile verification
                                     </p>
@@ -1019,7 +1019,7 @@ function AccountVerificationGate({
                                             {mobileMessage}
                                         </p>
                                     )}
-                                    <div className="mt-4 text-center text-sm text-slate-500">
+                                    <div className="mt-4 text-center text-sm leading-6 text-slate-500">
                                         Not received yet?{" "}
                                         <button
                                             type="button"
@@ -1030,7 +1030,7 @@ function AccountVerificationGate({
                                             {busy === "resend-mobile" || busy === "request" ? "Sending..." : "Resend verification code"}
                                         </button>
                                     </div>
-                                    <div className="mt-2 text-center text-sm text-slate-500">
+                                    <div className="mt-2 text-center text-sm leading-6 text-slate-500">
                                         Not your mobile?{" "}
                                         <button
                                             type="button"
