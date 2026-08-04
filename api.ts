@@ -4,6 +4,10 @@ export const BASE_URL =
     process.env.NEXT_PUBLIC_API_BASE_URL ||
     "https://api.menturo.in"
 
+export const SEO_API_URL =
+    process.env.NEXT_PUBLIC_SEO_API_URL ||
+    "https://seo-api.menturo.in"
+
 export const LOGIN = `${BASE_URL}/login`
 
 export const REGISTER = `${BASE_URL}/signup`
@@ -19,6 +23,11 @@ export const ACCOUNT_VERIFICATION_CHANGE = `${BASE_URL}/api/account/verification
 export const LOAD_SERIES = `${BASE_URL}/api/test-series/load`
 export const LOAD_ONE_SERIES = `${BASE_URL}/api/test-series/loadone`
 export const LOAD_SERIES_SEO = `${BASE_URL}/api/seo/series`
+export const LOAD_SEO_QUESTION = `${SEO_API_URL}/api/seo/questions`
+export const LOAD_SEO_TOPIC = `${SEO_API_URL}/api/seo/topics`
+export const LOAD_SEO_SITEMAP = `${SEO_API_URL}/api/seo/sitemaps`
+export const LOAD_SEO_RECOMMENDATIONS = `${SEO_API_URL}/api/public/recommendations`
+export const TRACK_SEO_EVENT = `${SEO_API_URL}/api/public/content-events`
 export const LOAD_TESTS = `${BASE_URL}/api/tests/load`
 export const LOAD_TESTS_BY_SUB = `${BASE_URL}/api/tests/loadsub`
 export const LOAD_TEST_CARD_METADATA = `${BASE_URL}/api/tests/card-meta`

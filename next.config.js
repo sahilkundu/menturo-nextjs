@@ -79,16 +79,11 @@ const nextConfig = {
                             https://*.gstatic.com
                             https://challenges.cloudflare.com
                             https://*.challenges.cloudflare.com
-                            https://n6wxm.com
-                            https://*.n6wxm.com
-                            https://nap5k.com
-                            https://*.nap5k.com
-                            https://5gvci.com
-                            https://*.5gvci.com;
+                            ;
 
                             worker-src 'self'
                             blob:
-                            https://5gvci.com;
+                            ;
 
                             style-src 'self' 'unsafe-inline';
 
@@ -106,12 +101,6 @@ const nextConfig = {
                             frame-src 'self'
                             https://challenges.cloudflare.com
                             https://*.challenges.cloudflare.com
-                            https://n6wxm.com
-                            https://*.n6wxm.com
-                            https://nap5k.com
-                            https://*.nap5k.com
-                            https://5gvci.com
-                            https://*.5gvci.com
                             https://googleads.g.doubleclick.net
                             https://*.googlesyndication.com
                             https://*.google.com;
