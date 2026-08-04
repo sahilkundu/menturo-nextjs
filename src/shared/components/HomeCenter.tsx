@@ -363,7 +363,7 @@ export default function HomeCenter() {
 
                                 {/* <!-- BIG TEXT --> */}
                                 <h1 className="absolute top-0 left-7 text-[70px] font-black text-white/10 hidden lg:block">
-                                    EDUCATION
+                                    MENTURO
                                 </h1>
                                 <Header />
                             </div>

@@ -7,7 +7,7 @@ import {
     hartronPagePath,
     hartronSupportPages,
 } from '../shared/hartronSeo'
-import { BASE_URL } from '../../api'
+import { BASE_URL, LOAD_SEO_SITEMAP } from '../../api'
 
 export const dynamic = 'force-dynamic'
 
@@ -63,6 +63,70 @@ const getSeriesRoutes = async (
             hasMore =
                 Boolean(data?.pagination?.hasMore)
 
+            page += 1
+        }
+
+        return routes
+    } catch {
+        return []
+    }
+}
+
+const getSeoRoutes = async (
+    kind: 'questions' | 'topics' | 'subjects' | 'chapters' | 'subtopics',
+    now: Date
+): Promise<MetadataRoute.Sitemap> => {
+    try {
+        const routes: MetadataRoute.Sitemap = []
+        let page = 1
+        let hasMore = true
+
+        while (hasMore && page <= 50) {
+            const response = await fetch(
+                `${LOAD_SEO_SITEMAP}/${kind}?page=${page}&limit=5000`,
+                {
+                    method: 'GET',
+                    next: {
+                        revalidate: 3600,
+                    },
+                }
+            )
+
+            if (!response.ok) {
+                throw new Error(`SEO ${kind} sitemap API returned ${response.status}`)
+            }
+
+            const data = await response.json()
+            const items = Array.isArray(data?.items) ? data.items : []
+
+            for (const item of items) {
+                if (!item?.url) {
+                    continue
+                }
+
+                routes.push({
+                    url: item.url.startsWith('http')
+                        ? item.url
+                        : `${siteUrl}${item.url}`,
+                    lastModified: item?.lastModified
+                        ? new Date(item.lastModified)
+                        : now,
+                    changeFrequency: item?.changeFrequency || (kind === 'questions' ? 'monthly' : 'weekly'),
+                    priority: typeof item?.priority === 'number'
+                        ? item.priority
+                        : kind === 'subjects'
+                            ? 0.9
+                            : kind === 'chapters'
+                                ? 0.86
+                                : kind === 'topics'
+                            ? 0.82
+                                    : kind === 'subtopics'
+                                        ? 0.78
+                                        : 0.64,
+                })
+            }
+
+            hasMore = Boolean(data?.pagination?.hasMore)
             page += 1
         }
 
@@ -140,9 +204,24 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
     const seriesRoutes =
         await getSeriesRoutes(now)
+    const questionRoutes =
+        await getSeoRoutes('questions', now)
+    const subjectRoutes =
+        await getSeoRoutes('subjects', now)
+    const chapterRoutes =
+        await getSeoRoutes('chapters', now)
+    const topicRoutes =
+        await getSeoRoutes('topics', now)
+    const subtopicRoutes =
+        await getSeoRoutes('subtopics', now)
 
     return [
         ...publicRoutes,
         ...seriesRoutes,
+        ...subjectRoutes,
+        ...chapterRoutes,
+        ...topicRoutes,
+        ...subtopicRoutes,
+        ...questionRoutes,
     ]
 }

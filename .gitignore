@@ -1,6 +1,11 @@
 # Logs
 logs
 *.log
+sitemap.xml
+src/app/(seo)/
+public/sw.js
+public/ads.txt
+src/shared/seo-public
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*

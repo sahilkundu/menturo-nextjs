@@ -134,8 +134,8 @@ export default function LeftSidebar() {
     "
                                 >
                                     <Image
-                                        src="https://cdn.menturo.in/img/M3.png"
-                                        alt="logo"
+                                        src="https://cdn.menturo.in/img/menturo-logo.png"
+                                        alt="Menturo logo"
                                         width={40}
                                         height={40}
                                         loading="lazy"

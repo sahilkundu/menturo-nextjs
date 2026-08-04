@@ -56,8 +56,8 @@ export default function Footer() {
     "
                                     >
                                         <Image
-                                            src="https://cdn.menturo.in/img/M3.png"
-                                            alt="logo"
+                                            src="https://cdn.menturo.in/img/menturo-logo.png"
+                                            alt="Menturo logo"
                                             width={48}
                                             height={48}
                                             loading="lazy"

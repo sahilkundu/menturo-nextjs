@@ -1,1 +1,171 @@
 google.com, pub-4532294499802857, DIRECT, f08c47fec0942fa0
+
+
+
+Yes. I can audit it, but I need to mention one limitation: I can't fully render your website like a browser with JavaScript, so I can't verify every page element directly. I can still review the technical SEO signals, your sitemap, and what you've shared.
+
+Based on what you've shown, I'd score it like this
+Category	Score
+Sitemap	9/10
+URL Structure	6/10
+Technical SEO	8/10
+Keyword SEO	4/10
+Content SEO	3/10
+Internal Linking	5/10
+Overall	6.5/10
+
+The biggest opportunity is content and keyword optimization, not the sitemap.
+
+Biggest problems I see
+1. Your pages target IDs, not keywords
+
+Example:
+
+/series/hartron-programmer-69d883c7a26e6700241776c7
+
+Better:
+
+/series/hartron-programmer-test-series
+
+or
+
+/hartron-programmer-test-series
+
+Google prefers readable URLs.
+
+2. There isn't a main HARTRON landing page
+
+Instead of only having individual series pages, create:
+
+/hartron-test-series
+
+This page should contain:
+
+HARTRON Programmer
+HARTRON Junior Programmer
+HARTRON Data Entry Operator
+HARTRON Software Developer
+
+Then link to every test series.
+
+3. You need much more content
+
+If a page only contains:
+
+title
+buy button
+tests
+
+Google has very little text to understand.
+
+Aim for:
+
+1000–2000 words
+syllabus
+exam pattern
+FAQs
+preparation tips
+previous papers
+mock tests
+4. Missing keyword clusters
+
+Don't only create:
+
+HARTRON Test Series
+
+Also create pages like:
+
+HARTRON syllabus
+HARTRON previous year papers
+HARTRON mock test
+HARTRON computer questions
+HARTRON preparation
+HARTRON exam pattern
+
+All should link together.
+
+5. Better titles
+
+Instead of
+
+HARTRON Programmer
+
+use
+
+HARTRON Programmer Test Series 2026 | Mock Tests & PYQs | Menturo
+6. Better H1
+HARTRON Programmer Test Series 2026
+7. Meta description
+Prepare for the HARTRON Programmer exam with online mock tests, previous-year questions, detailed explanations and performance analysis on Menturo.
+If you want to rank for
+HARTRON
+
+Your page should naturally contain:
+
+HARTRON
+HARTRON Test Series
+HARTRON Mock Test
+HARTRON Previous Year Papers
+HARTRON Computer Questions
+HARTRON Exam Pattern
+HARTRON Syllabus
+
+Google understands related terms, not just exact repetitions.
+
+Don't target only one page
+
+A good site structure would look like:
+
+Home
+
+HARTRON
+   ├── HARTRON Test Series
+   ├── Programmer
+   ├── Junior Programmer
+   ├── Software Developer
+   ├── Data Entry Operator
+   ├── Previous Year Papers
+   ├── Syllabus
+   ├── Exam Pattern
+Your sitemap
+
+The sitemap itself looks good.
+
+Just make sure:
+
+every page returns 200 OK
+every page is indexable
+robots.txt references the sitemap
+lastmod reflects actual content changes rather than the sitemap generation time. Google recommends accurate lastmod values and doesn't use priority or changefreq as ranking signals.
+If I were hired to optimize Menturo
+
+This is the order I'd work in:
+
+✅ Fix URLs
+✅ Create category pages (/hartron-test-series, /hssc-test-series, etc.)
+✅ Add 1000–2000 words of useful content to every landing page
+✅ Improve title, H1, and meta description
+✅ Add structured data (Breadcrumbs, FAQ where appropriate)
+✅ Strengthen internal linking
+✅ Build backlinks from relevant educational sites
+✅ Publish new content regularly (blogs, exam updates, preparation guides)
+I can also do a full SEO blueprint
+
+I can prepare a 50+ point SEO blueprint specifically for Menturo, covering:
+
+Exact page structure
+Every landing page to create
+Titles
+Meta descriptions
+H1/H2 hierarchy
+Schema markup
+Internal linking map
+Keyword clusters
+Competitor analysis (e.g. Testbook, Adda247, Oliveboard)
+A 3-month roadmap to target 100,000+ monthly organic visitors
+
+That would be tailored to your exam-preparation platform rather than generic SEO advice. check this
+
+
+
+ok i have added slug now change frontend and ADMIN when creating new sereis for add slug option here in both
