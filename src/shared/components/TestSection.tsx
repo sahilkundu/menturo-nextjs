@@ -1596,7 +1596,7 @@ export default function TestSection({ series }: Props) {
 
                                                                                     <span>
                                                                                         {lacksAccess
-                                                                                            ? "Buy Now"
+                                                                                            ? "Unlock"
                                                                                             : authenticated
                                                                                             ? (
                                                                                                 hasRunningTest
@@ -1899,7 +1899,7 @@ export default function TestSection({ series }: Props) {
                                                                                     </span>
                                                                                     <span>
                                                                                         {lacksAccess
-                                                                                            ? "Buy Now"
+                                                                                            ? "Unlock"
                                                                                             : authenticated
                                                                                             ? isAttemptLimitReached
                                                                                                 ? "Limit Reached"
@@ -2183,7 +2183,7 @@ export default function TestSection({ series }: Props) {
                                                                                     </span>}
                                                                                 <span>
                                                                                     {lacksAccess
-                                                                                        ? "Buy Now"
+                                                                                        ? "Unlock"
                                                                                         : authenticated
                                                                                         ? "Start Test"
                                                                                         : "Login to Start"}
