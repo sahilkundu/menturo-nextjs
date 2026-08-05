@@ -221,6 +221,16 @@ export default function TestSection({ series }: Props) {
             series?.access
         )
 
+    const scrollToPaymentCards = () => {
+        const paymentSection =
+            document.getElementById('series-payment-cards')
+
+        paymentSection?.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+        })
+    }
+
 
     const rowVirtualizer = useVirtualizer({
         getItemKey: (index) => tests[index]?.testId || index,
@@ -1336,6 +1346,8 @@ export default function TestSection({ series }: Props) {
                                         loadingTestId?.startsWith(
                                             `${test.testId}-solution-`
                                         )
+                                    const lacksAccess =
+                                        authenticated && !test.access
                                     const premiumButtonClass =
                                         `
                                             bg-[linear-gradient(135deg,#4A3F77_0%,#362D5F_100%)]
@@ -1355,6 +1367,17 @@ export default function TestSection({ series }: Props) {
                                             text-[#8D86A9]
                                             shadow-none
                                             pointer-events-none
+                                        `
+                                    const unlockPaymentButtonClass =
+                                        `
+                                            cursor-pointer
+                                            border
+                                            border-[#8B5CF6]/25
+                                            bg-[linear-gradient(135deg,#5B4B8A_0%,#7C3AED_48%,#A855F7_100%)]
+                                            text-white
+                                            shadow-[0_12px_26px_rgba(124,58,237,0.28),inset_0_1px_0_rgba(255,255,255,0.22)]
+                                            hover:shadow-[0_16px_34px_rgba(124,58,237,0.34),inset_0_1px_0_rgba(255,255,255,0.25)]
+                                            active:scale-[0.98]
                                         `
                                     return (
 
@@ -1508,18 +1531,22 @@ export default function TestSection({ series }: Props) {
 
                                                                         if (
                                                                             isActionLocked ||
-                                                                            hasRunningTest ||
-                                                                            (authenticated && !test.access)
+                                                                            hasRunningTest
                                                                         ) return
+
+                                                                        if (lacksAccess) {
+                                                                            scrollToPaymentCards()
+                                                                            return
+                                                                        }
 
                                                                         handleTestAction(test)
                                                                     }}
                                                                     disabled={
-                                                                        isActionLocked || hasRunningTest || (authenticated && !test.access)
+                                                                        isActionLocked || hasRunningTest
                                                                     }
                                                                     className={`
                                                                     
-                    ${isActionLocked || hasRunningTest || (authenticated && !test.access)
+                   ${isActionLocked || hasRunningTest
                                                                             ? 'cursor-not-allowed'
                                                                             : 'cursor-pointer'
                                                                         }
@@ -1539,9 +1566,11 @@ export default function TestSection({ series }: Props) {
         disabled:cursor-not-allowed
         disabled:pointer-events-none
 
-                    ${(!authenticated || test.access) && !isActionLocked && !hasRunningTest
-                                                                            ? premiumButtonClass
-                                                                            : disabledButtonClass
+                    ${isActionLocked || hasRunningTest
+                                                                            ? disabledButtonClass
+                                                                            : lacksAccess
+                                                                            ? unlockPaymentButtonClass
+                                                                            : premiumButtonClass
                                                                         }
                 `}
                                                                 >
@@ -1566,7 +1595,9 @@ export default function TestSection({ series }: Props) {
                                                                                     </span>
 
                                                                                     <span>
-                                                                                        {authenticated
+                                                                                        {lacksAccess
+                                                                                            ? "Buy Now"
+                                                                                            : authenticated
                                                                                             ? (
                                                                                                 hasRunningTest
                                                                                                     ? "Test running..."
@@ -1806,21 +1837,27 @@ export default function TestSection({ series }: Props) {
                                                                 {/* ========================================= */}
 
                                                                 <button
-                                                                    onClick={() =>
-                                                                        (!authenticated || test.access) &&
-                                                                        !isActionLocked &&
-                                                                        !isAttemptLimitReached &&
+                                                                    onClick={() => {
+                                                                        if (
+                                                                            isActionLocked ||
+                                                                            isAttemptLimitReached
+                                                                        ) return
+
+                                                                        if (lacksAccess) {
+                                                                            scrollToPaymentCards()
+                                                                            return
+                                                                        }
+
                                                                         handleTestAction(test)
-                                                                    }
+                                                                    }}
                                                                     disabled={
                                                                         isActionLocked ||
-                                                                        (authenticated && !test.access) ||
                                                                         isAttemptLimitReached
                                                                     }
                                                                     className={`
 
         
-                   ${isActionLocked || hasRunningTest || (authenticated && !test.access) || isAttemptLimitReached
+                   ${isActionLocked || hasRunningTest || isAttemptLimitReached
                                                                             ? 'cursor-not-allowed'
                                                                             : 'cursor-pointer'
                                                                         }
@@ -1834,9 +1871,11 @@ export default function TestSection({ series }: Props) {
                     flex
                     justify-center
                     text-center
-                    ${!isActionLocked && !hasRunningTest && (!authenticated || test.access) && !isAttemptLimitReached
-                                                                            ? premiumButtonClass
-                                                                            : disabledButtonClass
+                    ${isActionLocked || hasRunningTest || isAttemptLimitReached
+                                                                            ? disabledButtonClass
+                                                                            : lacksAccess
+                                                                            ? unlockPaymentButtonClass
+                                                                            : premiumButtonClass
                                                                         }
                     transition-all
                     disabled:opacity-70
@@ -1858,15 +1897,15 @@ export default function TestSection({ series }: Props) {
                                                                                         }
 
                                                                                     </span>
-                                                                                    {(!authenticated || test.access) &&
-                                                                                        <span>
-                                                                                            {authenticated
-                                                                                                ? isAttemptLimitReached
-                                                                                                    ? "Limit Reached"
-                                                                                                    : "Test Again"
-                                                                                                : "Login to Retry"}
-                                                                                        </span>
-                                                                                    }
+                                                                                    <span>
+                                                                                        {lacksAccess
+                                                                                            ? "Buy Now"
+                                                                                            : authenticated
+                                                                                            ? isAttemptLimitReached
+                                                                                                ? "Limit Reached"
+                                                                                                : "Test Again"
+                                                                                            : "Login to Retry"}
+                                                                                    </span>
                                                                                 </>
                                                                             )
                                                                     }
@@ -2088,16 +2127,21 @@ export default function TestSection({ series }: Props) {
 
                                                             <button
                                                                 disabled={
-                                                                    isActionLocked || (authenticated && !test.access)
+                                                                    isActionLocked
                                                                 }
-                                                                onClick={() =>
-                                                                    (!authenticated || test.access) &&
-                                                                    !isActionLocked &&
+                                                                onClick={() => {
+                                                                    if (isActionLocked) return
+
+                                                                    if (lacksAccess) {
+                                                                        scrollToPaymentCards()
+                                                                        return
+                                                                    }
+
                                                                     handleTestAction(test)
-                                                                }
+                                                                }}
                                                                 className={`
                                                             
-                ${isActionLocked || hasRunningTest || (authenticated && !test.access)
+                ${isActionLocked || hasRunningTest
                                                                         ? 'cursor-not-allowed'
                                                                         : 'cursor-pointer'
                                                                     }
@@ -2110,9 +2154,11 @@ export default function TestSection({ series }: Props) {
                 gap-2
                 justify-center
                 text-center
-                ${!isActionLocked && !hasRunningTest && (!authenticated || test.access)
-                                                                        ? premiumButtonClass
-                                                                        : disabledButtonClass
+                ${isActionLocked || hasRunningTest
+                                                                        ? disabledButtonClass
+                                                                        : lacksAccess
+                                                                        ? unlockPaymentButtonClass
+                                                                        : premiumButtonClass
                                                                     }
                 transition-all
                 disabled:opacity-70
@@ -2135,16 +2181,13 @@ export default function TestSection({ series }: Props) {
                                                                                         }
 
                                                                                     </span>}
-                                                                                {(!authenticated || test.access) &&
-                                                                                    <span>
-                                                                                        {authenticated ?
-                                                                                            "Start Test" :
-                                                                                            "Login to Start"
-                                                                                        }
-
-
-                                                                                    </span>
-                                                                                }
+                                                                                <span>
+                                                                                    {lacksAccess
+                                                                                        ? "Buy Now"
+                                                                                        : authenticated
+                                                                                        ? "Start Test"
+                                                                                        : "Login to Start"}
+                                                                                </span>
                                                                             </>
                                                                         )
                                                                 }
@@ -2163,8 +2206,7 @@ export default function TestSection({ series }: Props) {
                                                                     sm:w-auto
                                                                     "
                                                     >
-                                                        <button
-                                                            disabled
+                                                        <div
                                                             className="
         w-full
         sm:w-auto
@@ -2180,15 +2222,32 @@ export default function TestSection({ series }: Props) {
         bg-gray-300
         text-[#4A3F77]
 
-        opacity-70
-        cursor-not-allowed
-        pointer-events-none
+        opacity-90
         whitespace-nowrap
     "
                                                         >
                                                             {test?.btn}
-                                                            <Lock size={14} />
-                                                        </button>
+                                                            <button
+                                                                type="button"
+                                                                aria-label="Scroll to payment cards"
+                                                                onClick={scrollToPaymentCards}
+                                                                className="
+                                                                    grid
+                                                                    h-8
+                                                                    w-8
+                                                                    place-items-center
+                                                                    rounded-xl
+                                                                    bg-[linear-gradient(135deg,#5B4B8A_0%,#7C3AED_52%,#A855F7_100%)]
+                                                                    text-white
+                                                                    shadow-[0_10px_22px_rgba(124,58,237,0.3),inset_0_1px_0_rgba(255,255,255,0.24)]
+                                                                    transition-all
+                                                                    hover:shadow-[0_14px_28px_rgba(124,58,237,0.36),inset_0_1px_0_rgba(255,255,255,0.26)]
+                                                                    active:scale-[0.96]
+                                                                "
+                                                            >
+                                                                <Lock size={14} />
+                                                            </button>
+                                                        </div>
                                                     </div>
                                                 }
                                             </div>

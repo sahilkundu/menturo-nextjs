@@ -46,6 +46,49 @@ const getSavedValue = (data: any) => {
     return Number.isFinite(parsed) ? parsed : 0
 }
 
+const getPlanPricing = (plan: any) => {
+    const originalPrice =
+        Number(plan.price) || 0
+
+    const offerValue =
+        Number(plan.offerPrice) || 0
+
+    if (
+        originalPrice <= 0 ||
+        offerValue <= 0 ||
+        offerValue >= originalPrice
+    ) {
+        return {
+            originalPrice,
+            payablePrice: originalPrice,
+            savedAmount: 0,
+            discountPercent: 0,
+            hasOffer: false
+        }
+    }
+
+    const offerLooksLikeDiscount =
+        offerValue <= originalPrice * 0.45
+
+    const payablePrice =
+        offerLooksLikeDiscount
+            ? originalPrice - offerValue
+            : offerValue
+
+    const savedAmount =
+        originalPrice - payablePrice
+
+    return {
+        originalPrice,
+        payablePrice,
+        savedAmount,
+        discountPercent:
+            Math.round((savedAmount / originalPrice) * 100),
+        hasOffer:
+            savedAmount > 0
+    }
+}
+
 const RAZORPAY_SCRIPT_ID = 'razorpay-checkout-script'
 
 let razorpayScriptPromise: Promise<boolean> | null = null
@@ -482,7 +525,10 @@ export default function SeriesPaymentPage({ series }: FullSeries) {
     }
 
     return (
-        <div className="m-3 lg:col-span-2 space-y-5 overflow-hidden">
+        <div
+            id="series-payment-cards"
+            className="m-3 scroll-mt-24 lg:col-span-2 space-y-5 overflow-hidden"
+        >
             {isVerifyingPayment ? (
                 <div
                     className="fixed inset-0 z-[1100] flex items-center justify-center bg-slate-950/40 backdrop-blur-sm px-5"
@@ -562,32 +608,13 @@ export default function SeriesPaymentPage({ series }: FullSeries) {
                     const planKey =
                         String(plan.planID)
 
-                    const basePrice =
-                        Number(plan.price) || 0
-
-                    const offerDiscount =
-                        Number(plan.offerPrice) || 0
-
-                    // In the current data model offerPrice is a discount
-                    // amount: price=10, offerPrice=7 means the user pays 3.
-                    const hasOffer =
-                        offerDiscount > 0 &&
-                        offerDiscount < basePrice
-
-                    const effectivePlanPrice =
+                    const {
+                        originalPrice,
+                        payablePrice,
+                        savedAmount,
+                        discountPercent,
                         hasOffer
-                            ? basePrice - offerDiscount
-                            : basePrice
-
-                    const discountPercent =
-                        hasOffer && basePrice > 0
-                            ? Math.round(
-                                (offerDiscount / basePrice) * 100
-                            )
-                            : 0
-
-                    const savedAmount =
-                        hasOffer ? offerDiscount : 0
+                    } = getPlanPricing(plan)
 
                     const planCouponCode =
                         couponCodes[planKey] || ''
@@ -601,7 +628,7 @@ export default function SeriesPaymentPage({ series }: FullSeries) {
                             : 0
 
                     const totalAmount =
-                        Math.max(0, effectivePlanPrice - couponSaved)
+                        Math.max(0, payablePrice - couponSaved)
 
                     const cardStyles = [
                         {
@@ -727,7 +754,7 @@ export default function SeriesPaymentPage({ series }: FullSeries) {
 
                                         {hasOffer ? (
                                             <span className="line-through text-gray-400 mb-1 text-sm">
-                                                ₹{basePrice}
+                                                ₹{originalPrice}
                                             </span>
                                         ) : null}
                                     </div>
