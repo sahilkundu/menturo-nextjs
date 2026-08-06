@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { CHECK_COUPON, CREATE_ORDER, VERIFY_RAZORPAY_PAYMENT } from '../../../api'
 import { useUserStore } from '../store/user'
@@ -91,6 +91,27 @@ const getPlanPricing = (plan: any) => {
     }
 }
 
+const formatTimer = (milliseconds: number) => {
+    const totalSeconds =
+        Math.max(
+            0,
+            Math.floor(milliseconds / 1000)
+        )
+
+    const hours =
+        Math.floor(totalSeconds / 3600)
+
+    const minutes =
+        Math.floor((totalSeconds % 3600) / 60)
+
+    const seconds =
+        totalSeconds % 60
+
+    return [hours, minutes, seconds]
+        .map((value) => String(value).padStart(2, '0'))
+        .join(':')
+}
+
 const RAZORPAY_SCRIPT_ID = 'razorpay-checkout-script'
 
 let razorpayScriptPromise: Promise<boolean> | null = null
@@ -175,6 +196,19 @@ export default function SeriesPaymentPage({ series }: FullSeries) {
 
     const [paymentMessage, setPaymentMessage] =
         useState('')
+
+    const [now, setNow] =
+        useState(() => Date.now())
+
+    useEffect(() => {
+        const timer =
+            window.setInterval(
+                () => setNow(Date.now()),
+                1000
+            )
+
+        return () => window.clearInterval(timer)
+    }, [])
 
     const updateCouponCode = (
         planID: string,
@@ -610,13 +644,40 @@ export default function SeriesPaymentPage({ series }: FullSeries) {
                     const planKey =
                         String(plan.planID)
 
+                    const manipulation =
+                        plan?.manipulation || null
+
+                    const decreaseExpiresAt =
+                        manipulation?.type === 'decrease'
+                            ? Number(manipulation.expiresAt) || 0
+                            : 0
+
+                    const decreaseExpired =
+                        decreaseExpiresAt > 0 &&
+                        decreaseExpiresAt <= now
+
+                    const displayPlan =
+                        decreaseExpired &&
+                            Number(manipulation?.basePayable) > 0
+                            ? {
+                                ...plan,
+                                offerPrice:
+                                    Math.max(
+                                        Number(plan.price || 0) -
+                                        Number(manipulation.basePayable),
+                                        0
+                                    ),
+                                manipulation: null
+                            }
+                            : plan
+
                     const {
                         originalPrice,
                         payablePrice,
                         savedAmount,
                         discountPercent,
                         hasOffer
-                    } = getPlanPricing(plan)
+                    } = getPlanPricing(displayPlan)
 
                     const planCouponCode =
                         couponCodes[planKey] || ''
@@ -631,6 +692,9 @@ export default function SeriesPaymentPage({ series }: FullSeries) {
 
                     const totalAmount =
                         Math.max(0, payablePrice - couponSaved)
+
+                    const showDecreaseTimer =
+                        decreaseExpiresAt > now
 
                     const cardStyles = [
                         {
@@ -743,6 +807,18 @@ export default function SeriesPaymentPage({ series }: FullSeries) {
                                         </span>
                                     ) : null}
                                 </div>
+
+                                {showDecreaseTimer ? (
+                                    <div className="mt-2 rounded-2xl border border-amber-200 bg-amber-50 px-3 py-2 text-center">
+                                        <p className="text-[10px] font-black uppercase text-amber-700">
+                                            Offer ends in
+                                        </p>
+
+                                        <p className="mt-0.5 text-sm font-black text-amber-900">
+                                            {formatTimer(decreaseExpiresAt - now)}
+                                        </p>
+                                    </div>
+                                ) : null}
 
                                 <p className="text-gray-500 text-xs mt-2 line-clamp-2 min-h-[32px]">
                                     {plan.tagline}

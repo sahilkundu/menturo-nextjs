@@ -79,6 +79,7 @@ const nextConfig = {
                             https://*.gstatic.com
                             https://challenges.cloudflare.com
                             https://*.challenges.cloudflare.com
+                            https://checkout.razorpay.com
                             ;
 
                             worker-src 'self'
@@ -96,14 +97,18 @@ const nextConfig = {
                             ws://localhost:*
                             ws://127.0.0.1:*
                             wss://myapp-ws-latest.onrender.com
-                            https://myapp-ws-latest.onrender.com;
+                            https://myapp-ws-latest.onrender.com
+                            https://api.razorpay.com
+                            https://checkout.razorpay.com;
 
                             frame-src 'self'
                             https://challenges.cloudflare.com
                             https://*.challenges.cloudflare.com
                             https://googleads.g.doubleclick.net
                             https://*.googlesyndication.com
-                            https://*.google.com;
+                            https://*.google.com
+                            https://api.razorpay.com
+                            https://checkout.razorpay.com;
 
                         `
                             .replace(/\n/g, " ")
