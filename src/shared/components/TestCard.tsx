@@ -170,10 +170,10 @@ export default function TestCard({
         Number(paidPlan?.offerPrice) || 0
     const paidPlanPrice =
         paidBasePrice > 0
-            ? paidOfferDiscount > 0 &&
-                paidOfferDiscount < paidBasePrice
-                ? paidBasePrice - paidOfferDiscount
-                : paidBasePrice
+            ? Math.max(
+                paidBasePrice - paidOfferDiscount,
+                0
+            )
             : null
     const parsePrice =
         (value?: string) =>
@@ -187,10 +187,10 @@ export default function TestCard({
         parsePrice(offerPrice)
     const payableCardPrice =
         baseCardPrice > 0
-            ? cardOfferDiscount > 0 &&
-                cardOfferDiscount < baseCardPrice
-                ? baseCardPrice - cardOfferDiscount
-                : baseCardPrice
+            ? Math.max(
+                baseCardPrice - cardOfferDiscount,
+                0
+            )
             : cardOfferDiscount
     const displayOfferPrice =
         `₹${payableCardPrice}`

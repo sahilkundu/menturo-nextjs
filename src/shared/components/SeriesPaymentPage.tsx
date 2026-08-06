@@ -54,29 +54,31 @@ const getPlanPricing = (plan: any) => {
         Number(plan.offerPrice) || 0
 
     if (
-        originalPrice <= 0 ||
-        offerValue <= 0 ||
-        offerValue >= originalPrice
+        originalPrice <= 0
     ) {
         return {
             originalPrice,
-            payablePrice: originalPrice,
+            payablePrice: 0,
             savedAmount: 0,
             discountPercent: 0,
             hasOffer: false
         }
     }
 
-    const offerLooksLikeDiscount =
-        offerValue <= originalPrice * 0.45
+    const hasOffer =
+        offerValue > 0 &&
+        offerValue < originalPrice
 
     const payablePrice =
-        offerLooksLikeDiscount
-            ? originalPrice - offerValue
-            : offerValue
+        Math.max(
+            originalPrice - offerValue,
+            0
+        )
 
     const savedAmount =
-        originalPrice - payablePrice
+        hasOffer
+            ? offerValue
+            : 0
 
     return {
         originalPrice,
@@ -85,7 +87,7 @@ const getPlanPricing = (plan: any) => {
         discountPercent:
             Math.round((savedAmount / originalPrice) * 100),
         hasOffer:
-            savedAmount > 0
+            hasOffer
     }
 }
 

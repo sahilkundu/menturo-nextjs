@@ -334,14 +334,15 @@ export default function SuggestedPaymentCard({
 
                         const payableAmount =
                             basePrice > 0
-                                ? hasOffer
-                                    ? basePrice - offerDiscount
-                                    : basePrice
+                                ? Math.max(
+                                    basePrice - offerDiscount,
+                                    0
+                                )
                                 : 0
 
                         const discountPercent = Math.round(
                             basePrice > 0
-                                ? (offerDiscount / basePrice) * 100
+                                ? ((hasOffer ? offerDiscount : 0) / basePrice) * 100
                                 : 0
                         )
 

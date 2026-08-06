@@ -22,9 +22,10 @@ export default function PaymentSummary({ series }: FullSeries) {
         offerDiscount < basePrice
     const payableAmount =
         basePrice > 0
-            ? hasOffer
-                ? basePrice - offerDiscount
-                : basePrice
+            ? Math.max(
+                basePrice - offerDiscount,
+                0
+            )
             : 0
     const savedAmount =
         hasOffer
