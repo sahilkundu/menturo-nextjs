@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import dynamic from 'next/dynamic'
+import LiveTestActivity from '../../../shared/components/LiveTestActivity'
 
 // Dynamic import for Chart.js
 const Chart = dynamic(() => import('chart.js/auto'), { ssr: false })
@@ -478,6 +479,7 @@ export default function ScoreCardPage() {
   return (
     <div className="bg-gradient-to-br from-indigo-50 via-white to-purple-50 font-sans antialiased text-gray-800 min-h-screen p-6">
       <div className="max-w-7xl mx-auto">
+        <LiveTestActivity />
         {/* Header */}
         <div className="text-center space-y-2 mb-6">
           <div className="text-2xl font-semibold text-gray-800">Rahul Sharma</div>

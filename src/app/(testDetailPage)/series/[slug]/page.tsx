@@ -13,6 +13,7 @@ import {
     extractSeriesIdFromSlug,
 } from '../../../../shared/seo'
 import AdSenseAd from '../../../../shared/components/AdSenseAd'
+import LiveTestTab from '../../../../shared/components/LiveTestTab'
 const PaymentSummary = dynamic(
     () => import(
         "../../../../shared/components/PaymentSummary"
@@ -394,6 +395,7 @@ export default function TestPage() {
     return (
         <div className="max-w-7xl mx-auto px-2 sm:px-3 lg:px-4 py-2 sm:py-3 space-y-3">
             <TestSection series={series} />
+            <LiveTestTab seriesId={series?._id || seriesId} />
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-5 items-start">
                 {/* <div className="lg:col-span-1">
