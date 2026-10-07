@@ -62,6 +62,7 @@ type ResultPayload = {
 
 type LiveStartPayload = {
     liveTestId: string
+    viewResult?: boolean
 }
 
 type SelectedOptionValue = string | number | Array<string | number>
@@ -1480,6 +1481,7 @@ export const useTestDataStore =
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
                             liveTestId: payload.liveTestId,
+                            viewResult: payload.viewResult === true,
                             idempotencyKey: createIdempotencyKey()
                         })
                     })

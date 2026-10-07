@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { LIVE_TEST_ACTIVE, LIVE_TEST_SERIES } from '../../../api'
+import Swal from 'sweetalert2'
 
 type LiveQuiz = {
   id: string
@@ -14,6 +15,7 @@ type LiveQuiz = {
   scheduledStartAt: number
   startedAt: number
   endsAt: number
+  attemptStatus?: 'running' | 'submitted' | 'queued' | 'processing' | 'completed' | 'failed' | string
 }
 
 const formatCountdown = (seconds: number) => {
@@ -68,6 +70,9 @@ export default function LiveTestTab({ seriesId }: { seriesId?: string }) {
           const isLive = quiz.status === 'live'
           const startAt = Number(quiz.scheduledStartAt || 0)
           const canStart = isLive || ((quiz.status === 'scheduled' || quiz.status === 'ready') && startAt <= now)
+          const pendingSubmission = ['submitted', 'queued', 'processing'].includes(String(quiz.attemptStatus || ''))
+          const isSubmitted = pendingSubmission || quiz.attemptStatus === 'completed'
+          const canOpen = canStart || isSubmitted
           const countdownTarget = isLive ? (quiz.endsAt > 0 ? quiz.endsAt : quiz.startedAt + quiz.durationSeconds) : quiz.scheduledStartAt
           const label = isLive ? 'Ends in' : 'Starts in'
           const countdown = countdownTarget > 0 ? formatCountdown(countdownTarget - now) : '—'
@@ -89,9 +94,24 @@ export default function LiveTestTab({ seriesId }: { seriesId?: string }) {
               <span className="rounded-xl bg-slate-50 px-4 py-2">{Math.max(1, Math.ceil(quiz.durationSeconds / 60))} Minutes</span>
               <span className="rounded-xl bg-slate-50 px-4 py-2">Live Quiz</span>
             </div>
-            <Link href={canStart ? `/test?liveTestId=${encodeURIComponent(quiz.id)}` : '#'} aria-disabled={!canStart} className={`block rounded-2xl px-6 py-4 text-center text-lg font-black text-white transition ${canStart ? 'bg-violet-600 hover:bg-violet-700' : 'pointer-events-none bg-slate-300'}`}>
-              {canStart ? 'Start Quiz →' : 'Quiz has not started'}
-            </Link>
+            {pendingSubmission ? (
+              <button
+                type="button"
+                onClick={() => Swal.fire({
+                  icon: 'info',
+                  title: 'Result not yet declared',
+                  text: 'Your submission is saved. After the live quiz ends, your rank and solution will be available in My activity.',
+                  confirmButtonColor: '#6d28d9'
+                })}
+                className="block w-full rounded-2xl bg-amber-500 px-6 py-4 text-center text-lg font-black text-white transition hover:bg-amber-600"
+              >
+                Submitted
+              </button>
+            ) : (
+              <Link href={canOpen ? `/test?liveTestId=${encodeURIComponent(quiz.id)}${quiz.attemptStatus === 'completed' ? '&viewResult=1' : ''}` : '#'} aria-disabled={!canOpen} className={`block rounded-2xl px-6 py-4 text-center text-lg font-black text-white transition ${canOpen ? 'bg-violet-600 hover:bg-violet-700' : 'pointer-events-none bg-slate-300'}`}>
+                {quiz.attemptStatus === 'completed' ? 'View Result →' : canStart ? 'Start Quiz →' : 'Quiz has not started'}
+              </Link>
+            )}
           </div>
         })}
       </div>

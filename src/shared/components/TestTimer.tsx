@@ -27,6 +27,8 @@ export function TestTimerController() {
         useTestDataStore((state) => state.loadingSave)
     const liveMode =
         useTestDataStore((state) => state.liveMode)
+    const liveEndsAt =
+        useTestDataStore((state) => state.activeTest?.history?.endsAt || 0)
     useEffect(() => {
 
         if (
@@ -163,6 +165,20 @@ export function TestTimerController() {
         // STOP TIMER AFTER SUBMIT
         if (isSubmitted) return
 
+        if (liveMode && liveEndsAt > 0) {
+            const updateLiveClock = () => {
+                const remaining = Math.max(
+                    0,
+                    liveEndsAt - Math.floor(Date.now() / 1000)
+                )
+                setTimeLeft(remaining)
+            }
+
+            updateLiveClock()
+            const liveTimer = window.setInterval(updateLiveClock, 1000)
+            return () => window.clearInterval(liveTimer)
+        }
+
         const timer =
             setInterval(() => {
 
@@ -185,7 +201,10 @@ export function TestTimerController() {
             clearInterval(timer)
 
     }, [
-        isSubmitted
+        isSubmitted,
+        liveEndsAt,
+        liveMode,
+        setTimeLeft
     ])
 
     return null

@@ -27,15 +27,8 @@ export default function LiveTestResultModal({
                 <div className="max-w-sm rounded-2xl bg-white p-7 text-center shadow-2xl">
                     <p className="text-lg font-black text-slate-900">Result not yet declared</p>
                     <p className="mt-2 text-sm leading-6 text-slate-600">
-                        Your submission is locked. The rank and solution will be available after the live quiz ends and results are calculated.
+                        Your submission is locked. After the live quiz ends, your rank and solution will be available in My activity.
                     </p>
-                    <button
-                        type="button"
-                        onClick={onViewSolution}
-                        className="mt-5 rounded-xl bg-violet-600 px-6 py-2.5 font-black text-white"
-                    >
-                        Okay
-                    </button>
                 </div>
             </div>
         )

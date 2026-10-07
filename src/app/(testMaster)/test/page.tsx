@@ -25,6 +25,7 @@ function MockTestContent() {
     const router = useRouter()
     const searchParams = useSearchParams()
     const liveTestId = searchParams.get('liveTestId') || ''
+    const viewLiveResult = searchParams.get('viewResult') === '1'
     const fetchLiveStart = useTestDataStore((state) => state.fetchLiveStart)
     const fetchLiveResult = useTestDataStore((state) => state.fetchLiveResult)
     const loadingStartTest = useTestDataStore((state) => state.loadingStartTest)
@@ -43,8 +44,8 @@ function MockTestContent() {
         if (!liveTestId) return
         const state = useTestDataStore.getState()
         if (state.activeTest?.liveTestId === liveTestId && state.liveMode) return
-        void fetchLiveStart({ liveTestId })
-    }, [fetchLiveStart, liveTestId])
+        void fetchLiveStart({ liveTestId, viewResult: viewLiveResult })
+    }, [fetchLiveStart, liveTestId, viewLiveResult])
 
     useEffect(() => {
         if (
@@ -264,6 +265,20 @@ function MockTestContent() {
             )
         }
     }, [])
+
+    const liveResultPending =
+        liveMode &&
+        isSubmitted &&
+        ['submitted', 'queued', 'processing'].includes(String(liveResult?.status || ''))
+
+    if (liveResultPending) {
+        return (
+            <LiveTestResultModal
+                result={liveResult}
+                onViewSolution={() => undefined}
+            />
+        )
+    }
 
     // Empty dependency array - only cleanup on unmount
     if (!activeTest || Object.keys(activeTest).length === 0) {

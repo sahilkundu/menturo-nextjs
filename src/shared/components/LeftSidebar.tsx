@@ -188,7 +188,14 @@ export default function LeftSidebar() {
                             My Purchase
                         </button>
 
-                        <button onClick={handlePopup} className="w-full h-11 rounded-2xl hover:bg-gray-50 text-gray-600 text-sm font-medium flex items-center gap-3 px-4 transition-colors">
+                        <button
+                            onClick={() => {
+                                setLeftSidebarOpen(false)
+                                showRouteLoader()
+                                router.push('/activity')
+                            }}
+                            className="w-full h-11 rounded-2xl hover:bg-gray-50 text-gray-600 text-sm font-medium flex items-center gap-3 px-4 transition-colors"
+                        >
                             <span>📘</span>
                             My activity
                         </button>
