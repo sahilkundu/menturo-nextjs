@@ -66,6 +66,7 @@ export default function LiveTestTab({ seriesId }: { seriesId?: string }) {
       <div className="space-y-5">
         {visibleQuizzes.map((quiz) => {
           const isLive = quiz.status === 'live'
+          const canStart = isLive || (quiz.status === 'scheduled' && quiz.scheduledStartAt <= 0)
           const countdownTarget = isLive ? (quiz.endsAt > 0 ? quiz.endsAt : quiz.startedAt + quiz.durationSeconds) : quiz.scheduledStartAt
           const label = isLive ? 'Ends in' : 'Starts in'
           const countdown = countdownTarget > 0 ? formatCountdown(countdownTarget - now) : '—'
@@ -87,8 +88,8 @@ export default function LiveTestTab({ seriesId }: { seriesId?: string }) {
               <span className="rounded-xl bg-slate-50 px-4 py-2">{Math.max(1, Math.ceil(quiz.durationSeconds / 60))} Minutes</span>
               <span className="rounded-xl bg-slate-50 px-4 py-2">Live Quiz</span>
             </div>
-            <Link href={isLive ? `/liveTest?liveTestId=${encodeURIComponent(quiz.id)}` : '#'} aria-disabled={!isLive} className={`block rounded-2xl px-6 py-4 text-center text-lg font-black text-white transition ${isLive ? 'bg-violet-600 hover:bg-violet-700' : 'pointer-events-none bg-slate-300'}`}>
-              {isLive ? 'Start Quiz →' : 'Quiz has not started'}
+            <Link href={canStart ? `/liveTest?liveTestId=${encodeURIComponent(quiz.id)}` : '#'} aria-disabled={!canStart} className={`block rounded-2xl px-6 py-4 text-center text-lg font-black text-white transition ${canStart ? 'bg-violet-600 hover:bg-violet-700' : 'pointer-events-none bg-slate-300'}`}>
+              {canStart ? 'Start Quiz →' : 'Quiz has not started'}
             </Link>
           </div>
         })}

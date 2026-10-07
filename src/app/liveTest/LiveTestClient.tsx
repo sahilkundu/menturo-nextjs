@@ -9,6 +9,7 @@ import {
   LIVE_TEST_START,
   LIVE_TEST_SUBMIT,
 } from '../../../api'
+import { showPopupMessage } from '../../shared/utils/popup'
 
 type Question = { id: string; text: string; options: Array<{ key: string; text: string }>; marks?: number }
 type History = { _id: string; endsAt: number; startedAt: number; status: string; elapsedSeconds?: number }
@@ -92,7 +93,14 @@ export default function LiveTestClient() {
           }
         }
       } catch (error) {
-        if (!cancelled) { setMessage(error instanceof Error ? error.message : 'Could not start live quiz'); setBusy(false) }
+        if (!cancelled) {
+          const errorMessage = error instanceof Error ? error.message : 'Could not start live quiz'
+          const normalizedError = errorMessage.toLowerCase()
+          const notStarted = normalizedError.includes('not started') || normalizedError.includes('disabled')
+          showPopupMessage(notStarted ? 'This live quiz has not started yet.' : errorMessage, false)
+          setMessage(notStarted ? 'This live quiz has not started yet.' : errorMessage)
+          setBusy(false)
+        }
       }
     }
     start()
