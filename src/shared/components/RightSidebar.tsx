@@ -5,7 +5,7 @@ import { useCallback, useEffect, useMemo, useState } from "react"
 import { useLayoutStore } from "../store/uiResStore"
 import Live from "./Live"
 import { useUserStore } from "../store/user"
-import { LOGOUT } from "../../../api"
+import { LOGOUT, SITE_STATUS } from "../../../api"
 import { useWSChatStore } from "../store/wsChat"
 
 const isUserOnline = (
@@ -49,6 +49,12 @@ export default function RightSidebar() {
         useWSChatStore(
             s => s.site
         )
+    const setSiteStats = useWSChatStore(
+        (state) => state.setSiteStats
+    )
+    const setUsersSnapshot = useWSChatStore(
+        (state) => state.setUsersSnapshot
+    )
     // console.log(site)
     const setRightSidebarOpen = useLayoutStore(
         (state) => state.setRightSidebarOpen
@@ -88,6 +94,34 @@ export default function RightSidebar() {
     useEffect(() => {
         setMounted(true)
     }, [])
+
+    useEffect(() => {
+        if (!authenticated) return
+        let cancelled = false
+        const loadSiteStats = async () => {
+            try {
+                const response = await fetch(SITE_STATUS, {
+                    credentials: "include",
+                    cache: "no-store",
+                })
+                const data = await response.json()
+                if (cancelled || !response.ok || !data?.success) return
+                setSiteStats({
+                    totalUsers: data.totalUsers ?? 0,
+                    totalOnline: data.totalOnline ?? 0,
+                })
+                if (Array.isArray(data.users)) setUsersSnapshot(data.users)
+            } catch {
+                // WebSocket statistics remain the fallback when the HTTP check is unavailable.
+            }
+        }
+        void loadSiteStats()
+        const refresh = window.setInterval(loadSiteStats, 15000)
+        return () => {
+            cancelled = true
+            window.clearInterval(refresh)
+        }
+    }, [authenticated, setSiteStats, setUsersSnapshot])
     const logoutDisabled =
         securityBlockedUntil > Math.floor(Date.now() / 1000)
 
@@ -385,9 +419,7 @@ export default function RightSidebar() {
                                     <span className="h-3 w-3 shrink-0 rounded-full bg-green-500 animate-pulse"></span>
 
                                     <h2 className="min-w-0 truncate text-2xl md:text-3xl font-black text-green-600">
-                                        {onlineUsers?.length ||
-                                            Number(site?.totalOnline) ||
-                                            0}
+                            {onlineUsers?.length || Number(site?.totalOnline) || 0}
                                     </h2>
 
                                 </div>
@@ -423,12 +455,19 @@ export default function RightSidebar() {
                             </div>
                         }
 
-                        {!liveBubbleOpen &&
+                        {!liveBubbleOpen && (onlineUsers.length > 0 ?
+                            <Live
+                                activeDot={false}
+                                users={onlineUsers}
+                            /> : Number(site?.totalOnline) > 0 ?
+                            <p className="px-2 text-sm font-semibold text-gray-400">
+                                {site.totalOnline} active users online
+                            </p> :
                             <Live
                                 activeDot={false}
                                 users={onlineUsers}
                             />
-                        }
+                        )}
                         {liveBubbleOpen &&
                             <Live
                                 activeDot={true}

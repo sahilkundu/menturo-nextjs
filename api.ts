@@ -45,6 +45,7 @@ export const LIVE_TEST_SUBMIT = `${BASE_URL}/api/live-test/submit`
 export const LIVE_TEST_RESULT = `${BASE_URL}/api/live-test/result`
 export const LIVE_TEST_SOLUTION = `${BASE_URL}/api/live-test/solution`
 export const LIVE_TEST_ACTIVITY = `${BASE_URL}/api/live-test/activity`
+export const ACTIVITY = `${BASE_URL}/api/activity`
 export const LOAD_TYPING_TESTS = `${BASE_URL}/api/typing-tests`
 export const LOAD_TYPING_TEST = `${BASE_URL}/api/typing-test`
 export const START_TYPING_TEST = `${BASE_URL}/api/typing/start`
