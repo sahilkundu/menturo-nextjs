@@ -9,6 +9,7 @@ import { useRef, useEffect, useCallback, useMemo, useState } from "react"
 import TestCardSkeleton from "./Skeleton/TestCardSkeleton"
 import { useUserStore } from "../store/user"
 import Link from "next/link"
+import LiveTestTab from "./LiveTestTab"
 
 const SERIES_PAGE_LIMIT = 8
 const LOAD_MORE_SCROLL_BUFFER = 160
@@ -369,6 +370,9 @@ export default function HomeCenter() {
                             </div>
 
                             <TypingTestSpotlight />
+                            <div className="mt-4">
+                                <LiveTestTab />
+                            </div>
 
                             {/* <!-- COURSE SECTION --> */}
                             <div className="mt-5 bg-white dark-card rounded-[30px] p-1 shadow-[0_8px_30px_rgba(0,0,0,.05)] overflow-hidden">

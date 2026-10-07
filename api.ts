@@ -38,6 +38,7 @@ export const SAVE_TEST = `${BASE_URL}/api/test/save`
 export const FETCH_SOLUTION = `${BASE_URL}/api/test/solution`
 export const SUBMIT_TEST = `${BASE_URL}/api/test/result`
 export const LIVE_TEST_SERIES = `${BASE_URL}/api/live-test/series`
+export const LIVE_TEST_ACTIVE = `${BASE_URL}/api/live-test/active`
 export const LIVE_TEST_START = `${BASE_URL}/api/live-test/start`
 export const LIVE_TEST_SAVE = `${BASE_URL}/api/live-test/save`
 export const LIVE_TEST_SUBMIT = `${BASE_URL}/api/live-test/submit`
