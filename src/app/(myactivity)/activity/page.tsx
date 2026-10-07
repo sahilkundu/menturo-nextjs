@@ -3,25 +3,29 @@
 import { useState, useEffect, useRef } from 'react'
 import dynamic from 'next/dynamic'
 import LiveTestActivity from '../../../shared/components/LiveTestActivity'
+import { useUserStore } from '../../../shared/store/user'
 
 // Dynamic import for Chart.js
 const Chart = dynamic(() => import('chart.js/auto'), { ssr: false })
 
-// Hardcoded Scores Data
+// Demo score data used by the existing dashboard. Names are always rendered
+// from the authenticated account below; no other user's identity is stored or shown here.
 const hardcodedScores = [
-  { _id: '1', date: '2025-06-01T10:30:00', userName: 'Rahul Sharma', chapters: 'JavaScript, React', correct: 18, incorrect: 2, totalQuestions: 20 },
-  { _id: '2', date: '2025-05-30T09:15:00', userName: 'Rahul Sharma', chapters: 'Python, Django', correct: 15, incorrect: 5, totalQuestions: 20 },
-  { _id: '3', date: '2025-05-28T14:20:00', userName: 'Rahul Sharma', chapters: 'HTML, CSS', correct: 19, incorrect: 1, totalQuestions: 20 },
-  { _id: '4', date: '2025-05-25T11:00:00', userName: 'Rahul Sharma', chapters: 'TypeScript, Next.js', correct: 14, incorrect: 6, totalQuestions: 20 },
-  { _id: '5', date: '2025-05-22T16:30:00', userName: 'Rahul Sharma', chapters: 'Node.js, Express', correct: 16, incorrect: 4, totalQuestions: 20 },
-  { _id: '6', date: '2025-05-20T08:45:00', userName: 'Rahul Sharma', chapters: 'MongoDB, SQL', correct: 17, incorrect: 3, totalQuestions: 20 },
-  { _id: '7', date: '2025-05-18T13:10:00', userName: 'Rahul Sharma', chapters: 'Tailwind, Bootstrap', correct: 20, incorrect: 0, totalQuestions: 20 },
-  { _id: '8', date: '2025-05-15T10:00:00', userName: 'Rahul Sharma', chapters: 'JavaScript', correct: 12, incorrect: 8, totalQuestions: 20 },
-  { _id: '9', date: '2025-05-12T15:30:00', userName: 'Rahul Sharma', chapters: 'React Native', correct: 13, incorrect: 7, totalQuestions: 20 },
-  { _id: '10', date: '2025-05-10T09:20:00', userName: 'Rahul Sharma', chapters: 'Angular', correct: 11, incorrect: 9, totalQuestions: 20 },
+  { _id: '1', date: '2025-06-01T10:30:00', chapters: 'JavaScript, React', correct: 18, incorrect: 2, totalQuestions: 20 },
+  { _id: '2', date: '2025-05-30T09:15:00', chapters: 'Python, Django', correct: 15, incorrect: 5, totalQuestions: 20 },
+  { _id: '3', date: '2025-05-28T14:20:00', chapters: 'HTML, CSS', correct: 19, incorrect: 1, totalQuestions: 20 },
+  { _id: '4', date: '2025-05-25T11:00:00', chapters: 'TypeScript, Next.js', correct: 14, incorrect: 6, totalQuestions: 20 },
+  { _id: '5', date: '2025-05-22T16:30:00', chapters: 'Node.js, Express', correct: 16, incorrect: 4, totalQuestions: 20 },
+  { _id: '6', date: '2025-05-20T08:45:00', chapters: 'MongoDB, SQL', correct: 17, incorrect: 3, totalQuestions: 20 },
+  { _id: '7', date: '2025-05-18T13:10:00', chapters: 'Tailwind, Bootstrap', correct: 20, incorrect: 0, totalQuestions: 20 },
+  { _id: '8', date: '2025-05-15T10:00:00', chapters: 'JavaScript', correct: 12, incorrect: 8, totalQuestions: 20 },
+  { _id: '9', date: '2025-05-12T15:30:00', chapters: 'React Native', correct: 13, incorrect: 7, totalQuestions: 20 },
+  { _id: '10', date: '2025-05-10T09:20:00', chapters: 'Angular', correct: 11, incorrect: 9, totalQuestions: 20 },
 ]
 
 export default function ScoreCardPage() {
+  const user = useUserStore((state) => state.user)
+  const activityOwner = `${user?.firstName || ''} ${user?.lastName || ''}`.trim() || user?.username || 'Your account'
   const [currentDateTime, setCurrentDateTime] = useState('')
   const [calendarYear, setCalendarYear] = useState(2025)
   const [calendarMonth, setCalendarMonth] = useState(5) // June 2025
@@ -69,6 +73,10 @@ export default function ScoreCardPage() {
       renderChapterChart()
     }
   }, [chartsReady])
+
+  useEffect(() => {
+    if (chartsReady) renderFullActivityTable()
+  }, [chartsReady, activityOwner])
 
   // Helper functions
   const truncateChapter = (chapter) => {
@@ -360,7 +368,7 @@ export default function ScoreCardPage() {
       row.innerHTML = `
         <td class="p-3 border border-gray-200 text-center">${index + 1}</td>
         <td class="p-3 border border-gray-200">${new Date(score.date).toLocaleString('en-IN')}</td>
-        <td class="p-3 border border-gray-200">${score.userName}</td>
+        <td class="p-3 border border-gray-200">${activityOwner}</td>
         <td class="p-3 border border-gray-200 max-w-[150px] whitespace-nowrap overflow-hidden text-ellipsis" title="${score.chapters}">${truncatedChapters}</td>
         <td class="p-3 border border-gray-200 text-center text-emerald-600 font-semibold">${score.correct}</td>
         <td class="p-3 border border-gray-200 text-center text-rose-600">${score.incorrect}</td>
@@ -482,7 +490,7 @@ export default function ScoreCardPage() {
         <LiveTestActivity />
         {/* Header */}
         <div className="text-center space-y-2 mb-6">
-          <div className="text-2xl font-semibold text-gray-800">Rahul Sharma</div>
+          <div className="text-2xl font-semibold text-gray-800">{activityOwner}</div>
           <div className="text-base text-gray-600">{currentDateTime}</div>
         </div>
         
