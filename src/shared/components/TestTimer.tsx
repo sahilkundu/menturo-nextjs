@@ -25,6 +25,8 @@ export function TestTimerController() {
         useTestDataStore((state) => state.loadingResult)
     const loadingSave =
         useTestDataStore((state) => state.loadingSave)
+    const liveMode =
+        useTestDataStore((state) => state.liveMode)
     useEffect(() => {
 
         if (
@@ -62,6 +64,19 @@ export function TestTimerController() {
 
             const subjectHistory =
                 history?.[currentSubject]
+
+            if (liveMode) {
+                showTestActionLoader("Loading Solution")
+                try {
+                    await fetchResult({
+                        historyId: runningHistory?._id || '',
+                        autoSubmit: true
+                    } as any)
+                } finally {
+                    hideTestActionLoader()
+                }
+                return
+            }
 
             if (
                 !runningHistory?._id ||
@@ -118,6 +133,7 @@ export function TestTimerController() {
         isSubmitted,
         activeSubject,
         fetchResult,
+        liveMode,
         loadingResult,
         loadingSave
     ])

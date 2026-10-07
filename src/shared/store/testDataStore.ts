@@ -6,7 +6,12 @@ import {
     RESUME_TEST,
     SUBMIT_TEST,
     SAVE_TEST,
-    FETCH_SOLUTION
+    FETCH_SOLUTION,
+    LIVE_TEST_RESULT,
+    LIVE_TEST_SAVE,
+    LIVE_TEST_SOLUTION,
+    LIVE_TEST_START,
+    LIVE_TEST_SUBMIT
 } from '../../../api'
 import { useTestSeriesStore } from './testSeriesStore'
 import { showPopupMessage } from '../utils/popup'
@@ -53,6 +58,10 @@ type ResultPayload = {
     historyId: string
 
     data: any
+}
+
+type LiveStartPayload = {
+    liveTestId: string
 }
 
 type SelectedOptionValue = string | number | Array<string | number>
@@ -139,6 +148,8 @@ type TestDataStore = {
     isSavingProgress: boolean
     solutionError: string | null
     activeTest: any | null
+    liveMode: boolean
+    liveResult: any | null
 
     loadingStartTest: boolean
 
@@ -177,8 +188,15 @@ type TestDataStore = {
     fetchResult: (
         payload: ResultPayload
     ) => Promise<any>
+    fetchLiveResult: (
+        payload: any
+    ) => Promise<any>
     fetchStartTest: (
         payload: StartTestPayload
+    ) => Promise<any>
+
+    fetchLiveStart: (
+        payload: LiveStartPayload
     ) => Promise<any>
 
     fetchResumeTest: (
@@ -237,6 +255,40 @@ const createIdempotencyKey = () =>
         .randomUUID()
         .replace(/-/g, '')
         .slice(0, 24)
+
+const liveAnswersFromState = (state: any) => {
+    const subject = state.activeTest?.activeQuestionHistoryObj?.[
+        state.activeSubject
+    ] || {}
+
+    return {
+        ...(subject.answered || {}),
+        ...(subject.answeredAndMarkedForReview || {}),
+        ...(state.selectedOptions || {})
+    }
+}
+
+const liveHistoryObject = (test: any, history: any) => {
+    const questionIds = Object.keys(test?.questions || {})
+    const answers = history?.answers || {}
+    const answered = { ...answers }
+    const answeredIds = new Set(Object.keys(answered).map(String))
+
+    return {
+        All: {
+            qIDs: questionIds,
+            answered,
+            answeredAndMarkedForReview: {},
+            markedForReview: [],
+            visited: questionIds,
+            notVisited: questionIds.filter((id) => !answeredIds.has(String(id))),
+            notAnswered: questionIds.filter((id) => !answeredIds.has(String(id))),
+            clearResponse: [],
+            activeIndex: Number(history?.activeIndex || 0),
+            timeLeft: Math.max(0, Number(history?.endsAt || 0) - Math.floor(Date.now() / 1000))
+        }
+    }
+}
 
 const normalizeForSignature = (value: any): any => {
     if (Array.isArray(value)) {
@@ -824,6 +876,8 @@ export const useTestDataStore =
 
             resultError: null,
             activeTest: null,
+            liveMode: false,
+            liveResult: null,
 
             loadingStartTest: false,
 
@@ -851,6 +905,41 @@ export const useTestDataStore =
             fetchSave: async (
                 payload
             ) => {
+                const currentState = get()
+
+                if (currentState.liveMode) {
+                    try {
+                        set({
+                            loadingSave: true,
+                            saveError: null
+                        })
+
+                        const response = await fetch(LIVE_TEST_SAVE, {
+                            method: 'POST',
+                            credentials: 'include',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                historyId: payload.historyId,
+                                answers: liveAnswersFromState(currentState),
+                                activeIndex: currentState.activeQuestionIndex
+                            })
+                        })
+                        const data = await readJsonResponse(response)
+                        set({
+                            loadingSave: false,
+                            saveError: data.success === false
+                                ? data.message || 'Failed to save live quiz'
+                                : null
+                        })
+                        return data
+                    } catch (error: any) {
+                        set({
+                            loadingSave: false,
+                            saveError: error?.message || 'Failed to save live quiz'
+                        })
+                        return { success: false, message: error?.message }
+                    }
+                }
 
                 const subject =
                     Object.keys(payload?.data || {})[0]
@@ -1032,9 +1121,133 @@ export const useTestDataStore =
                     })
                 }, SAVE_DEBOUNCE_MS)
             },
+            fetchLiveResult: async (payload: any) => {
+                const historyId = payload?.historyId || get().activeTest?.history?._id || ''
+                const autoSubmit = payload?.autoSubmit === true
+                if (!historyId) {
+                    return { success: false, message: 'Live history is missing' }
+                }
+
+                if (submitInFlightByHistory.has(historyId)) {
+                    return submitInFlightByHistory.get(historyId)
+                }
+
+                const request = (async () => {
+                    try {
+                        set({ loadingResult: true, resultError: null })
+                        const state = get()
+                        const submitResponse = await fetch(LIVE_TEST_SUBMIT, {
+                            method: 'POST',
+                            credentials: 'include',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                historyId,
+                                answers: liveAnswersFromState(state),
+                                autoSubmit
+                            })
+                        })
+                        const submitData = await readJsonResponse(submitResponse)
+                        if (!submitResponse.ok || submitData.success === false) {
+                            throw new Error(submitData.message || 'Failed to submit live quiz')
+                        }
+
+                        let resultData = submitData
+                        if (submitData.status === 'submitted') {
+                            set({
+                                isSubmitted: true,
+                                liveResult: submitData,
+                                loadingResult: false,
+                                resultError: null,
+                                timeLeft: 0
+                            })
+                            return submitData
+                        }
+
+                        for (let attempt = 0; attempt < 3600; attempt += 1) {
+                            const resultResponse = await fetch(
+                                `${LIVE_TEST_RESULT}?historyId=${encodeURIComponent(historyId)}`,
+                                { credentials: 'include', cache: 'no-store' }
+                            )
+                            resultData = await readJsonResponse(resultResponse)
+                            if (!resultResponse.ok || resultData.success === false) {
+                                throw new Error(resultData.message || 'Failed to load live result')
+                            }
+                            if (resultData.status === 'submitted') {
+                                set({
+                                    isSubmitted: true,
+                                    liveResult: resultData,
+                                    loadingResult: false,
+                                    resultError: null,
+                                    timeLeft: 0
+                                })
+                                return resultData
+                            }
+                            if (resultData.status === 'completed' || resultData.status === 'failed') break
+                            await new Promise((resolve) => window.setTimeout(resolve, 1000))
+                        }
+
+                        if (resultData.status !== 'completed') {
+                            throw new Error('Live quiz result is still processing')
+                        }
+
+                        const solutionResponse = await fetch(
+                            `${LIVE_TEST_SOLUTION}?historyId=${encodeURIComponent(historyId)}`,
+                            { credentials: 'include', cache: 'no-store' }
+                        )
+                        const solutionData = await readJsonResponse(solutionResponse)
+                        if (!solutionResponse.ok || solutionData.success === false) {
+                            throw new Error(solutionData.message || 'Live solution is not ready')
+                        }
+
+                        const latestState = get()
+                        const existingTest = latestState.activeTest || {}
+                        const liveHistory = {
+                            ...(resultData.history || {}),
+                            answers: solutionData.answers || liveAnswersFromState(latestState)
+                        }
+                        const historyObj = liveHistoryObject(existingTest, liveHistory)
+                        const selectedOptions = buildSelectedOptions(historyObj)
+
+                        set({
+                            isSubmitted: true,
+                            selectedOptions,
+                            activeQuestionIndex: 0,
+                            activeSubject: 'All',
+                            activeLan: 'en',
+                            timeLeft: 0,
+                            liveResult: resultData,
+                            activeTest: {
+                                ...existingTest,
+                                activeQuestionHistoryObj: historyObj,
+                                solution: solutionData.solution || {},
+                                time: Number(resultData.history?.elapsedSeconds || 0),
+                                obtainedMarks: Number(resultData.history?.score || 0)
+                            },
+                            loadingResult: false,
+                            resultError: null
+                        })
+                        return resultData
+                    } catch (error: any) {
+                        set({
+                            loadingResult: false,
+                            resultError: error?.message || 'Failed to submit live quiz'
+                        })
+                        showPopupMessage(error?.message || 'Failed to submit live quiz', false)
+                        return { success: false, message: error?.message }
+                    } finally {
+                        submitInFlightByHistory.delete(historyId)
+                    }
+                })()
+
+                submitInFlightByHistory.set(historyId, request)
+                return request
+            },
             fetchResult: async (
                 payload
             ) => {
+                if (get().liveMode) {
+                    return get().fetchLiveResult(payload)
+                }
                 const historyId =
                     payload?.historyId || ''
 
@@ -1250,6 +1463,83 @@ export const useTestDataStore =
                 }
 
                 return request
+            },
+            fetchLiveStart: async (payload) => {
+                try {
+                    set({
+                        loadingStartTest: true,
+                        startTestError: null,
+                        liveMode: true,
+                        liveResult: null,
+                        isSubmitted: false
+                    })
+
+                    const response = await fetch(LIVE_TEST_START, {
+                        method: 'POST',
+                        credentials: 'include',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            liveTestId: payload.liveTestId,
+                            idempotencyKey: createIdempotencyKey()
+                        })
+                    })
+                    const data = await readJsonResponse(response)
+                    if (!response.ok || data.success === false) {
+                        throw new Error(data.message || 'Could not start live quiz')
+                    }
+
+                    const test = data.test || {}
+                    const history = data.history || {}
+                    const historyObj = liveHistoryObject(test, history)
+                    const selectedOptions = buildSelectedOptions(historyObj)
+                    const endAt = Number(history.endsAt || 0)
+                    const timeLeft = endAt > 0
+                        ? Math.max(0, endAt - Math.floor(Date.now() / 1000))
+                        : Number(test.duration || 0)
+
+                    set({
+                        loadingStartTest: false,
+                        startTestError: null,
+                        timeLeft,
+                        activeSubject: 'All',
+                        activeLan: 'en',
+                        activeQuestionIndex: Number(history.activeIndex || 0),
+                        selectedOptions,
+                        activeTest: {
+                            liveMode: true,
+                            liveTestId: payload.liveTestId,
+                            history,
+                            questions: test.questions || {},
+                            activeQuestionHistoryObj: historyObj,
+                            deviceInfo: {},
+                            allSubj: ['All'],
+                            count: Number(test.count || Object.keys(test.questions || {}).length),
+                            duration: Number(test.duration || 0),
+                            maxMarks: Number(test.maxMarks || 0),
+                            name: test.name || 'Live Quiz',
+                            solution: []
+                        }
+                    })
+
+                    if (history.status && history.status !== 'running') {
+                        await get().fetchLiveResult({ historyId: history._id })
+                    }
+                    return data
+                } catch (error: any) {
+                    set({
+                        loadingStartTest: false,
+                        startTestError: error?.message || 'Could not start live quiz',
+                        liveMode: false
+                    })
+                    const message = String(error?.message || 'Could not start live quiz')
+                    showPopupMessage(
+                        message.toLowerCase().includes('not started')
+                            ? 'This live quiz has not started yet.'
+                            : message,
+                        false
+                    )
+                    return { success: false, message }
+                }
             },
             fetchStartTest: async (
                 payload
@@ -1820,6 +2110,8 @@ export const useTestDataStore =
                     activeSubject: '',
                     activeLan: '',
                     activeTest: null,
+                    liveMode: false,
+                    liveResult: null,
 
                     loadingResult: false,
                     loadingSave: false,

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { Suspense, useState, useEffect, useRef } from 'react';
 import TestMasterHeader from '../../../shared/components/TestMasterHeader';
 import TestMasterBody from '../../../shared/components/TestMasterBody';
 import TestMasterUserInfo from '../../../shared/components/TestMasterUserInfo';
@@ -11,9 +11,11 @@ import { TestTimerController } from '../../../shared/components/TestTimer';
 import { useTestDataStore } from '../../../shared/store/testDataStore';
 // Mock Test Data for dynamic rendering
 import { SAVE_TEST } from '../../../../api';
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { LIVE_TEST_SAVE } from '../../../../api'
+import LiveTestResultModal from '../../../shared/components/LiveTestResultModal'
 
-export default function MockTestPage() {
+function MockTestContent() {
     const activeTest =
         useTestDataStore((state) => state.activeTest)
     const activeSubject =
@@ -21,8 +23,55 @@ export default function MockTestPage() {
     const setActiveSubject =
         useTestDataStore((state) => state.setActiveSubject)
     const router = useRouter()
+    const searchParams = useSearchParams()
+    const liveTestId = searchParams.get('liveTestId') || ''
+    const fetchLiveStart = useTestDataStore((state) => state.fetchLiveStart)
+    const fetchLiveResult = useTestDataStore((state) => state.fetchLiveResult)
+    const loadingStartTest = useTestDataStore((state) => state.loadingStartTest)
+    const liveMode = useTestDataStore((state) => state.liveMode)
+    const liveResult = useTestDataStore((state) => state.liveResult)
+    const isSubmitted = useTestDataStore((state) => state.isSubmitted)
+    const [showLiveResult, setShowLiveResult] = useState(false)
+
     useEffect(() => {
-        if (!activeTest || Object.keys(activeTest).length === 0) {
+        if (liveMode && isSubmitted && liveResult) {
+            setShowLiveResult(true)
+        }
+    }, [isSubmitted, liveMode, liveResult])
+
+    useEffect(() => {
+        if (!liveTestId) return
+        const state = useTestDataStore.getState()
+        if (state.activeTest?.liveTestId === liveTestId && state.liveMode) return
+        void fetchLiveStart({ liveTestId })
+    }, [fetchLiveStart, liveTestId])
+
+    useEffect(() => {
+        if (
+            !liveMode ||
+            !isSubmitted ||
+            liveResult?.status !== 'submitted'
+        ) {
+            return
+        }
+
+        const historyId = activeTest?.history?._id
+        const endsAt = Number(activeTest?.history?.endsAt || 0)
+        if (!historyId || !endsAt) return
+
+        const checkDeclaration = () => {
+            if (Math.floor(Date.now() / 1000) >= endsAt) {
+                void fetchLiveResult({ historyId, autoSubmit: true })
+            }
+        }
+
+        checkDeclaration()
+        const timer = window.setInterval(checkDeclaration, 1000)
+        return () => window.clearInterval(timer)
+    }, [activeTest, fetchLiveResult, isSubmitted, liveMode, liveResult?.status])
+
+    useEffect(() => {
+        if (!liveTestId && (!activeTest || Object.keys(activeTest).length === 0)) {
             const timer = setTimeout(() => {
                 router.back()
             }, 100)
@@ -140,6 +189,25 @@ export default function MockTestPage() {
             return
         }
         try {
+            if (store.liveMode) {
+                await fetch(LIVE_TEST_SAVE, {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        historyId: runningHistory._id,
+                        answers: {
+                            ...(history?.[store.activeSubject]?.answered || {}),
+                            ...(history?.[store.activeSubject]?.answeredAndMarkedForReview || {}),
+                            ...store.selectedOptions
+                        },
+                        activeIndex: store.activeQuestionIndex
+                    }),
+                    keepalive: true
+                })
+                useTestDataStore.getState().clearActiveTest()
+                return
+            }
             // Use fetch with keepalive to ensure it completes
             await fetch(SAVE_TEST, {
                 method: 'POST',
@@ -198,7 +266,19 @@ export default function MockTestPage() {
     }, [])
 
     // Empty dependency array - only cleanup on unmount
-    if (!activeTest || Object.keys(activeTest).length === 0) { return }
+    if (!activeTest || Object.keys(activeTest).length === 0) {
+        if (liveTestId && (loadingStartTest || liveMode)) {
+            return (
+                <main className="grid min-h-[100dvh] place-items-center bg-slate-50 p-6">
+                    <div className="rounded-2xl bg-white p-8 text-center shadow">
+                        <p className="font-black text-slate-800">Opening live quiz…</p>
+                        <p className="mt-2 text-sm text-slate-500">Please wait while the test is prepared.</p>
+                    </div>
+                </main>
+            )
+        }
+        return null
+    }
     return (
         <>
             <TestActionLoader />
@@ -473,6 +553,23 @@ overflow-hidden"
 
             </div>
 
+            {liveMode && isSubmitted && liveResult && showLiveResult && (
+                <LiveTestResultModal
+                    result={liveResult}
+                    onViewSolution={() => {
+                        setShowLiveResult(false)
+                    }}
+                />
+            )}
+
         </>
+    )
+}
+
+export default function MockTestPage() {
+    return (
+        <Suspense fallback={<main className="grid min-h-[100dvh] place-items-center bg-slate-50 p-6">Loading test…</main>}>
+            <MockTestContent />
+        </Suspense>
     )
 }
