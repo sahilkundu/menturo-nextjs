@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
-import { ACTIVITY, LIVE_TEST_ACTIVITY, LIVE_TEST_RESULT } from '../../../api'
+import { ACTIVITY, LIVE_TEST_ACTIVITY, LIVE_TEST_RESULT } from '../../../../api'
 import { useUserStore } from '../../../shared/store/user'
 
 type NormalActivity = {
