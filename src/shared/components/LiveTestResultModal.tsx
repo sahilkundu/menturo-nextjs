@@ -3,6 +3,7 @@
 type LiveTestResultModalProps = {
     result: any
     onViewSolution: () => void
+    onClose?: () => void
 }
 
 const formatTime = (seconds: number) => {
@@ -15,6 +16,7 @@ const formatTime = (seconds: number) => {
 export default function LiveTestResultModal({
     result,
     onViewSolution,
+    onClose,
 }: LiveTestResultModalProps) {
     const history = result?.history || {}
     const participants = Array.isArray(result?.participants)
@@ -29,6 +31,15 @@ export default function LiveTestResultModal({
                     <p className="mt-2 text-sm leading-6 text-slate-600">
                         Your submission is locked. After the live quiz ends, your rank and solution will be available in My activity.
                     </p>
+                    {onClose && (
+                        <button
+                            type="button"
+                            onClick={onClose}
+                            className="mt-5 w-full rounded-xl bg-violet-600 px-5 py-3 font-black text-white"
+                        >
+                            OK
+                        </button>
+                    )}
                 </div>
             </div>
         )

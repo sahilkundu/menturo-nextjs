@@ -17,9 +17,6 @@ export type OnlineUser = {
     connections: number
 }
 export type SiteUser = {
-
-    totalUsers: string | number
-
     totalOnline: string | number
 
     onlineUsers?: string | number
@@ -93,9 +90,6 @@ export const useWSChatStore =
 
             users: {},
             site: {
-
-                totalUsers: 0,
-
                 totalOnline: 0
             },
             setSiteStats:
@@ -106,11 +100,6 @@ export const useWSChatStore =
                     set((state) => ({
 
                         site: {
-                            totalUsers:
-                                data?.totalUsers ??
-                                state.site.totalUsers ??
-                                0,
-
                             totalOnline:
                                 data?.totalOnline ??
                                 data?.onlineUsers ??
@@ -218,9 +207,6 @@ export const useWSChatStore =
 
                         users: {},
                         site: {
-
-                            totalUsers: 0,
-
                             totalOnline: 0
                         }
                     })

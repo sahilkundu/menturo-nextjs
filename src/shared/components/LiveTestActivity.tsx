@@ -21,10 +21,22 @@ export default function LiveTestActivity() {
   const [items, setItems] = useState<Item[]>([])
 
   useEffect(() => {
-    fetch(LIVE_TEST_ACTIVITY, { credentials: 'include', cache: 'no-store' })
-      .then((response) => response.ok ? response.json() : null)
-      .then((data) => setItems(data?.items || []))
-      .catch(() => {})
+    let cancelled = false
+    const load = async () => {
+      try {
+        const response = await fetch(LIVE_TEST_ACTIVITY, { credentials: 'include', cache: 'no-store' })
+        const data = response.ok ? await response.json() : null
+        if (!cancelled) setItems(data?.items || [])
+      } catch {
+        // The normal activity dashboard remains usable if live history is unavailable.
+      }
+    }
+    void load()
+    const refresh = window.setInterval(load, 5000)
+    return () => {
+      cancelled = true
+      window.clearInterval(refresh)
+    }
   }, [])
 
   if (!items.length) return null

@@ -90,8 +90,8 @@ export default function ActivityPage() {
     const [rankLoading, setRankLoading] = useState(false)
     const [error, setError] = useState('')
 
-    const loadActivity = async () => {
-        setLoading(true)
+    const loadActivity = async (showLoading = true) => {
+        if (showLoading) setLoading(true)
         setError('')
         try {
             const [normalResponse, liveResponse] = await Promise.all([
@@ -108,12 +108,14 @@ export default function ActivityPage() {
         } catch (loadError) {
             setError(loadError instanceof Error ? loadError.message : 'Unable to load activity')
         } finally {
-            setLoading(false)
+            if (showLoading) setLoading(false)
         }
     }
 
     useEffect(() => {
         void loadActivity()
+        const refresh = window.setInterval(() => { void loadActivity(false) }, 5000)
+        return () => window.clearInterval(refresh)
     }, [])
 
     const selectedLive = useMemo(

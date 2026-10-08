@@ -276,6 +276,7 @@ function MockTestContent() {
             <LiveTestResultModal
                 result={liveResult}
                 onViewSolution={() => undefined}
+                onClose={() => router.push('/')}
             />
         )
     }

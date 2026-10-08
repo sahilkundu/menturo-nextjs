@@ -107,8 +107,7 @@ export default function RightSidebar() {
                 const data = await response.json()
                 if (cancelled || !response.ok || !data?.success) return
                 setSiteStats({
-                    totalUsers: data.totalUsers ?? 0,
-                    totalOnline: data.totalOnline ?? 0,
+                    totalOnline: data.totalOnline ?? data.onlineUsers ?? data.users?.length ?? 0,
                 })
                 if (Array.isArray(data.users)) setUsersSnapshot(data.users)
             } catch {
@@ -394,24 +393,12 @@ export default function RightSidebar() {
 
                     {/* STATS */}
                     {authenticated && !liveBubbleOpen &&
-                        <div className="grid grid-cols-2 gap-2 mt-6">
-
-                            <div className="min-w-0 rounded-2xl bg-violet-50 p-3">
-
-                                <p className="text-xs text-gray-500 mb-2">
-                                    Total Users
-                                </p>
-
-                                <h2 className="truncate text-2xl md:text-3xl font-black text-violet-700">
-                                    {site?.totalUsers ?? 0}
-                                </h2>
-
-                            </div>
+                        <div className="mt-6 grid grid-cols-1 gap-2">
 
                             <div className="min-w-0 rounded-2xl bg-green-50 p-3">
 
                                 <p className="text-xs text-gray-500 mb-2">
-                                    Online
+                                    Currently Live
                                 </p>
 
                                 <div className="flex min-w-0 items-center gap-2">
@@ -419,7 +406,7 @@ export default function RightSidebar() {
                                     <span className="h-3 w-3 shrink-0 rounded-full bg-green-500 animate-pulse"></span>
 
                                     <h2 className="min-w-0 truncate text-2xl md:text-3xl font-black text-green-600">
-                            {onlineUsers?.length || Number(site?.totalOnline) || 0}
+                            {Math.max(onlineUsers.length, Number(site?.totalOnline) || 0)}
                                     </h2>
 
                                 </div>
