@@ -79,12 +79,6 @@ export default function AppProviders({
         useTestSeriesStore(
             (state) => state.refreshSeriesAccess
         )
-    const wsSessionId =
-        useWSStore(
-            (state) => state.sessionId
-        )
-
-
     useEffect(() => {
         if (
             !authChecked &&
@@ -234,20 +228,19 @@ export default function AppProviders({
             return
         }
 
-        const wsUserId =
-            authenticated && user?.id
-                ? user.id
-                : `guest-${wsSessionId}`
+        if (!authenticated || !user?.id) {
+            useWSStore.getState().disconnect()
+            return
+        }
 
         useWSStore
             .getState()
-            .connect(wsUserId)
+            .connect(user.id)
 
     }, [
         authChecked,
         authenticated,
-        user?.id,
-        wsSessionId
+        user?.id
     ])
 
     useEffect(() => {

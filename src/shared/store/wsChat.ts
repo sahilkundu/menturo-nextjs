@@ -114,7 +114,7 @@ export const useWSChatStore =
             // SET USER STATUS
             // ====================================
 
-            setUserStatus:
+    setUserStatus:
                 (
                     data
                 ) =>
@@ -122,21 +122,26 @@ export const useWSChatStore =
                     set(
                         (
                             state
-                        ) => ({
+                        ) => {
+                            const online = isOnlineValue(data.online)
+                            const key = data.userId || data.username
+                            const updated = { ...state.users }
 
-                            users: {
-
-                                ...state.users,
-
-                                [data.username]: {
-                                    ...data,
-                                    online:
-                                        isOnlineValue(
-                                            data.online
-                                        )
+                            if (!online) {
+                                for (const [storedKey, user] of Object.entries(updated)) {
+                                    if (storedKey === key || (data.username && user.username === data.username)) delete updated[storedKey]
                                 }
+                                return { users: updated }
                             }
-                        })
+
+                            if (!key) return state
+                            updated[key] = {
+                                ...data,
+                                username: data.username || data.userId || 'Unknown user',
+                                online: true
+                            }
+                            return { users: updated }
+                        }
                     ),
 
             setUsersSnapshot:
@@ -150,6 +155,10 @@ export const useWSChatStore =
 
                         for (const user of users) {
                             if (!user) {
+                                continue
+                            }
+
+                            if (user.online !== undefined && !isOnlineValue(user.online)) {
                                 continue
                             }
 

@@ -5,7 +5,7 @@ import { useCallback, useEffect, useMemo, useState } from "react"
 import { useLayoutStore } from "../store/uiResStore"
 import Live from "./Live"
 import { useUserStore } from "../store/user"
-import { LOGOUT, SITE_STATUS } from "../../../api"
+import { LOGOUT } from "../../../api"
 import { useWSChatStore } from "../store/wsChat"
 
 const isUserOnline = (
@@ -44,12 +44,6 @@ export default function RightSidebar() {
 
     const rightSidebarOpen = useLayoutStore(
         (state) => state.rightSidebarOpen
-    )
-    const setSiteStats = useWSChatStore(
-        (state) => state.setSiteStats
-    )
-    const setUsersSnapshot = useWSChatStore(
-        (state) => state.setUsersSnapshot
     )
     const setRightSidebarOpen = useLayoutStore(
         (state) => state.setRightSidebarOpen
@@ -90,30 +84,6 @@ export default function RightSidebar() {
         setMounted(true)
     }, [])
 
-    useEffect(() => {
-        if (!authenticated) return
-        let cancelled = false
-        const loadSiteStats = async () => {
-            try {
-                const response = await fetch(SITE_STATUS, {
-                    credentials: "include",
-                    cache: "no-store",
-                })
-                const data = await response.json()
-                if (cancelled || !response.ok || !data?.success) return
-                setSiteStats({ totalOnline: Array.isArray(data.users) ? data.users.length : data.totalOnline ?? data.onlineUsers ?? 0 })
-                if (Array.isArray(data.users)) setUsersSnapshot(data.users)
-            } catch {
-                // WebSocket statistics remain the fallback when the HTTP check is unavailable.
-            }
-        }
-        void loadSiteStats()
-        const refresh = window.setInterval(loadSiteStats, 15000)
-        return () => {
-            cancelled = true
-            window.clearInterval(refresh)
-        }
-    }, [authenticated, setSiteStats, setUsersSnapshot])
     const logoutDisabled =
         securityBlockedUntil > Math.floor(Date.now() / 1000)
 

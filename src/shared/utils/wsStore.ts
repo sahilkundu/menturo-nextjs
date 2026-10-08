@@ -498,9 +498,12 @@ export const useWSStore =
                                     'user-online-status'
                                 ) {
 
-                                    useWSChatStore
+                                        useWSChatStore
                                         .getState()
                                         .setUserStatus({
+
+                                            userId:
+                                                data.userId,
 
                                             username:
                                                 data.username,
