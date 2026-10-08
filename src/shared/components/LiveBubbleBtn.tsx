@@ -5,7 +5,6 @@ import { memo, useCallback, useEffect, useMemo, useRef } from "react"
 import { useLayoutStore } from "../store/uiResStore"
 import { useWSChatStore } from "../store/wsChat"
 import { useUserStore } from "../store/user"
-import { SITE_STATUS } from "../../../api"
 
 const isUserOnline = (
     value: unknown
@@ -29,13 +28,6 @@ function LiveBubbleBtn() {
             (state) =>
                 state.users
         )
-    const site =
-        useWSChatStore(
-            (state) =>
-                state.site
-        )
-    const setSiteStats = useWSChatStore((state) => state.setSiteStats)
-    const setUsersSnapshot = useWSChatStore((state) => state.setUsersSnapshot)
 
     const onlineUsersCount =
         useMemo(
@@ -49,30 +41,7 @@ function LiveBubbleBtn() {
                     ).length,
             [wsUsers]
         )
-    const onlineCount =
-        Math.max(onlineUsersCount, Number(site?.totalOnline) || 0)
-
-    useEffect(() => {
-        if (!authenticated) return
-        let cancelled = false
-        const loadOnlineUsers = async () => {
-            try {
-                const response = await fetch(SITE_STATUS, { credentials: 'include', cache: 'no-store' })
-                const data = await response.json()
-                if (cancelled || !response.ok || !data?.success) return
-                setSiteStats({ totalOnline: data.totalOnline ?? data.onlineUsers ?? data.users?.length ?? 0 })
-                if (Array.isArray(data.users)) setUsersSnapshot(data.users)
-            } catch {
-                // WebSocket state remains the fallback.
-            }
-        }
-        void loadOnlineUsers()
-        const refresh = window.setInterval(loadOnlineUsers, 10000)
-        return () => {
-            cancelled = true
-            window.clearInterval(refresh)
-        }
-    }, [authenticated, setSiteStats, setUsersSnapshot])
+    const onlineCount = onlineUsersCount
 
     const bubbleRef = useRef<HTMLButtonElement | null>(null)
 

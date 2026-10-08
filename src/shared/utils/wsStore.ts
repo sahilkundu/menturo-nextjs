@@ -471,8 +471,11 @@ export const useWSStore =
                                         .getState()
                                         .setUsersSnapshot(
                                             (
-                                                data.users || []
-                                            ).map((user: any) => ({
+                                            data.users || []
+                                        ).map((user: any) => ({
+                                                userId:
+                                                    user.userId,
+
                                                 username:
                                                     user.username,
 

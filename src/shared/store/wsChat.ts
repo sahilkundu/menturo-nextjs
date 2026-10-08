@@ -10,6 +10,8 @@ export type OnlineUser = {
 
     username: string
 
+    userId?: string
+
     isAdmin?: boolean
 
     online: boolean
@@ -147,12 +149,14 @@ export const useWSChatStore =
                             Record<string, OnlineUser> = {}
 
                         for (const user of users) {
-                            if (!user?.username) {
+                            if (!user) {
                                 continue
                             }
 
-                            nextUsers[user.username] = {
+                            const key = user.userId || user.username || `user-${Object.keys(nextUsers).length}`
+                            nextUsers[key] = {
                                 ...user,
+                                username: user.username || user.userId || 'Unknown user',
                                 online:
                                     isOnlineValue(
                                         user.online

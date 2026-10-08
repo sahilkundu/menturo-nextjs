@@ -1,8 +1,8 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
-import { ACTIVITY, LIVE_TEST_ACTIVITY, LIVE_TEST_RESULT } from '../../../../api'
+import { ACTIVITY, LIVE_TEST_RESULT } from '../../../../api'
 import { useUserStore } from '../../../shared/store/user'
 
 type NormalActivity = {
@@ -90,33 +90,35 @@ export default function ActivityPage() {
     const [rankLoading, setRankLoading] = useState(false)
     const [error, setError] = useState('')
 
-    const loadActivity = async (showLoading = true) => {
-        if (showLoading) setLoading(true)
+    const activityRequest = useRef<Promise<void> | null>(null)
+
+    const loadActivity = useCallback(async () => {
+        if (activityRequest.current) return activityRequest.current
+        setLoading(true)
         setError('')
-        try {
-            const [normalResponse, liveResponse] = await Promise.all([
-                fetch(ACTIVITY, { credentials: 'include', cache: 'no-store' }),
-                fetch(LIVE_TEST_ACTIVITY, { credentials: 'include', cache: 'no-store' }),
-            ])
-            const normalData = normalResponse.ok ? await normalResponse.json() : null
-            const liveData = liveResponse.ok ? await liveResponse.json() : null
-            if (!normalResponse.ok && !liveResponse.ok) throw new Error('Unable to load activity')
-            const nextLive = Array.isArray(liveData?.items) ? liveData.items : []
-            setNormalItems(Array.isArray(normalData?.items) ? normalData.items : [])
+        const request = (async () => {
+            const response = await fetch(ACTIVITY, { credentials: 'include', cache: 'no-store' })
+            const data = await response.json().catch(() => null)
+            if (!response.ok || !data?.success) throw new Error(data?.message || `Unable to load activity (${response.status})`)
+            const nextLive = Array.isArray(data.liveItems) ? data.liveItems : []
+            setNormalItems(Array.isArray(data.items) ? data.items : [])
             setLiveItems(nextLive)
             setSelectedLiveId((current) => current || nextLive[0]?._id || '')
+        })()
+        activityRequest.current = request
+        try {
+            await request
         } catch (loadError) {
             setError(loadError instanceof Error ? loadError.message : 'Unable to load activity')
         } finally {
-            if (showLoading) setLoading(false)
+            setLoading(false)
+            if (activityRequest.current === request) activityRequest.current = null
         }
-    }
+    }, [])
 
     useEffect(() => {
         void loadActivity()
-        const refresh = window.setInterval(() => { void loadActivity(false) }, 5000)
-        return () => window.clearInterval(refresh)
-    }, [])
+    }, [loadActivity])
 
     const selectedLive = useMemo(
         () => liveItems.find((item) => item._id === selectedLiveId) || null,
@@ -156,6 +158,9 @@ export default function ActivityPage() {
                         <p className="mt-2 max-w-2xl text-sm font-medium text-violet-100 sm:text-base">
                             Your test history, live quiz attempts, and declared ranks in one private dashboard.
                         </p>
+                        <button type="button" onClick={() => void loadActivity()} disabled={loading} className="mt-5 rounded-xl bg-white/15 px-4 py-2 text-xs font-black text-white ring-1 ring-inset ring-white/25 transition hover:bg-white/25 disabled:opacity-60">
+                            {loading ? 'Loading…' : 'Refresh activity'}
+                        </button>
                     </div>
                 </section>
 
