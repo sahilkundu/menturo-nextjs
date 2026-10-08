@@ -1160,13 +1160,35 @@ export const useTestDataStore =
 
                         let resultData = submitData
                         if (submitData.status === 'submitted') {
-                            set({
-                                isSubmitted: true,
-                                liveResult: submitData,
+                        set({
+                            isSubmitted: true,
+                            liveResult: submitData,
                                 liveResultViewed: false,
                                 loadingResult: false,
                                 resultError: null,
                                 timeLeft: 0
+                            })
+                            return submitData
+                        }
+
+                        // The timer can fire locally a little early because
+                        // of tab throttling or a stale client clock. The
+                        // backend keeps the attempt running until endsAt.
+                        // Restore the authoritative remaining time instead
+                        // of treating that response as a submission.
+                        if (submitData.status === 'running') {
+                            const currentState = get()
+                            const endsAt = Number(
+                                currentState.activeTest?.history?.endsAt ||
+                                submitData.history?.endsAt ||
+                                0
+                            )
+                            set({
+                                loadingResult: false,
+                                resultError: null,
+                                timeLeft: endsAt > 0
+                                    ? Math.max(0, endsAt - Math.floor(Date.now() / 1000))
+                                    : currentState.timeLeft
                             })
                             return submitData
                         }
@@ -1619,8 +1641,18 @@ export const useTestDataStore =
                         }
                     })
 
-                    if (history.status && history.status !== 'running') {
+                    if (history.status === 'completed') {
                         await get().fetchLiveResult({ historyId: history._id })
+                    } else if (['submitted', 'queued', 'processing'].includes(String(history.status || ''))) {
+                        set({
+                            isSubmitted: true,
+                            liveResult: {
+                                ...data,
+                                status: history.status,
+                                history
+                            },
+                            timeLeft: 0
+                        })
                     }
                     return data
                 } catch (error: any) {

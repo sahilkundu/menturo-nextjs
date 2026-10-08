@@ -41,7 +41,7 @@ function RollingDigit({ digit }: { digit: string }) {
     setRolling(true)
     const timer = window.setTimeout(() => setRolling(false), 430)
     return () => window.clearTimeout(timer)
-  }, [digit, current])
+  }, [digit])
 
   return (
     <span className="relative inline-block h-[1em] w-[.64em] overflow-hidden align-middle">
