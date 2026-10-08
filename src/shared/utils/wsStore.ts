@@ -306,6 +306,26 @@ export const useWSStore =
                                     await readEncryptedWebSocket(event.data)
                                 )
 
+                                if (data.event === 'connected') {
+                                    const connectedUserId = get().userId
+                                    if (connectedUserId && data.online === true) {
+                                        useWSChatStore.getState().setUserStatus({
+                                            userId: connectedUserId,
+                                            username: data.username || connectedUserId,
+                                            online: true,
+                                            connections: Number(data.connections || 1)
+                                        })
+                                    } else if (connectedUserId && data.online === false) {
+                                        useWSChatStore.getState().setUserStatus({
+                                            userId: connectedUserId,
+                                            username: connectedUserId,
+                                            online: false,
+                                            connections: 0
+                                        })
+                                    }
+                                    return
+                                }
+
                                 if (data.event === 'typing-test-updated') {
                                     window.dispatchEvent(
                                         new CustomEvent(
@@ -571,6 +591,8 @@ export const useWSStore =
 
                     ws.onclose =
                         () => {
+
+                            useWSChatStore.getState().clearUsers()
 
                             set({
 

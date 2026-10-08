@@ -16,13 +16,43 @@ export default function TestMasterUserInfo({
     // HYDRATION FIX
     // =====================================
 
-    const [mounted, setMounted] =
-        useState(false)
+    const [mounted, setMounted] = useState(false)
+    const [clientDevice, setClientDevice] = useState({
+        browser: 'Unknown Browser',
+        os: 'Unknown OS',
+        device: 'Desktop',
+    })
 
     useEffect(() => {
-
         setMounted(true)
-
+        const userAgent = navigator.userAgent || ''
+        const platform = navigator.platform || ''
+        const browser = /Edg\//i.test(userAgent)
+            ? 'Edge'
+            : /Chrome\//i.test(userAgent)
+                ? 'Chrome'
+                : /Firefox\//i.test(userAgent)
+                    ? 'Firefox'
+                    : /Safari\//i.test(userAgent)
+                        ? 'Safari'
+                        : 'Unknown Browser'
+        const os = /Android/i.test(userAgent)
+            ? 'Android'
+            : /iPhone|iPad|iPod/i.test(userAgent)
+                ? 'iOS'
+                : /Windows/i.test(userAgent)
+                    ? 'Windows'
+                    : /Mac OS|Macintosh/i.test(userAgent)
+                        ? 'MacOS'
+                        : /Linux/i.test(userAgent) || /Linux/i.test(platform)
+                            ? 'Linux'
+                            : 'Unknown OS'
+        const device = /Tablet|iPad/i.test(userAgent)
+            ? 'Tablet'
+            : /Mobile|Android|iPhone|iPod/i.test(userAgent)
+                ? 'Mobile'
+                : 'Desktop'
+        setClientDevice({ browser, os, device })
     }, [])
 
     // =====================================
@@ -56,7 +86,7 @@ export default function TestMasterUserInfo({
 
     const device =
         deviceInfo?.device ||
-        "Desktop"
+        clientDevice.device
 
     // =====================================
     // OS
@@ -65,7 +95,7 @@ export default function TestMasterUserInfo({
     const os =
         deviceInfo?.os ||
         deviceInfo?.platform ||
-        "Unknown OS"
+        clientDevice.os
 
     // =====================================
     // BROWSER
@@ -73,7 +103,7 @@ export default function TestMasterUserInfo({
 
     const browser =
         deviceInfo?.browser ||
-        "Unknown Browser"
+        clientDevice.browser
 
     // =====================================
     // IP

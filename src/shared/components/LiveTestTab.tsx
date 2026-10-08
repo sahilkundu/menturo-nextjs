@@ -17,6 +17,7 @@ type LiveQuiz = {
   endsAt: number
   joinedCount?: number
   attemptStatus?: 'running' | 'submitted' | 'queued' | 'processing' | 'completed' | 'failed' | string
+  attemptHistoryId?: string
 }
 
 const countdownParts = (seconds: number) => {
@@ -121,11 +122,21 @@ export default function LiveTestTab({ seriesId }: { seriesId?: string }) {
       `}</style>
       <div className="space-y-5">
         {visibleQuizzes.map((quiz) => {
-          const isLive = quiz.status === 'live'
           const startAt = Number(quiz.scheduledStartAt || 0)
+          // The admin schedule is authoritative, but the card should not
+          // wait for the next API refresh to change its phase. Once the
+          // scheduled start time arrives, treat it as live locally.
+          const scheduleHasStarted =
+            (quiz.status === 'scheduled' || quiz.status === 'ready') &&
+            startAt > 0 &&
+            startAt <= now
+          const isLive = quiz.status === 'live' || scheduleHasStarted
           const canStart = isLive || ((quiz.status === 'scheduled' || quiz.status === 'ready') && startAt <= now)
           const pendingSubmission = ['submitted', 'queued', 'processing'].includes(String(quiz.attemptStatus || ''))
-          const countdownTarget = isLive ? (quiz.endsAt > 0 ? quiz.endsAt : quiz.startedAt + quiz.durationSeconds) : startAt
+          const liveStartAt = Number(quiz.startedAt || startAt)
+          const countdownTarget = isLive
+            ? (quiz.endsAt > 0 ? quiz.endsAt : liveStartAt + Number(quiz.durationSeconds || 0))
+            : startAt
           const countdown = countdownTarget > 0 ? countdownTarget - now : 0
           const label = isLive ? 'Ends in' : 'Starts in'
           const canOpen = canStart || pendingSubmission || quiz.attemptStatus === 'completed'
@@ -160,7 +171,7 @@ export default function LiveTestTab({ seriesId }: { seriesId?: string }) {
                 {pendingSubmission ? (
                   <button type="button" onClick={() => Swal.fire({ icon: 'info', title: 'Result not yet declared', text: 'Your submission is saved. After the live quiz ends, your rank and solution will be available in My activity.', confirmButtonColor: '#5b3bd1' })} className="block w-full rounded-[14px] bg-amber-500 px-6 py-3.5 text-center text-base font-black text-white transition hover:bg-amber-600 sm:text-lg">Submitted</button>
                 ) : (
-                  <Link href={canOpen ? `/test?liveTestId=${encodeURIComponent(quiz.id)}${quiz.attemptStatus === 'completed' ? '&viewResult=1' : ''}` : '#'} aria-disabled={!canOpen} className={`flex w-full items-center justify-center gap-3 rounded-[14px] px-6 py-3.5 text-center text-base font-black text-white transition sm:text-lg ${canOpen ? 'bg-[linear-gradient(105deg,#6040db,#5730d0)] shadow-[0_8px_18px_rgba(88,49,210,.2)] hover:brightness-105' : 'pointer-events-none bg-slate-300'}`}>
+                  <Link href={canOpen ? `/test?liveTestId=${encodeURIComponent(quiz.id)}${quiz.attemptStatus === 'completed' ? `&historyId=${encodeURIComponent(quiz.attemptHistoryId || '')}&viewResult=1` : ''}` : '#'} aria-disabled={!canOpen} className={`flex w-full items-center justify-center gap-3 rounded-[14px] px-6 py-3.5 text-center text-base font-black text-white transition sm:text-lg ${canOpen ? 'bg-[linear-gradient(105deg,#6040db,#5730d0)] shadow-[0_8px_18px_rgba(88,49,210,.2)] hover:brightness-105' : 'pointer-events-none bg-slate-300'}`}>
                     {quiz.attemptStatus === 'completed' ? 'View Result' : canStart ? 'Start Quiz' : 'Quiz has not started'} <span className="text-2xl leading-none">→</span>
                   </Link>
                 )}

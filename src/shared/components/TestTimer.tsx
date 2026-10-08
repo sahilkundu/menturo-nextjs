@@ -144,6 +144,7 @@ export function TestTimerController() {
     useEffect(() => {
 
         if (
+            !liveMode &&
             activeTest?.duration &&
             timeLeft <= 0 &&
             !isSubmitted
@@ -154,6 +155,7 @@ export function TestTimerController() {
 
     }, [
         activeTest?.duration,
+        liveMode,
         timeLeft,
         isSubmitted,
         setTimeLeft
@@ -219,17 +221,17 @@ export default function TestTimer() {
     const formatTime = (
         seconds: number
     ) => {
+        const safeSeconds = Math.max(0, Math.floor(Number(seconds) || 0))
 
         const hrs =
-            Math.floor(seconds / 3600)
+            Math.floor(safeSeconds / 3600)
 
         const mins =
             Math.floor(
-                (seconds % 3600) / 60
+                (safeSeconds % 3600) / 60
             )
 
-        const secs =
-            seconds % 60
+        const secs = safeSeconds % 60
 
         if (hrs > 0) {
 
@@ -240,8 +242,8 @@ export default function TestTimer() {
     }
 
     return (
-        <>
+        <span className="tabular-nums" aria-live="off">
             {formatTime(timeLeft)}
-        </>
+        </span>
     )
 }

@@ -2,7 +2,7 @@
 
 import dynamic from 'next/dynamic'
 
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 
 import { useLayoutStore } from "../../shared/store/uiResStore"
 import { useUserStore } from "../../shared/store/user"
@@ -15,6 +15,8 @@ import LeftSidebarSkeleton from "../../shared/components/Skeleton/LeftSidebarSke
 import LiveBubbleSkeleton from "../../shared/components/Skeleton/LiveBubbleSkeleton"
 import RightSidebarSkeleton from "../../shared/components/Skeleton/RightSidebarSkeleton"
 import AdSenseAd from "../../shared/components/AdSenseAd"
+import LiveTestResultModal from "../../shared/components/LiveTestResultModal"
+import { useTestDataStore } from "../../shared/store/testDataStore"
 
 import { useRouter } from "next/navigation"
 
@@ -72,6 +74,22 @@ export default function HomePage() {
         loading
     } =
         useUserStore()
+
+    const liveMode = useTestDataStore((state) => state.liveMode)
+    const liveSubmitted = useTestDataStore((state) => state.isSubmitted)
+    const liveResult = useTestDataStore((state) => state.liveResult)
+    const liveTest = useTestDataStore((state) => state.activeTest)
+    const clearActiveTest = useTestDataStore((state) => state.clearActiveTest)
+    const [showLiveResult, setShowLiveResult] = useState(false)
+
+    useEffect(() => {
+        if (liveMode && liveSubmitted && liveResult) {
+            setShowLiveResult(true)
+        }
+    }, [liveMode, liveResult, liveSubmitted])
+
+    const liveHistoryId = liveResult?.history?._id || liveTest?.history?._id || ''
+    const liveTestId = liveTest?.liveTestId || liveResult?.history?.liveTestId || ''
 
     // ================= WS =================
 
@@ -317,6 +335,23 @@ export default function HomePage() {
                     </div>
                 )
             }
+
+            {showLiveResult && liveResult && (
+                <LiveTestResultModal
+                    result={liveResult}
+                    onClose={() => {
+                        setShowLiveResult(false)
+                        clearActiveTest()
+                    }}
+                    onViewSolution={() => {
+                        setShowLiveResult(false)
+                        clearActiveTest()
+                        router.push(
+                            `/test?liveTestId=${encodeURIComponent(liveTestId)}&historyId=${encodeURIComponent(liveHistoryId)}&viewResult=1`
+                        )
+                    }}
+                />
+            )}
 
         </div>
     )

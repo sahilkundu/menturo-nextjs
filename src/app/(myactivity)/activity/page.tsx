@@ -296,7 +296,7 @@ export default function ActivityPage() {
                         </div>
                         <p className="mt-3 text-xs font-semibold text-slate-400">Participant information is shown only in this live-quiz public rank list.</p>
                         <div className="mt-5 flex flex-col gap-3 sm:flex-row">
-                            <Link href={`/test?liveTestId=${encodeURIComponent(selectedLive?.liveTestId || '')}&viewResult=1`} className="flex-1 rounded-xl bg-[#5141c7] px-4 py-3 text-center text-sm font-black text-white">View solution</Link>
+                            <Link href={`/test?liveTestId=${encodeURIComponent(selectedLive?.liveTestId || '')}&historyId=${encodeURIComponent(selectedLive?._id || '')}&viewResult=1`} className="flex-1 rounded-xl bg-[#5141c7] px-4 py-3 text-center text-sm font-black text-white">View solution</Link>
                             <button type="button" onClick={() => setRankResult(null)} className="rounded-xl border border-slate-200 px-4 py-3 text-sm font-black text-slate-600">Close</button>
                         </div>
                     </div>

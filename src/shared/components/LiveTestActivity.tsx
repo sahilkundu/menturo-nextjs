@@ -67,7 +67,7 @@ export default function LiveTestActivity() {
             {item.status === 'completed' && item.liveTestId && (
               <Link
                 className="rounded-lg bg-violet-600 px-3 py-2 text-xs font-black text-white"
-                href={`/test?liveTestId=${encodeURIComponent(item.liveTestId)}&viewResult=1`}
+                href={`/test?liveTestId=${encodeURIComponent(item.liveTestId)}&historyId=${encodeURIComponent(item._id)}&viewResult=1`}
               >
                 View result
               </Link>

@@ -62,6 +62,7 @@ type ResultPayload = {
 
 type LiveStartPayload = {
     liveTestId: string
+    historyId?: string
     viewResult?: boolean
 }
 
@@ -1191,39 +1192,19 @@ export const useTestDataStore =
                             throw new Error('Live quiz result is still processing')
                         }
 
-                        const solutionResponse = await fetch(
-                            `${LIVE_TEST_SOLUTION}?historyId=${encodeURIComponent(historyId)}`,
-                            { credentials: 'include', cache: 'no-store' }
-                        )
-                        const solutionData = await readJsonResponse(solutionResponse)
-                        if (!solutionResponse.ok || solutionData.success === false) {
-                            throw new Error(solutionData.message || 'Live solution is not ready')
-                        }
-
                         const latestState = get()
-                        const existingTest = latestState.activeTest || {}
-                        const liveHistory = {
-                            ...(resultData.history || {}),
-                            answers: solutionData.answers || liveAnswersFromState(latestState)
-                        }
-                        const historyObj = liveHistoryObject(existingTest, liveHistory)
-                        const selectedOptions = buildSelectedOptions(historyObj)
-
                         set({
                             isSubmitted: true,
-                            selectedOptions,
-                            activeQuestionIndex: 0,
-                            activeSubject: 'All',
-                            activeLan: 'en',
+                            selectedOptions: latestState.selectedOptions,
                             timeLeft: 0,
                             liveResult: resultData,
-                            activeTest: {
-                                ...existingTest,
-                                activeQuestionHistoryObj: historyObj,
-                                solution: solutionData.solution || {},
-                                time: Number(resultData.history?.elapsedSeconds || 0),
-                                obtainedMarks: Number(resultData.history?.score || 0)
-                            },
+                            activeTest: latestState.activeTest
+                                ? {
+                                    ...latestState.activeTest,
+                                    time: Number(resultData.history?.elapsedSeconds || 0),
+                                    obtainedMarks: Number(resultData.history?.score || 0)
+                                }
+                                : latestState.activeTest,
                             loadingResult: false,
                             resultError: null
                         })
@@ -1475,6 +1456,112 @@ export const useTestDataStore =
                         isSubmitted: false
                     })
 
+                    // Activity opens a completed live attempt directly. Do
+                    // not try to start the live configuration again; load
+                    // the user's history and solution exactly like a normal
+                    // submitted-test solution.
+                    if (payload.viewResult === true && payload.historyId) {
+                        const resultResponse = await fetch(
+                            `${LIVE_TEST_RESULT}?historyId=${encodeURIComponent(payload.historyId)}`,
+                            { credentials: 'include', cache: 'no-store' }
+                        )
+                        const resultData = await readJsonResponse(resultResponse)
+                        if (!resultResponse.ok || resultData.success === false) {
+                            throw new Error(resultData.message || 'Could not load live result')
+                        }
+
+                        const resultHistory = {
+                            ...(resultData.history || {}),
+                            _id: payload.historyId,
+                        }
+
+                        if (resultData.status !== 'completed') {
+                            const pendingTest = { questions: {} }
+                            set({
+                                loadingStartTest: false,
+                                liveMode: true,
+                                liveResult: resultData,
+                                isSubmitted: true,
+                                timeLeft: 0,
+                                activeSubject: 'All',
+                                activeLan: 'en',
+                                activeQuestionIndex: 0,
+                                selectedOptions: {},
+                                activeTest: {
+                                    liveMode: true,
+                                    liveTestId: payload.liveTestId,
+                                    history: resultHistory,
+                                    questions: {},
+                                    activeQuestionHistoryObj: liveHistoryObject(pendingTest, resultHistory),
+                                    deviceInfo: resultHistory.deviceInfo || {},
+                                    allSubj: ['All'],
+                                    count: 0,
+                                    duration: 0,
+                                    maxMarks: 0,
+                                    name: 'Live Quiz',
+                                    solution: {}
+                                }
+                            })
+                            return resultData
+                        }
+
+                        const solutionResponse = await fetch(
+                            `${LIVE_TEST_SOLUTION}?historyId=${encodeURIComponent(payload.historyId)}`,
+                            { credentials: 'include', cache: 'no-store' }
+                        )
+                        const solutionData = await readJsonResponse(solutionResponse)
+                        if (!solutionResponse.ok || solutionData.success === false) {
+                            throw new Error(solutionData.message || 'Live solution is not ready')
+                        }
+
+                        const solutionTest = {
+                            questions: solutionData.questions || {}
+                        }
+                        const historyObj = liveHistoryObject(solutionTest, {
+                            ...resultHistory,
+                            answers: solutionData.answers || {}
+                        })
+                        const selectedOptions = buildSelectedOptions(historyObj)
+                        const questions = solutionTest.questions
+
+                        set({
+                            loadingStartTest: false,
+                            startTestError: null,
+                            liveMode: true,
+                            liveResult: {
+                                ...resultData,
+                                history: resultHistory
+                            },
+                            isSubmitted: true,
+                            timeLeft: 0,
+                            activeSubject: 'All',
+                            activeLan: 'en',
+                            activeQuestionIndex: 0,
+                            selectedOptions,
+                            activeTest: {
+                                liveMode: true,
+                                liveTestId: payload.liveTestId || resultHistory.liveTestId,
+                                history: resultHistory,
+                                questions,
+                                activeQuestionHistoryObj: historyObj,
+                                deviceInfo: resultHistory.deviceInfo || {},
+                                allSubj: ['All'],
+                                count: Object.keys(questions || {}).length,
+                                duration: 0,
+                                maxMarks: 0,
+                                name: resultHistory.testName || 'Live Quiz',
+                                solution: solutionData.solution || {},
+                                time: Number(resultHistory.elapsedSeconds || 0),
+                                obtainedMarks: Number(resultHistory.score || 0)
+                            }
+                        })
+                        return {
+                            ...resultData,
+                            solution: solutionData.solution || {},
+                            answers: solutionData.answers || {}
+                        }
+                    }
+
                     const response = await fetch(LIVE_TEST_START, {
                         method: 'POST',
                         credentials: 'include',
@@ -1513,7 +1600,7 @@ export const useTestDataStore =
                             history,
                             questions: test.questions || {},
                             activeQuestionHistoryObj: historyObj,
-                            deviceInfo: {},
+                            deviceInfo: history.deviceInfo || {},
                             allSubj: ['All'],
                             count: Number(test.count || Object.keys(test.questions || {}).length),
                             duration: Number(test.duration || 0),

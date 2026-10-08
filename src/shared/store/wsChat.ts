@@ -124,17 +124,17 @@ export const useWSChatStore =
                             state
                         ) => {
                             const online = isOnlineValue(data.online)
-                            const key = data.userId || data.username
+                            const key = data.userId
                             const updated = { ...state.users }
 
                             if (!online) {
                                 for (const [storedKey, user] of Object.entries(updated)) {
-                                    if (storedKey === key || (data.username && user.username === data.username)) delete updated[storedKey]
+                                    if (storedKey === key) delete updated[storedKey]
                                 }
                                 return { users: updated }
                             }
 
-                            if (!key) return state
+                            if (!key || key.startsWith('guest-')) return state
                             updated[key] = {
                                 ...data,
                                 username: data.username || data.userId || 'Unknown user',
@@ -158,11 +158,17 @@ export const useWSChatStore =
                                 continue
                             }
 
+                            // Presence is authenticated WebSocket presence.
+                            // Never render anonymous/guest records as real users.
+                            if (!user.userId || user.userId.startsWith('guest-')) {
+                                continue
+                            }
+
                             if (user.online !== undefined && !isOnlineValue(user.online)) {
                                 continue
                             }
 
-                            const key = user.userId || user.username || `user-${Object.keys(nextUsers).length}`
+                            const key = user.userId
                             nextUsers[key] = {
                                 ...user,
                                 username: user.username || user.userId || 'Unknown user',

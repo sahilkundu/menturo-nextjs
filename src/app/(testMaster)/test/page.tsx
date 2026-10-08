@@ -25,6 +25,7 @@ function MockTestContent() {
     const router = useRouter()
     const searchParams = useSearchParams()
     const liveTestId = searchParams.get('liveTestId') || ''
+    const liveHistoryId = searchParams.get('historyId') || ''
     const viewLiveResult = searchParams.get('viewResult') === '1'
     const fetchLiveStart = useTestDataStore((state) => state.fetchLiveStart)
     const fetchLiveResult = useTestDataStore((state) => state.fetchLiveResult)
@@ -40,12 +41,29 @@ function MockTestContent() {
         }
     }, [isSubmitted, liveMode, liveResult])
 
+    const openLiveSolution = () => {
+        const historyId = activeTest?.history?._id || ''
+        if (!viewLiveResult && liveTestId && historyId) {
+            router.push(
+                `/test?liveTestId=${encodeURIComponent(liveTestId)}&historyId=${encodeURIComponent(historyId)}&viewResult=1`
+            )
+            return
+        }
+        setShowLiveResult(false)
+    }
+
     useEffect(() => {
         if (!liveTestId) return
         const state = useTestDataStore.getState()
-        if (state.activeTest?.liveTestId === liveTestId && state.liveMode) return
-        void fetchLiveStart({ liveTestId, viewResult: viewLiveResult })
-    }, [fetchLiveStart, liveTestId, viewLiveResult])
+        const sameLiveHistory = !liveHistoryId || state.activeTest?.history?._id === liveHistoryId
+        const alreadyViewingResult = !viewLiveResult || state.isSubmitted
+        if (state.activeTest?.liveTestId === liveTestId && state.liveMode && sameLiveHistory && alreadyViewingResult) return
+        void fetchLiveStart({
+            liveTestId,
+            historyId: liveHistoryId || undefined,
+            viewResult: viewLiveResult
+        })
+    }, [fetchLiveStart, liveHistoryId, liveTestId, viewLiveResult])
 
     useEffect(() => {
         if (
@@ -70,6 +88,23 @@ function MockTestContent() {
         const timer = window.setInterval(checkDeclaration, 1000)
         return () => window.clearInterval(timer)
     }, [activeTest, fetchLiveResult, isSubmitted, liveMode, liveResult?.status])
+
+    useEffect(() => {
+        // Automatic completion belongs on the home screen with the result
+        // modal. A solution is opened only after the user explicitly clicks
+        // View Solution. Result/activity routes stay on /test.
+        if (
+            viewLiveResult ||
+            !liveMode ||
+            !isSubmitted ||
+            liveResult?.status !== 'completed' ||
+            !activeTest?.history?._id
+        ) {
+            return
+        }
+
+        router.replace('/')
+    }, [activeTest?.history?._id, isSubmitted, liveMode, liveResult?.status, router, viewLiveResult])
 
     useEffect(() => {
         if (!liveTestId && (!activeTest || Object.keys(activeTest).length === 0)) {
@@ -275,7 +310,7 @@ function MockTestContent() {
         return (
             <LiveTestResultModal
                 result={liveResult}
-                onViewSolution={() => undefined}
+                onViewSolution={openLiveSolution}
                 onClose={() => router.push('/')}
             />
         )
@@ -572,9 +607,7 @@ overflow-hidden"
             {liveMode && isSubmitted && liveResult && showLiveResult && (
                 <LiveTestResultModal
                     result={liveResult}
-                    onViewSolution={() => {
-                        setShowLiveResult(false)
-                    }}
+                    onViewSolution={openLiveSolution}
                 />
             )}
 
