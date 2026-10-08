@@ -26,7 +26,17 @@ export default function LiveTestResultModal({
     if (result?.status === 'submitted' || result?.status === 'queued' || result?.status === 'processing') {
         return (
             <div className="fixed inset-0 z-[2000] grid place-items-center bg-slate-950/50 p-4">
-                <div className="max-w-sm rounded-2xl bg-white p-7 text-center shadow-2xl">
+                <div className="relative max-w-sm rounded-2xl bg-white p-7 text-center shadow-2xl">
+                    {onClose && (
+                        <button
+                            type="button"
+                            onClick={onClose}
+                            aria-label="Close result popup"
+                            className="absolute right-3 top-2 rounded-full px-2 text-2xl leading-none text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+                        >
+                            ×
+                        </button>
+                    )}
                     <p className="text-lg font-black text-slate-900">Result not yet declared</p>
                     <p className="mt-2 text-sm leading-6 text-slate-600">
                         Your submission is locked. After the live quiz ends, your rank and solution will be available in My activity.
@@ -47,7 +57,17 @@ export default function LiveTestResultModal({
 
     return (
         <div className="fixed inset-0 z-[2000] overflow-y-auto bg-slate-950/50 p-4">
-            <div className="mx-auto mt-8 max-w-xl rounded-2xl bg-white p-6 shadow-2xl">
+            <div className="relative mx-auto mt-8 max-w-xl rounded-2xl bg-white p-6 shadow-2xl">
+                {onClose && (
+                    <button
+                        type="button"
+                        onClick={onClose}
+                        aria-label="Close result popup"
+                        className="absolute right-3 top-2 rounded-full px-2 text-2xl leading-none text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+                    >
+                        ×
+                    </button>
+                )}
                 <p className="text-center text-xs font-bold uppercase tracking-wider text-slate-500">
                     Quiz Final Results
                 </p>

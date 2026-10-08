@@ -152,6 +152,7 @@ type TestDataStore = {
     activeTest: any | null
     liveMode: boolean
     liveResult: any | null
+    liveResultViewed: boolean
 
     loadingStartTest: boolean
 
@@ -200,6 +201,8 @@ type TestDataStore = {
     fetchLiveStart: (
         payload: LiveStartPayload
     ) => Promise<any>
+
+    markLiveResultViewed: () => void
 
     fetchResumeTest: (
         payload: ResumeTestPayload
@@ -880,6 +883,7 @@ export const useTestDataStore =
             activeTest: null,
             liveMode: false,
             liveResult: null,
+            liveResultViewed: false,
 
             loadingStartTest: false,
 
@@ -900,10 +904,11 @@ export const useTestDataStore =
                 lan
             ) => {
 
-                set({
-                    activeLan: lan
-                })
+                    set({
+                        activeLan: lan
+                    })
             },
+            markLiveResultViewed: () => set({ liveResultViewed: true }),
             fetchSave: async (
                 payload
             ) => {
@@ -1158,6 +1163,7 @@ export const useTestDataStore =
                             set({
                                 isSubmitted: true,
                                 liveResult: submitData,
+                                liveResultViewed: false,
                                 loadingResult: false,
                                 resultError: null,
                                 timeLeft: 0
@@ -1175,10 +1181,11 @@ export const useTestDataStore =
                                 throw new Error(resultData.message || 'Failed to load live result')
                             }
                             if (resultData.status === 'submitted') {
-                                set({
-                                    isSubmitted: true,
-                                    liveResult: resultData,
-                                    loadingResult: false,
+                            set({
+                                isSubmitted: true,
+                                liveResult: resultData,
+                                liveResultViewed: false,
+                                loadingResult: false,
                                     resultError: null,
                                     timeLeft: 0
                                 })
@@ -1198,6 +1205,7 @@ export const useTestDataStore =
                             selectedOptions: latestState.selectedOptions,
                             timeLeft: 0,
                             liveResult: resultData,
+                            liveResultViewed: false,
                             activeTest: latestState.activeTest
                                 ? {
                                     ...latestState.activeTest,
@@ -1453,6 +1461,7 @@ export const useTestDataStore =
                         startTestError: null,
                         liveMode: true,
                         liveResult: null,
+                        liveResultViewed: payload.viewResult === true,
                         isSubmitted: false
                     })
 
@@ -2201,6 +2210,7 @@ export const useTestDataStore =
                     activeTest: null,
                     liveMode: false,
                     liveResult: null,
+                    liveResultViewed: false,
 
                     loadingResult: false,
                     loadingSave: false,

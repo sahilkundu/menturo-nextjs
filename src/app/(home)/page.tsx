@@ -78,15 +78,18 @@ export default function HomePage() {
     const liveMode = useTestDataStore((state) => state.liveMode)
     const liveSubmitted = useTestDataStore((state) => state.isSubmitted)
     const liveResult = useTestDataStore((state) => state.liveResult)
+    const liveResultViewed = useTestDataStore((state) => state.liveResultViewed)
     const liveTest = useTestDataStore((state) => state.activeTest)
     const clearActiveTest = useTestDataStore((state) => state.clearActiveTest)
     const [showLiveResult, setShowLiveResult] = useState(false)
 
     useEffect(() => {
-        if (liveMode && liveSubmitted && liveResult) {
+        if (liveMode && liveSubmitted && liveResult && !liveResultViewed) {
             setShowLiveResult(true)
+        } else if (liveResultViewed) {
+            setShowLiveResult(false)
         }
-    }, [liveMode, liveResult, liveSubmitted])
+    }, [liveMode, liveResult, liveResultViewed, liveSubmitted])
 
     const liveHistoryId = liveResult?.history?._id || liveTest?.history?._id || ''
     const liveTestId = liveTest?.liveTestId || liveResult?.history?.liveTestId || ''

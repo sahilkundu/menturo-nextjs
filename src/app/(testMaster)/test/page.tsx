@@ -33,17 +33,23 @@ function MockTestContent() {
     const liveMode = useTestDataStore((state) => state.liveMode)
     const liveResult = useTestDataStore((state) => state.liveResult)
     const isSubmitted = useTestDataStore((state) => state.isSubmitted)
+    const clearActiveTest = useTestDataStore((state) => state.clearActiveTest)
+    const markLiveResultViewed = useTestDataStore((state) => state.markLiveResultViewed)
     const [showLiveResult, setShowLiveResult] = useState(false)
 
     useEffect(() => {
-        if (liveMode && isSubmitted && liveResult) {
-            setShowLiveResult(true)
+        if (viewLiveResult) {
+            setShowLiveResult(false)
+            markLiveResultViewed()
+            return
         }
-    }, [isSubmitted, liveMode, liveResult])
+        if (liveMode && isSubmitted && liveResult) setShowLiveResult(true)
+    }, [isSubmitted, liveMode, liveResult, markLiveResultViewed, viewLiveResult])
 
     const openLiveSolution = () => {
         const historyId = activeTest?.history?._id || ''
         if (!viewLiveResult && liveTestId && historyId) {
+            markLiveResultViewed()
             router.push(
                 `/test?liveTestId=${encodeURIComponent(liveTestId)}&historyId=${encodeURIComponent(historyId)}&viewResult=1`
             )
@@ -311,7 +317,10 @@ function MockTestContent() {
             <LiveTestResultModal
                 result={liveResult}
                 onViewSolution={openLiveSolution}
-                onClose={() => router.push('/')}
+                onClose={() => {
+                    clearActiveTest()
+                    router.push('/')
+                }}
             />
         )
     }
