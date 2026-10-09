@@ -1,11 +1,12 @@
 'use client'
 
 import { useCallback, useEffect, useMemo, useState } from "react"
+import { useRouter } from "next/navigation"
 
 import { useLayoutStore } from "../store/uiResStore"
 import Live from "./Live"
 import { useUserStore } from "../store/user"
-import { LOGOUT } from "../../../api"
+import { LOGOUT, WALLET } from "../../../api"
 import { useWSChatStore } from "../store/wsChat"
 
 const isUserOnline = (
@@ -21,6 +22,8 @@ const isUserOnline = (
 }
 
 export default function RightSidebar() {
+
+    const router = useRouter()
 
     const user =
         useUserStore(
@@ -79,10 +82,34 @@ export default function RightSidebar() {
 
     // MOUNT ANIMATION FIX
     const [mounted, setMounted] = useState(false)
+    const [walletBalance, setWalletBalance] = useState<number | null>(null)
 
     useEffect(() => {
         setMounted(true)
     }, [])
+
+    useEffect(() => {
+        if (!authenticated) {
+            setWalletBalance(null)
+            return
+        }
+
+        let cancelled = false
+        fetch(WALLET, { credentials: "include", cache: "no-store" })
+            .then((response) => response.json())
+            .then((data) => {
+                if (!cancelled && data?.success !== false) {
+                    setWalletBalance(Number(data?.balance || 0))
+                }
+            })
+            .catch(() => {
+                if (!cancelled) setWalletBalance(null)
+            })
+
+        return () => {
+            cancelled = true
+        }
+    }, [authenticated])
 
     const logoutDisabled =
         securityBlockedUntil > Math.floor(Date.now() / 1000)
@@ -376,6 +403,26 @@ export default function RightSidebar() {
 
                             </div>
 
+                        </div>}
+
+                    {authenticated && !liveBubbleOpen && walletBalance !== null &&
+                        <div className="mt-3 rounded-2xl border border-violet-100 bg-violet-50 p-3">
+                            <div className="flex items-center justify-between gap-3">
+                                <div>
+                                    <p className="text-xs text-gray-500">Wallet balance</p>
+                                    <p className="mt-1 text-2xl font-black text-violet-700">{walletBalance} <span className="text-xs font-bold text-violet-500">credits</span></p>
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setRightSidebarOpen(false)
+                                        router.push("/wallet")
+                                    }}
+                                    className="rounded-xl bg-violet-600 px-3 py-2 text-xs font-bold text-white transition hover:bg-violet-700"
+                                >
+                                    Buy credits
+                                </button>
+                            </div>
                         </div>}
 
                     {/* ACTIVE USERS */}

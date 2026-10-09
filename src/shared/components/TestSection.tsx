@@ -30,7 +30,7 @@ import {
 import { goToLoginAfterRememberingPage } from '../utils/loginRedirect'
 import TestSeriesInfo from './TestSeriesInfo'
 import PaymentSummary from './PaymentSummary'
-import { DELETE_TEST_ATTEMPT } from '../../../api'
+import { DELETE_TEST_ATTEMPT, WALLET } from '../../../api'
 import TestCardMetadata from './TestCardMetadata'
 type Props = {
     series: any
@@ -172,6 +172,7 @@ export default function TestSection({ series }: Props) {
 
     const [selectedSubject, setSelectedSubject] =
         useState('all')
+    const [walletBalance, setWalletBalance] = useState(0)
 
     // Save to localStorage whenever subject changes
     useEffect(() => {
@@ -182,6 +183,27 @@ export default function TestSection({ series }: Props) {
             )
         }
     }, [selectedSubject, series?._id])
+
+    useEffect(() => {
+        if (!authenticated) {
+            setWalletBalance(0)
+            return
+        }
+
+        let cancelled = false
+        fetch(WALLET, { credentials: 'include', cache: 'no-store' })
+            .then((response) => response.json())
+            .then((data) => {
+                if (!cancelled && data?.success !== false) {
+                    setWalletBalance(Number(data?.balance || 0))
+                }
+            })
+            .catch(() => undefined)
+
+        return () => {
+            cancelled = true
+        }
+    }, [authenticated])
     const normalizedSelectedSubject =
         useMemo(
             () =>
@@ -533,7 +555,8 @@ export default function TestSection({ series }: Props) {
         if (
             mode !== 'solution' &&
             !seriesCanAccess &&
-            !test?.access
+            !test?.access &&
+            walletBalance <= 0
         ) {
             showPopupMessage(
                 seriesAccessMessage,
@@ -837,7 +860,7 @@ export default function TestSection({ series }: Props) {
     return (
 
         // <div className="m-2 bg-white rounded-2xl border border-gray-100 overflow-hidden">
-        <div className="m-2 bg-white rounded-2xl border border-gray-100 overflow-hidden">
+        <div id="series-tests" className="m-2 bg-white rounded-2xl border border-gray-100 overflow-hidden">
 
             {pendingAttemptDeletion ? (
                 <div
@@ -1347,7 +1370,7 @@ export default function TestSection({ series }: Props) {
                                             `${test.testId}-solution-`
                                         )
                                     const lacksAccess =
-                                        authenticated && !test.access
+                                        authenticated && !test.access && walletBalance <= 0
                                     const premiumButtonClass =
                                         `
                                             bg-[linear-gradient(135deg,#4A3F77_0%,#362D5F_100%)]

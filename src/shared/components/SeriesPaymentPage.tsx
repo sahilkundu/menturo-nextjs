@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { CHECK_COUPON, CREATE_ORDER, VERIFY_RAZORPAY_PAYMENT } from '../../../api'
+import { CHECK_COUPON, CREATE_ORDER, VERIFY_RAZORPAY_PAYMENT, WALLET } from '../../../api'
 import { useUserStore } from '../store/user'
 import { goToLoginAfterRememberingPage } from '../utils/loginRedirect'
 
@@ -200,6 +200,9 @@ export default function SeriesPaymentPage({ series }: FullSeries) {
     const [now, setNow] =
         useState(() => Date.now())
 
+    const [walletBalance, setWalletBalance] = useState<number | null>(null)
+    const [walletEnabled, setWalletEnabled] = useState(false)
+
     useEffect(() => {
         const timer =
             window.setInterval(
@@ -209,6 +212,29 @@ export default function SeriesPaymentPage({ series }: FullSeries) {
 
         return () => window.clearInterval(timer)
     }, [])
+
+    useEffect(() => {
+        if (!authenticated) {
+            setWalletBalance(null)
+            setWalletEnabled(false)
+            return
+        }
+
+        let cancelled = false
+        fetch(WALLET, { credentials: 'include', cache: 'no-store' })
+            .then((response) => response.json())
+            .then((data) => {
+                if (!cancelled && data?.success !== false) {
+                    setWalletBalance(Number(data?.balance || 0))
+                    setWalletEnabled(Boolean(data?.enabled))
+                }
+            })
+            .catch(() => undefined)
+
+        return () => {
+            cancelled = true
+        }
+    }, [authenticated])
 
     const updateCouponCode = (
         planID: string,
@@ -556,6 +582,16 @@ export default function SeriesPaymentPage({ series }: FullSeries) {
     const availablePlans =
         series?.plans || []
 
+    const walletCanStart =
+        authenticated && walletEnabled && Number(walletBalance || 0) > 0
+
+    const scrollToTests = () => {
+        document.getElementById('series-tests')?.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+        })
+    }
+
     if (!series || availablePlans.length === 0) {
         return null
     }
@@ -603,7 +639,7 @@ export default function SeriesPaymentPage({ series }: FullSeries) {
                     </h3>
 
                     <p className="text-gray-500 text-xs sm:text-sm mt-1">
-                        Choose your exam pack. One-time payment gets full access.
+                        Choose your exam pack or use wallet credits for test attempts.
                     </p>
                 </div>
 
@@ -783,7 +819,7 @@ export default function SeriesPaymentPage({ series }: FullSeries) {
                                 </span>
 
                                 <p className="text-white/80 text-[11px]">
-                                    Premium Test Series
+                                    {walletCanStart ? 'Wallet access available' : 'Premium Test Series'}
                                 </p>
 
                                 <h3 className="text-white text-xl font-black mt-1 pr-24">
@@ -921,7 +957,7 @@ export default function SeriesPaymentPage({ series }: FullSeries) {
 
                                 <button
                                     type="button"
-                                    onClick={() => buyNow(plan)}
+                                    onClick={() => walletCanStart ? scrollToTests() : buyNow(plan)}
                                     disabled={buyLoading[planKey]}
                                     className={`
                                         w-full
@@ -941,6 +977,8 @@ export default function SeriesPaymentPage({ series }: FullSeries) {
                                 >
                                     {buyLoading[planKey]
                                         ? 'Starting Payment...'
+                                        : walletCanStart
+                                        ? 'Attempt Tests'
                                         : 'Buy Now'}
                                 </button>
 
@@ -957,6 +995,24 @@ export default function SeriesPaymentPage({ series }: FullSeries) {
                         </div>
                     )
                 })}
+
+                {authenticated && walletEnabled && (
+                    <div className="flex-shrink-0 w-[300px] overflow-hidden rounded-[22px] border border-violet-200 bg-white shadow-lg shadow-violet-200/40">
+                        <div className="bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 px-4 py-3">
+                            <span className="rounded-full bg-white/20 px-2.5 py-1 text-[9px] font-bold text-white">WALLET</span>
+                            <h3 className="mt-2 text-xl font-black text-white">Recharge credits</h3>
+                            <p className="mt-1 text-[11px] text-white/85">Use 1 credit for each new test attempt.</p>
+                        </div>
+                        <div className="p-4">
+                            <p className="text-[11px] font-bold uppercase text-slate-500">Current balance</p>
+                            <p className="mt-1 text-4xl font-black text-violet-700">{walletBalance ?? 0}<span className="ml-2 text-sm font-bold text-violet-500">credits</span></p>
+                            <p className="mt-2 text-xs text-slate-500">Recharge from the secure wallet payment page.</p>
+                            <button type="button" onClick={() => router.push('/wallet')} className="mt-5 w-full rounded-2xl bg-violet-600 px-4 py-3 text-sm font-black text-white shadow-md transition hover:bg-violet-700">
+                                Buy credits
+                            </button>
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     )

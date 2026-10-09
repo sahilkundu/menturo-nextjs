@@ -192,17 +192,6 @@ export default function LeftSidebar() {
                             onClick={() => {
                                 setLeftSidebarOpen(false)
                                 showRouteLoader()
-                                router.push("/wallet")
-                            }}
-                            className="w-full h-11 rounded-2xl hover:bg-gray-50 text-gray-600 text-sm font-medium flex items-center gap-3 px-4 transition-colors">
-                            <span>💳</span>
-                            Wallet
-                        </button>
-
-                        <button
-                            onClick={() => {
-                                setLeftSidebarOpen(false)
-                                showRouteLoader()
                                 router.push('/activity')
                             }}
                             className="w-full h-11 rounded-2xl hover:bg-gray-50 text-gray-600 text-sm font-medium flex items-center gap-3 px-4 transition-colors"

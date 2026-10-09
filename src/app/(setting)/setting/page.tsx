@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { useUserStore } from '../../../shared/store/user'
 import { showPopupMessage } from '../../../shared/utils/popup'
-import { FORGOT_PASS, GET_GRIEVANCES, GET_SESSIONS, LOGOUT, UPDATE_PASS, UPDATE_PROFILE } from '../../../../api'
+import { FORGOT_PASS, GET_GRIEVANCES, GET_SESSIONS, LOGOUT, UPDATE_PASS, UPDATE_PROFILE, WALLET } from '../../../../api'
 import Spinner from '../../../shared/components/Spinner'
 import { useSessionStore } from '../../../shared/store/sessionStore'
 import { useRouter } from 'next/navigation'
@@ -93,6 +93,8 @@ export default function SettingPage() {
   const router = useRouter();
   const [logoutSessionLoading, setLogoutSessionLoading] =
     useState<string | null>(null);
+  const [walletBalance, setWalletBalance] = useState<number | null>(null)
+  const [walletEnabled, setWalletEnabled] = useState(false)
   const [coinBalance, setCoinBalance] = useState<number>(1250)
   const [testAttempts, setTestAttempts] = useState<number>(12)
 
@@ -103,6 +105,29 @@ export default function SettingPage() {
       .then((data) => { if (data.success) setGrievances(data.grievances || []) })
       .catch(() => undefined);
   }, [authenticated]);
+
+  useEffect(() => {
+    if (!authenticated) {
+      setWalletBalance(null)
+      setWalletEnabled(false)
+      return
+    }
+
+    let cancelled = false
+    fetch(WALLET, { credentials: 'include', cache: 'no-store' })
+      .then((response) => response.json())
+      .then((data) => {
+        if (!cancelled && data?.success !== false) {
+          setWalletBalance(Number(data?.balance || 0))
+          setWalletEnabled(Boolean(data?.enabled))
+        }
+      })
+      .catch(() => undefined)
+
+    return () => {
+      cancelled = true
+    }
+  }, [authenticated])
 
   // Form visibility states
   const [showMobileForm, setShowMobileForm] = useState<boolean>(false)
@@ -1047,6 +1072,23 @@ export default function SettingPage() {
 
                 </div>
               </section>
+
+              {/* Wallet */}
+              {walletBalance !== null && (
+                <section className="rounded-2xl border border-violet-100 bg-gradient-to-br from-violet-50 to-white p-6 shadow-sm">
+                  <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+                    <div>
+                      <h2 className="flex items-center gap-2 text-[16px] font-bold text-slate-800"><i className="fa-solid fa-wallet text-violet-600"></i> Wallet</h2>
+                      <p className="mt-1 text-[11px] text-slate-500">Use credits when starting a new test attempt.</p>
+                      <p className="mt-3 text-3xl font-black text-violet-700">{walletBalance} <span className="text-sm font-bold text-violet-500">credits</span></p>
+                      {!walletEnabled && <p className="mt-1 text-[11px] text-slate-400">Recharge is currently unavailable.</p>}
+                    </div>
+                    <button type="button" onClick={() => { showRouteLoader(); router.push('/wallet') }} className="rounded-xl bg-violet-600 px-4 py-2.5 text-[13px] font-bold text-white transition hover:bg-violet-700">
+                      Buy credits
+                    </button>
+                  </div>
+                </section>
+              )}
 
               {/* Account Security */}
               <section className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm">
