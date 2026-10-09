@@ -145,7 +145,7 @@ export default function WalletRechargeModal({
                     <div>
                         <p className="text-xs font-black uppercase tracking-[0.2em] text-violet-600">Menturo wallet</p>
                         <h2 className="mt-1 text-2xl font-black text-[#292342]">Buy credits</h2>
-                        <p className="mt-1 text-sm text-slate-500">1 credit = ₹1 · Minimum recharge: {wallet?.minimumCredits || 10} credits</p>
+                        <p className="mt-1 text-sm text-slate-500">Recharge packages and prices are configured by Menturo · Minimum: {wallet?.minimumCredits || 10} credits</p>
                     </div>
                     <button type="button" onClick={onClose} className="grid h-10 w-10 place-items-center rounded-full bg-white text-xl text-slate-500 shadow-sm hover:text-slate-900" aria-label="Close">×</button>
                 </div>
