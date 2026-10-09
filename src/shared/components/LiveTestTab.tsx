@@ -59,11 +59,9 @@ function RollingDigit({ digit }: { digit: string }) {
 
   return (
     <span className="relative inline-block h-[1em] w-[.64em] overflow-hidden align-middle">
-      <span className={`absolute inset-0 flex items-center justify-center ${rolling ? 'live-digit-out' : 'opacity-0'}`}>
-        {previous}
-      </span>
-      <span className={`absolute inset-0 flex items-center justify-center ${rolling ? 'live-digit-in' : ''}`}>
-        {current}
+      <span className={`absolute inset-x-0 top-0 flex flex-col ${rolling ? 'live-digit-track' : ''}`}>
+        <span className="flex h-[1em] items-center justify-center leading-none">{rolling ? previous : current}</span>
+        {rolling && <span className="flex h-[1em] items-center justify-center leading-none">{current}</span>}
       </span>
     </span>
   )
@@ -154,10 +152,8 @@ export default function LiveTestTab({ seriesId }: { seriesId?: string }) {
   return (
     <section className="rounded-[24px] border border-[#f0cfd1] bg-[linear-gradient(135deg,#fffafa_0%,#fff_58%,#fff8f8_100%)] p-3 shadow-[0_8px_30px_rgba(166,64,72,.08)] sm:p-5">
       <style jsx>{`
-        @keyframes liveDigitOut { from { transform: translateY(0); opacity: 1; } to { transform: translateY(-110%); opacity: 0; } }
-        @keyframes liveDigitIn { from { transform: translateY(110%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        .live-digit-out { animation: liveDigitOut .43s cubic-bezier(.2,.7,.3,1) both; }
-        .live-digit-in { animation: liveDigitIn .43s cubic-bezier(.2,.7,.3,1) both; }
+        @keyframes liveDigitTrack { from { transform: translateY(0); } to { transform: translateY(-50%); } }
+        .live-digit-track { animation: liveDigitTrack .43s cubic-bezier(.2,.7,.3,1) both; }
       `}</style>
       <div className="space-y-5">
         {visibleQuizzes.map((quiz) => {
@@ -214,7 +210,7 @@ export default function LiveTestTab({ seriesId }: { seriesId?: string }) {
                     <p className="text-center text-xs font-bold text-amber-700">
                       Submitted · Result will be declared at {formatResultTime(pendingResultAt) || 'the scheduled end'}
                     </p>
-                    <button type="button" onClick={() => Swal.fire({ icon: 'info', title: 'Result not yet declared', text: 'Your submission is saved. The backend will show your rank after result declaration.', confirmButtonColor: '#5b3bd1' })} className="block w-full rounded-[14px] bg-amber-500 px-6 py-3.5 text-center text-base font-black text-white transition hover:bg-amber-600 sm:text-lg">Submitted</button>
+                    <button type="button" onClick={() => Swal.fire({ icon: 'info', title: 'Result not yet declared', text: 'Your submission is saved. Your rank and solution will appear after the result is declared.', confirmButtonColor: '#5b3bd1' })} className="block w-full rounded-[14px] bg-amber-500 px-6 py-3.5 text-center text-base font-black text-white transition hover:bg-amber-600 sm:text-lg">Submitted</button>
                   </div>
                 ) : (
                   <div className="space-y-2">

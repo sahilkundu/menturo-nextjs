@@ -911,7 +911,17 @@ export const useTestDataStore =
                         activeLan: lan
                     })
             },
-            markLiveResultViewed: () => set({ liveResultViewed: true }),
+            markLiveResultViewed: () => {
+                const state = get()
+                const historyId = state.liveResult?.history?._id || state.activeTest?.history?._id || ''
+                const status = String(state.liveResult?.status || state.activeTest?.history?.status || '')
+                if (historyId && status === 'completed' && typeof window !== 'undefined') {
+                    try {
+                        window.sessionStorage.setItem(`menturo-live-result-popup:${historyId}`, '1')
+                    } catch { /* storage can be unavailable */ }
+                }
+                set({ liveResultViewed: true })
+            },
             fetchSave: async (
                 payload
             ) => {

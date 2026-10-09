@@ -81,6 +81,7 @@ export default function HomePage() {
     const liveResultViewed = useTestDataStore((state) => state.liveResultViewed)
     const liveTest = useTestDataStore((state) => state.activeTest)
     const clearActiveTest = useTestDataStore((state) => state.clearActiveTest)
+    const markLiveResultViewed = useTestDataStore((state) => state.markLiveResultViewed)
     const refreshLiveResult = useTestDataStore((state) => state.refreshLiveResult)
     const [showLiveResult, setShowLiveResult] = useState(false)
 
@@ -365,10 +366,12 @@ export default function HomePage() {
                     result={liveResult}
                     onClose={() => {
                         setShowLiveResult(false)
+                        markLiveResultViewed()
                         clearActiveTest()
                     }}
                     onViewSolution={() => {
                         setShowLiveResult(false)
+                        markLiveResultViewed()
                         clearActiveTest()
                         router.push(
                             `/test?liveTestId=${encodeURIComponent(liveTestId)}&historyId=${encodeURIComponent(liveHistoryId)}&viewResult=1`
