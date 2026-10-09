@@ -69,6 +69,12 @@ type RankResult = {
         totalQuestions: number
     }
     participants?: RankParticipant[]
+    pagination?: {
+        page: number
+        limit: number
+        total: number
+        hasMore: boolean
+    }
 }
 
 const emptyProfile: Profile = { userId: '', username: '', firstName: '', lastName: '' }
@@ -121,6 +127,7 @@ export default function ActivityPage() {
     const [rankResult, setRankResult] = useState<RankResult | null>(null)
     const [loading, setLoading] = useState(true)
     const [rankLoading, setRankLoading] = useState(false)
+    const [rankLoadingMore, setRankLoadingMore] = useState(false)
     const [error, setError] = useState('')
     const activityRequest = useRef<Promise<void> | null>(null)
 
@@ -156,18 +163,37 @@ export default function ActivityPage() {
     const ownerName = `${profile.firstName} ${profile.lastName}`.trim() || profile.username || `${user?.firstName || ''} ${user?.lastName || ''}`.trim() || user?.username || 'Student'
     const avatarText = initials(profile.userId ? profile : { ...profile, username: user?.username || '' })
 
-    const openRank = async (item: LiveActivity) => {
+    const loadRankPage = async (item: LiveActivity, page: number, append: boolean) => {
         if (!item.liveTestId || item.status !== 'completed') return
-        setRankLoading(true)
-        setRankResult(null)
+        if (append) setRankLoadingMore(true)
+        else {
+            setRankLoading(true)
+            setRankResult(null)
+        }
         try {
-            const response = await fetch(`${LIVE_TEST_RESULT}?historyId=${encodeURIComponent(item._id)}`, { credentials: 'include', cache: 'no-store' })
+            const response = await fetch(`${LIVE_TEST_RESULT}?historyId=${encodeURIComponent(item._id)}&page=${page}&limit=20`, { credentials: 'include', cache: 'no-store' })
             const data = await response.json()
             if (!response.ok || !data?.success) throw new Error(data?.message || 'Rank is not available')
-            setRankResult(data)
+            setRankResult((current) => append && current ? {
+                ...data,
+                participants: [...(current.participants || []), ...(data.participants || [])],
+            } : data)
         } catch (rankError) {
             setError(rankError instanceof Error ? rankError.message : 'Rank is not available')
-        } finally { setRankLoading(false) }
+        } finally {
+            if (append) setRankLoadingMore(false)
+            else setRankLoading(false)
+        }
+    }
+
+    const openRank = async (item: LiveActivity) => {
+        setSelectedLiveId(item._id)
+        await loadRankPage(item, 1, false)
+    }
+
+    const loadMoreRank = () => {
+        if (!selectedLive || !rankResult?.pagination?.hasMore || rankLoadingMore) return
+        void loadRankPage(selectedLive, rankResult.pagination.page + 1, true)
     }
 
     return (
@@ -233,7 +259,7 @@ export default function ActivityPage() {
                 )}
             </div>
 
-            {rankResult && <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/60 p-4" onClick={() => setRankResult(null)}><div className="mx-auto mt-10 max-w-2xl rounded-3xl bg-white p-5 shadow-2xl sm:p-7" onClick={(event) => event.stopPropagation()}><div className="flex items-start justify-between gap-4"><div><p className="text-xs font-black uppercase tracking-[.18em] text-violet-600">Public live rank</p><h2 className="mt-1 text-2xl font-black text-slate-900">Quiz final results</h2></div><button type="button" onClick={() => setRankResult(null)} className="rounded-lg px-3 py-1 text-2xl font-light text-slate-400 hover:bg-slate-100">×</button></div><div className="mt-5 grid grid-cols-3 gap-3 text-center"><div className="rounded-2xl bg-violet-50 p-4"><p className="text-xs font-black text-violet-500">Your rank</p><p className="mt-1 text-2xl font-black text-violet-700">#{rankResult.history.rank}</p></div><div className="rounded-2xl bg-emerald-50 p-4"><p className="text-xs font-black text-emerald-600">Your score</p><p className="mt-1 text-2xl font-black text-emerald-700">{Number(rankResult.history.score || 0).toFixed(1)}</p></div><div className="rounded-2xl bg-blue-50 p-4"><p className="text-xs font-black text-blue-600">Time used</p><p className="mt-1 text-2xl font-black text-blue-700">{timeText(rankResult.history.elapsedSeconds)}</p></div></div><div className="mt-6 overflow-hidden rounded-2xl border border-slate-100"><div className="grid grid-cols-[64px_1fr_90px_90px] bg-[#5141c7] px-4 py-3 text-xs font-black uppercase tracking-wider text-white"><span>Rank</span><span>Participant</span><span>Score</span><span>Time</span></div><div className="max-h-[55vh] overflow-y-auto">{(rankResult.participants || []).map((person) => <div key={`${person.userId}-${person.rank}`} className={`grid grid-cols-[64px_1fr_90px_90px] items-center border-t px-4 py-3 text-sm ${person.rank === rankResult.history.rank ? 'bg-emerald-50 font-black text-emerald-700' : 'border-slate-100 text-slate-700'}`}><span>#{person.rank}</span><span className="min-w-0 truncate">{userLabel(person)}{person.rank === rankResult.history.rank ? ' (You)' : ''}</span><span>{Number(person.score || 0).toFixed(1)}</span><span>{timeText(person.elapsedSeconds)}</span></div>)}</div></div><div className="mt-5 flex flex-col gap-3 sm:flex-row"><Link href={`/test?liveTestId=${encodeURIComponent(selectedLive?.liveTestId || '')}&historyId=${encodeURIComponent(selectedLive?._id || '')}&viewResult=1`} className="flex-1 rounded-xl bg-[#5141c7] px-4 py-3 text-center text-sm font-black text-white">View solution</Link><button type="button" onClick={() => setRankResult(null)} className="rounded-xl border border-slate-200 px-4 py-3 text-sm font-black text-slate-600">Close</button></div></div></div>}
+            {rankResult && <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/60 p-4" onClick={() => setRankResult(null)}><div className="mx-auto mt-10 max-w-2xl rounded-3xl bg-white p-5 shadow-2xl sm:p-7" onClick={(event) => event.stopPropagation()}><div className="flex items-start justify-between gap-4"><div><p className="text-xs font-black uppercase tracking-[.18em] text-violet-600">Public live rank</p><h2 className="mt-1 text-2xl font-black text-slate-900">Quiz final results</h2></div><button type="button" onClick={() => setRankResult(null)} className="rounded-lg px-3 py-1 text-2xl font-light text-slate-400 hover:bg-slate-100">×</button></div><div className="mt-5 grid grid-cols-3 gap-3 text-center"><div className="rounded-2xl bg-violet-50 p-4"><p className="text-xs font-black text-violet-500">Your rank</p><p className="mt-1 text-2xl font-black text-violet-700">#{rankResult.history.rank}</p></div><div className="rounded-2xl bg-emerald-50 p-4"><p className="text-xs font-black text-emerald-600">Your score</p><p className="mt-1 text-2xl font-black text-emerald-700">{Number(rankResult.history.score || 0).toFixed(1)}</p></div><div className="rounded-2xl bg-blue-50 p-4"><p className="text-xs font-black text-blue-600">Time used</p><p className="mt-1 text-2xl font-black text-blue-700">{timeText(rankResult.history.elapsedSeconds)}</p></div></div><div className="mt-6 overflow-hidden rounded-2xl border border-slate-100"><div className="grid grid-cols-[64px_1fr_90px_90px] bg-[#5141c7] px-4 py-3 text-xs font-black uppercase tracking-wider text-white"><span>Rank</span><span>Participant</span><span>Score</span><span>Time</span></div><div onScroll={(event) => { const target = event.currentTarget; if (target.scrollTop + target.clientHeight >= target.scrollHeight - 48) loadMoreRank() }} className="max-h-[55vh] overflow-y-auto">{(rankResult.participants || []).map((person) => <div key={`${person.userId}-${person.rank}`} className={`grid grid-cols-[64px_1fr_90px_90px] items-center border-t px-4 py-3 text-sm ${person.rank === rankResult.history.rank ? 'bg-emerald-50 font-black text-emerald-700' : 'border-slate-100 text-slate-700'}`}><span>#{person.rank}</span><span className="min-w-0 truncate">{userLabel(person)}{person.rank === rankResult.history.rank ? ' (You)' : ''}</span><span>{Number(person.score || 0).toFixed(1)}</span><span>{timeText(person.elapsedSeconds)}</span></div>)}{rankLoadingMore && <p className="p-3 text-center text-xs font-bold text-slate-400">Loading more students…</p>}{!rankResult.pagination?.hasMore && <p className="p-3 text-center text-xs font-bold text-slate-400">All students loaded</p>}</div></div><div className="mt-5 flex flex-col gap-3 sm:flex-row"><Link href={`/test?liveTestId=${encodeURIComponent(selectedLive?.liveTestId || '')}&historyId=${encodeURIComponent(selectedLive?._id || '')}&viewResult=1`} className="flex-1 rounded-xl bg-[#5141c7] px-4 py-3 text-center text-sm font-black text-white">View solution</Link><button type="button" onClick={() => setRankResult(null)} className="rounded-xl border border-slate-200 px-4 py-3 text-sm font-black text-slate-600">Close</button></div></div></div>}
         </main>
     )
 }

@@ -1,5 +1,9 @@
 'use client'
 
+import { useEffect, useState } from 'react'
+import { LIVE_TEST_RESULT } from '../../../api'
+import { useUserStore } from '../store/user'
+
 type LiveTestResultModalProps = {
     result: any
     onViewSolution: () => void
@@ -19,9 +23,78 @@ export default function LiveTestResultModal({
     onClose,
 }: LiveTestResultModalProps) {
     const history = result?.history || {}
-    const participants = Array.isArray(result?.participants)
-        ? result.participants
-        : []
+    const currentUser = useUserStore((state) => state.user)
+    const [participants, setParticipants] = useState<any[]>([])
+    const [pagination, setPagination] = useState<any>(null)
+    const [loadingMore, setLoadingMore] = useState(false)
+
+    const mergeParticipants = (items: any[]) => {
+        const merged = new Map<string, any>()
+        items.forEach((item) => {
+            if (item?.userId) merged.set(String(item.userId), item)
+        })
+        if (history.rank && currentUser?.id) {
+            const userId = String(currentUser.id)
+            if (!merged.has(userId)) {
+                merged.set(userId, {
+                    userId,
+                    firstName: currentUser.firstName,
+                    lastName: currentUser.lastName,
+                    username: currentUser.username,
+                    rank: Number(history.rank),
+                    score: Number(history.score || 0),
+                    elapsedSeconds: Number(history.elapsedSeconds || 0),
+                })
+            }
+        }
+        return [...merged.values()].sort((left, right) => Number(left.rank || 0) - Number(right.rank || 0))
+    }
+
+    useEffect(() => {
+        setParticipants(mergeParticipants(Array.isArray(result?.participants) ? result.participants : []))
+        setPagination(result?.pagination || null)
+
+        if (result?.status !== 'completed' || !history._id) return
+        let cancelled = false
+        const refreshFirstRankPage = async () => {
+            try {
+                const response = await fetch(
+                    `${LIVE_TEST_RESULT}?historyId=${encodeURIComponent(history._id)}&page=1&limit=20`,
+                    { credentials: 'include', cache: 'no-store' },
+                )
+                const data = await response.json()
+                if (!cancelled && response.ok && data?.success) {
+                    setParticipants(mergeParticipants(Array.isArray(data.participants) ? data.participants : []))
+                    setPagination(data.pagination || null)
+                }
+            } catch {
+                // The result already received from the page remains visible.
+            }
+        }
+        void refreshFirstRankPage()
+        return () => { cancelled = true }
+    // Only refresh when this result changes; polling must not restart the list.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [result?.status, history._id, currentUser?.id])
+
+    const loadMoreParticipants = async () => {
+        if (!history._id || loadingMore || !pagination?.hasMore) return
+        setLoadingMore(true)
+        try {
+            const nextPage = Number(pagination.page || 1) + 1
+            const response = await fetch(
+                `${LIVE_TEST_RESULT}?historyId=${encodeURIComponent(history._id)}&page=${nextPage}&limit=${Number(pagination.limit || 20)}`,
+                { credentials: 'include', cache: 'no-store' },
+            )
+            const data = await response.json()
+            if (response.ok && data?.success) {
+                setParticipants((current) => mergeParticipants([...current, ...(Array.isArray(data.participants) ? data.participants : [])]))
+                setPagination(data.pagination || null)
+            }
+        } finally {
+            setLoadingMore(false)
+        }
+    }
 
     if (result?.status === 'submitted' || result?.status === 'queued' || result?.status === 'processing') {
         return (
@@ -96,8 +169,9 @@ export default function LiveTestResultModal({
                     Correct answers: {history.correctAnswers || 0} / {history.totalQuestions || 0}
                 </p>
 
-                <div className="mt-6 overflow-hidden rounded-xl border">
-                    <div className="bg-slate-50 p-3 font-black">Test Series Rank List</div>
+                    <div className="mt-6 overflow-hidden rounded-xl border">
+                        <div className="bg-slate-50 p-3 font-black">Test Series Rank List</div>
+                    <div onScroll={(event) => { const target = event.currentTarget; if (target.scrollTop + target.clientHeight >= target.scrollHeight - 48) void loadMoreParticipants() }} className="max-h-[55vh] overflow-y-auto">
                     {participants.map((person: any) => (
                         <div
                             key={`${person.userId}-${person.rank}`}
@@ -121,6 +195,9 @@ export default function LiveTestResultModal({
                             </div>
                         </div>
                     ))}
+                    {loadingMore && <p className="p-3 text-center text-xs font-bold text-slate-400">Loading more students…</p>}
+                    {!loadingMore && pagination && !pagination.hasMore && <p className="p-3 text-center text-xs font-bold text-slate-400">All students loaded</p>}
+                    </div>
                 </div>
 
                 <button
