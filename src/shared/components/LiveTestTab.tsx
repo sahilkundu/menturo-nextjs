@@ -1,9 +1,10 @@
 'use client'
 
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { LIVE_TEST_ACTIVE, LIVE_TEST_SERIES } from '../../../api'
 import Swal from 'sweetalert2'
+import { useTestDataStore } from '../store/testDataStore'
 
 type LiveQuiz = {
   id: string
@@ -18,6 +19,19 @@ type LiveQuiz = {
   joinedCount?: number
   attemptStatus?: 'running' | 'submitted' | 'queued' | 'processing' | 'completed' | 'failed' | string
   attemptHistoryId?: string
+  attemptResultDeclaredAt?: number
+}
+
+const formatResultTime = (seconds: number) => {
+  if (!seconds) return ''
+  return new Intl.DateTimeFormat('en-IN', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true,
+  }).format(new Date(seconds * 1000))
 }
 
 const countdownParts = (seconds: number) => {
@@ -78,6 +92,8 @@ function MetaIcon({ type }: { type: 'questions' | 'time' | 'users' }) {
 export default function LiveTestTab({ seriesId }: { seriesId?: string }) {
   const [quizzes, setQuizzes] = useState<LiveQuiz[]>([])
   const [now, setNow] = useState(() => Math.floor(Date.now() / 1000))
+  const previousAttempts = useRef<Record<string, string>>({})
+  const refreshLiveResult = useTestDataStore((state: any) => state.refreshLiveResult)
 
   useEffect(() => {
     let cancelled = false
@@ -94,6 +110,29 @@ export default function LiveTestTab({ seriesId }: { seriesId?: string }) {
             : data.liveTest
               ? [data.liveTest]
               : []
+          const prior = previousAttempts.current
+          next.forEach((quiz: LiveQuiz) => {
+            const status = String(quiz.attemptStatus || '')
+            const wasPending = ['submitted', 'queued', 'processing'].includes(prior[quiz.id] || '')
+            const popupKey = quiz.attemptHistoryId ? `menturo-live-result-popup:${quiz.attemptHistoryId}` : ''
+            let alreadyNotified = false
+            if (popupKey) {
+              try { alreadyNotified = window.sessionStorage.getItem(popupKey) === '1' } catch { /* storage can be unavailable */ }
+            }
+            const isNewAttempt = !prior[quiz.id]
+            if (isNewAttempt && ['submitted', 'queued', 'processing'].includes(status) && quiz.attemptHistoryId) {
+              void refreshLiveResult({ liveTestId: quiz.id, historyId: quiz.attemptHistoryId })
+            }
+            if ((wasPending || isNewAttempt) && status === 'completed' && quiz.attemptHistoryId && !alreadyNotified) {
+              if (popupKey) {
+                try { window.sessionStorage.setItem(popupKey, '1') } catch { /* storage can be unavailable */ }
+              }
+              void refreshLiveResult({ liveTestId: quiz.id, historyId: quiz.attemptHistoryId })
+            }
+          })
+          previousAttempts.current = Object.fromEntries(
+            next.map((quiz: LiveQuiz) => [quiz.id, String(quiz.attemptStatus || '')])
+          )
           setQuizzes(next)
         }
       } catch { /* Normal series content remains available if live data is unavailable. */ }
@@ -101,7 +140,7 @@ export default function LiveTestTab({ seriesId }: { seriesId?: string }) {
     void load()
     const refresh = window.setInterval(load, 10000)
     return () => { cancelled = true; window.clearInterval(refresh) }
-  }, [seriesId])
+  }, [refreshLiveResult, seriesId])
 
   useEffect(() => {
     if (!quizzes.length) return
@@ -133,6 +172,8 @@ export default function LiveTestTab({ seriesId }: { seriesId?: string }) {
           const isLive = quiz.status === 'live' || scheduleHasStarted
           const canStart = isLive || ((quiz.status === 'scheduled' || quiz.status === 'ready') && startAt <= now)
           const pendingSubmission = ['submitted', 'queued', 'processing'].includes(String(quiz.attemptStatus || ''))
+          const pendingResultAt = Number(quiz.endsAt || 0)
+          const declaredAt = Number(quiz.attemptResultDeclaredAt || 0)
           const liveStartAt = Number(quiz.startedAt || startAt)
           const countdownTarget = isLive
             ? (quiz.endsAt > 0 ? quiz.endsAt : liveStartAt + Number(quiz.durationSeconds || 0))
@@ -169,11 +210,21 @@ export default function LiveTestTab({ seriesId }: { seriesId?: string }) {
 
               <div className="mt-5">
                 {pendingSubmission ? (
-                  <button type="button" onClick={() => Swal.fire({ icon: 'info', title: 'Result not yet declared', text: 'Your submission is saved. After the live quiz ends, your rank and solution will be available in My activity.', confirmButtonColor: '#5b3bd1' })} className="block w-full rounded-[14px] bg-amber-500 px-6 py-3.5 text-center text-base font-black text-white transition hover:bg-amber-600 sm:text-lg">Submitted</button>
+                  <div className="space-y-2">
+                    <p className="text-center text-xs font-bold text-amber-700">
+                      Submitted · Result will be declared at {formatResultTime(pendingResultAt) || 'the scheduled end'}
+                    </p>
+                    <button type="button" onClick={() => Swal.fire({ icon: 'info', title: 'Result not yet declared', text: 'Your submission is saved. The backend will show your rank after result declaration.', confirmButtonColor: '#5b3bd1' })} className="block w-full rounded-[14px] bg-amber-500 px-6 py-3.5 text-center text-base font-black text-white transition hover:bg-amber-600 sm:text-lg">Submitted</button>
+                  </div>
                 ) : (
-                  <Link href={canOpen ? `/test?liveTestId=${encodeURIComponent(quiz.id)}${quiz.attemptStatus === 'completed' ? `&historyId=${encodeURIComponent(quiz.attemptHistoryId || '')}&viewResult=1` : ''}` : '#'} aria-disabled={!canOpen} className={`flex w-full items-center justify-center gap-3 rounded-[14px] px-6 py-3.5 text-center text-base font-black text-white transition sm:text-lg ${canOpen ? 'bg-[linear-gradient(105deg,#6040db,#5730d0)] shadow-[0_8px_18px_rgba(88,49,210,.2)] hover:brightness-105' : 'pointer-events-none bg-slate-300'}`}>
-                    {quiz.attemptStatus === 'completed' ? 'View Result' : canStart ? 'Start Quiz' : 'Quiz has not started'} <span className="text-2xl leading-none">→</span>
-                  </Link>
+                  <div className="space-y-2">
+                    {quiz.attemptStatus === 'completed' && declaredAt > 0 && (
+                      <p className="text-center text-xs font-bold text-emerald-700">Result declared at {formatResultTime(declaredAt)}</p>
+                    )}
+                    <Link href={canOpen ? `/test?liveTestId=${encodeURIComponent(quiz.id)}${quiz.attemptStatus === 'completed' ? `&historyId=${encodeURIComponent(quiz.attemptHistoryId || '')}&viewResult=1` : ''}` : '#'} aria-disabled={!canOpen} className={`flex w-full items-center justify-center gap-3 rounded-[14px] px-6 py-3.5 text-center text-base font-black text-white transition sm:text-lg ${canOpen ? 'bg-[linear-gradient(105deg,#6040db,#5730d0)] shadow-[0_8px_18px_rgba(88,49,210,.2)] hover:brightness-105' : 'pointer-events-none bg-slate-300'}`}>
+                      {quiz.attemptStatus === 'completed' ? 'View Result' : canStart ? 'Start Quiz' : 'Quiz has not started'} <span className="text-2xl leading-none">→</span>
+                    </Link>
+                  </div>
                 )}
               </div>
             </article>

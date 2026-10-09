@@ -194,6 +194,9 @@ type TestDataStore = {
     fetchLiveResult: (
         payload: any
     ) => Promise<any>
+    refreshLiveResult: (
+        payload: { historyId: string; liveTestId?: string }
+    ) => Promise<any>
     fetchStartTest: (
         payload: StartTestPayload
     ) => Promise<any>
@@ -1253,6 +1256,42 @@ export const useTestDataStore =
 
                 submitInFlightByHistory.set(historyId, request)
                 return request
+            },
+            refreshLiveResult: async (payload: { historyId: string; liveTestId?: string }) => {
+                const historyId = payload?.historyId || ''
+                if (!historyId) return { success: false, message: 'Live history is missing' }
+
+                try {
+                    const response = await fetch(
+                        `${LIVE_TEST_RESULT}?historyId=${encodeURIComponent(historyId)}`,
+                        { credentials: 'include', cache: 'no-store' }
+                    )
+                    const data = await readJsonResponse(response)
+                    if (!response.ok || data.success === false) return data
+
+                    const current = get()
+                    const history = data.history || {}
+                    const status = String(data.status || history.status || '')
+                    set({
+                        liveMode: true,
+                        isSubmitted: ['submitted', 'queued', 'processing', 'completed'].includes(status),
+                        liveResult: data,
+                        liveResultViewed: status === 'completed' ? false : current.liveResultViewed,
+                        timeLeft: status === 'completed' ? 0 : current.timeLeft,
+                        activeTest: current.activeTest
+                            ? {
+                                ...current.activeTest,
+                                liveTestId: current.activeTest.liveTestId || payload.liveTestId,
+                                history: { ...current.activeTest.history, ...history }
+                            }
+                            : payload.liveTestId
+                                ? { liveMode: true, liveTestId: payload.liveTestId, history }
+                                : current.activeTest
+                    })
+                    return data
+                } catch (error: any) {
+                    return { success: false, message: error?.message || 'Failed to load live result' }
+                }
             },
             fetchResult: async (
                 payload

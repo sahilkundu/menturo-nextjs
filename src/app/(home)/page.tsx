@@ -81,10 +81,11 @@ export default function HomePage() {
     const liveResultViewed = useTestDataStore((state) => state.liveResultViewed)
     const liveTest = useTestDataStore((state) => state.activeTest)
     const clearActiveTest = useTestDataStore((state) => state.clearActiveTest)
+    const refreshLiveResult = useTestDataStore((state) => state.refreshLiveResult)
     const [showLiveResult, setShowLiveResult] = useState(false)
 
     useEffect(() => {
-        if (liveMode && liveSubmitted && liveResult && !liveResultViewed) {
+        if (liveMode && liveSubmitted && liveResult?.status === 'completed' && !liveResultViewed) {
             setShowLiveResult(true)
         } else if (liveResultViewed) {
             setShowLiveResult(false)
@@ -93,6 +94,26 @@ export default function HomePage() {
 
     const liveHistoryId = liveResult?.history?._id || liveTest?.history?._id || ''
     const liveTestId = liveTest?.liveTestId || liveResult?.history?.liveTestId || ''
+
+    useEffect(() => {
+        if (
+            !liveMode ||
+            !liveSubmitted ||
+            !['submitted', 'queued', 'processing'].includes(String(liveResult?.status || '')) ||
+            !liveHistoryId
+        ) return
+
+        let cancelled = false
+        const poll = async () => {
+            if (!cancelled) await refreshLiveResult({ historyId: liveHistoryId, liveTestId })
+        }
+        void poll()
+        const timer = window.setInterval(() => { void poll() }, 2000)
+        return () => {
+            cancelled = true
+            window.clearInterval(timer)
+        }
+    }, [liveHistoryId, liveMode, liveResult?.status, liveSubmitted, liveTestId, refreshLiveResult])
 
     // ================= WS =================
 

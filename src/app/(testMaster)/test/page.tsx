@@ -29,6 +29,7 @@ function MockTestContent() {
     const viewLiveResult = searchParams.get('viewResult') === '1'
     const fetchLiveStart = useTestDataStore((state) => state.fetchLiveStart)
     const fetchLiveResult = useTestDataStore((state) => state.fetchLiveResult)
+    const refreshLiveResult = useTestDataStore((state) => state.refreshLiveResult)
     const loadingStartTest = useTestDataStore((state) => state.loadingStartTest)
     const liveMode = useTestDataStore((state) => state.liveMode)
     const liveResult = useTestDataStore((state) => state.liveResult)
@@ -75,25 +76,27 @@ function MockTestContent() {
         if (
             !liveMode ||
             !isSubmitted ||
-            liveResult?.status !== 'submitted'
-        ) {
-            return
+            !['submitted', 'queued', 'processing'].includes(String(liveResult?.status || ''))
+        ) return
+
+        const historyId = activeTest?.history?._id || liveResult?.history?._id
+        if (!historyId) return
+
+        let cancelled = false
+        const checkDeclaration = async () => {
+            if (cancelled) return
+            // The backend worker owns expiry, queueing, and declaration. The
+            // browser only observes the authoritative history status here.
+            await refreshLiveResult({ historyId })
         }
 
-        const historyId = activeTest?.history?._id
-        const endsAt = Number(activeTest?.history?.endsAt || 0)
-        if (!historyId || !endsAt) return
-
-        const checkDeclaration = () => {
-            if (Math.floor(Date.now() / 1000) >= endsAt) {
-                void fetchLiveResult({ historyId, autoSubmit: true })
-            }
+        void checkDeclaration()
+        const timer = window.setInterval(() => { void checkDeclaration() }, 2000)
+        return () => {
+            cancelled = true
+            window.clearInterval(timer)
         }
-
-        checkDeclaration()
-        const timer = window.setInterval(checkDeclaration, 1000)
-        return () => window.clearInterval(timer)
-    }, [activeTest, fetchLiveResult, isSubmitted, liveMode, liveResult?.status])
+    }, [activeTest?.history?._id, isSubmitted, liveMode, liveResult?.status, liveResult?.history?._id, refreshLiveResult])
 
     useEffect(() => {
         // Automatic completion belongs on the home screen with the result
