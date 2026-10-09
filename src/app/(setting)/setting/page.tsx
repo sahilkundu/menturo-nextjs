@@ -10,6 +10,7 @@ import { useRouter } from 'next/navigation'
 import { showRouteLoader } from '../../../shared/utils/routeLoader'
 import { goToLoginAfterRememberingPage } from '../../../shared/utils/loginRedirect'
 import AdminVerifiedBadge from '../../../shared/components/AdminVerifiedBadge'
+import WalletRechargeModal from '../../../shared/components/WalletRechargeModal'
 
 
 // TypeScript Interfaces
@@ -95,6 +96,7 @@ export default function SettingPage() {
     useState<string | null>(null);
   const [walletBalance, setWalletBalance] = useState<number | null>(null)
   const [walletEnabled, setWalletEnabled] = useState(false)
+  const [walletModalOpen, setWalletModalOpen] = useState(false)
   const [coinBalance, setCoinBalance] = useState<number>(1250)
   const [testAttempts, setTestAttempts] = useState<number>(12)
 
@@ -1083,7 +1085,7 @@ export default function SettingPage() {
                       <p className="mt-3 text-3xl font-black text-violet-700">{walletBalance} <span className="text-sm font-bold text-violet-500">credits</span></p>
                       {!walletEnabled && <p className="mt-1 text-[11px] text-slate-400">Recharge is currently unavailable.</p>}
                     </div>
-                    <button type="button" onClick={() => { showRouteLoader(); router.push('/wallet') }} className="rounded-xl bg-violet-600 px-4 py-2.5 text-[13px] font-bold text-white transition hover:bg-violet-700">
+                    <button type="button" onClick={() => setWalletModalOpen(true)} className="rounded-xl bg-violet-600 px-4 py-2.5 text-[13px] font-bold text-white transition hover:bg-violet-700">
                       Buy credits
                     </button>
                   </div>
@@ -1615,6 +1617,12 @@ export default function SettingPage() {
           </div>
         </div>
       )}
+
+      <WalletRechargeModal
+        open={walletModalOpen}
+        onClose={() => setWalletModalOpen(false)}
+        onBalanceChange={setWalletBalance}
+      />
     </>
   )
 }

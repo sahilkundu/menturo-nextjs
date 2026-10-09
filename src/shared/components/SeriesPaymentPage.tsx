@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { CHECK_COUPON, CREATE_ORDER, VERIFY_RAZORPAY_PAYMENT, WALLET } from '../../../api'
 import { useUserStore } from '../store/user'
 import { goToLoginAfterRememberingPage } from '../utils/loginRedirect'
+import WalletRechargeModal from './WalletRechargeModal'
 
 interface FullSeries {
     series?: any
@@ -202,6 +203,7 @@ export default function SeriesPaymentPage({ series }: FullSeries) {
 
     const [walletBalance, setWalletBalance] = useState<number | null>(null)
     const [walletEnabled, setWalletEnabled] = useState(false)
+    const [walletModalOpen, setWalletModalOpen] = useState(false)
 
     useEffect(() => {
         const timer =
@@ -1007,13 +1009,18 @@ export default function SeriesPaymentPage({ series }: FullSeries) {
                             <p className="text-[11px] font-bold uppercase text-slate-500">Current balance</p>
                             <p className="mt-1 text-4xl font-black text-violet-700">{walletBalance ?? 0}<span className="ml-2 text-sm font-bold text-violet-500">credits</span></p>
                             <p className="mt-2 text-xs text-slate-500">Recharge from the secure wallet payment page.</p>
-                            <button type="button" onClick={() => router.push('/wallet')} className="mt-5 w-full rounded-2xl bg-violet-600 px-4 py-3 text-sm font-black text-white shadow-md transition hover:bg-violet-700">
+                            <button type="button" onClick={() => setWalletModalOpen(true)} className="mt-5 w-full rounded-2xl bg-violet-600 px-4 py-3 text-sm font-black text-white shadow-md transition hover:bg-violet-700">
                                 Buy credits
                             </button>
                         </div>
                     </div>
                 )}
             </div>
+            <WalletRechargeModal
+                open={walletModalOpen}
+                onClose={() => setWalletModalOpen(false)}
+                onBalanceChange={setWalletBalance}
+            />
         </div>
     )
 }

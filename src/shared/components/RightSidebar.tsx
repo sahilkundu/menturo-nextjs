@@ -1,10 +1,10 @@
 'use client'
 
 import { useCallback, useEffect, useMemo, useState } from "react"
-import { useRouter } from "next/navigation"
 
 import { useLayoutStore } from "../store/uiResStore"
 import Live from "./Live"
+import WalletRechargeModal from "./WalletRechargeModal"
 import { useUserStore } from "../store/user"
 import { LOGOUT, WALLET } from "../../../api"
 import { useWSChatStore } from "../store/wsChat"
@@ -22,9 +22,6 @@ const isUserOnline = (
 }
 
 export default function RightSidebar() {
-
-    const router = useRouter()
-
     const user =
         useUserStore(
             (state) => state.user
@@ -83,6 +80,7 @@ export default function RightSidebar() {
     // MOUNT ANIMATION FIX
     const [mounted, setMounted] = useState(false)
     const [walletBalance, setWalletBalance] = useState<number | null>(null)
+    const [walletModalOpen, setWalletModalOpen] = useState(false)
 
     useEffect(() => {
         setMounted(true)
@@ -416,7 +414,7 @@ export default function RightSidebar() {
                                     type="button"
                                     onClick={() => {
                                         setRightSidebarOpen(false)
-                                        router.push("/wallet")
+                                        setWalletModalOpen(true)
                                     }}
                                     className="rounded-xl bg-violet-600 px-3 py-2 text-xs font-bold text-white transition hover:bg-violet-700"
                                 >
@@ -470,6 +468,12 @@ export default function RightSidebar() {
                 </div>
 
             </div>
+
+            <WalletRechargeModal
+                open={walletModalOpen}
+                onClose={() => setWalletModalOpen(false)}
+                onBalanceChange={setWalletBalance}
+            />
 
         </>
     )
